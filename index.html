@@ -1,5 +1,5 @@
-```html
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -285,10 +285,6 @@
       display:none;
     }
 
-    /* ======================================================
-       CONSOLIDADO / RONDA
-       ====================================================== */
-
     .consolidado-grid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -337,10 +333,6 @@
       font-size:13px;
       margin-top:10px;
     }
-
-    /* ======================================================
-       RONDA
-       ====================================================== */
 
     .ronda-panel{
       background:white;
@@ -404,10 +396,6 @@
       background:#e2e3e5;
       color:#41464b;
     }
-
-    /* ======================================================
-       PRESUPUESTO
-       ====================================================== */
 
     .presupuesto-grid{
       display:grid;
@@ -503,6 +491,7 @@
       }
     }
   </style>
+
 </head>
 
 <body>
@@ -522,41 +511,41 @@
       </div>
     </div>
 
-    <button class="secondary" id="refresh">
-      Actualizar
-    </button>
+```
+<button class="secondary" id="refresh">
+  Actualizar
+</button>
+```
+
   </div>
 
   <div id="error" class="error"></div>
-
-
-  <!-- ======================================================
-       1. PEDIDOS
-       ====================================================== -->
 
   <h2 class="section-title">1. Pedidos</h2>
 
   <div class="cards">
 
-    <div class="card">
-      <div class="card-label">Pedidos</div>
-      <div class="card-value" id="total">0</div>
-    </div>
+```
+<div class="card">
+  <div class="card-label">Pedidos</div>
+  <div class="card-value" id="total">0</div>
+</div>
 
-    <div class="card">
-      <div class="card-label">Pendientes</div>
-      <div class="card-value" id="pending">0</div>
-    </div>
+<div class="card">
+  <div class="card-label">Pendientes</div>
+  <div class="card-value" id="pending">0</div>
+</div>
 
-    <div class="card">
-      <div class="card-label">Aceptados (todas las rondas)</div>
-      <div class="card-value" id="accepted">0</div>
-    </div>
+<div class="card">
+  <div class="card-label">Aceptados (todas las rondas)</div>
+  <div class="card-value" id="accepted">0</div>
+</div>
 
-    <div class="card">
-      <div class="card-label">Dinero comprometido (todas las rondas)</div>
-      <div class="card-value" id="money">S/ 0</div>
-    </div>
+<div class="card">
+  <div class="card-label">Dinero comprometido (todas las rondas)</div>
+  <div class="card-value" id="money">S/ 0</div>
+</div>
+```
 
   </div>
 
@@ -567,56 +556,55 @@
 
   <div class="filters">
 
-    <input
-      id="search"
-      type="text"
-      placeholder="Buscar por cliente o celular"
-    >
+```
+<input
+  id="search"
+  type="text"
+  placeholder="Buscar por cliente o celular"
+>
 
-    <select id="filter">
-      <option value="todos">Todos los estados</option>
-      <option value="pendiente">Pendientes</option>
-      <option value="aceptado">Aceptados</option>
-      <option value="rechazado">Rechazados</option>
-    </select>
+<select id="filter">
+  <option value="todos">Todos los estados</option>
+  <option value="pendiente">Pendientes</option>
+  <option value="aceptado">Aceptados</option>
+  <option value="rechazado">Rechazados</option>
+</select>
 
-    <label class="checkbox">
-      <input type="checkbox" id="soloRondaSeleccionada">
-      Mostrar solo pedidos de la ronda seleccionada
-    </label>
+<label class="checkbox">
+  <input type="checkbox" id="soloRondaSeleccionada">
+  Mostrar solo pedidos de la ronda seleccionada
+</label>
+```
 
   </div>
 
   <div class="table-container">
 
-    <table>
+```
+<table>
 
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Celular</th>
-          <th>Canastas</th>
-          <th>Total</th>
-          <th>Estado</th>
-          <th>Ronda</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+  <thead>
+    <tr>
+      <th>Cliente</th>
+      <th>Celular</th>
+      <th>Canastas</th>
+      <th>Total</th>
+      <th>Estado</th>
+      <th>Ronda</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
 
-      <tbody id="rows"></tbody>
+  <tbody id="rows"></tbody>
 
-    </table>
+</table>
 
-    <div id="empty" class="empty" style="display:none;">
-      No hay pedidos que coincidan con la búsqueda.
-    </div>
+<div id="empty" class="empty" style="display:none;">
+  No hay pedidos que coincidan con la búsqueda.
+</div>
+```
 
   </div>
-
-
-  <!-- ======================================================
-       2. RONDA ACTUAL
-       ====================================================== -->
 
   <h2 class="section-title">2. Ronda actual</h2>
 
@@ -632,74 +620,76 @@
 
   <div class="ronda-panel">
 
-    <div class="ronda-selector-row">
+```
+<div class="ronda-selector-row">
 
-      <div class="field">
-        <label for="rondaSelector">Ronda seleccionada</label>
+  <div class="field">
+    <label for="rondaSelector">Ronda seleccionada</label>
 
-        <select id="rondaSelector">
-          <option value="">— Selecciona una ronda —</option>
-        </select>
-      </div>
+    <select id="rondaSelector">
+      <option value="">— Selecciona una ronda —</option>
+    </select>
+  </div>
 
-      <span class="ronda-estado-badge" id="rondaEstadoBadge">
-        Sin ronda seleccionada
-      </span>
+  <span class="ronda-estado-badge" id="rondaEstadoBadge">
+    Sin ronda seleccionada
+  </span>
 
-    </div>
+</div>
 
-    <h4>Crear o actualizar una ronda</h4>
+<h4>Crear o actualizar una ronda</h4>
 
-    <div class="ronda-form">
+<div class="ronda-form">
 
-      <div class="field">
-        <label for="rondaId">Identificador</label>
+  <div class="field">
+    <label for="rondaId">Identificador</label>
 
-        <input
-          id="rondaId"
-          type="text"
-          placeholder="R-2026-09-20"
-        >
-      </div>
+    <input
+      id="rondaId"
+      type="text"
+      placeholder="R-2026-09-20"
+    >
+  </div>
 
-      <div class="field small">
-        <label for="rondaFechaCompra">Fecha de compra</label>
+  <div class="field small">
+    <label for="rondaFechaCompra">Fecha de compra</label>
 
-        <input
-          id="rondaFechaCompra"
-          type="date"
-        >
-      </div>
+    <input
+      id="rondaFechaCompra"
+      type="date"
+    >
+  </div>
 
-      <div class="field small">
-        <label for="rondaFechaCierre">Cierre de pedidos</label>
+  <div class="field small">
+    <label for="rondaFechaCierre">Cierre de pedidos</label>
 
-        <input
-          id="rondaFechaCierre"
-          type="date"
-        >
-      </div>
+    <input
+      id="rondaFechaCierre"
+      type="date"
+    >
+  </div>
 
-      <div class="field">
-        <label for="rondaEstado">Estado</label>
+  <div class="field">
+    <label for="rondaEstado">Estado</label>
 
-        <select id="rondaEstado">
-          <option value="abierta">Abierta</option>
-          <option value="cerrada_pedidos">Cerrada a pedidos</option>
-          <option value="confirmando">Confirmando</option>
-          <option value="lista_para_compra">Lista para compra</option>
-          <option value="comprando">Comprando</option>
-          <option value="armando">Armando</option>
-          <option value="entregando">Entregando</option>
-          <option value="cerrada">Cerrada</option>
-        </select>
-      </div>
+    <select id="rondaEstado">
+      <option value="abierta">Abierta</option>
+      <option value="cerrada_pedidos">Cerrada a pedidos</option>
+      <option value="confirmando">Confirmando</option>
+      <option value="lista_para_compra">Lista para compra</option>
+      <option value="comprando">Comprando</option>
+      <option value="armando">Armando</option>
+      <option value="entregando">Entregando</option>
+      <option value="cerrada">Cerrada</option>
+    </select>
+  </div>
 
-      <button class="primary" id="guardarRonda">
-        Guardar ronda
-      </button>
+  <button class="primary" id="guardarRonda">
+    Guardar ronda
+  </button>
 
-    </div>
+</div>
+```
 
   </div>
 
@@ -709,85 +699,82 @@
 
   <div id="rondaConsolidadoWrap" style="display:none;">
 
-    <div class="consolidado-grid">
+```
+<div class="consolidado-grid">
 
-      <div class="summary-card">
-        <h3>Familias aceptadas</h3>
-        <div class="summary-number" id="rondaFamilias">0</div>
-      </div>
-
-      <div class="summary-card">
-        <h3>Canastas Básicas</h3>
-        <div class="summary-number" id="rondaBasicas">0</div>
-      </div>
-
-      <div class="summary-card">
-        <h3>Canastas Semilla</h3>
-        <div class="summary-number" id="rondaSemillas">0</div>
-      </div>
-
-      <div class="summary-card">
-        <h3>Canastas Familiares</h3>
-        <div class="summary-number" id="rondaFamiliares">0</div>
-      </div>
-
-    </div>
-
-    <div class="consolidado-table">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>Concepto</th>
-            <th>Cantidad</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          <tr>
-            <td>Familias aceptadas</td>
-            <td id="rondaFamiliasTabla">0</td>
-          </tr>
-
-          <tr>
-            <td>Canasta Básica</td>
-            <td id="rondaBasicasTabla">0</td>
-          </tr>
-
-          <tr>
-            <td>Canasta Semilla</td>
-            <td id="rondaSemillasTabla">0</td>
-          </tr>
-
-          <tr>
-            <td>Canasta Familiar</td>
-            <td id="rondaFamiliaresTabla">0</td>
-          </tr>
-
-          <tr class="total-row">
-            <td>Dinero comprometido</td>
-            <td id="rondaDineroTabla">S/ 0</td>
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-    <div class="last-update">
-      El consolidado usa únicamente pedidos con estado Aceptado cuyo
-      <code>ronda_id</code> coincide con la ronda seleccionada.
-    </div>
-
+  <div class="summary-card">
+    <h3>Familias aceptadas</h3>
+    <div class="summary-number" id="rondaFamilias">0</div>
   </div>
 
+  <div class="summary-card">
+    <h3>Canastas Básicas</h3>
+    <div class="summary-number" id="rondaBasicas">0</div>
+  </div>
 
-  <!-- ======================================================
-       3. PRESUPUESTO
-       ====================================================== -->
+  <div class="summary-card">
+    <h3>Canastas Semilla</h3>
+    <div class="summary-number" id="rondaSemillas">0</div>
+  </div>
+
+  <div class="summary-card">
+    <h3>Canastas Familiares</h3>
+    <div class="summary-number" id="rondaFamiliares">0</div>
+  </div>
+
+</div>
+
+<div class="consolidado-table">
+
+  <table>
+
+    <thead>
+      <tr>
+        <th>Concepto</th>
+        <th>Cantidad</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      <tr>
+        <td>Familias aceptadas</td>
+        <td id="rondaFamiliasTabla">0</td>
+      </tr>
+
+      <tr>
+        <td>Canasta Básica</td>
+        <td id="rondaBasicasTabla">0</td>
+      </tr>
+
+      <tr>
+        <td>Canasta Semilla</td>
+        <td id="rondaSemillasTabla">0</td>
+      </tr>
+
+      <tr>
+        <td>Canasta Familiar</td>
+        <td id="rondaFamiliaresTabla">0</td>
+      </tr>
+
+      <tr class="total-row">
+        <td>Dinero comprometido</td>
+        <td id="rondaDineroTabla">S/ 0</td>
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+<div class="last-update">
+  El consolidado usa únicamente pedidos con estado Aceptado cuyo
+  <code>ronda_id</code> coincide con la ronda seleccionada.
+</div>
+```
+
+  </div>
 
   <h2 class="section-title">3. Presupuesto de la ronda</h2>
 
@@ -797,59 +784,59 @@
 
   <div id="presupuestoWrap" style="display:none;">
 
-    <div class="presupuesto-grid">
+```
+<div class="presupuesto-grid">
 
-      <div class="presupuesto-card presupuesto-comprometido">
+  <div class="presupuesto-card presupuesto-comprometido">
 
-        <h3>Dinero comprometido</h3>
+    <h3>Dinero comprometido</h3>
 
-        <div
-          class="summary-number"
-          id="presupuestoComprometido"
-        >
-          S/ 0
-        </div>
-
-      </div>
-
-      <div class="presupuesto-card presupuesto-operacion">
-
-        <h3>35% · Gastos operativos</h3>
-
-        <div
-          class="summary-number"
-          id="presupuestoOperacion"
-        >
-          S/ 0
-        </div>
-
-      </div>
-
-      <div class="presupuesto-card presupuesto-alimentos">
-
-        <h3>65% · Presupuesto para alimentos</h3>
-
-        <div
-          class="summary-number"
-          id="presupuestoAlimentos"
-        >
-          S/ 0
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="last-update">
-      Regla fija del modelo: 35% del dinero comprometido se reserva para operación
-      y 65% queda disponible para alimentos.
+    <div
+      class="summary-number"
+      id="presupuestoComprometido"
+    >
+      S/ 0
     </div>
 
   </div>
 
+  <div class="presupuesto-card presupuesto-operacion">
+
+    <h3>35% · Gastos operativos</h3>
+
+    <div
+      class="summary-number"
+      id="presupuestoOperacion"
+    >
+      S/ 0
+    </div>
+
+  </div>
+
+  <div class="presupuesto-card presupuesto-alimentos">
+
+    <h3>65% · Presupuesto para alimentos</h3>
+
+    <div
+      class="summary-number"
+      id="presupuestoAlimentos"
+    >
+      S/ 0
+    </div>
+
+  </div>
+
+</div>
+
+<div class="last-update">
+  Regla fija del modelo: 35% del dinero comprometido se reserva para operación
+  y 65% queda disponible para alimentos.
+</div>
+```
+
+  </div>
 
 </main>
-
 
 <script>
 
@@ -912,7 +899,6 @@
 
   };
 
-
   /* =========================================================
      ESTADO
      ========================================================= */
@@ -928,10 +914,8 @@
       RONDA_PREFERENCIA_KEY
     ) || "";
 
-
   const $ =
     id => document.getElementById(id);
-
 
   /* =========================================================
      AUXILIARES
@@ -946,7 +930,6 @@
         maximumFractionDigits:2
       }
     );
-
 
   function esc(s){
 
@@ -963,7 +946,6 @@
 
   }
 
-
   function normalizeStatus(value){
 
     return String(
@@ -974,7 +956,6 @@
 
   }
 
-
   function rondaIdDe(pedido){
 
     return String(
@@ -982,17 +963,6 @@
     ).trim();
 
   }
-
-
-  /*
-   * Convierte una fecha ISO/UTC de n8n a YYYY-MM-DD,
-   * que es el formato que necesita <input type="date">.
-   *
-   * Ejemplo:
-   * 2026-09-20T04:00:00.000Z
-   * →
-   * 2026-09-20
-   */
 
   function fechaParaInputDate(value){
 
@@ -1008,14 +978,11 @@
         /^(\d{4}-\d{2}-\d{2})/
       );
 
-    if(match){
-      return match[1];
-    }
-
-    return "";
+    return match
+      ? match[1]
+      : "";
 
   }
-
 
   /* =========================================================
      CARGAR RONDAS
@@ -1037,17 +1004,14 @@
           }
         );
 
-
       if(!response.ok){
         throw new Error(
           "HTTP " + response.status
         );
       }
 
-
       const data =
         await response.json();
-
 
       rondas =
         Array.isArray(data)
@@ -1057,15 +1021,19 @@
                   r.ronda_id ?? ""
                 ).trim() !== ""
             )
-          : [data];
-
+          : (
+              data &&
+              String(
+                data.ronda_id ?? ""
+              ).trim() !== ""
+                ? [data]
+                : []
+            );
 
       rondasDisponibles = true;
 
-
       $("rondaBackendNote").style.display =
         "none";
-
 
     }catch(error){
 
@@ -1080,13 +1048,11 @@
 
     }
 
-
     renderRondaSelector();
 
     renderRondaInfoYConsolidado();
 
   }
-
 
   /* =========================================================
      SELECTOR DE RONDAS
@@ -1096,7 +1062,6 @@
 
     const selector =
       $("rondaSelector");
-
 
     const rondasOrdenadas =
       [...rondas].sort(
@@ -1109,7 +1074,6 @@
             )
           )
       );
-
 
     selector.innerHTML =
       '<option value="">— Selecciona una ronda —</option>' +
@@ -1132,7 +1096,6 @@
               ?? r.estado_ronda
               ?? "";
 
-
           return `
             <option value="${esc(id)}">
               ${esc(id)}
@@ -1145,10 +1108,8 @@
         })
         .join("");
 
-
     selector.value =
       rondaSeleccionada;
-
 
     if(
       selector.value !==
@@ -1165,14 +1126,12 @@
 
   }
 
-
   $("rondaSelector").addEventListener(
     "change",
     event => {
 
       rondaSeleccionada =
         event.target.value;
-
 
       if(rondaSeleccionada){
 
@@ -1189,14 +1148,12 @@
 
       }
 
-
       renderRondaInfoYConsolidado();
 
       renderPedidosTabla();
 
     }
   );
-
 
   /* =========================================================
      GUARDAR RONDA
@@ -1222,7 +1179,6 @@
 
       };
 
-
       if(!ronda.ronda_id){
 
         alert(
@@ -1234,7 +1190,6 @@
 
       }
 
-
       if(!ronda.fecha_compra){
 
         alert(
@@ -1245,7 +1200,6 @@
 
       }
 
-
       if(!ronda.fecha_cierre_pedidos){
 
         alert(
@@ -1255,7 +1209,6 @@
         return;
 
       }
-
 
       try{
 
@@ -1277,7 +1230,6 @@
             }
           );
 
-
         if(!response.ok){
 
           throw new Error(
@@ -1286,26 +1238,21 @@
 
         }
 
-
         rondaSeleccionada =
           ronda.ronda_id;
-
 
         localStorage.setItem(
           RONDA_PREFERENCIA_KEY,
           rondaSeleccionada
         );
 
-
         await loadRondas();
 
         await loadOrders();
 
-
         alert(
           "Ronda guardada correctamente."
         );
-
 
       }catch(error){
 
@@ -1321,7 +1268,6 @@
     }
   );
 
-
   /* =========================================================
      ASIGNAR RONDA A PEDIDO
      ========================================================= */
@@ -1330,6 +1276,17 @@
     id,
     rondaId
   ){
+
+    const rondaAnterior =
+      orders.find(
+        o =>
+          String(o.id) === String(id)
+      );
+
+    const rondaAnteriorId =
+      rondaAnterior
+        ? rondaIdDe(rondaAnterior)
+        : "";
 
     try{
 
@@ -1350,11 +1307,10 @@
             body:
               JSON.stringify({
                 id:Number(id),
-                ronda_id:rondaId
+                ronda_id:String(rondaId || "")
               })
           }
         );
-
 
       if(!response.ok){
 
@@ -1364,29 +1320,51 @@
 
       }
 
+      /*
+       * El backend ya respondió correctamente.
+       * Volvemos a leer pedidos desde n8n para que
+       * la pantalla muestre el dato realmente guardado.
+       */
 
       await loadOrders();
 
       alert(
         rondaId
-          ? "Ronda asignada correctamente."
-          : "Ronda quitada del pedido."
+          ? "Pedido asignado a " + rondaId + "."
+          : "La ronda del pedido fue quitada."
       );
-
 
     }catch(error){
 
       console.error(error);
 
+      /*
+       * Si falló, restauramos visualmente la selección
+       * anterior cuando sea posible.
+       */
+
+      const pedido =
+        orders.find(
+          o =>
+            String(o.id) === String(id)
+        );
+
+      if(pedido){
+        pedido.ronda_id =
+          rondaAnteriorId;
+      }
+
+      renderPedidosTabla();
+
       alert(
-        "No se pudo asignar la ronda. " +
-        "El endpoint admin-ronda-asignar todavía debe estar creado en n8n."
+        "No se pudo asignar la ronda.\n\n" +
+        "Error: " +
+        (error.message || "desconocido")
       );
 
     }
 
   }
-
 
   /* =========================================================
      CONSOLIDADO
@@ -1398,24 +1376,19 @@
       return null;
     }
 
-
     const aceptadosDeLaRonda =
       orders.filter(
         o =>
           normalizeStatus(
             o.estado
           ) === "aceptado"
-
           &&
-
           rondaIdDe(o) ===
           rondaSeleccionada
       );
 
-
     const familias =
       aceptadosDeLaRonda.length;
-
 
     const basicas =
       aceptadosDeLaRonda.reduce(
@@ -1427,7 +1400,6 @@
         0
       );
 
-
     const semillas =
       aceptadosDeLaRonda.reduce(
         (sum,o) =>
@@ -1437,7 +1409,6 @@
           ),
         0
       );
-
 
     const familiares =
       aceptadosDeLaRonda.reduce(
@@ -1449,7 +1420,6 @@
         0
       );
 
-
     const dinero =
       aceptadosDeLaRonda.reduce(
         (sum,o) =>
@@ -1460,7 +1430,6 @@
         0
       );
 
-
     return {
       familias,
       basicas,
@@ -1470,7 +1439,6 @@
     };
 
   }
-
 
   /* =========================================================
      INFORMACIÓN DE RONDA
@@ -1485,7 +1453,6 @@
             r.ronda_id ?? ""
           ) === rondaSeleccionada
       );
-
 
     $("rondaEstadoBadge").textContent =
       ronda
@@ -1513,30 +1480,20 @@
               : "Sin ronda seleccionada"
           );
 
-
-    /*
-     * Precarga correcta del formulario.
-     * n8n devuelve fechas completas ISO/UTC.
-     * El input date necesita YYYY-MM-DD.
-     */
-
     if(ronda){
 
       $("rondaId").value =
         ronda.ronda_id ?? "";
-
 
       $("rondaFechaCompra").value =
         fechaParaInputDate(
           ronda.fecha_compra
         );
 
-
       $("rondaFechaCierre").value =
         fechaParaInputDate(
           ronda.fecha_cierre_pedidos
         );
-
 
       $("rondaEstado").value =
         normalizeStatus(
@@ -1545,112 +1502,84 @@
 
     }
 
-
     const consolidado =
       computeConsolidadoRonda();
-
 
     const haySeleccion =
       Boolean(
         rondaSeleccionada
       );
 
-
     $("rondaSinSeleccion").style.display =
       haySeleccion
         ? "none"
         : "block";
-
 
     $("rondaConsolidadoWrap").style.display =
       haySeleccion
         ? "block"
         : "none";
 
-
     $("presupuestoSinSeleccion").style.display =
       haySeleccion
         ? "none"
         : "block";
-
 
     $("presupuestoWrap").style.display =
       haySeleccion
         ? "block"
         : "none";
 
-
     if(!consolidado){
       return;
     }
 
-
     $("rondaFamilias").textContent =
       consolidado.familias;
-
 
     $("rondaBasicas").textContent =
       consolidado.basicas;
 
-
     $("rondaSemillas").textContent =
       consolidado.semillas;
-
 
     $("rondaFamiliares").textContent =
       consolidado.familiares;
 
-
     $("rondaFamiliasTabla").textContent =
       consolidado.familias;
-
 
     $("rondaBasicasTabla").textContent =
       consolidado.basicas;
 
-
     $("rondaSemillasTabla").textContent =
       consolidado.semillas;
 
-
     $("rondaFamiliaresTabla").textContent =
       consolidado.familiares;
-
 
     $("rondaDineroTabla").textContent =
       money(
         consolidado.dinero
       );
 
-
-    /*
-     * Regla económica fija:
-     *
-     * 35% operación
-     * 65% alimentos
-     */
-
     const operacion =
       consolidado.dinero *
       GASTOS_OPERATIVOS_PCT;
 
-
     const alimentos =
       consolidado.dinero *
       PRESUPUESTO_ALIMENTOS_PCT;
-
 
     $("presupuestoComprometido").textContent =
       money(
         consolidado.dinero
       );
 
-
     $("presupuestoOperacion").textContent =
       money(
         operacion
       );
-
 
     $("presupuestoAlimentos").textContent =
       money(
@@ -1658,7 +1587,6 @@
       );
 
   }
-
 
   /* =========================================================
      OPCIONES DE RONDA PARA CADA PEDIDO
@@ -1670,7 +1598,6 @@
 
     const actual =
       rondaIdDe(pedido);
-
 
     const opciones = [
 
@@ -1685,7 +1612,6 @@
 
     ];
 
-
     rondas.forEach(
       r => {
 
@@ -1693,7 +1619,6 @@
           String(
             r.ronda_id ?? ""
           );
-
 
         opciones.push(`
 
@@ -1709,11 +1634,9 @@
       }
     );
 
-
     return opciones.join("");
 
   }
-
 
   /* =========================================================
      TABLA DE PEDIDOS
@@ -1726,10 +1649,8 @@
         .toLowerCase()
         .trim();
 
-
     const f =
       $("filter").value;
-
 
     const soloRonda =
       $("soloRondaSeleccionada").checked
@@ -1737,7 +1658,6 @@
       Boolean(
         rondaSeleccionada
       );
-
 
     const filtered =
       orders.filter(
@@ -1748,18 +1668,15 @@
               o.cliente ?? ""
             );
 
-
           const celular =
             String(
               o.celular ?? ""
             );
 
-
           const estado =
             normalizeStatus(
               o.estado
             );
-
 
           const matchesSearch =
             !q
@@ -1772,19 +1689,16 @@
               .toLowerCase()
               .includes(q);
 
-
           const matchesFilter =
             f === "todos"
             ||
             estado === f;
-
 
           const matchesRonda =
             !soloRonda
             ||
             rondaIdDe(o) ===
             rondaSeleccionada;
-
 
           return (
             matchesSearch
@@ -1797,12 +1711,10 @@
         }
       );
 
-
     $("empty").style.display =
       filtered.length
         ? "none"
         : "block";
-
 
     $("rows").innerHTML =
       filtered.map(
@@ -1813,17 +1725,13 @@
               o.estado
             );
 
-
           const esPendiente =
             estado === "pendiente";
 
-
           const estadoTexto =
-            estado.charAt(0)
-            .toUpperCase()
+            estado.charAt(0).toUpperCase()
             +
             estado.slice(1);
-
 
           const statusClass =
             estado === "aceptado"
@@ -1835,7 +1743,6 @@
                 ? "status-rechazado"
 
                 : "status-pendiente";
-
 
           const canastas = [
 
@@ -1873,10 +1780,8 @@
             .filter(Boolean)
             .join(" · ");
 
-
           const ronda =
             rondaIdDe(o);
-
 
           const rondaBadge =
             ronda
@@ -1896,7 +1801,6 @@
                 Sin ronda asignada
               </span>
               `;
-
 
           const rondaAssign =
             rondasDisponibles
@@ -1919,7 +1823,6 @@
               `
 
               : "";
-
 
           return `
 
@@ -2008,7 +1911,6 @@
 
   }
 
-
   /* =========================================================
      RESUMEN GLOBAL
      ========================================================= */
@@ -2018,7 +1920,6 @@
     $("total").textContent =
       orders.length;
 
-
     $("pending").textContent =
       orders.filter(
         o =>
@@ -2027,7 +1928,6 @@
           ) === "pendiente"
       ).length;
 
-
     $("accepted").textContent =
       orders.filter(
         o =>
@@ -2035,7 +1935,6 @@
             o.estado
           ) === "aceptado"
       ).length;
-
 
     const moneyAccepted =
       orders
@@ -2054,14 +1953,12 @@
           0
         );
 
-
     $("money").textContent =
       money(
         moneyAccepted
       );
 
   }
-
 
   function render(){
 
@@ -2073,7 +1970,6 @@
 
   }
 
-
   /* =========================================================
      CARGAR PEDIDOS
      ========================================================= */
@@ -2084,7 +1980,6 @@
 
       $("connectionStatus").textContent =
         "Conectando con n8n…";
-
 
       const response =
         await fetch(
@@ -2098,7 +1993,6 @@
           }
         );
 
-
       if(!response.ok){
 
         throw new Error(
@@ -2107,43 +2001,34 @@
 
       }
 
-
       const data =
         await response.json();
-
 
       orders =
         Array.isArray(data)
           ? data
           : [data];
 
-
       $("connectionStatus").textContent =
         "n8n conectado · " +
         orders.length +
         " pedidos";
 
-
       $("error").style.display =
         "none";
 
-
       render();
-
 
     }catch(error){
 
       console.error(error);
 
-
       $("connectionStatus").textContent =
         "Error de conexión";
-
 
       $("error").textContent =
         "No se pudieron cargar los pedidos. " +
         "Revisa la conexión con n8n.";
-
 
       $("error").style.display =
         "block";
@@ -2151,7 +2036,6 @@
     }
 
   }
-
 
   /* =========================================================
      CAMBIAR ESTADO
@@ -2186,7 +2070,6 @@
           }
         );
 
-
       if(!response.ok){
 
         throw new Error(
@@ -2195,9 +2078,7 @@
 
       }
 
-
       await loadOrders();
-
 
     }catch(error){
 
@@ -2210,7 +2091,6 @@
     }
 
   }
-
 
   /* =========================================================
      EVENTOS DE LA TABLA
@@ -2225,19 +2105,15 @@
           "button"
         );
 
-
       if(!button){
         return;
       }
 
-
       const action =
         button.dataset.a;
 
-
       const id =
         button.dataset.id;
-
 
       if(action === "accept"){
 
@@ -2249,14 +2125,12 @@
           return;
         }
 
-
         await changeStatus(
           id,
           "Aceptado"
         );
 
       }
-
 
       else if(
         action === "reject"
@@ -2270,14 +2144,12 @@
           return;
         }
 
-
         await changeStatus(
           id,
           "Rechazado"
         );
 
       }
-
 
       else if(
         action === "detail"
@@ -2291,11 +2163,9 @@
               String(id)
           );
 
-
         if(!pedido){
           return;
         }
-
 
         alert(
 
@@ -2362,7 +2232,6 @@
     }
   );
 
-
   $("rows").addEventListener(
     "change",
     async event => {
@@ -2372,40 +2241,27 @@
           "select[data-id]"
         );
 
-
       if(!select){
         return;
       }
 
-
       const id =
         select.dataset.id;
-
 
       const nuevaRonda =
         select.value;
 
-
-      /*
-       * Evita mandar una selección si
-       * el usuario accidentalmente cambió
-       * mientras la tabla se estaba actualizando.
-       */
-
       select.disabled = true;
-
 
       await asignarRondaAPedido(
         id,
         nuevaRonda
       );
 
-
       select.disabled = false;
 
     }
   );
-
 
   /* =========================================================
      FILTROS
@@ -2416,19 +2272,16 @@
     renderPedidosTabla
   );
 
-
   $("filter").addEventListener(
     "change",
     renderPedidosTabla
   );
-
 
   $("soloRondaSeleccionada")
     .addEventListener(
       "change",
       renderPedidosTabla
     );
-
 
   $("refresh").addEventListener(
     "click",
@@ -2440,7 +2293,6 @@
 
     }
   );
-
 
   /* =========================================================
      INICIO
@@ -2458,4 +2310,3 @@
 
 </body>
 </html>
-```
