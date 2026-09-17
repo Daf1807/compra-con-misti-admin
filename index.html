@@ -6,39 +6,124 @@
 
 <title>Compra con Misti — Administración</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
 <style>
+
+/* =====================================================
+   TOKENS
+===================================================== */
+
+:root {
+
+  /* Marca */
+  --misti-red: #C22127;
+  --misti-red-dark: #931116;
+  --misti-red-soft: #fdeceb;
+
+  /* Neutros */
+  --ink: #1c1b1d;
+  --ink-soft: #55535a;
+  --muted: #8a8790;
+  --line: #e6e2e1;
+  --line-strong: #d3cecd;
+  --paper: #f3efec;
+  --surface: #ffffff;
+  --surface-2: #faf8f6;
+
+  /* Estados */
+  --ok: #1c7a4d;
+  --ok-bg: #e5f4ec;
+  --ok-line: #bfe4d1;
+
+  --warn: #9a6400;
+  --warn-bg: #fdf1da;
+  --warn-line: #f2d99a;
+
+  --err: #a3221f;
+  --err-bg: #fbe9e8;
+  --err-line: #f1c4c1;
+
+  --gift: #6a3f8f;
+  --gift-bg: #f2ecf8;
+  --gift-line: #ddccec;
+
+  /* Forma */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-1: 0 1px 2px rgba(28,27,29,.05), 0 1px 1px rgba(28,27,29,.04);
+  --shadow-2: 0 6px 20px rgba(28,27,29,.08);
+
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+}
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #222;
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--misti-red);
+  color: #fff;
+}
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
 header {
-  background: #b71c1c;
+  background: linear-gradient(155deg, var(--misti-red) 0%, var(--misti-red-dark) 100%);
   color: white;
-  padding: 20px;
+  padding: 22px 0;
+  border-bottom: 3px solid var(--misti-red-dark);
+}
+
+header .container {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 header h1 {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.01em;
 }
 
 header p {
   margin: 0;
-  opacity: .9;
+  opacity: .85;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .container {
   max-width: 1450px;
   margin: auto;
-  padding: 18px;
+  padding: 20px;
 }
+
+/* =====================================================
+   BARRA SUPERIOR / CONEXIÓN
+===================================================== */
 
 .topbar {
   display: flex;
@@ -46,176 +131,381 @@ header p {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-1);
 }
+
+#connectionStatus {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#connectionStatus::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   BOTONES
+===================================================== */
 
 button {
   border: 0;
-  border-radius: 8px;
-  padding: 10px 15px;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 13px;
+  transition: transform .06s ease, box-shadow .15s ease, filter .15s ease;
+  box-shadow: var(--shadow-1);
+}
+
+button:hover {
+  filter: brightness(1.06);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--misti-red);
+  outline-offset: 2px;
 }
 
 .btn-refresh {
-  background: #333;
+  background: var(--ink);
   color: white;
 }
 
 .btn-accept {
-  background: #2e7d32;
+  background: var(--ok);
   color: white;
 }
 
 .btn-reject {
-  background: #c62828;
-  color: white;
+  background: transparent;
+  color: var(--err);
+  box-shadow: inset 0 0 0 1px var(--err-line);
+}
+
+.btn-reject:hover {
+  background: var(--err-bg);
+  filter: none;
 }
 
 .btn-detail {
-  background: #ddd;
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.btn-detail:hover {
+  background: var(--surface-2);
+  filter: none;
 }
 
 .btn-calculate {
-  background: #b71c1c;
+  background: var(--misti-red);
   color: white;
-  font-size: 16px;
-  padding: 13px 20px;
+  font-size: 15px;
+  padding: 14px 22px;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(194,33,39,.28);
+}
+
+.btn-calculate:hover {
+  background: var(--misti-red-dark);
+  filter: none;
 }
 
 .btn-add {
-  background: #2e7d32;
+  background: var(--ok);
   color: white;
 }
 
 .btn-delete {
-  background: #c62828;
-  color: white;
-  padding: 7px 10px;
+  background: transparent;
+  color: var(--err);
+  box-shadow: inset 0 0 0 1px var(--err-line);
+  padding: 7px 11px;
+  font-size: 15px;
+  line-height: 1;
 }
+
+.btn-delete:hover {
+  background: var(--err-bg);
+  filter: none;
+}
+
+/* =====================================================
+   TARJETAS DE RESUMEN
+===================================================== */
 
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .card,
 .section {
-  background: white;
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-1);
 }
 
+.card {
+  position: relative;
+  padding: 16px 18px;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--line-strong);
+}
+
+.cards .card:nth-child(1)::before { background: var(--ink-soft); }
+.cards .card:nth-child(2)::before { background: var(--warn); }
+.cards .card:nth-child(3)::before { background: var(--ok); }
+.cards .card:nth-child(4)::before { background: var(--misti-red); }
+
 .card-title {
-  color: #666;
-  font-size: 14px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: none;
 }
 
 .card-value {
-  font-size: 25px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 800;
   margin-top: 6px;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
+/* =====================================================
+   SECCIONES
+===================================================== */
+
 .section {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .section h2 {
-  margin-top: 0;
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px;
 }
 
 .section-description {
-  color: #666;
-  line-height: 1.5;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  font-size: 13.5px;
 }
+
+/* =====================================================
+   FILTROS / CAMPOS
+===================================================== */
 
 .filters {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 input,
 select {
   width: 100%;
-  padding: 9px;
-  border: 1px solid #ccc;
-  border-radius: 7px;
-  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+input::placeholder {
+  color: var(--muted);
+}
+
+input:hover,
+select:hover {
+  border-color: var(--muted);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--misti-red);
+  box-shadow: 0 0 0 3px var(--misti-red-soft);
+}
+
+input:disabled {
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 input[type="checkbox"] {
-  width: auto;
-  transform: scale(1.2);
+  width: 18px;
+  height: 18px;
+  accent-color: var(--misti-red);
+  cursor: pointer;
 }
+
+/* =====================================================
+   TABLAS
+===================================================== */
 
 table {
   width: 100%;
   border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
 }
 
 th,
 td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--line);
   text-align: left;
   vertical-align: middle;
 }
 
 th {
-  background: #fafafa;
-  color: #555;
-  font-size: 13px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
 }
 
+th:first-child { border-top-left-radius: var(--radius-sm); }
+th:last-child { border-top-right-radius: var(--radius-sm); }
+
 td {
-  font-size: 14px;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+tbody tr:hover {
+  background: var(--surface-2);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* números alineados a la derecha para lectura rápida */
+td:has(> strong):not(:has(input)),
+.canasta-price {
+  font-variant-numeric: tabular-nums;
 }
 
 .table-scroll {
   overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  -webkit-overflow-scrolling: touch;
 }
 
+.table-scroll table {
+  min-width: 640px;
+}
+
+/* =====================================================
+   ESTADOS / BADGES
+===================================================== */
+
 .status {
-  padding: 5px 9px;
+  display: inline-block;
+  padding: 5px 11px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  white-space: nowrap;
 }
 
 .status-pendiente {
-  background: #fff3cd;
-  color: #856404;
+  background: var(--warn-bg);
+  color: var(--warn);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
 
 .status-aceptado {
-  background: #d4edda;
-  color: #155724;
+  background: var(--ok-bg);
+  color: var(--ok);
+  box-shadow: inset 0 0 0 1px var(--ok-line);
 }
 
 .status-rechazado {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--err-bg);
+  color: var(--err);
+  box-shadow: inset 0 0 0 1px var(--err-line);
 }
 
 .round {
-  background: #eee;
-  padding: 5px 8px;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  padding: 5px 9px;
   border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  white-space: nowrap;
 }
 
 .actions {
   display: flex;
-  gap: 5px;
+  gap: 6px;
   flex-wrap: wrap;
 }
+
+/* =====================================================
+   CONSOLIDADO / PRESUPUESTO
+===================================================== */
 
 .summary-grid {
   display: grid;
@@ -223,119 +513,188 @@ td {
   gap: 10px;
 }
 
-.summary-box {
-  background: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 9px;
-  padding: 13px;
+.summary-box,
+.budget-box {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
-.summary-box strong {
+.summary-box strong,
+.budget-box strong {
   display: block;
   font-size: 20px;
-  margin-top: 5px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: var(--ink);
+  letter-spacing: -.01em;
 }
 
 .budget-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
-.budget-box {
-  background: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 9px;
-  padding: 13px;
+.budget-box:last-child {
+  background: var(--misti-red-soft);
+  border-color: #f3c9c7;
 }
 
-.budget-box strong {
-  display: block;
-  font-size: 20px;
-  margin-top: 5px;
+.budget-box:last-child strong {
+  color: var(--misti-red-dark);
 }
+
+#roundDescription {
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--surface-2);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+/* =====================================================
+   CANASTAS
+===================================================== */
 
 .canasta-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
 .canasta-box {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  background: #fafafa;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: var(--surface-2);
+  text-align: left;
 }
 
 .canasta-box h3 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  font-size: 15px;
 }
 
 .canasta-price {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--misti-red-dark);
+  letter-spacing: -.01em;
 }
 
 .canasta-factor {
-  margin-top: 6px;
-  color: #666;
-  font-size: 13px;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+
+.canasta-factor strong {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+/* =====================================================
+   AVISOS / RESULTADOS
+===================================================== */
+
+.info-box,
+.result-good,
+.result-warning,
+.result-error,
+.result-gift {
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  line-height: 1.6;
+  font-size: 13.5px;
 }
 
 .info-box {
-  background: #f5f5f5;
-  border-left: 5px solid #777;
-  padding: 15px;
-  margin: 15px 0;
-  line-height: 1.5;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--muted);
+  margin: 16px 0;
+  color: var(--ink-soft);
+}
+
+.info-box strong {
+  color: var(--ink);
 }
 
 .result-good {
-  background: #e8f5e9;
-  border-left: 5px solid #2e7d32;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-line);
+  border-left: 4px solid var(--ok);
+  margin-bottom: 16px;
+  color: #1a4d34;
 }
 
 .result-warning {
-  background: #fff3cd;
-  border-left: 5px solid #f9a825;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  border-left: 4px solid var(--warn);
+  margin-bottom: 16px;
+  color: #6b4a00;
 }
 
 .result-error {
-  background: #f8d7da;
-  border-left: 5px solid #c62828;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: var(--err-bg);
+  border: 1px solid var(--err-line);
+  border-left: 4px solid var(--err);
+  margin-bottom: 16px;
+  color: #7a1917;
 }
 
 .result-gift {
-  background: #f3e5f5;
-  border-left: 5px solid #8e24aa;
-  padding: 15px;
-  margin-bottom: 15px;
+  background: var(--gift-bg);
+  border: 1px solid var(--gift-line);
+  border-left: 4px solid var(--gift);
+  margin-bottom: 16px;
+  color: #4a2d66;
 }
 
-.formula-box {
-  background: #fafafa;
-  border: 1px solid #ddd;
-  border-radius: 9px;
-  padding: 15px;
-  margin: 15px 0;
-  font-family: monospace;
-  line-height: 1.7;
+.result-good strong,
+.result-warning strong,
+.result-error strong,
+.result-gift strong {
+  font-weight: 700;
 }
+
+/* =====================================================
+   FÓRMULA
+===================================================== */
+
+.formula-box {
+  background: var(--ink);
+  color: #eae8ea;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin: 16px 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+/* =====================================================
+   MODAL
+===================================================== */
 
 .modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: rgba(28,27,29,.6);
+  backdrop-filter: blur(2px);
   align-items: center;
   justify-content: center;
   padding: 15px;
@@ -352,85 +711,145 @@ td {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-2);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-content p {
+  margin: 10px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-content p:last-child {
+  border-bottom: none;
 }
 
 .close {
   border-radius: 50%;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  background: #eee;
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  box-shadow: none;
+  font-size: 16px;
+  line-height: 1;
 }
 
+.close:hover {
+  background: var(--line);
+  filter: none;
+}
+
+/* =====================================================
+   UTILIDADES DE TEXTO
+===================================================== */
+
 .muted {
-  color: #777;
+  color: var(--muted);
 }
 
 .bold {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .essential-badge {
   display: inline-block;
-  background: #d4edda;
-  color: #155724;
-  padding: 4px 8px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  padding: 3px 9px;
   border-radius: 15px;
-  font-size: 11px;
-  font-weight: bold;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  box-shadow: inset 0 0 0 1px var(--ok-line);
 }
 
 .optional-badge {
   display: inline-block;
-  background: #eee;
-  color: #666;
-  padding: 4px 8px;
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 3px 9px;
   border-radius: 15px;
-  font-size: 11px;
-  font-weight: bold;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  box-shadow: inset 0 0 0 1px var(--line-strong);
 }
 
 .small-note {
   font-size: 12px;
-  color: #777;
-  line-height: 1.4;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
+/* =====================================================
+   SECCIÓN DE COMPRA
+===================================================== */
+
 .purchase-section {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
 }
 
 .purchase-total {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-soft);
 }
 
 .live-balance {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
 }
 
 .balance-positive {
-  color: #2e7d32;
+  color: var(--ok);
 }
 
 .balance-negative {
-  color: #c62828;
+  color: var(--err);
 }
 
 .gift-row-input {
-  min-width: 120px;
+  min-width: 130px;
 }
+
+#resumenCompraFinal {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-left: 4px solid var(--misti-red);
+  box-shadow: var(--shadow-1);
+}
+
+#resumenCompraFinal strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
 
 @media(max-width:1000px) {
 
@@ -453,6 +872,7 @@ td {
   .filters {
     grid-template-columns: 1fr;
   }
+
 }
 
 @media(max-width:600px) {
@@ -465,17 +885,58 @@ td {
   }
 
   .container {
-    padding: 10px;
+    padding: 12px;
+  }
+
+  header {
+    padding: 18px 0;
   }
 
   header h1 {
-    font-size: 22px;
+    font-size: 19px;
+  }
+
+  .section {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar button {
+    width: 100%;
   }
 
   th,
   td {
     min-width: 100px;
   }
+
+  button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+
+  .modal-content {
+    padding: 18px;
+  }
+
+  .modal-content p {
+    flex-direction: column;
+    gap: 2px;
+  }
+
 }
 
 </style>
