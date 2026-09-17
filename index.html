@@ -1,1669 +1,538 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<title>Compra con Misti — Admin</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compra con Misti — Panel Admin</title>
 
 <style>
-
-* {
-  box-sizing: border-box;
+:root{
+  --bg:#f5f6f2;
+  --card:#fff;
+  --text:#26312a;
+  --muted:#68736c;
+  --line:#dce3dc;
+  --accent:#496b52;
+  --soft:#e8efe8;
+  --warn:#9a741d;
+  --warnbg:#faf4df;
+  --danger:#9a3e3e;
+  --dangerbg:#faeaea
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  color: #222;
+*{
+  box-sizing:border-box
 }
 
-header {
-  background: #b71c1c;
-  color: white;
-  padding: 20px;
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+  color:var(--text)
 }
 
-header h1 {
-  margin: 0;
-  font-size: 28px;
+.wrap{
+  max-width:1180px;
+  margin:auto;
+  padding:28px 20px 50px
 }
 
-.container {
-  max-width: 1400px;
-  margin: auto;
-  padding: 20px;
+header{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:24px
 }
 
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+h1{
+  margin:0;
+  font-size:28px
 }
 
-.connection {
-  font-weight: bold;
+.sub{
+  margin:6px 0;
+  color:var(--muted)
 }
 
-.connected {
-  color: #2e7d32;
+.status{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:13px
 }
 
-.disconnected {
-  color: #c62828;
+.dot{
+  display:inline-block;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#c28a25;
+  margin-right:7px
 }
 
-button {
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px
 }
 
-.btn-refresh {
-  background: #333;
-  color: white;
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px
 }
 
-.btn-accept {
-  background: #2e7d32;
-  color: white;
+.label{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.5px
 }
 
-.btn-reject {
-  background: #c62828;
-  color: white;
+.value{
+  font-size:27px;
+  font-weight:700;
+  margin-top:7px
 }
 
-.btn-detail {
-  background: #ddd;
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px
 }
 
-.summary {
-  display: grid;
-  grid-template-columns:
-    repeat(4, minmax(180px, 1fr));
-  gap: 15px;
-  margin: 20px 0;
+input,select,button{
+  font:inherit;
+  min-height:44px;
+  border-radius:10px
 }
 
-.card {
-  background: white;
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.08);
+input,select{
+  border:1px solid var(--line);
+  background:#fff;
+  padding:10px 12px;
+  color:var(--text)
 }
 
-.card-title {
-  font-size: 14px;
-  color: #777;
+input{
+  flex:1;
+  min-width:220px
 }
 
-.card-value {
-  font-size: 28px;
-  font-weight: bold;
-  margin-top: 5px;
+button{
+  border:0;
+  padding:10px 15px;
+  font-weight:650;
+  cursor:pointer
 }
 
-.filters {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-
-  display: grid;
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 10px;
+.primary{
+  background:var(--accent);
+  color:#fff
 }
 
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.secondary{
+  background:#fff;
+  border:1px solid var(--line)
 }
 
-.table-container {
-  background: white;
-  border-radius: 10px;
-  overflow-x: auto;
+.table{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:auto
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+table{
+  border-collapse:collapse;
+  width:100%;
+  min-width:850px
 }
 
-th,
-td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  vertical-align: middle;
+th,td{
+  text-align:left;
+  padding:14px;
+  border-bottom:1px solid var(--line)
 }
 
-th {
-  background: #fafafa;
+th{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  background:#fafbfa
 }
 
-.status {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+tr:last-child td{
+  border-bottom:0
 }
 
-.status-pendiente {
-  background: #fff3cd;
-  color: #856404;
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700
 }
 
-.status-aceptado {
-  background: #d4edda;
-  color: #155724;
+.pendiente{
+  background:var(--warnbg);
+  color:var(--warn)
 }
 
-.status-rechazado {
-  background: #f8d7da;
-  color: #721c24;
+.aceptado{
+  background:var(--soft);
+  color:var(--accent)
 }
 
-.actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+.rechazado{
+  background:var(--dangerbg);
+  color:var(--danger)
 }
 
-.empty {
-  padding: 30px;
-  text-align: center;
-  color: #777;
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap
 }
 
-.modal {
-  display: none;
-
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0,0,0,.55);
-
-  align-items: center;
-  justify-content: center;
-
-  z-index: 999;
+.actions button{
+  min-height:36px;
+  padding:7px 10px;
+  font-size:12px
 }
 
-.modal-content {
-  background: white;
-  width: min(900px, 95%);
-  max-height: 90vh;
-  overflow-y: auto;
-
-  border-radius: 10px;
-  padding: 20px;
+.empty{
+  text-align:center;
+  padding:40px;
+  color:var(--muted)
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+  margin-top:12px
 }
 
-.close {
-  font-size: 25px;
-  cursor: pointer;
-}
-
-.detail-section {
-  margin-top: 20px;
-}
-
-.detail-section h3 {
-  margin-bottom: 10px;
-}
-
-.product-row {
-  display: grid;
-
-  grid-template-columns:
-    2fr
-    1fr
-    1fr
-    1fr
-    1fr;
-
-  gap: 8px;
-
-  padding: 8px 0;
-
-  border-bottom: 1px solid #eee;
-}
-
-.product-header {
-  font-weight: bold;
-}
-
-.total {
-  font-size: 22px;
-  font-weight: bold;
-  margin-top: 15px;
-}
-
-@media(max-width: 800px) {
-
-  .summary {
-    grid-template-columns: 1fr 1fr;
+@media(max-width:800px){
+  .cards{
+    grid-template-columns:repeat(2,1fr)
   }
 
-  .filters {
-    grid-template-columns: 1fr;
+  header{
+    flex-direction:column
   }
-
-  .product-row {
-    grid-template-columns: 1fr;
-  }
-
 }
 
+@media(max-width:520px){
+  .wrap{
+    padding:20px 12px
+  }
+
+  .cards{
+    gap:8px
+  }
+
+  .value{
+    font-size:22px
+  }
+}
 </style>
-
 </head>
-
 
 <body>
 
+<main class="wrap" id="app">
 
 <header>
+  <div>
+    <h1>Compra con Misti</h1>
+    <p class="sub">Panel administrativo · pedidos recibidos</p>
+  </div>
 
-<div class="container">
-
-<div class="topbar">
-
-<div>
-
-<h1>Compra con Misti</h1>
-
-<div>
-Panel administrativo
-</div>
-
-</div>
-
-<div>
-
-<span
-  id="connectionStatus"
-  class="connection"
->
-Conectando con n8n…
-</span>
-
-<button
-  class="btn-refresh"
-  onclick="cargarPedidos()"
->
-Actualizar
-</button>
-
-</div>
-
-</div>
-
-</div>
-
+  <div class="status">
+    <span class="dot"></span>
+    <span id="conn">Conexión n8n pendiente</span>
+  </div>
 </header>
 
+<section class="cards">
 
-<div class="container">
+  <div class="card">
+    <div class="label">Pedidos</div>
+    <div class="value" id="total">0</div>
+  </div>
 
+  <div class="card">
+    <div class="label">Pendientes</div>
+    <div class="value" id="pending">0</div>
+  </div>
 
-<!-- RESUMEN -->
+  <div class="card">
+    <div class="label">Aceptados</div>
+    <div class="value" id="accepted">0</div>
+  </div>
 
-<div class="summary">
+  <div class="card">
+    <div class="label">Dinero comprometido</div>
+    <div class="value" id="money">S/ 0</div>
+  </div>
 
-<div class="card">
+</section>
 
-<div class="card-title">
-Pedidos
-</div>
+<div class="toolbar">
 
-<div
-  id="totalPedidos"
-  class="card-value"
->
-0
-</div>
+  <input
+    id="search"
+    placeholder="Buscar por cliente o celular"
+  >
 
-</div>
+  <select id="filter">
+    <option value="todos">Todos los estados</option>
+    <option value="pendiente">Pendiente</option>
+    <option value="aceptado">Aceptado</option>
+    <option value="rechazado">Rechazado</option>
+  </select>
 
-
-<div class="card">
-
-<div class="card-title">
-Pendientes
-</div>
-
-<div
-  id="totalPendientes"
-  class="card-value"
->
-0
-</div>
-
-</div>
-
-
-<div class="card">
-
-<div class="card-title">
-Aceptados
-</div>
-
-<div
-  id="totalAceptados"
-  class="card-value"
->
-0
-</div>
+  <button
+    class="secondary"
+    id="refresh"
+  >
+    Actualizar
+  </button>
 
 </div>
 
+<div class="table">
 
-<div class="card">
+  <table>
 
-<div class="card-title">
-Dinero comprometido
-</div>
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Celular</th>
+        <th>Canastas</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
 
-<div
-  id="dineroComprometido"
-  class="card-value"
->
-S/ 0.00
-</div>
+    <tbody id="rows"></tbody>
 
-</div>
+  </table>
 
-</div>
-
-
-<!-- FILTROS -->
-
-<div class="filters">
-
-<input
-  id="buscar"
-  type="text"
-  placeholder="Buscar cliente o celular..."
-  oninput="renderPedidos()"
->
-
-
-<select
-  id="filtroEstado"
-  onchange="renderPedidos()"
->
-
-<option value="">
-Todos los estados
-</option>
-
-<option value="Pendiente">
-Pendiente
-</option>
-
-<option value="Aceptado">
-Aceptado
-</option>
-
-<option value="Rechazado">
-Rechazado
-</option>
-
-</select>
-
-
-<select
-  id="filtroRonda"
-  onchange="renderPedidos()"
->
-
-<option value="">
-Todas las rondas
-</option>
-
-</select>
+  <div
+    class="empty"
+    id="empty"
+  >
+    No hay pedidos.
+  </div>
 
 </div>
 
+<p class="note">
+  Esta es la primera interfaz del panel. En el siguiente paso la conectaremos
+  a n8n para leer <b>Data Table → pedidos_admin</b> y guardar los cambios de estado.
+  El flujo de recepción actual no se modifica.
+</p>
 
-<!-- PEDIDOS -->
-
-<div class="table-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>
-Cliente
-</th>
-
-<th>
-Celular
-</th>
-
-<th>
-Canastas
-</th>
-
-<th>
-Total
-</th>
-
-<th>
-Estado
-</th>
-
-<th>
-Ronda
-</th>
-
-<th>
-Acciones
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="pedidosBody">
-
-<tr>
-
-<td
-  colspan="7"
-  class="empty"
->
-Cargando pedidos...
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-
-</div>
-
-
-<!-- MODAL -->
-
-<div
-  id="modalDetalle"
-  class="modal"
->
-
-<div class="modal-content">
-
-<div class="modal-header">
-
-<h2>
-Detalle del pedido
-</h2>
-
-<span
-  class="close"
-  onclick="cerrarModal()"
->
-&times;
-</span>
-
-</div>
-
-<div id="detalleContenido"></div>
-
-</div>
-
-</div>
-
+</main>
 
 <script>
 
-
-/* =========================================================
-   API
-========================================================= */
-
-
-const API_PEDIDOS =
-  "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
-
-
-const API_ESTADO =
-  "https://msi.tail124b59.ts.net/webhook/admin-estado";
-
-
-/* =========================================================
-   DATOS
-========================================================= */
-
-
-let pedidos = [];
-
-
-/* =========================================================
-   CONFIGURACIÓN DE CANASTAS
-========================================================= */
-
-
-const CANASTA_SEMILLA = 15;
-
-const CANASTA_BASICA = 25;
-
-const CANASTA_FAMILIAR = 35;
-
-const PORCENTAJE_OPERACIONES = 0.35;
-
-const PORCENTAJE_ALIMENTOS = 0.65;
-
-const FACTOR_SEMILLA = 1;
-
-const FACTOR_BASICA =
-  25 / 15;
-
-const FACTOR_FAMILIAR =
-  35 / 15;
-
-
-/* =========================================================
-   PRODUCTOS
-========================================================= */
-
-
-let productos = [
-
-{
-  nombre: "Papa amarilla",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Papa blanca",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Cebolla",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Tomate",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Zanahoria",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Ajo",
-  unidad: "kg",
-  esencial: true,
-  minimo: 0.5,
-  precio: 0
-},
-
-{
-  nombre: "Ají amarillo",
-  unidad: "kg",
-  esencial: true,
-  minimo: 0.5,
-  precio: 0
-},
-
-{
-  nombre: "Limón",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Calabacín",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Zapallo",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Choclo",
-  unidad: "unidad",
-  esencial: true,
-  minimo: 4,
-  precio: 0
-},
-
-{
-  nombre: "Camote",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Palta",
-  unidad: "kg",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Perejil",
-  unidad: "atado",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Culantro",
-  unidad: "atado",
-  esencial: true,
-  minimo: 1,
-  precio: 0
-},
-
-{
-  nombre: "Cebolla china",
-  unidad: "atado",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Apio",
-  unidad: "atado",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Vainita",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Beterraga",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Alverja",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Garbanzo",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Frejol panamito",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Frejol canario",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-},
-
-{
-  nombre: "Lentejas",
-  unidad: "kg",
-  esencial: false,
-  minimo: 0,
-  precio: 0
-}
-
-];
-
-
-/* =========================================================
-   ADICIONALES
-========================================================= */
-
-
-let adicionales = [
-
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0
-
-];
-
-
-/* =========================================================
-   REGALOS
-========================================================= */
-
-
-let regalos = [];
-
-
-/* =========================================================
-   PERSISTENCIA
-========================================================= */
-
-
-const STORAGE_KEY =
-  "compra_con_misti_admin_v1";
-
-
-function guardarConfiguracion() {
-
-  try {
-
-    const rondaSeleccionada =
-      document
-        .getElementById("filtroRonda")
-        ?.value || "";
-
-
-    const datos = {
-
-      productos:
-
-        productos.map(
-
-          p => ({
-
-            nombre:
-              p.nombre,
-
-            unidad:
-              p.unidad,
-
-            esencial:
-              p.esencial,
-
-            minimo:
-              p.minimo,
-
-            precio:
-              p.precio
-
-          })
-
-        ),
-
-
-      adicionales:
-        [...adicionales],
-
-
-      regalos:
-
-        regalos.map(
-
-          r => ({
-
-            producto:
-              r.producto,
-
-            cantidad:
-              r.cantidad,
-
-            unidad:
-              r.unidad,
-
-            precio:
-              r.precio
-
-          })
-
-        ),
-
-
-      rondaSeleccionada:
-        rondaSeleccionada
-
-    };
-
-
-    localStorage.setItem(
-
-      STORAGE_KEY,
-
-      JSON.stringify(datos)
-
-    );
-
-
-  } catch(error) {
-
-    console.error(
-
-      "Error guardando configuración:",
-
-      error
-
-    );
-
-  }
-
-}
-
-
-function cargarConfiguracion() {
-
-  try {
-
-    const guardado =
-      localStorage.getItem(
-        STORAGE_KEY
-      );
-
-
-    if (!guardado) {
-
-      return;
-
+(()=>{
+
+  const orders=[
+    {
+      id:2,
+      cliente:"isabell Smith",
+      celular:934495196,
+      canasta_basica_cantidad:1,
+      canasta_semilla_cantidad:2,
+      canasta_familiar_cantidad:1,
+      total_solicitado:95,
+      solicitud:"Confirmar día de entrega y coordinar pago.",
+      estado:"pendiente"
     }
+  ];
 
+  const $=x=>document.getElementById(x);
 
-    const datos =
-      JSON.parse(
-        guardado
-      );
-
-
-    if (
-      Array.isArray(
-        datos.productos
-      )
-    ) {
-
-      datos.productos.forEach(
-
-        (
-          productoGuardado,
-          index
-        ) => {
-
-          if (
-            !productos[index]
-          ) {
-
-            return;
-
-          }
-
-
-          productos[index].esencial =
-            Boolean(
-              productoGuardado.esencial
-            );
-
-
-          productos[index].minimo =
-            Number(
-              productoGuardado.minimo
-            ) || 0;
-
-
-          productos[index].precio =
-            Number(
-              productoGuardado.precio
-            ) || 0;
-
-        }
-
-      );
-
-    }
-
-
-    if (
-      Array.isArray(
-        datos.adicionales
-      )
-    ) {
-
-      datos.adicionales.forEach(
-
-        (
-          valor,
-          index
-        ) => {
-
-          if (
-            index <
-            adicionales.length
-          ) {
-
-            adicionales[index] =
-              Number(valor) || 0;
-
-          }
-
-        }
-
-      );
-
-    }
-
-
-    if (
-      Array.isArray(
-        datos.regalos
-      )
-    ) {
-
-      regalos =
-        datos.regalos.map(
-
-          r => ({
-
-            producto:
-              r.producto || "",
-
-            cantidad:
-              Number(
-                r.cantidad
-              ) || 0,
-
-            unidad:
-              r.unidad ||
-              "unidad",
-
-            precio:
-              Number(
-                r.precio
-              ) || 0
-
-          })
-
-        );
-
-    }
-
-
-    window.rondaGuardada =
-      datos.rondaSeleccionada ||
-      "";
-
-
-  } catch(error) {
-
-    console.error(
-
-      "Error cargando configuración:",
-
-      error
-
+  const money=n=>
+    "S/ "+
+    Number(n||0).toLocaleString(
+      "es-PE",
+      {
+        maximumFractionDigits:2
+      }
     );
 
-  }
-
-}
-
-
-/* =========================================================
-   CARGAR PEDIDOS
-========================================================= */
-
-
-async function cargarPedidos() {
-
-  const status =
-    document.getElementById(
-      "connectionStatus"
+  const esc=s=>
+    String(s??"").replace(
+      /[&<>"']/g,
+      c=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[c])
     );
 
 
-  status.textContent =
-    "Conectando con n8n…";
-
-
-  status.className =
-    "connection";
-
-
-  try {
-
-    const response =
-      await fetch(
-        API_PEDIDOS,
-        {
-          method: "GET"
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "HTTP " +
-        response.status
-      );
-
-    }
-
-
-    const data =
-      await response.json();
-
-
-    pedidos =
-      Array.isArray(data)
-        ? data
-        : [];
-
-
-    status.textContent =
-      "Conectado";
-
-
-    status.className =
-      "connection connected";
-
-
-    actualizarResumen();
-
-    cargarRondas();
-
-    renderPedidos();
-
-
-  } catch(error) {
-
-    console.error(
-      error
-    );
-
-
-    status.textContent =
-      "Error de conexión";
-
-
-    status.className =
-      "connection disconnected";
-
-
-    document.getElementById(
-      "pedidosBody"
-    ).innerHTML = `
-
-      <tr>
-
-        <td
-          colspan="7"
-          class="empty"
-        >
-
-          No se pudieron cargar
-          los pedidos.
-
-        </td>
-
-      </tr>
-
-    `;
-
-  }
-
-}
-
-
-/* =========================================================
-   RESUMEN
-========================================================= */
-
-
-function actualizarResumen() {
-
-  const total =
-    pedidos.length;
-
-
-  const pendientes =
-    pedidos.filter(
-
-      p =>
-        String(
-          p.estado || ""
-        ).toLowerCase()
-        === "pendiente"
-
-    ).length;
-
-
-  const aceptados =
-    pedidos.filter(
-
-      p =>
-        String(
-          p.estado || ""
-        ).toLowerCase()
-        === "aceptado"
-
-    ).length;
-
-
-  const dinero =
-    pedidos
-      .filter(
-
-        p =>
-          String(
-            p.estado || ""
-          ).toLowerCase()
-          === "aceptado"
-
-      )
-      .reduce(
-
-        (
-          suma,
-          p
-        ) =>
-
-          suma +
-          Number(
-            p.total ||
-            p.monto ||
-            0
-          ),
-
-        0
-
-      );
-
-
-  document.getElementById(
-    "totalPedidos"
-  ).textContent =
-    total;
-
-
-  document.getElementById(
-    "totalPendientes"
-  ).textContent =
-    pendientes;
-
-
-  document.getElementById(
-    "totalAceptados"
-  ).textContent =
-    aceptados;
-
-
-  document.getElementById(
-    "dineroComprometido"
-  ).textContent =
-
-    "S/ " +
-    dinero.toFixed(2);
-
-}
-
-
-/* =========================================================
-   RONDAS
-========================================================= */
-
-
-function cargarRondas() {
-
-  const select =
-    document.getElementById(
-      "filtroRonda"
-    );
-
-
-  const rondas =
-    [
-      ...new Set(
-
-        pedidos
-
-          .map(
-            p =>
-              p.ronda
-          )
-
-          .filter(
-            Boolean
-          )
-
-      )
-    ];
-
-
-  const seleccion =
-    select.value ||
-    window.rondaGuardada ||
-    "";
-
-
-  select.innerHTML = `
-
-    <option value="">
-      Todas las rondas
-    </option>
-
-  `;
-
-
-  rondas.forEach(
-
-    ronda => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-
-      option.value =
-        ronda;
-
-
-      option.textContent =
-        ronda;
-
-
-      select.appendChild(
-        option
-      );
-
-    }
-
-  );
-
-
-  if (
-    rondas.includes(
-      seleccion
-    )
-  ) {
-
-    select.value =
-      seleccion;
-
-  }
-
-}
-
-
-/* =========================================================
-   RENDER PEDIDOS
-========================================================= */
-
-
-function renderPedidos() {
-
-  const body =
-    document.getElementById(
-      "pedidosBody"
-    );
-
-
-  const buscar =
-    (
-      document.getElementById(
-        "buscar"
-      )?.value ||
-      ""
-    )
+  function render(){
+
+    let q=
+      $("search")
+      .value
       .toLowerCase();
 
+    let f=
+      $("filter")
+      .value;
 
-  const filtroEstado =
-    document.getElementById(
-      "filtroEstado"
-    )?.value || "";
-
-
-  const filtroRonda =
-    document.getElementById(
-      "filtroRonda"
-    )?.value || "";
-
-
-  const filtrados =
-    pedidos.filter(
-
-      p => {
-
-        const cliente =
-          String(
-            p.cliente ||
-            p.nombre ||
-            ""
-          ).toLowerCase();
-
-
-        const celular =
-          String(
-            p.celular ||
-            p.telefono ||
-            ""
-          ).toLowerCase();
-
-
-        const estado =
-          String(
-            p.estado ||
-            "Pendiente"
-          );
-
-
-        const ronda =
-          String(
-            p.ronda ||
-            ""
-          );
-
-
-        const coincideBusqueda =
-
-          !buscar ||
-
-          cliente.includes(
-            buscar
-          ) ||
-
-          celular.includes(
-            buscar
-          );
-
-
-        const coincideEstado =
-
-          !filtroEstado ||
-
-          estado.toLowerCase()
-            ===
-            filtroEstado.toLowerCase();
-
-
-        const coincideRonda =
-
-          !filtroRonda ||
-
-          ronda ===
-          filtroRonda;
-
-
-        return (
-
-          coincideBusqueda &&
-
-          coincideEstado &&
-
-          coincideRonda
-
-        );
-
-      }
-
-    );
-
-
-  if (
-    filtrados.length === 0
-  ) {
-
-    body.innerHTML = `
-
-      <tr>
-
-        <td
-          colspan="7"
-          class="empty"
-        >
-
-          No hay pedidos
-          para mostrar.
-
-        </td>
-
-      </tr>
-
-    `;
-
-
-    return;
-
-  }
-
-
-  body.innerHTML =
-
-    filtrados.map(
-
-      p => {
-
-        const estado =
-          p.estado ||
-          "Pendiente";
-
-
-        const estadoClase =
-
-          estado
+    let a=
+      orders.filter(
+        o=>
+          (
+            !q ||
+            (
+              o.cliente+
+              " "+
+              o.celular
+            )
             .toLowerCase()
-            .replace(
-              " ",
-              "-"
-            );
+            .includes(q)
+          )
+          &&
+          (
+            f==="todos" ||
+            o.estado===f
+          )
+      );
 
 
-        const cliente =
-          p.cliente ||
-          p.nombre ||
-          "Sin nombre";
+    $("total").textContent=
+      orders.length;
 
+    $("pending").textContent=
+      orders.filter(
+        o=>o.estado==="pendiente"
+      ).length;
 
-        const celular =
-          p.celular ||
-          p.telefono ||
-          "—";
+    $("accepted").textContent=
+      orders.filter(
+        o=>o.estado==="aceptado"
+      ).length;
 
-
-        const canastas =
-
-          p.canastas ||
-          p.cantidad_canastas ||
-          p.detalle_canastas ||
-          "—";
-
-
-        const total =
-
-          Number(
-            p.total ||
-            p.monto ||
+    $("money").textContent=
+      money(
+        orders
+          .filter(
+            o=>o.estado==="aceptado"
+          )
+          .reduce(
+            (s,o)=>
+              s+
+              Number(
+                o.total_solicitado||0
+              ),
             0
-          );
+          )
+      );
 
 
-        const ronda =
-          p.ronda ||
-          "—";
+    $("empty").style.display=
+      a.length
+        ?"none"
+        :"block";
 
 
-        return `
+    $("rows").innerHTML=
+      a.map(
+        o=>`
 
           <tr>
 
             <td>
-              ${cliente}
+              <b>
+                ${esc(o.cliente)}
+              </b>
             </td>
-
 
             <td>
-              ${celular}
+              ${esc(o.celular)}
             </td>
-
 
             <td>
-              ${canastas}
+              Básica ${o.canasta_basica_cantidad||0}
+              · Semilla ${o.canasta_semilla_cantidad||0}
+              · Familiar ${o.canasta_familiar_cantidad||0}
             </td>
-
 
             <td>
-
-              S/
-              ${total.toFixed(2)}
-
+              <b>
+                ${money(o.total_solicitado)}
+              </b>
             </td>
-
 
             <td>
 
               <span
-                class="status status-${estadoClase}"
+                class="badge ${esc(o.estado)}"
               >
-
-                ${estado}
-
+                ${
+                  esc(
+                    o.estado
+                      .charAt(0)
+                      .toUpperCase()
+                    +
+                    o.estado.slice(1)
+                  )
+                }
               </span>
 
             </td>
-
-
-            <td>
-              ${ronda}
-            </td>
-
 
             <td>
 
               <div class="actions">
 
-
-                <!-- CAMBIAR ESTADO -->
+                <!--
+                  AJUSTE ÚNICO:
+                  Estos botones ahora aparecen
+                  sin importar cuál sea el estado actual.
+                -->
 
                 <button
-                  class="btn-accept"
-                  onclick="
-                    cambiarEstado(
-                      ${p.id},
-                      'Aceptado'
-                    )
-                  "
+                  class="primary"
+                  data-a="accept"
+                  data-id="${o.id}"
                 >
                   Aceptar
                 </button>
 
-
                 <button
-                  class="btn-reject"
-                  onclick="
-                    cambiarEstado(
-                      ${p.id},
-                      'Rechazado'
-                    )
-                  "
+                  class="secondary"
+                  data-a="reject"
+                  data-id="${o.id}"
                 >
                   Rechazar
                 </button>
 
-
-                <!-- DETALLE -->
-
                 <button
-                  class="btn-detail"
-                  onclick="
-                    verDetalle(
-                      ${p.id}
-                    )
-                  "
+                  class="secondary"
+                  data-a="detail"
+                  data-id="${o.id}"
                 >
-                  Detalle
+                  Ver detalle
                 </button>
-
 
               </div>
 
@@ -1671,270 +540,90 @@ function renderPedidos() {
 
           </tr>
 
-        `;
+        `
+      )
+      .join("");
 
+  }
+
+
+  $("rows").addEventListener(
+    "click",
+    e=>{
+
+      let b=
+        e.target.closest("button");
+
+      if(!b){
+        return;
       }
 
-    ).join("");
+      let o=
+        orders.find(
+          x=>
+            String(x.id)===
+            b.dataset.id
+        );
 
-}
+      if(!o){
+        return;
+      }
 
+      if(
+        b.dataset.a==="accept"
+      ){
+        o.estado="aceptado";
+      }
 
-/* =========================================================
-   CAMBIAR ESTADO
-========================================================= */
+      if(
+        b.dataset.a==="reject"
+      ){
+        o.estado="rechazado";
+      }
 
+      if(
+        b.dataset.a==="detail"
+      ){
+        alert(
+          "Solicitud: "+
+          (o.solicitud||"—")
+        );
+      }
 
-async function cambiarEstado(
-  id,
-  estado
-) {
-
-  if (
-    !confirm(
-      `¿Marcar pedido como "${estado}"?`
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  try {
-
-    const response =
-      await fetch(
-        API_ESTADO,
-        {
-
-          method:
-            "POST",
-
-          headers: {
-
-            "Content-Type":
-              "application/json"
-
-          },
-
-          body:
-
-            JSON.stringify({
-
-              id:
-                id,
-
-              estado:
-                estado
-
-            })
-
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "HTTP " +
-        response.status
-      );
+      render();
 
     }
+  );
 
 
-    await cargarPedidos();
+  $("search").addEventListener(
+    "input",
+    render
+  );
 
 
-  } catch(error) {
-
-    console.error(
-      error
-    );
-
-
-    alert(
-      "No se pudo actualizar el estado."
-    );
-
-  }
-
-}
+  $("filter").addEventListener(
+    "change",
+    render
+  );
 
 
-/* =========================================================
-   DETALLE
-========================================================= */
+  $("refresh").addEventListener(
+    "click",
+    ()=>{
+      $("conn").textContent=
+        "Lista preparada para conectar con n8n";
 
-
-function verDetalle(id) {
-
-  const pedido =
-    pedidos.find(
-
-      p =>
-        String(p.id) ===
-        String(id)
-
-    );
-
-
-  if (!pedido) {
-
-    alert(
-      "No se encontró el pedido."
-    );
-
-    return;
-
-  }
-
-
-  const contenido =
-    document.getElementById(
-      "detalleContenido"
-    );
-
-
-  contenido.innerHTML = `
-
-    <div class="detail-section">
-
-      <h3>
-        Información del cliente
-      </h3>
-
-      <p>
-        <strong>Cliente:</strong>
-        ${pedido.cliente || pedido.nombre || "—"}
-      </p>
-
-      <p>
-        <strong>Celular:</strong>
-        ${pedido.celular || pedido.telefono || "—"}
-      </p>
-
-      <p>
-        <strong>Estado:</strong>
-        ${pedido.estado || "Pendiente"}
-      </p>
-
-      <p>
-        <strong>Ronda:</strong>
-        ${pedido.ronda || "—"}
-      </p>
-
-    </div>
-
-
-    <div class="detail-section">
-
-      <h3>
-        Pedido completo
-      </h3>
-
-      <pre
-        style="
-          white-space:pre-wrap;
-          background:#f5f5f5;
-          padding:15px;
-          border-radius:8px;
-        "
-      >${JSON.stringify(
-        pedido,
-        null,
-        2
-      )}</pre>
-
-    </div>
-
-  `;
-
-
-  document.getElementById(
-    "modalDetalle"
-  ).style.display =
-    "flex";
-
-}
-
-
-function cerrarModal() {
-
-  document.getElementById(
-    "modalDetalle"
-  ).style.display =
-    "none";
-
-}
-
-
-/* =========================================================
-   CERRAR MODAL AL HACER CLICK AFUERA
-========================================================= */
-
-
-window.addEventListener(
-  "click",
-  function(event) {
-
-    const modal =
-      document.getElementById(
-        "modalDetalle"
-      );
-
-
-    if (
-      event.target ===
-      modal
-    ) {
-
-      cerrarModal();
-
+      render();
     }
-
-  }
-);
+  );
 
 
-/* =========================================================
-   GUARDAR AUTOMÁTICAMENTE
-========================================================= */
+  render();
 
-
-document.addEventListener(
-  "change",
-  function(event) {
-
-    if (
-      event.target.matches(
-        "input, select"
-      )
-    ) {
-
-      guardarConfiguracion();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   INICIO
-========================================================= */
-
-
-cargarConfiguracion();
-
-renderPedidos();
-
-cargarPedidos();
-
+})()
 
 </script>
 
 </body>
-
 </html>
