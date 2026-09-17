@@ -1,2310 +1,2222 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Compra con Misti · Panel administrativo</title>
+<title>Compra con Misti — Administración</title>
 
-  <style>
-    *{
-      box-sizing:border-box;
+<style>
+    * {
+        box-sizing: border-box;
     }
 
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:#f5f5f5;
-      color:#222;
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f5f5f5;
+        color: #222;
     }
 
-    header{
-      background:#b51f1f;
-      color:white;
-      padding:24px 32px;
+    header {
+        background: #b5121b;
+        color: white;
+        padding: 20px;
     }
 
-    header h1{
-      margin:0 0 6px;
-      font-size:28px;
+    header h1 {
+        margin: 0;
+        font-size: 26px;
     }
 
-    header p{
-      margin:0;
-      opacity:.9;
+    header p {
+        margin: 6px 0 0;
+        opacity: .9;
     }
 
-    main{
-      max-width:1200px;
-      margin:0 auto;
-      padding:28px 20px 50px;
+    main {
+        max-width: 1400px;
+        margin: auto;
+        padding: 20px;
     }
 
-    .connection{
-      background:white;
-      border-radius:12px;
-      padding:14px 18px;
-      margin-bottom:24px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:15px;
-      flex-wrap:wrap;
+    .barra {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 20px;
     }
 
-    .connection-status{
-      color:#198754;
-      font-weight:bold;
+    button,
+    select,
+    input {
+        font: inherit;
     }
 
-    .section-title{
-      margin:32px 0 16px;
-      font-size:22px;
+    button {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 14px;
+        cursor: pointer;
     }
 
-    .section-sub{
-      margin:-10px 0 16px;
-      font-size:13px;
-      color:#777;
+    .btn-principal {
+        background: #b5121b;
+        color: white;
     }
 
-    .note{
-      font-size:13px;
-      border-radius:8px;
-      padding:10px 14px;
-      margin:0 0 16px;
+    .btn-secundario {
+        background: #ddd;
+        color: #222;
     }
 
-    .note-warning{
-      background:#fff3cd;
-      color:#856404;
+    .btn-aceptar {
+        background: #198754;
+        color: white;
     }
 
-    .note-error{
-      background:#f8d7da;
-      color:#842029;
+    .btn-rechazar {
+        background: #dc3545;
+        color: white;
     }
 
-    .cards{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
-      margin-bottom:6px;
+    .conexion {
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: #fff3cd;
+        color: #664d03;
+        display: inline-block;
     }
 
-    .card{
-      background:white;
-      border-radius:12px;
-      padding:20px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    .conexion.ok {
+        background: #d1e7dd;
+        color: #0f5132;
     }
 
-    .card-label{
-      font-size:13px;
-      color:#777;
-      margin-bottom:8px;
+    .conexion.error {
+        background: #f8d7da;
+        color: #842029;
     }
 
-    .card-value{
-      font-size:28px;
-      font-weight:bold;
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
     }
 
-    .cards-caption{
-      font-size:12px;
-      color:#999;
-      margin:0 0 24px;
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.08);
     }
 
-    .filters{
-      background:white;
-      border-radius:12px;
-      padding:18px;
-      margin-bottom:18px;
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    .card .titulo {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 8px;
     }
 
-    input,select{
-      padding:11px 13px;
-      border:1px solid #ddd;
-      border-radius:8px;
-      font-size:14px;
-      background:white;
+    .card .numero {
+        font-size: 27px;
+        font-weight: bold;
     }
 
-    input{
-      min-width:260px;
-      flex:1;
+    .seccion {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.08);
     }
 
-    label.checkbox{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size:13px;
-      color:#444;
+    .seccion h2 {
+        margin-top: 0;
     }
 
-    label.checkbox input{
-      min-width:auto;
-      flex:none;
-      width:16px;
-      height:16px;
+    .filtros {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
     }
 
-    button{
-      border:none;
-      border-radius:8px;
-      padding:10px 14px;
-      cursor:pointer;
-      font-size:14px;
+    .filtros input,
+    .filtros select,
+    .form-ronda input,
+    .form-ronda select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: white;
     }
 
-    button.primary{
-      background:#b51f1f;
-      color:white;
+    .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 14px;
     }
 
-    button.secondary{
-      background:#eee;
-      color:#222;
+    .tabla-wrapper {
+        overflow-x: auto;
     }
 
-    button:hover{
-      opacity:.9;
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 950px;
     }
 
-    button:disabled{
-      opacity:.45;
-      cursor:not-allowed;
+    th,
+    td {
+        padding: 11px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+        vertical-align: middle;
     }
 
-    .table-container{
-      background:white;
-      border-radius:12px;
-      overflow:auto;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    th {
+        background: #fafafa;
+        font-size: 13px;
     }
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:950px;
+    .estado {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
     }
 
-    th,td{
-      padding:14px 16px;
-      text-align:left;
-      border-bottom:1px solid #eee;
-      vertical-align:middle;
+    .estado-pendiente {
+        background: #fff3cd;
+        color: #664d03;
     }
 
-    th{
-      background:#fafafa;
-      font-size:13px;
-      color:#666;
+    .estado-aceptado {
+        background: #d1e7dd;
+        color: #0f5132;
     }
 
-    td{
-      font-size:14px;
+    .estado-rechazado {
+        background: #f8d7da;
+        color: #842029;
     }
 
-    .status{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:20px;
-      font-size:12px;
-      font-weight:bold;
+    .acciones {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
     }
 
-    .status-pendiente{
-      background:#fff3cd;
-      color:#856404;
+    .acciones button {
+        padding: 7px 9px;
+        font-size: 12px;
     }
 
-    .status-aceptado{
-      background:#d1e7dd;
-      color:#0f5132;
+    .ronda-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
     }
 
-    .status-rechazado{
-      background:#f8d7da;
-      color:#842029;
+    .ronda-info {
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 15px;
     }
 
-    .ronda-badge{
-      display:inline-block;
-      padding:5px 9px;
-      border-radius:20px;
-      font-size:11px;
-      font-weight:bold;
-      background:#e2e3e5;
-      color:#41464b;
-      white-space:nowrap;
+    .dato {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
     }
 
-    .ronda-badge.sin-ronda{
-      background:#f8d7da;
-      color:#842029;
+    .dato:last-child {
+        border-bottom: none;
     }
 
-    .ronda-assign{
-      margin-top:7px;
+    .dato strong {
+        text-align: right;
     }
 
-    .ronda-assign select{
-      min-width:160px;
-      padding:7px 9px;
-      font-size:12px;
+    .form-ronda {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        align-items: end;
     }
 
-    .actions{
-      display:flex;
-      gap:7px;
-      flex-wrap:wrap;
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
     }
 
-    .empty{
-      padding:35px;
-      text-align:center;
-      color:#777;
+    .campo label {
+        font-size: 13px;
+        font-weight: bold;
     }
 
-    .error{
-      background:#f8d7da;
-      color:#842029;
-      border-radius:10px;
-      padding:14px;
-      margin-bottom:20px;
-      display:none;
+    .presupuesto {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+        margin-top: 15px;
     }
 
-    .consolidado-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
-      margin-bottom:24px;
+    .presupuesto .bloque {
+        border-radius: 10px;
+        padding: 15px;
+        background: #fafafa;
     }
 
-    .summary-card{
-      background:white;
-      border-radius:12px;
-      padding:22px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    .presupuesto .monto {
+        font-size: 23px;
+        font-weight: bold;
+        margin-top: 5px;
     }
 
-    .summary-card h3{
-      margin:0 0 12px;
-      font-size:15px;
-      color:#666;
-      font-weight:normal;
+    .nota {
+        font-size: 13px;
+        color: #666;
+        margin-top: 10px;
     }
 
-    .summary-number{
-      font-size:30px;
-      font-weight:bold;
+    .vacio {
+        text-align: center;
+        color: #777;
+        padding: 30px;
     }
 
-    .consolidado-table{
-      background:white;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
-      margin-bottom:30px;
+    .mini {
+        font-size: 12px;
+        color: #777;
     }
 
-    .consolidado-table table{
-      min-width:0;
+    .ronda-badge {
+        background: #eee;
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
     }
 
-    .total-row{
-      font-weight:bold;
-      background:#fafafa;
-    }
-
-    .last-update{
-      color:#777;
-      font-size:13px;
-      margin-top:10px;
-    }
-
-    .ronda-panel{
-      background:white;
-      border-radius:12px;
-      padding:22px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
-      margin-bottom:24px;
-    }
-
-    .ronda-panel h4{
-      margin:0 0 14px;
-      font-size:14px;
-      color:#666;
-      font-weight:normal;
-    }
-
-    .ronda-selector-row{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-      margin-bottom:20px;
-      padding-bottom:20px;
-      border-bottom:1px solid #eee;
-    }
-
-    .ronda-form{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-    }
-
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-
-    .field label{
-      font-size:12px;
-      color:#666;
-    }
-
-    .field input,
-    .field select{
-      min-width:170px;
-    }
-
-    .field.small input,
-    .field.small select{
-      min-width:140px;
-    }
-
-    .ronda-estado-badge{
-      display:inline-block;
-      padding:6px 12px;
-      border-radius:20px;
-      font-size:12px;
-      font-weight:bold;
-      background:#e2e3e5;
-      color:#41464b;
-    }
-
-    .presupuesto-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:16px;
-      margin-bottom:10px;
-    }
-
-    .presupuesto-card{
-      border-radius:12px;
-      padding:22px;
-      box-shadow:0 2px 8px rgba(0,0,0,.06);
-    }
-
-    .presupuesto-card h3{
-      margin:0 0 10px;
-      font-size:14px;
-      font-weight:normal;
-    }
-
-    .presupuesto-comprometido{
-      background:#222;
-      color:white;
-    }
-
-    .presupuesto-comprometido h3{
-      color:#ccc;
-    }
-
-    .presupuesto-comprometido .summary-number{
-      color:white;
-    }
-
-    .presupuesto-operacion{
-      background:white;
-    }
+    @media (max-width: 900px) {
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
 
-    .presupuesto-operacion h3{
-      color:#856404;
-    }
+        .ronda-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .presupuesto-operacion .summary-number{
-      color:#856404;
-    }
+        .form-ronda {
+            grid-template-columns: 1fr 1fr;
+        }
 
-    .presupuesto-alimentos{
-      background:white;
+        .presupuesto {
+            grid-template-columns: 1fr;
+        }
     }
 
-    .presupuesto-alimentos h3{
-      color:#0f5132;
-    }
+    @media (max-width: 600px) {
+        main {
+            padding: 12px;
+        }
 
-    .presupuesto-alimentos .summary-number{
-      color:#0f5132;
-    }
+        header {
+            padding: 16px;
+        }
 
-    @media(max-width:900px){
-      .cards,
-      .consolidado-grid,
-      .presupuesto-grid{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
+        header h1 {
+            font-size: 22px;
+        }
 
-    @media(max-width:600px){
-      header{
-        padding:20px;
-      }
+        .cards {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
 
-      main{
-        padding:20px 12px 40px;
-      }
+        .card {
+            padding: 13px;
+        }
 
-      .cards,
-      .consolidado-grid,
-      .presupuesto-grid{
-        grid-template-columns:1fr;
-      }
+        .card .numero {
+            font-size: 21px;
+        }
 
-      input{
-        min-width:100%;
-      }
+        .form-ronda {
+            grid-template-columns: 1fr;
+        }
 
-      .field{
-        width:100%;
-      }
+        .barra {
+            align-items: stretch;
+        }
 
-      .field input,
-      .field select{
-        width:100%;
-        min-width:140px;
-      }
+        .barra button {
+            width: 100%;
+        }
     }
-  </style>
-
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>Compra con Misti</h1>
-  <p>Panel administrativo · pedidos y consolidado de compra</p>
+    <h1>Compra con Misti</h1>
+    <p>Panel administrativo · pedidos y consolidado de compra</p>
 </header>
 
 <main>
 
-  <div class="connection">
-    <div>
-      <strong>Estado del sistema</strong>
-      <div id="connectionStatus" class="connection-status">
-        Conectando con n8n…
-      </div>
+    <!-- CONEXIÓN -->
+    <div class="barra">
+        <span id="conexion" class="conexion">
+            Conectando con n8n…
+        </span>
+
+        <button class="btn-principal" onclick="loadOrders()">
+            Actualizar
+        </button>
     </div>
 
-```
-<button class="secondary" id="refresh">
-  Actualizar
-</button>
-```
-
-  </div>
-
-  <div id="error" class="error"></div>
-
-  <h2 class="section-title">1. Pedidos</h2>
-
-  <div class="cards">
-
-```
-<div class="card">
-  <div class="card-label">Pedidos</div>
-  <div class="card-value" id="total">0</div>
-</div>
-
-<div class="card">
-  <div class="card-label">Pendientes</div>
-  <div class="card-value" id="pending">0</div>
-</div>
 
-<div class="card">
-  <div class="card-label">Aceptados (todas las rondas)</div>
-  <div class="card-value" id="accepted">0</div>
-</div>
+    <!-- RESUMEN GENERAL -->
+    <section class="cards">
 
-<div class="card">
-  <div class="card-label">Dinero comprometido (todas las rondas)</div>
-  <div class="card-value" id="money">S/ 0</div>
-</div>
-```
+        <div class="card">
+            <div class="titulo">Pedidos</div>
+            <div class="numero" id="totalPedidos">0</div>
+        </div>
 
-  </div>
+        <div class="card">
+            <div class="titulo">Pendientes</div>
+            <div class="numero" id="totalPendientes">0</div>
+        </div>
 
-  <p class="cards-caption">
-    Estas cuatro tarjetas resumen todos los pedidos. El consolidado de una compra concreta
-    se calcula únicamente en la ronda seleccionada.
-  </p>
+        <div class="card">
+            <div class="titulo">Aceptados</div>
+            <div class="numero" id="totalAceptados">0</div>
+        </div>
 
-  <div class="filters">
+        <div class="card">
+            <div class="titulo">Dinero comprometido</div>
+            <div class="numero" id="dineroComprometido">S/ 0.00</div>
+        </div>
 
-```
-<input
-  id="search"
-  type="text"
-  placeholder="Buscar por cliente o celular"
->
+    </section>
 
-<select id="filter">
-  <option value="todos">Todos los estados</option>
-  <option value="pendiente">Pendientes</option>
-  <option value="aceptado">Aceptados</option>
-  <option value="rechazado">Rechazados</option>
-</select>
 
-<label class="checkbox">
-  <input type="checkbox" id="soloRondaSeleccionada">
-  Mostrar solo pedidos de la ronda seleccionada
-</label>
-```
+    <!-- PEDIDOS -->
+    <section class="seccion">
 
-  </div>
-
-  <div class="table-container">
-
-```
-<table>
-
-  <thead>
-    <tr>
-      <th>Cliente</th>
-      <th>Celular</th>
-      <th>Canastas</th>
-      <th>Total</th>
-      <th>Estado</th>
-      <th>Ronda</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-
-  <tbody id="rows"></tbody>
-
-</table>
-
-<div id="empty" class="empty" style="display:none;">
-  No hay pedidos que coincidan con la búsqueda.
-</div>
-```
+        <h2>Pedidos</h2>
 
-  </div>
-
-  <h2 class="section-title">2. Ronda actual</h2>
+        <div class="filtros">
 
-  <p class="section-sub">
-    La ronda agrupa los pedidos que pertenecen a una compra concreta.
-    La información de la ronda se guarda en n8n, no en este navegador.
-  </p>
+            <input
+                type="text"
+                id="busqueda"
+                placeholder="Buscar cliente o celular"
+                oninput="renderOrders()"
+            >
 
-  <div id="rondaBackendNote" class="note note-warning" style="display:none;">
-    No se pudo leer la tabla de rondas desde n8n.
-    Los pedidos siguen funcionando, pero no se pueden calcular consolidados por ronda.
-  </div>
+            <select id="filtroEstado" onchange="renderOrders()">
+                <option value="">Todos los estados</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="Aceptado">Aceptados</option>
+                <option value="Rechazado">Rechazados</option>
+            </select>
 
-  <div class="ronda-panel">
+            <label class="checkbox">
+                <input
+                    type="checkbox"
+                    id="soloRonda"
+                    onchange="renderOrders()"
+                >
+                Mostrar solo pedidos de la ronda seleccionada
+            </label>
 
-```
-<div class="ronda-selector-row">
+        </div>
 
-  <div class="field">
-    <label for="rondaSelector">Ronda seleccionada</label>
+        <div class="tabla-wrapper">
 
-    <select id="rondaSelector">
-      <option value="">— Selecciona una ronda —</option>
-    </select>
-  </div>
+            <table>
 
-  <span class="ronda-estado-badge" id="rondaEstadoBadge">
-    Sin ronda seleccionada
-  </span>
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Celular</th>
+                        <th>Canastas</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Ronda</th>
+                        <th>Recepción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
 
-</div>
+                <tbody id="tablaPedidos">
+                </tbody>
 
-<h4>Crear o actualizar una ronda</h4>
+            </table>
 
-<div class="ronda-form">
+        </div>
 
-  <div class="field">
-    <label for="rondaId">Identificador</label>
+    </section>
 
-    <input
-      id="rondaId"
-      type="text"
-      placeholder="R-2026-09-20"
-    >
-  </div>
 
-  <div class="field small">
-    <label for="rondaFechaCompra">Fecha de compra</label>
+    <!-- RONDA -->
+    <section class="seccion">
 
-    <input
-      id="rondaFechaCompra"
-      type="date"
-    >
-  </div>
+        <h2>Ronda de compra</h2>
 
-  <div class="field small">
-    <label for="rondaFechaCierre">Cierre de pedidos</label>
+        <div class="ronda-grid">
 
-    <input
-      id="rondaFechaCierre"
-      type="date"
-    >
-  </div>
+            <div>
 
-  <div class="field">
-    <label for="rondaEstado">Estado</label>
+                <div class="campo">
+                    <label>Ronda seleccionada</label>
 
-    <select id="rondaEstado">
-      <option value="abierta">Abierta</option>
-      <option value="cerrada_pedidos">Cerrada a pedidos</option>
-      <option value="confirmando">Confirmando</option>
-      <option value="lista_para_compra">Lista para compra</option>
-      <option value="comprando">Comprando</option>
-      <option value="armando">Armando</option>
-      <option value="entregando">Entregando</option>
-      <option value="cerrada">Cerrada</option>
-    </select>
-  </div>
+                    <select
+                        id="rondaSelector"
+                        onchange="seleccionarRonda(this.value)"
+                    >
+                    </select>
+                </div>
 
-  <button class="primary" id="guardarRonda">
-    Guardar ronda
-  </button>
+                <div id="rondaInfo" class="ronda-info" style="margin-top:15px;">
+                </div>
 
-</div>
-```
+            </div>
 
-  </div>
 
-  <div id="rondaSinSeleccion" class="note note-warning">
-    Selecciona una ronda arriba para ver su consolidado y presupuesto.
-  </div>
+            <div>
 
-  <div id="rondaConsolidadoWrap" style="display:none;">
+                <h3>Crear una ronda</h3>
 
-```
-<div class="consolidado-grid">
+                <div class="form-ronda">
 
-  <div class="summary-card">
-    <h3>Familias aceptadas</h3>
-    <div class="summary-number" id="rondaFamilias">0</div>
-  </div>
+                    <div class="campo">
+                        <label>Fecha de compra</label>
+                        <input type="date" id="fechaCompra">
+                    </div>
 
-  <div class="summary-card">
-    <h3>Canastas Básicas</h3>
-    <div class="summary-number" id="rondaBasicas">0</div>
-  </div>
+                    <div class="campo">
+                        <label>Estado</label>
+                        <select id="estadoRonda">
+                            <option value="abierta">Abierta</option>
+                            <option value="cerrada">Cerrada</option>
+                        </select>
+                    </div>
 
-  <div class="summary-card">
-    <h3>Canastas Semilla</h3>
-    <div class="summary-number" id="rondaSemillas">0</div>
-  </div>
+                    <div class="campo">
+                        <label>Cierre automático</label>
+                        <input
+                            type="text"
+                            value="Viernes 15:00"
+                            disabled
+                        >
+                    </div>
 
-  <div class="summary-card">
-    <h3>Canastas Familiares</h3>
-    <div class="summary-number" id="rondaFamiliares">0</div>
-  </div>
+                    <div class="campo">
+                        <button
+                            class="btn-principal"
+                            onclick="guardarRonda()"
+                        >
+                            Guardar ronda
+                        </button>
+                    </div>
 
-</div>
+                </div>
 
-<div class="consolidado-table">
+                <div class="nota">
+                    Las rondas de compra siempre ocurren los domingos.
+                    El cierre de pedidos es automáticamente el viernes
+                    anterior a las 15:00.
+                </div>
 
-  <table>
+            </div>
 
-    <thead>
-      <tr>
-        <th>Concepto</th>
-        <th>Cantidad</th>
-      </tr>
-    </thead>
+        </div>
 
-    <tbody>
 
-      <tr>
-        <td>Familias aceptadas</td>
-        <td id="rondaFamiliasTabla">0</td>
-      </tr>
+        <!-- CONSOLIDADO -->
+        <div style="margin-top:25px;">
 
-      <tr>
-        <td>Canasta Básica</td>
-        <td id="rondaBasicasTabla">0</td>
-      </tr>
+            <h3>Consolidado de la ronda</h3>
 
-      <tr>
-        <td>Canasta Semilla</td>
-        <td id="rondaSemillasTabla">0</td>
-      </tr>
+            <div class="presupuesto">
 
-      <tr>
-        <td>Canasta Familiar</td>
-        <td id="rondaFamiliaresTabla">0</td>
-      </tr>
+                <div class="bloque">
+                    <div class="mini">Familias aceptadas</div>
+                    <div class="monto" id="familiasRonda">0</div>
+                </div>
 
-      <tr class="total-row">
-        <td>Dinero comprometido</td>
-        <td id="rondaDineroTabla">S/ 0</td>
-      </tr>
+                <div class="bloque">
+                    <div class="mini">Canastas básicas</div>
+                    <div class="monto" id="basicasRonda">0</div>
+                </div>
 
-    </tbody>
+                <div class="bloque">
+                    <div class="mini">Canastas semilla</div>
+                    <div class="monto" id="semillasRonda">0</div>
+                </div>
 
-  </table>
+                <div class="bloque">
+                    <div class="mini">Canastas familiares</div>
+                    <div class="monto" id="familiaresRonda">0</div>
+                </div>
 
-</div>
+                <div class="bloque">
+                    <div class="mini">Dinero comprometido</div>
+                    <div class="monto" id="dineroRonda">S/ 0.00</div>
+                </div>
 
-<div class="last-update">
-  El consolidado usa únicamente pedidos con estado Aceptado cuyo
-  <code>ronda_id</code> coincide con la ronda seleccionada.
-</div>
-```
+            </div>
 
-  </div>
 
-  <h2 class="section-title">3. Presupuesto de la ronda</h2>
+            <!-- PRESUPUESTO -->
+            <div style="margin-top:25px;">
 
-  <div id="presupuestoSinSeleccion" class="note note-warning">
-    Selecciona una ronda en la sección anterior para ver su presupuesto.
-  </div>
+                <h3>Distribución del dinero</h3>
 
-  <div id="presupuestoWrap" style="display:none;">
+                <div class="presupuesto">
 
-```
-<div class="presupuesto-grid">
+                    <div class="bloque">
+                        <div class="mini">
+                            Fondo operativo — 35%
+                        </div>
 
-  <div class="presupuesto-card presupuesto-comprometido">
+                        <div
+                            class="monto"
+                            id="gastosOperativos"
+                        >
+                            S/ 0.00
+                        </div>
+                    </div>
 
-    <h3>Dinero comprometido</h3>
 
-    <div
-      class="summary-number"
-      id="presupuestoComprometido"
-    >
-      S/ 0
-    </div>
+                    <div class="bloque">
+                        <div class="mini">
+                            Presupuesto alimentos — 65%
+                        </div>
 
-  </div>
+                        <div
+                            class="monto"
+                            id="presupuestoAlimentos"
+                        >
+                            S/ 0.00
+                        </div>
+                    </div>
 
-  <div class="presupuesto-card presupuesto-operacion">
 
-    <h3>35% · Gastos operativos</h3>
+                    <div class="bloque">
+                        <div class="mini">
+                            Total comprometido
+                        </div>
 
-    <div
-      class="summary-number"
-      id="presupuestoOperacion"
-    >
-      S/ 0
-    </div>
+                        <div
+                            class="monto"
+                            id="presupuestoTotal"
+                        >
+                            S/ 0.00
+                        </div>
+                    </div>
 
-  </div>
+                </div>
 
-  <div class="presupuesto-card presupuesto-alimentos">
+                <div class="nota">
+                    El modelo reserva 35% del dinero comprometido
+                    para operación y utiliza 65% como presupuesto
+                    destinado a alimentos.
+                </div>
 
-    <h3>65% · Presupuesto para alimentos</h3>
+            </div>
 
-    <div
-      class="summary-number"
-      id="presupuestoAlimentos"
-    >
-      S/ 0
-    </div>
+        </div>
 
-  </div>
-
-</div>
-
-<div class="last-update">
-  Regla fija del modelo: 35% del dinero comprometido se reserva para operación
-  y 65% queda disponible para alimentos.
-</div>
-```
-
-  </div>
+    </section>
 
 </main>
 
+
 <script>
 
-  /* =========================================================
-     CONFIGURACIÓN
-     ========================================================= */
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
 
-  const API_BASE =
+const API_BASE =
     "https://msi.tail124b59.ts.net/webhook";
 
-  const API_GET =
+const API_GET =
     API_BASE + "/admin-pedidos";
 
-  const API_POST =
+const API_POST =
     API_BASE + "/admin-estado";
 
-  const API_RONDAS_GET =
+const API_RONDAS_GET =
     API_BASE + "/admin-rondas";
 
-  const API_RONDA_GUARDAR =
+const API_RONDA_GUARDAR =
     API_BASE + "/admin-ronda-guardar";
 
-  const API_PEDIDO_ASIGNAR_RONDA =
-    API_BASE + "/admin-ronda-asignar";
-
-  const RONDA_PREFERENCIA_KEY =
+const RONDA_PREFERENCIA_KEY =
     "compra_con_misti_ronda_seleccionada";
 
-  const GASTOS_OPERATIVOS_PCT =
+const GASTOS_OPERATIVOS_PCT =
     0.35;
 
-  const PRESUPUESTO_ALIMENTOS_PCT =
+const PRESUPUESTO_ALIMENTOS_PCT =
     0.65;
 
-  const ESTADOS_RONDA_LABEL = {
 
-    abierta:
-      "Abierta",
+/* ============================================================
+   VARIABLES
+   ============================================================ */
 
-    cerrada_pedidos:
-      "Cerrada a pedidos",
+let pedidos = [];
+let rondas = [];
+let rondaSeleccionada = "";
 
-    confirmando:
-      "Confirmando",
 
-    lista_para_compra:
-      "Lista para compra",
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
 
-    comprando:
-      "Comprando",
+function dinero(valor) {
 
-    armando:
-      "Armando",
+    const numero = Number(valor || 0);
 
-    entregando:
-      "Entregando",
+    return numero.toLocaleString("es-PE", {
+        style: "currency",
+        currency: "PEN"
+    });
+}
 
-    cerrada:
-      "Cerrada"
 
-  };
+function escaparHTML(texto) {
 
-  /* =========================================================
-     ESTADO
-     ========================================================= */
+    if (texto === null || texto === undefined) {
+        return "";
+    }
 
-  let orders = [];
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-  let rondas = [];
 
-  let rondasDisponibles = false;
+/*
+    Convierte una fecha a objeto Date.
 
-  let rondaSeleccionada =
-    localStorage.getItem(
-      RONDA_PREFERENCIA_KEY
-    ) || "";
+    Las fechas que vienen de n8n pueden estar en formato ISO UTC.
+*/
+function fechaObjeto(valor) {
 
-  const $ =
-    id => document.getElementById(id);
+    if (!valor) {
+        return null;
+    }
 
-  /* =========================================================
-     AUXILIARES
-     ========================================================= */
+    const fecha = new Date(valor);
 
-  const money = n =>
-    "S/ " +
-    Number(n || 0).toLocaleString(
-      "es-PE",
-      {
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-      }
+    if (isNaN(fecha.getTime())) {
+        return null;
+    }
+
+    return fecha;
+}
+
+
+/*
+    Fecha visible para Lima.
+
+    Importante:
+    No usamos toISOString() para mostrar fechas al usuario,
+    porque eso puede mover el día por UTC.
+*/
+function fechaVisible(valor) {
+
+    const fecha = fechaObjeto(valor);
+
+    if (!fecha) {
+        return "-";
+    }
+
+    return fecha.toLocaleString("es-PE", {
+        timeZone: "America/Lima",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+/*
+    Obtiene solamente la fecha YYYY-MM-DD
+    usando horario de Lima.
+*/
+function fechaLimaYYYYMMDD(valor) {
+
+    const fecha = fechaObjeto(valor);
+
+    if (!fecha) {
+        return null;
+    }
+
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Lima",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(fecha);
+}
+
+
+/* ============================================================
+   FUNCIÓN CENTRAL DE RONDAS
+   ============================================================ */
+
+/*
+    REGLA DEL NEGOCIO:
+
+    - Las compras son siempre domingo.
+    - El cierre es siempre viernes 15:00.
+    - Si el pedido llega antes del viernes 15:00,
+      pertenece al domingo inmediato.
+    - Si llega desde viernes 15:00 en adelante,
+      pertenece al domingo siguiente.
+
+    No hay asignación manual.
+*/
+
+function calcularRondaPorFecha(fechaRecepcion) {
+
+    const fecha = fechaObjeto(fechaRecepcion);
+
+    if (!fecha) {
+        return null;
+    }
+
+    /*
+        Convertimos la fecha a componentes de Lima.
+    */
+
+    const partes = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Lima",
+        weekday: "short",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    }).formatToParts(fecha);
+
+    const obtener = nombre => {
+        const parte = partes.find(p => p.type === nombre);
+        return parte ? parte.value : "";
+    };
+
+    const year = Number(obtener("year"));
+    const month = Number(obtener("month"));
+    const day = Number(obtener("day"));
+
+    let hora = Number(obtener("hour"));
+
+    /*
+        En algunos formatos Intl puede aparecer 24.
+    */
+    if (hora === 24) {
+        hora = 0;
+    }
+
+    const minuto = Number(obtener("minute"));
+
+    /*
+        Creamos una fecha calendario en horario local del navegador,
+        pero utilizando los componentes de Lima.
+    */
+
+    const calendario = new Date(
+        year,
+        month - 1,
+        day
     );
 
-  function esc(s){
-
-    return String(s ?? "").replace(
-      /[&<>"']/g,
-      c => ({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#039;"
-      }[c])
-    );
-
-  }
-
-  function normalizeStatus(value){
-
-    return String(
-      value ?? "pendiente"
-    )
-      .trim()
-      .toLowerCase();
-
-  }
-
-  function rondaIdDe(pedido){
-
-    return String(
-      pedido.ronda_id ?? ""
-    ).trim();
-
-  }
-
-  function fechaParaInputDate(value){
-
-    if(!value){
-      return "";
-    }
-
-    const texto =
-      String(value);
-
-    const match =
-      texto.match(
-        /^(\d{4}-\d{2}-\d{2})/
-      );
-
-    return match
-      ? match[1]
-      : "";
-
-  }
-
-  /* =========================================================
-     CARGAR RONDAS
-     ========================================================= */
-
-  async function loadRondas(){
-
-    try{
-
-      const response =
-        await fetch(
-          API_RONDAS_GET,
-          {
-            method:"GET",
-            headers:{
-              "Accept":"application/json"
-            },
-            cache:"no-store"
-          }
-        );
-
-      if(!response.ok){
-        throw new Error(
-          "HTTP " + response.status
-        );
-      }
-
-      const data =
-        await response.json();
-
-      rondas =
-        Array.isArray(data)
-          ? data.filter(
-              r =>
-                String(
-                  r.ronda_id ?? ""
-                ).trim() !== ""
-            )
-          : (
-              data &&
-              String(
-                data.ronda_id ?? ""
-              ).trim() !== ""
-                ? [data]
-                : []
-            );
-
-      rondasDisponibles = true;
-
-      $("rondaBackendNote").style.display =
-        "none";
-
-    }catch(error){
-
-      console.error(error);
-
-      rondas = [];
-
-      rondasDisponibles = false;
-
-      $("rondaBackendNote").style.display =
-        "block";
-
-    }
-
-    renderRondaSelector();
-
-    renderRondaInfoYConsolidado();
-
-  }
-
-  /* =========================================================
-     SELECTOR DE RONDAS
-     ========================================================= */
-
-  function renderRondaSelector(){
-
-    const selector =
-      $("rondaSelector");
-
-    const rondasOrdenadas =
-      [...rondas].sort(
-        (a,b) =>
-          String(
-            b.ronda_id ?? ""
-          ).localeCompare(
-            String(
-              a.ronda_id ?? ""
-            )
-          )
-      );
-
-    selector.innerHTML =
-      '<option value="">— Selecciona una ronda —</option>' +
-
-      rondasOrdenadas
-        .map(r => {
-
-          const id =
-            String(
-              r.ronda_id ?? ""
-            );
-
-          const estado =
-            normalizeStatus(
-              r.estado_ronda
-            );
-
-          const estadoLabel =
-            ESTADOS_RONDA_LABEL[estado]
-              ?? r.estado_ronda
-              ?? "";
-
-          return `
-            <option value="${esc(id)}">
-              ${esc(id)}
-              ${estadoLabel
-                ? " · " + esc(estadoLabel)
-                : ""}
-            </option>
-          `;
-
-        })
-        .join("");
-
-    selector.value =
-      rondaSeleccionada;
-
-    if(
-      selector.value !==
-      rondaSeleccionada
-    ){
-
-      rondaSeleccionada = "";
-
-      localStorage.removeItem(
-        RONDA_PREFERENCIA_KEY
-      );
-
-    }
-
-  }
-
-  $("rondaSelector").addEventListener(
-    "change",
-    event => {
-
-      rondaSeleccionada =
-        event.target.value;
-
-      if(rondaSeleccionada){
-
-        localStorage.setItem(
-          RONDA_PREFERENCIA_KEY,
-          rondaSeleccionada
-        );
-
-      }else{
-
-        localStorage.removeItem(
-          RONDA_PREFERENCIA_KEY
-        );
-
-      }
-
-      renderRondaInfoYConsolidado();
-
-      renderPedidosTabla();
-
-    }
-  );
-
-  /* =========================================================
-     GUARDAR RONDA
-     ========================================================= */
-
-  $("guardarRonda").addEventListener(
-    "click",
-    async () => {
-
-      const ronda = {
-
-        ronda_id:
-          $("rondaId").value.trim(),
-
-        fecha_compra:
-          $("rondaFechaCompra").value,
-
-        fecha_cierre_pedidos:
-          $("rondaFechaCierre").value,
-
-        estado_ronda:
-          $("rondaEstado").value
-
-      };
-
-      if(!ronda.ronda_id){
-
-        alert(
-          "Ingresa un identificador de ronda, " +
-          "por ejemplo R-2026-09-20."
-        );
-
-        return;
-
-      }
-
-      if(!ronda.fecha_compra){
-
-        alert(
-          "Selecciona la fecha de compra."
-        );
-
-        return;
-
-      }
-
-      if(!ronda.fecha_cierre_pedidos){
-
-        alert(
-          "Selecciona la fecha de cierre de pedidos."
-        );
-
-        return;
-
-      }
-
-      try{
-
-        const response =
-          await fetch(
-            API_RONDA_GUARDAR,
-            {
-              method:"POST",
-              headers:{
-                "Content-Type":
-                  "application/json",
-
-                "Accept":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify(ronda)
-            }
-          );
-
-        if(!response.ok){
-
-          throw new Error(
-            "HTTP " + response.status
-          );
-
+    /*
+        getDay():
+        0 domingo
+        1 lunes
+        2 martes
+        3 miércoles
+        4 jueves
+        5 viernes
+        6 sábado
+    */
+
+    const diaSemana = calendario.getDay();
+
+    let diasHastaDomingo;
+
+    /*
+        Antes del viernes 15:00:
+        buscamos el domingo inmediato.
+
+        Viernes 14:59 → 2 días
+        Jueves → 3 días
+        Miércoles → 4 días
+        etc.
+
+        Desde viernes 15:00:
+        domingo siguiente.
+
+        Sábado → domingo siguiente.
+        Domingo → siguiente domingo.
+        Lunes → siguiente domingo.
+    */
+
+    if (diaSemana === 5) {
+
+        if (
+            hora < 15 ||
+            (hora === 14 && minuto < 60)
+        ) {
+            diasHastaDomingo = 2;
+        } else {
+            diasHastaDomingo = 9;
         }
 
-        rondaSeleccionada =
-          ronda.ronda_id;
+    } else if (diaSemana === 6) {
 
-        localStorage.setItem(
-          RONDA_PREFERENCIA_KEY,
-          rondaSeleccionada
+        diasHastaDomingo = 8;
+
+    } else if (diaSemana === 0) {
+
+        diasHastaDomingo = 7;
+
+    } else {
+
+        diasHastaDomingo = 7 - diaSemana;
+    }
+
+    const domingo = new Date(calendario);
+
+    domingo.setDate(
+        domingo.getDate() + diasHastaDomingo
+    );
+
+    const yyyy =
+        domingo.getFullYear();
+
+    const mm =
+        String(domingo.getMonth() + 1)
+        .padStart(2, "0");
+
+    const dd =
+        String(domingo.getDate())
+        .padStart(2, "0");
+
+    return `R-${yyyy}-${mm}-${dd}`;
+}
+
+
+/* ============================================================
+   INFORMACIÓN DE UNA RONDA
+   ============================================================ */
+
+function fechaCompraDesdeRonda(rondaId) {
+
+    if (!rondaId) {
+        return null;
+    }
+
+    const match =
+        String(rondaId).match(
+            /^R-(\d{4})-(\d{2})-(\d{2})$/
         );
+
+    if (!match) {
+        return null;
+    }
+
+    return `${match[1]}-${match[2]}-${match[3]}`;
+}
+
+
+function calcularCierreDesdeCompra(fechaCompra) {
+
+    if (!fechaCompra) {
+        return null;
+    }
+
+    const partes =
+        fechaCompra.split("-").map(Number);
+
+    const fecha = new Date(
+        partes[0],
+        partes[1] - 1,
+        partes[2]
+    );
+
+    /*
+        Domingo - 2 días = viernes.
+    */
+
+    fecha.setDate(
+        fecha.getDate() - 2
+    );
+
+    const yyyy =
+        fecha.getFullYear();
+
+    const mm =
+        String(fecha.getMonth() + 1)
+        .padStart(2, "0");
+
+    const dd =
+        String(fecha.getDate())
+        .padStart(2, "0");
+
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
+function fechaTexto(fecha) {
+
+    if (!fecha) {
+        return "-";
+    }
+
+    const partes =
+        fecha.split("-");
+
+    if (partes.length !== 3) {
+        return fecha;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+
+/* ============================================================
+   CARGAR RONDAS
+   ============================================================ */
+
+async function loadRondas() {
+
+    try {
+
+        const response =
+            await fetch(API_RONDAS_GET, {
+                method: "GET",
+                cache: "no-store"
+            });
+
+        if (!response.ok) {
+            throw new Error(
+                "Error HTTP " + response.status
+            );
+        }
+
+        const data =
+            await response.json();
+
+        rondas =
+            Array.isArray(data)
+                ? data
+                : [];
+
+        /*
+            Ordenamos por fecha de compra.
+        */
+
+        rondas.sort((a, b) => {
+
+            const fa =
+                fechaCompraDesdeRonda(a.ronda_id);
+
+            const fb =
+                fechaCompraDesdeRonda(b.ronda_id);
+
+            return String(fa).localeCompare(
+                String(fb)
+            );
+        });
+
+
+        /*
+            Preferencia anterior del usuario.
+        */
+
+        const guardada =
+            localStorage.getItem(
+                RONDA_PREFERENCIA_KEY
+            );
+
+
+        /*
+            Si existe, la utilizamos.
+        */
+
+        if (
+            guardada &&
+            rondas.some(
+                r => r.ronda_id === guardada
+            )
+        ) {
+
+            rondaSeleccionada =
+                guardada;
+
+        } else {
+
+            /*
+                Si hay rondas, seleccionamos
+                la primera.
+            */
+
+            if (rondas.length > 0) {
+
+                rondaSeleccionada =
+                    rondas[0].ronda_id;
+
+            } else {
+
+                rondaSeleccionada = "";
+            }
+        }
+
+
+        renderRondaSelector();
+
+        renderRondaInfoYConsolidado();
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando rondas:",
+            error
+        );
+
+        rondas = [];
+
+        renderRondaSelector();
+
+        renderRondaInfoYConsolidado();
+    }
+}
+
+
+/* ============================================================
+   SELECTOR DE RONDA
+   ============================================================ */
+
+function renderRondaSelector() {
+
+    const selector =
+        document.getElementById(
+            "rondaSelector"
+        );
+
+    if (!selector) {
+        return;
+    }
+
+    selector.innerHTML = "";
+
+    if (rondas.length === 0) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = "";
+
+        option.textContent =
+            "No hay rondas creadas";
+
+        selector.appendChild(option);
+
+        return;
+    }
+
+
+    rondas.forEach(ronda => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            ronda.ronda_id;
+
+        const fechaCompra =
+            fechaCompraDesdeRonda(
+                ronda.ronda_id
+            );
+
+        option.textContent =
+            `${ronda.ronda_id} — compra ${fechaTexto(fechaCompra)}`;
+
+        selector.appendChild(option);
+
+    });
+
+
+    selector.value =
+        rondaSeleccionada;
+}
+
+
+function seleccionarRonda(rondaId) {
+
+    rondaSeleccionada =
+        rondaId;
+
+    localStorage.setItem(
+        RONDA_PREFERENCIA_KEY,
+        rondaId
+    );
+
+    renderOrders();
+
+    renderRondaInfoYConsolidado();
+}
+
+
+/* ============================================================
+   INFORMACIÓN Y CONSOLIDADO
+   ============================================================ */
+
+function obtenerRondaSeleccionada() {
+
+    return rondas.find(
+        r => r.ronda_id === rondaSeleccionada
+    );
+}
+
+
+function computeConsolidadoRonda() {
+
+    const ronda =
+        rondaSeleccionada;
+
+    const aceptados =
+        pedidos.filter(p => {
+
+            const estado =
+                String(
+                    p.estado || ""
+                ).toLowerCase();
+
+            /*
+                MUY IMPORTANTE:
+
+                No confiamos en que el pedido tenga
+                ronda_id manual.
+
+                Si tiene ronda_id, lo usamos.
+
+                Si no tiene, calculamos automáticamente
+                desde fecha_recepcion.
+            */
+
+            const rondaPedido =
+                p.ronda_id ||
+                calcularRondaPorFecha(
+                    p.fecha_recepcion
+                );
+
+            return (
+                estado === "aceptado" &&
+                rondaPedido === ronda
+            );
+
+        });
+
+
+    let basicas = 0;
+    let semillas = 0;
+    let familiares = 0;
+    let dinero = 0;
+
+
+    aceptados.forEach(p => {
+
+        basicas += Number(
+            p.canasta_basica_cantidad || 0
+        );
+
+        semillas += Number(
+            p.canasta_semilla_cantidad || 0
+        );
+
+        familiares += Number(
+            p.canasta_familiar_cantidad || 0
+        );
+
+        dinero += Number(
+            p.total_solicitado || 0
+        );
+
+    });
+
+
+    return {
+        familias: aceptados.length,
+        basicas,
+        semillas,
+        familiares,
+        dinero
+    };
+}
+
+
+function renderRondaInfoYConsolidado() {
+
+    const info =
+        document.getElementById(
+            "rondaInfo"
+        );
+
+    const ronda =
+        obtenerRondaSeleccionada();
+
+    if (!ronda) {
+
+        if (info) {
+
+            info.innerHTML = `
+                <div class="vacio">
+                    No hay una ronda seleccionada.
+                </div>
+            `;
+        }
+
+        document.getElementById(
+            "familiasRonda"
+        ).textContent = "0";
+
+        document.getElementById(
+            "basicasRonda"
+        ).textContent = "0";
+
+        document.getElementById(
+            "semillasRonda"
+        ).textContent = "0";
+
+        document.getElementById(
+            "familiaresRonda"
+        ).textContent = "0";
+
+        document.getElementById(
+            "dineroRonda"
+        ).textContent = "S/ 0.00";
+
+        document.getElementById(
+            "gastosOperativos"
+        ).textContent = "S/ 0.00";
+
+        document.getElementById(
+            "presupuestoAlimentos"
+        ).textContent = "S/ 0.00";
+
+        document.getElementById(
+            "presupuestoTotal"
+        ).textContent = "S/ 0.00";
+
+        return;
+    }
+
+
+    const fechaCompra =
+        fechaCompraDesdeRonda(
+            ronda.ronda_id
+        );
+
+    const fechaCierre =
+        calcularCierreDesdeCompra(
+            fechaCompra
+        );
+
+
+    if (info) {
+
+        info.innerHTML = `
+
+            <div class="dato">
+                <span>Ronda</span>
+                <strong>${escaparHTML(ronda.ronda_id)}</strong>
+            </div>
+
+            <div class="dato">
+                <span>Estado</span>
+                <strong>
+                    ${escaparHTML(ronda.estado_ronda || "abierta")}
+                </strong>
+            </div>
+
+            <div class="dato">
+                <span>Cierre de pedidos</span>
+                <strong>
+                    Viernes ${fechaTexto(fechaCierre)} · 15:00
+                </strong>
+            </div>
+
+            <div class="dato">
+                <span>Compra</span>
+                <strong>
+                    Domingo ${fechaTexto(fechaCompra)} · 04:00
+                </strong>
+            </div>
+
+        `;
+    }
+
+
+    const consolidado =
+        computeConsolidadoRonda();
+
+
+    document.getElementById(
+        "familiasRonda"
+    ).textContent =
+        consolidado.familias;
+
+
+    document.getElementById(
+        "basicasRonda"
+    ).textContent =
+        consolidado.basicas;
+
+
+    document.getElementById(
+        "semillasRonda"
+    ).textContent =
+        consolidado.semillas;
+
+
+    document.getElementById(
+        "familiaresRonda"
+    ).textContent =
+        consolidado.familiares;
+
+
+    document.getElementById(
+        "dineroRonda"
+    ).textContent =
+        dinero(consolidado.dinero);
+
+
+    const operaciones =
+        consolidado.dinero *
+        GASTOS_OPERATIVOS_PCT;
+
+
+    const alimentos =
+        consolidado.dinero *
+        PRESUPUESTO_ALIMENTOS_PCT;
+
+
+    document.getElementById(
+        "gastosOperativos"
+    ).textContent =
+        dinero(operaciones);
+
+
+    document.getElementById(
+        "presupuestoAlimentos"
+    ).textContent =
+        dinero(alimentos);
+
+
+    document.getElementById(
+        "presupuestoTotal"
+    ).textContent =
+        dinero(consolidado.dinero);
+}
+
+
+/* ============================================================
+   GUARDAR RONDA
+   ============================================================ */
+
+async function guardarRonda() {
+
+    const fechaCompra =
+        document.getElementById(
+            "fechaCompra"
+        ).value;
+
+    const estado =
+        document.getElementById(
+            "estadoRonda"
+        ).value;
+
+
+    if (!fechaCompra) {
+
+        alert(
+            "Selecciona la fecha de compra."
+        );
+
+        return;
+    }
+
+
+    /*
+        La compra debe ser domingo.
+    */
+
+    const partes =
+        fechaCompra.split("-").map(Number);
+
+    const fecha =
+        new Date(
+            partes[0],
+            partes[1] - 1,
+            partes[2]
+        );
+
+    if (fecha.getDay() !== 0) {
+
+        alert(
+            "La fecha de compra debe ser domingo."
+        );
+
+        return;
+    }
+
+
+    const rondaId =
+        `R-${fechaCompra}`;
+
+
+    const fechaCierre =
+        calcularCierreDesdeCompra(
+            fechaCompra
+        );
+
+
+    const body = {
+
+        ronda_id:
+            rondaId,
+
+        fecha_compra:
+            fechaCompra,
+
+        fecha_cierre_pedidos:
+            `${fechaCierre}T15:00:00`,
+
+        estado_ronda:
+            estado
+    };
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_RONDA_GUARDAR,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(body)
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Error HTTP " +
+                response.status
+            );
+        }
+
+
+        alert(
+            `Ronda ${rondaId} guardada.`
+        );
+
 
         await loadRondas();
 
-        await loadOrders();
+        rondaSeleccionada =
+            rondaId;
 
-        alert(
-          "Ronda guardada correctamente."
+        localStorage.setItem(
+            RONDA_PREFERENCIA_KEY,
+            rondaId
         );
 
-      }catch(error){
+        renderRondaSelector();
+
+        renderRondaInfoYConsolidado();
+
+        renderOrders();
+
+    } catch (error) {
 
         console.error(error);
 
         alert(
-          "No se pudo guardar la ronda. " +
-          "Revisa el endpoint admin-ronda-guardar."
+            "No se pudo guardar la ronda."
         );
-
-      }
-
     }
-  );
+}
 
-  /* =========================================================
-     ASIGNAR RONDA A PEDIDO
-     ========================================================= */
 
-  async function asignarRondaAPedido(
-    id,
-    rondaId
-  ){
+/* ============================================================
+   CARGAR PEDIDOS
+   ============================================================ */
 
-    const rondaAnterior =
-      orders.find(
-        o =>
-          String(o.id) === String(id)
-      );
+async function loadOrders() {
 
-    const rondaAnteriorId =
-      rondaAnterior
-        ? rondaIdDe(rondaAnterior)
-        : "";
-
-    try{
-
-      const response =
-        await fetch(
-          API_PEDIDO_ASIGNAR_RONDA,
-          {
-            method:"POST",
-
-            headers:{
-              "Content-Type":
-                "application/json",
-
-              "Accept":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify({
-                id:Number(id),
-                ronda_id:String(rondaId || "")
-              })
-          }
+    const conexion =
+        document.getElementById(
+            "conexion"
         );
 
-      if(!response.ok){
+    conexion.textContent =
+        "Conectando con n8n…";
 
-        throw new Error(
-          "HTTP " + response.status
+    conexion.className =
+        "conexion";
+
+
+    try {
+
+        const response =
+            await fetch(
+                API_GET,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Error HTTP " +
+                response.status
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        pedidos =
+            Array.isArray(data)
+                ? data
+                : [];
+
+
+        conexion.textContent =
+            "Conectado con n8n";
+
+        conexion.className =
+            "conexion ok";
+
+
+        /*
+            Primero cargamos rondas.
+        */
+
+        await loadRondas();
+
+
+        /*
+            Luego mostramos pedidos.
+        */
+
+        renderOrders();
+
+        renderResumen();
+
+        renderRondaInfoYConsolidado();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cargando pedidos:",
+            error
         );
 
-      }
+        conexion.textContent =
+            "Error de conexión con n8n";
 
-      /*
-       * El backend ya respondió correctamente.
-       * Volvemos a leer pedidos desde n8n para que
-       * la pantalla muestre el dato realmente guardado.
-       */
-
-      await loadOrders();
-
-      alert(
-        rondaId
-          ? "Pedido asignado a " + rondaId + "."
-          : "La ronda del pedido fue quitada."
-      );
-
-    }catch(error){
-
-      console.error(error);
-
-      /*
-       * Si falló, restauramos visualmente la selección
-       * anterior cuando sea posible.
-       */
-
-      const pedido =
-        orders.find(
-          o =>
-            String(o.id) === String(id)
-        );
-
-      if(pedido){
-        pedido.ronda_id =
-          rondaAnteriorId;
-      }
-
-      renderPedidosTabla();
-
-      alert(
-        "No se pudo asignar la ronda.\n\n" +
-        "Error: " +
-        (error.message || "desconocido")
-      );
-
+        conexion.className =
+            "conexion error";
     }
+}
 
-  }
 
-  /* =========================================================
-     CONSOLIDADO
-     ========================================================= */
+/* ============================================================
+   RESUMEN
+   ============================================================ */
 
-  function computeConsolidadoRonda(){
+function renderResumen() {
 
-    if(!rondaSeleccionada){
-      return null;
-    }
+    const total =
+        pedidos.length;
 
-    const aceptadosDeLaRonda =
-      orders.filter(
-        o =>
-          normalizeStatus(
-            o.estado
-          ) === "aceptado"
-          &&
-          rondaIdDe(o) ===
-          rondaSeleccionada
-      );
 
-    const familias =
-      aceptadosDeLaRonda.length;
+    const pendientes =
+        pedidos.filter(p =>
+            String(
+                p.estado || ""
+            ).toLowerCase() ===
+            "pendiente"
+        ).length;
 
-    const basicas =
-      aceptadosDeLaRonda.reduce(
-        (sum,o) =>
-          sum +
-          Number(
-            o.canasta_basica_cantidad || 0
-          ),
-        0
-      );
 
-    const semillas =
-      aceptadosDeLaRonda.reduce(
-        (sum,o) =>
-          sum +
-          Number(
-            o.canasta_semilla_cantidad || 0
-          ),
-        0
-      );
+    const aceptados =
+        pedidos.filter(p =>
+            String(
+                p.estado || ""
+            ).toLowerCase() ===
+            "aceptado"
+        );
 
-    const familiares =
-      aceptadosDeLaRonda.reduce(
-        (sum,o) =>
-          sum +
-          Number(
-            o.canasta_familiar_cantidad || 0
-          ),
-        0
-      );
 
     const dinero =
-      aceptadosDeLaRonda.reduce(
-        (sum,o) =>
-          sum +
-          Number(
-            o.total_solicitado || 0
-          ),
-        0
-      );
-
-    return {
-      familias,
-      basicas,
-      semillas,
-      familiares,
-      dinero
-    };
-
-  }
-
-  /* =========================================================
-     INFORMACIÓN DE RONDA
-     ========================================================= */
-
-  function renderRondaInfoYConsolidado(){
-
-    const ronda =
-      rondas.find(
-        r =>
-          String(
-            r.ronda_id ?? ""
-          ) === rondaSeleccionada
-      );
-
-    $("rondaEstadoBadge").textContent =
-      ronda
-
-        ? rondaSeleccionada +
-          " · " +
-          (
-            ESTADOS_RONDA_LABEL[
-              normalizeStatus(
-                ronda.estado_ronda
-              )
-            ]
-            ??
-            ronda.estado_ronda
-            ??
-            ""
-          )
-
-        :
-
-          (
-            rondaSeleccionada
-              ? rondaSeleccionada +
-                " (sin datos en backend)"
-              : "Sin ronda seleccionada"
-          );
-
-    if(ronda){
-
-      $("rondaId").value =
-        ronda.ronda_id ?? "";
-
-      $("rondaFechaCompra").value =
-        fechaParaInputDate(
-          ronda.fecha_compra
+        aceptados.reduce(
+            (suma, p) =>
+                suma +
+                Number(
+                    p.total_solicitado || 0
+                ),
+            0
         );
 
-      $("rondaFechaCierre").value =
-        fechaParaInputDate(
-          ronda.fecha_cierre_pedidos
+
+    document.getElementById(
+        "totalPedidos"
+    ).textContent =
+        total;
+
+
+    document.getElementById(
+        "totalPendientes"
+    ).textContent =
+        pendientes;
+
+
+    document.getElementById(
+        "totalAceptados"
+    ).textContent =
+        aceptados.length;
+
+
+    document.getElementById(
+        "dineroComprometido"
+    ).textContent =
+        dineroTotal(dinero);
+}
+
+
+function dineroTotal(valor) {
+
+    return Number(valor || 0)
+        .toLocaleString(
+            "es-PE",
+            {
+                style: "currency",
+                currency: "PEN"
+            }
+        );
+}
+
+
+/* ============================================================
+   RENDER PEDIDOS
+   ============================================================ */
+
+function renderOrders() {
+
+    const tbody =
+        document.getElementById(
+            "tablaPedidos"
         );
 
-      $("rondaEstado").value =
-        normalizeStatus(
-          ronda.estado_ronda
-        ) || "abierta";
 
-    }
+    const busqueda =
+        String(
+            document.getElementById(
+                "busqueda"
+            ).value || ""
+        )
+        .trim()
+        .toLowerCase();
 
-    const consolidado =
-      computeConsolidadoRonda();
 
-    const haySeleccion =
-      Boolean(
-        rondaSeleccionada
-      );
+    const filtroEstado =
+        document.getElementById(
+            "filtroEstado"
+        ).value;
 
-    $("rondaSinSeleccion").style.display =
-      haySeleccion
-        ? "none"
-        : "block";
-
-    $("rondaConsolidadoWrap").style.display =
-      haySeleccion
-        ? "block"
-        : "none";
-
-    $("presupuestoSinSeleccion").style.display =
-      haySeleccion
-        ? "none"
-        : "block";
-
-    $("presupuestoWrap").style.display =
-      haySeleccion
-        ? "block"
-        : "none";
-
-    if(!consolidado){
-      return;
-    }
-
-    $("rondaFamilias").textContent =
-      consolidado.familias;
-
-    $("rondaBasicas").textContent =
-      consolidado.basicas;
-
-    $("rondaSemillas").textContent =
-      consolidado.semillas;
-
-    $("rondaFamiliares").textContent =
-      consolidado.familiares;
-
-    $("rondaFamiliasTabla").textContent =
-      consolidado.familias;
-
-    $("rondaBasicasTabla").textContent =
-      consolidado.basicas;
-
-    $("rondaSemillasTabla").textContent =
-      consolidado.semillas;
-
-    $("rondaFamiliaresTabla").textContent =
-      consolidado.familiares;
-
-    $("rondaDineroTabla").textContent =
-      money(
-        consolidado.dinero
-      );
-
-    const operacion =
-      consolidado.dinero *
-      GASTOS_OPERATIVOS_PCT;
-
-    const alimentos =
-      consolidado.dinero *
-      PRESUPUESTO_ALIMENTOS_PCT;
-
-    $("presupuestoComprometido").textContent =
-      money(
-        consolidado.dinero
-      );
-
-    $("presupuestoOperacion").textContent =
-      money(
-        operacion
-      );
-
-    $("presupuestoAlimentos").textContent =
-      money(
-        alimentos
-      );
-
-  }
-
-  /* =========================================================
-     OPCIONES DE RONDA PARA CADA PEDIDO
-     ========================================================= */
-
-  function opcionesRondaParaFila(
-    pedido
-  ){
-
-    const actual =
-      rondaIdDe(pedido);
-
-    const opciones = [
-
-      `
-      <option
-        value=""
-        ${!actual ? "selected" : ""}
-      >
-        Sin ronda
-      </option>
-      `
-
-    ];
-
-    rondas.forEach(
-      r => {
-
-        const id =
-          String(
-            r.ronda_id ?? ""
-          );
-
-        opciones.push(`
-
-          <option
-            value="${esc(id)}"
-            ${id === actual ? "selected" : ""}
-          >
-            ${esc(id)}
-          </option>
-
-        `);
-
-      }
-    );
-
-    return opciones.join("");
-
-  }
-
-  /* =========================================================
-     TABLA DE PEDIDOS
-     ========================================================= */
-
-  function renderPedidosTabla(){
-
-    const q =
-      $("search").value
-        .toLowerCase()
-        .trim();
-
-    const f =
-      $("filter").value;
 
     const soloRonda =
-      $("soloRondaSeleccionada").checked
-      &&
-      Boolean(
-        rondaSeleccionada
-      );
+        document.getElementById(
+            "soloRonda"
+        ).checked;
 
-    const filtered =
-      orders.filter(
-        o => {
 
-          const cliente =
-            String(
-              o.cliente ?? ""
-            );
+    const filtrados =
+        pedidos.filter(p => {
 
-          const celular =
-            String(
-              o.celular ?? ""
-            );
 
-          const estado =
-            normalizeStatus(
-              o.estado
-            );
+            const cliente =
+                String(
+                    p.cliente || ""
+                ).toLowerCase();
 
-          const matchesSearch =
-            !q
-            ||
-            (
-              cliente +
-              " " +
-              celular
-            )
-              .toLowerCase()
-              .includes(q);
 
-          const matchesFilter =
-            f === "todos"
-            ||
-            estado === f;
+            const celular =
+                String(
+                    p.celular || ""
+                ).toLowerCase();
 
-          const matchesRonda =
-            !soloRonda
-            ||
-            rondaIdDe(o) ===
-            rondaSeleccionada;
 
-          return (
-            matchesSearch
-            &&
-            matchesFilter
-            &&
-            matchesRonda
-          );
+            if (
+                busqueda &&
+                !cliente.includes(busqueda) &&
+                !celular.includes(busqueda)
+            ) {
 
-        }
-      );
+                return false;
+            }
 
-    $("empty").style.display =
-      filtered.length
-        ? "none"
-        : "block";
 
-    $("rows").innerHTML =
-      filtered.map(
-        o => {
+            if (
+                filtroEstado &&
+                String(
+                    p.estado || ""
+                ) !== filtroEstado
+            ) {
 
-          const estado =
-            normalizeStatus(
-              o.estado
-            );
+                return false;
+            }
 
-          const esPendiente =
-            estado === "pendiente";
 
-          const estadoTexto =
-            estado.charAt(0).toUpperCase()
-            +
-            estado.slice(1);
+            if (soloRonda) {
 
-          const statusClass =
-            estado === "aceptado"
+                const rondaPedido =
+                    p.ronda_id ||
+                    calcularRondaPorFecha(
+                        p.fecha_recepcion
+                    );
 
-              ? "status-aceptado"
 
-              : estado === "rechazado"
+                if (
+                    rondaPedido !==
+                    rondaSeleccionada
+                ) {
 
-                ? "status-rechazado"
+                    return false;
+                }
+            }
 
-                : "status-pendiente";
 
-          const canastas = [
+            return true;
 
-            Number(
-              o.canasta_basica_cantidad || 0
-            )
-              ? `Básica ${
-                  Number(
-                    o.canasta_basica_cantidad || 0
-                  )
-                }`
-              : "",
+        });
 
-            Number(
-              o.canasta_semilla_cantidad || 0
-            )
-              ? `Semilla ${
-                  Number(
-                    o.canasta_semilla_cantidad || 0
-                  )
-                }`
-              : "",
 
-            Number(
-              o.canasta_familiar_cantidad || 0
-            )
-              ? `Familiar ${
-                  Number(
-                    o.canasta_familiar_cantidad || 0
-                  )
-                }`
-              : ""
+    tbody.innerHTML = "";
 
-          ]
-            .filter(Boolean)
-            .join(" · ");
 
-          const ronda =
-            rondaIdDe(o);
+    if (filtrados.length === 0) {
 
-          const rondaBadge =
-            ronda
-
-              ?
-
-              `
-              <span class="ronda-badge">
-                ${esc(ronda)}
-              </span>
-              `
-
-              :
-
-              `
-              <span class="ronda-badge sin-ronda">
-                Sin ronda asignada
-              </span>
-              `;
-
-          const rondaAssign =
-            rondasDisponibles
-
-              ?
-
-              `
-              <div class="ronda-assign">
-
-                <select
-                  data-id="${esc(o.id)}"
-                  aria-label="Asignar ronda"
-                >
-
-                  ${opcionesRondaParaFila(o)}
-
-                </select>
-
-              </div>
-              `
-
-              : "";
-
-          return `
-
+        tbody.innerHTML = `
             <tr>
+                <td colspan="8" class="vacio">
+                    No hay pedidos para mostrar.
+                </td>
+            </tr>
+        `;
 
-              <td>
+        return;
+    }
+
+
+    filtrados.forEach(pedido => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        const basica =
+            Number(
+                pedido.canasta_basica_cantidad || 0
+            );
+
+        const semilla =
+            Number(
+                pedido.canasta_semilla_cantidad || 0
+            );
+
+        const familiar =
+            Number(
+                pedido.canasta_familiar_cantidad || 0
+            );
+
+
+        /*
+            AQUÍ ESTÁ LA PARTE IMPORTANTE:
+
+            Si el backend todavía no tiene ronda_id,
+            el HTML la calcula automáticamente.
+
+            Así no tienes que asignarla manualmente.
+        */
+
+        const ronda =
+            pedido.ronda_id ||
+            calcularRondaPorFecha(
+                pedido.fecha_recepcion
+            );
+
+
+        const estado =
+            String(
+                pedido.estado || "pendiente"
+            );
+
+
+        let claseEstado =
+            "estado-pendiente";
+
+
+        if (
+            estado.toLowerCase() ===
+            "aceptado"
+        ) {
+
+            claseEstado =
+                "estado-aceptado";
+
+        } else if (
+            estado.toLowerCase() ===
+            "rechazado"
+        ) {
+
+            claseEstado =
+                "estado-rechazado";
+        }
+
+
+        tr.innerHTML = `
+
+            <td>
                 <strong>
-                  ${esc(o.cliente)}
+                    ${escaparHTML(pedido.cliente)}
                 </strong>
-              </td>
+            </td>
 
-              <td>
-                ${esc(o.celular)}
-              </td>
+            <td>
+                ${escaparHTML(pedido.celular)}
+            </td>
 
-              <td>
-                ${esc(canastas)}
-              </td>
+            <td>
 
-              <td>
-                ${money(
-                  o.total_solicitado
-                )}
-              </td>
+                Básica:
+                ${basica}
 
-              <td>
+                <br>
 
-                <span
-                  class="status ${statusClass}"
-                >
-                  ${esc(
-                    estadoTexto
-                  )}
+                Semilla:
+                ${semilla}
+
+                <br>
+
+                Familiar:
+                ${familiar}
+
+            </td>
+
+            <td>
+                ${dinero(pedido.total_solicitado)}
+            </td>
+
+            <td>
+                <span class="estado ${claseEstado}">
+                    ${escaparHTML(estado)}
                 </span>
+            </td>
 
-              </td>
+            <td>
+                <span class="ronda-badge">
+                    ${escaparHTML(ronda || "Sin ronda")}
+                </span>
+            </td>
 
-              <td>
+            <td>
+                <span class="mini">
+                    ${fechaVisible(
+                        pedido.fecha_recepcion
+                    )}
+                </span>
+            </td>
 
-                ${rondaBadge}
+            <td>
 
-                ${rondaAssign}
+                <div class="acciones">
 
-              </td>
+                    ${
+                        estado.toLowerCase() !==
+                        "aceptado"
+                        ?
+                        `
+                        <button
+                            class="btn-aceptar"
+                            onclick="changeStatus(
+                                ${pedido.id},
+                                'Aceptado'
+                            )"
+                        >
+                            Aceptar
+                        </button>
+                        `
+                        :
+                        ""
+                    }
 
-              <td>
 
-                <div class="actions">
+                    ${
+                        estado.toLowerCase() !==
+                        "rechazado"
+                        ?
+                        `
+                        <button
+                            class="btn-rechazar"
+                            onclick="changeStatus(
+                                ${pedido.id},
+                                'Rechazado'
+                            )"
+                        >
+                            Rechazar
+                        </button>
+                        `
+                        :
+                        ""
+                    }
 
-                  <button
-                    class="primary"
-                    data-a="accept"
-                    data-id="${esc(o.id)}"
-                    ${!esPendiente ? "disabled" : ""}
-                  >
-                    Aceptar
-                  </button>
 
-                  <button
-                    class="secondary"
-                    data-a="reject"
-                    data-id="${esc(o.id)}"
-                    ${!esPendiente ? "disabled" : ""}
-                  >
-                    Rechazar
-                  </button>
-
-                  <button
-                    class="secondary"
-                    data-a="detail"
-                    data-id="${esc(o.id)}"
-                  >
-                    Ver detalle
-                  </button>
+                    <button
+                        class="btn-secundario"
+                        onclick='verDetalle(${JSON.stringify(pedido)})'
+                    >
+                        Ver detalle
+                    </button>
 
                 </div>
 
-              </td>
+            </td>
 
-            </tr>
+        `;
 
-          `;
 
-        }
-      ).join("");
+        tbody.appendChild(tr);
 
-  }
+    });
 
-  /* =========================================================
-     RESUMEN GLOBAL
-     ========================================================= */
+}
 
-  function renderResumenGlobal(){
 
-    $("total").textContent =
-      orders.length;
+/* ============================================================
+   CAMBIAR ESTADO
+   ============================================================ */
 
-    $("pending").textContent =
-      orders.filter(
-        o =>
-          normalizeStatus(
-            o.estado
-          ) === "pendiente"
-      ).length;
+async function changeStatus(id, estado) {
 
-    $("accepted").textContent =
-      orders.filter(
-        o =>
-          normalizeStatus(
-            o.estado
-          ) === "aceptado"
-      ).length;
-
-    const moneyAccepted =
-      orders
-        .filter(
-          o =>
-            normalizeStatus(
-              o.estado
-            ) === "aceptado"
-        )
-        .reduce(
-          (sum,o) =>
-            sum +
-            Number(
-              o.total_solicitado || 0
-            ),
-          0
+    const confirmacion =
+        confirm(
+            `¿Quieres marcar este pedido como "${estado}"?`
         );
 
-    $("money").textContent =
-      money(
-        moneyAccepted
-      );
 
-  }
-
-  function render(){
-
-    renderResumenGlobal();
-
-    renderPedidosTabla();
-
-    renderRondaInfoYConsolidado();
-
-  }
-
-  /* =========================================================
-     CARGAR PEDIDOS
-     ========================================================= */
-
-  async function loadOrders(){
-
-    try{
-
-      $("connectionStatus").textContent =
-        "Conectando con n8n…";
-
-      const response =
-        await fetch(
-          API_GET,
-          {
-            method:"GET",
-            headers:{
-              "Accept":"application/json"
-            },
-            cache:"no-store"
-          }
-        );
-
-      if(!response.ok){
-
-        throw new Error(
-          "HTTP " + response.status
-        );
-
-      }
-
-      const data =
-        await response.json();
-
-      orders =
-        Array.isArray(data)
-          ? data
-          : [data];
-
-      $("connectionStatus").textContent =
-        "n8n conectado · " +
-        orders.length +
-        " pedidos";
-
-      $("error").style.display =
-        "none";
-
-      render();
-
-    }catch(error){
-
-      console.error(error);
-
-      $("connectionStatus").textContent =
-        "Error de conexión";
-
-      $("error").textContent =
-        "No se pudieron cargar los pedidos. " +
-        "Revisa la conexión con n8n.";
-
-      $("error").style.display =
-        "block";
-
-    }
-
-  }
-
-  /* =========================================================
-     CAMBIAR ESTADO
-     ========================================================= */
-
-  async function changeStatus(
-    id,
-    estado
-  ){
-
-    try{
-
-      const response =
-        await fetch(
-          API_POST,
-          {
-            method:"POST",
-
-            headers:{
-              "Content-Type":
-                "application/json",
-
-              "Accept":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify({
-                id:Number(id),
-                estado:estado
-              })
-          }
-        );
-
-      if(!response.ok){
-
-        throw new Error(
-          "HTTP " + response.status
-        );
-
-      }
-
-      await loadOrders();
-
-    }catch(error){
-
-      console.error(error);
-
-      alert(
-        "No se pudo actualizar el estado del pedido."
-      );
-
-    }
-
-  }
-
-  /* =========================================================
-     EVENTOS DE LA TABLA
-     ========================================================= */
-
-  $("rows").addEventListener(
-    "click",
-    async event => {
-
-      const button =
-        event.target.closest(
-          "button"
-        );
-
-      if(!button){
+    if (!confirmacion) {
         return;
-      }
+    }
 
-      const action =
-        button.dataset.a;
 
-      const id =
-        button.dataset.id;
+    try {
 
-      if(action === "accept"){
+        const response =
+            await fetch(
+                API_POST,
+                {
+                    method: "POST",
 
-        if(
-          !confirm(
-            "¿Aceptar este pedido?"
-          )
-        ){
-          return;
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            id: id,
+                            estado: estado
+                        })
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Error HTTP " +
+                response.status
+            );
         }
 
-        await changeStatus(
-          id,
-          "Aceptado"
-        );
 
-      }
+        await loadOrders();
 
-      else if(
-        action === "reject"
-      ){
 
-        if(
-          !confirm(
-            "¿Rechazar este pedido?"
-          )
-        ){
-          return;
-        }
+    } catch (error) {
 
-        await changeStatus(
-          id,
-          "Rechazado"
-        );
-
-      }
-
-      else if(
-        action === "detail"
-      ){
-
-        const pedido =
-          orders.find(
-            o =>
-              String(o.id)
-              ===
-              String(id)
-          );
-
-        if(!pedido){
-          return;
-        }
+        console.error(error);
 
         alert(
+            "No se pudo actualizar el estado."
+        );
+    }
+}
 
-          "Cliente: " +
-          (pedido.cliente ?? "")
 
-          +
+/* ============================================================
+   DETALLE
+   ============================================================ */
 
-          "\n\nCelular: " +
-          (pedido.celular ?? "")
+function verDetalle(pedido) {
 
-          +
-
-          "\n\nCanasta Básica: " +
-          (
-            pedido.canasta_basica_cantidad
-            ?? 0
-          )
-
-          +
-
-          "\nCanasta Semilla: " +
-          (
-            pedido.canasta_semilla_cantidad
-            ?? 0
-          )
-
-          +
-
-          "\nCanasta Familiar: " +
-          (
-            pedido.canasta_familiar_cantidad
-            ?? 0
-          )
-
-          +
-
-          "\n\nTotal solicitado: " +
-          money(
-            pedido.total_solicitado
-          )
-
-          +
-
-          "\n\nRonda: " +
-          (
-            rondaIdDe(pedido)
-            ||
-            "Sin ronda asignada"
-          )
-
-          +
-
-          "\n\nSolicitud: " +
-          (
-            pedido.solicitud
-            ?? ""
-          )
-
+    const ronda =
+        pedido.ronda_id ||
+        calcularRondaPorFecha(
+            pedido.fecha_recepcion
         );
 
-      }
 
-    }
-  );
+    const mensaje =
 
-  $("rows").addEventListener(
-    "change",
-    async event => {
+        `CLIENTE
+${pedido.cliente || "-"}
 
-      const select =
-        event.target.closest(
-          "select[data-id]"
+CELULAR
+${pedido.celular || "-"}
+
+CANASTA BÁSICA
+${pedido.canasta_basica_cantidad || 0}
+
+CANASTA SEMILLA
+${pedido.canasta_semilla_cantidad || 0}
+
+CANASTA FAMILIAR
+${pedido.canasta_familiar_cantidad || 0}
+
+TOTAL
+${dinero(pedido.total_solicitado)}
+
+ESTADO
+${pedido.estado || "-"}
+
+RONDA
+${ronda || "-"}
+
+FECHA DE RECEPCIÓN
+${fechaVisible(pedido.fecha_recepcion)}
+
+SOLICITUD
+${pedido.solicitud || "-"}`;
+
+
+    alert(mensaje);
+}
+
+
+/* ============================================================
+   INICIALIZACIÓN
+   ============================================================ */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function() {
+
+        /*
+            Ponemos automáticamente
+            la próxima fecha domingo en el formulario.
+        */
+
+        const hoy =
+            new Date();
+
+        const domingo =
+            new Date(hoy);
+
+        const dia =
+            domingo.getDay();
+
+        const dias =
+            dia === 0
+                ? 7
+                : 7 - dia;
+
+        domingo.setDate(
+            domingo.getDate() + dias
         );
 
-      if(!select){
-        return;
-      }
 
-      const id =
-        select.dataset.id;
+        const yyyy =
+            domingo.getFullYear();
 
-      const nuevaRonda =
-        select.value;
+        const mm =
+            String(
+                domingo.getMonth() + 1
+            ).padStart(2, "0");
 
-      select.disabled = true;
+        const dd =
+            String(
+                domingo.getDate()
+            ).padStart(2, "0");
 
-      await asignarRondaAPedido(
-        id,
-        nuevaRonda
-      );
 
-      select.disabled = false;
+        document.getElementById(
+            "fechaCompra"
+        ).value =
+            `${yyyy}-${mm}-${dd}`;
 
-    }
-  );
 
-  /* =========================================================
-     FILTROS
-     ========================================================= */
-
-  $("search").addEventListener(
-    "input",
-    renderPedidosTabla
-  );
-
-  $("filter").addEventListener(
-    "change",
-    renderPedidosTabla
-  );
-
-  $("soloRondaSeleccionada")
-    .addEventListener(
-      "change",
-      renderPedidosTabla
-    );
-
-  $("refresh").addEventListener(
-    "click",
-    async () => {
-
-      await loadRondas();
-
-      await loadOrders();
+        await loadOrders();
 
     }
-  );
-
-  /* =========================================================
-     INICIO
-     ========================================================= */
-
-  (async () => {
-
-    await loadRondas();
-
-    await loadOrders();
-
-  })();
+);
 
 </script>
 
