@@ -84,13 +84,14 @@ button {
 }
 
 .btn-add {
-  background: #333;
+  background: #2e7d32;
   color: white;
 }
 
 .btn-delete {
-  background: #ddd;
-  color: #b71c1c;
+  background: #c62828;
+  color: white;
+  padding: 7px 10px;
 }
 
 .cards {
@@ -414,22 +415,21 @@ td {
   font-weight: bold;
 }
 
-.gift-total-box {
-  background: #fafafa;
-  border: 1px solid #ddd;
-  border-radius: 9px;
-  padding: 15px;
-  margin-top: 15px;
-}
-
-.saldo-final {
-  font-size: 22px;
+.live-balance {
+  font-size: 20px;
   font-weight: bold;
-  margin-top: 8px;
 }
 
-.gift-table input {
-  min-width: 90px;
+.balance-positive {
+  color: #2e7d32;
+}
+
+.balance-negative {
+  color: #c62828;
+}
+
+.gift-row-input {
+  min-width: 120px;
 }
 
 @media(max-width:1000px) {
@@ -774,9 +774,9 @@ td {
 
     <br><br>
 
-    Los demás productos pueden comprarse como variedad
-    o regalo, pero no forman parte del compromiso mínimo
-    de la canasta.
+    Los demás productos pueden comprarse como variedad,
+    adicional o regalo, pero no forman parte del compromiso
+    mínimo de la canasta.
 
   </div>
 
@@ -968,33 +968,13 @@ td {
 
         <tr>
 
-          <th>
-            Esencial
-          </th>
-
-          <th>
-            Producto
-          </th>
-
-          <th>
-            Unidad
-          </th>
-
-          <th>
-            Mínimo Semilla
-          </th>
-
-          <th>
-            Básica × 1.6667
-          </th>
-
-          <th>
-            Familiar × 2.3333
-          </th>
-
-          <th>
-            Precio mercado
-          </th>
+          <th>Esencial</th>
+          <th>Producto</th>
+          <th>Unidad</th>
+          <th>Mínimo Semilla</th>
+          <th>Básica × 1.6667</th>
+          <th>Familiar × 2.3333</th>
+          <th>Precio mercado</th>
 
         </tr>
 
@@ -1051,7 +1031,7 @@ td {
 
     Saldo =
     presupuesto de alimentos
-    − compra real
+    − costo de compra real
     − regalos / variedad
 
   </div>
@@ -1071,14 +1051,14 @@ td {
 
     <br><br>
 
-    Los regalos son compras adicionales que
-    <strong>no crean una obligación adicional</strong>
-    para las familias.
+    Esa variedad no modifica el mínimo garantizado
+    y no crea una nueva obligación para las familias.
 
     <br><br>
 
-    Los cambios numéricos se recalculan
-    automáticamente mientras escribes.
+    <strong>
+      Los cambios numéricos se actualizan automáticamente.
+    </strong>
 
   </div>
 
@@ -1101,61 +1081,6 @@ td {
     Todavía no se ha calculado.
 
   </div>
-
-</div>
-
-
-<!-- =====================================================
-     VARIEDAD / REGALOS
-====================================================== -->
-
-<div class="section">
-
-  <h2>
-    Variedad / regalos
-  </h2>
-
-
-  <p class="section-description">
-
-    Aquí puedes registrar manualmente cualquier compra
-    adicional que quieras realizar con el saldo disponible.
-
-    <br><br>
-
-    No tiene que ser uno de los 24 productos.
-    Por ejemplo: una caja de fruta.
-
-  </p>
-
-
-  <button
-    class="btn-add"
-    onclick="agregarRegalo()"
-  >
-    ＋ Agregar compra
-  </button>
-
-
-  <div
-    id="regalosBody"
-    style="margin-top:15px;"
-  >
-
-    <div class="small-note">
-      Todavía no hay compras de variedad o regalos.
-    </div>
-
-  </div>
-
-
-  <div
-    id="resumenRegalos"
-    style="margin-top:15px;"
-  ></div>
-
-</div>
-
 
 </div>
 
@@ -1427,17 +1352,15 @@ const productos = [
 
 
 /* =====================================================
-   ADICIONALES DE ESENCIALES
+   ADICIONALES DE PRODUCTOS
 ===================================================== */
 
 const adicionales =
-  productos.map(
-    () => 0
-  );
+  productos.map(() => 0);
 
 
 /* =====================================================
-   REGALOS / VARIEDAD
+   REGALOS / VARIEDAD MANUAL
 ===================================================== */
 
 let regalos = [];
@@ -1499,26 +1422,20 @@ function renderProductos() {
             <td>
 
               <strong>
-                ${escapeHTML(
-                  p.nombre
-                )}
+                ${escapeHTML(p.nombre)}
               </strong>
 
               <br>
 
               ${
                 p.esencial
-
                 ?
-
                 `
                   <span class="essential-badge">
                     ESENCIAL
                   </span>
                 `
-
                 :
-
                 `
                   <span class="optional-badge">
                     UNIVERSO
@@ -1530,11 +1447,7 @@ function renderProductos() {
 
 
             <td>
-
-              ${escapeHTML(
-                p.unidad
-              )}
-
+              ${escapeHTML(p.unidad)}
             </td>
 
 
@@ -1545,11 +1458,7 @@ function renderProductos() {
                 min="0"
                 step="0.01"
                 value="${p.minimo}"
-                ${
-                  !p.esencial
-                  ? "disabled"
-                  : ""
-                }
+                ${!p.esencial ? "disabled" : ""}
                 oninput="
                   cambiarMinimo(
                     ${i},
@@ -1560,64 +1469,48 @@ function renderProductos() {
 
               ${
                 !p.esencial
-
                 ?
-
                 `
                   <div class="small-note">
                     Se activa al marcar
                     como esencial.
                   </div>
                 `
-
                 :
-
                 ""
               }
 
             </td>
 
 
-            <td>
+            <td id="basica-${i}">
 
               ${
                 p.esencial
-
                 ?
-
                 `
-                  <strong id="basica-${i}">
-                    ${formatearCantidad(
-                      basica
-                    )}
+                  <strong>
+                    ${formatearCantidad(basica)}
                   </strong>
                 `
-
                 :
-
                 `<span class="muted">—</span>`
               }
 
             </td>
 
 
-            <td>
+            <td id="familiar-${i}">
 
               ${
                 p.esencial
-
                 ?
-
                 `
-                  <strong id="familiar-${i}">
-                    ${formatearCantidad(
-                      familiar
-                    )}
+                  <strong>
+                    ${formatearCantidad(familiar)}
                   </strong>
                 `
-
                 :
-
                 `<span class="muted">—</span>`
               }
 
@@ -1660,14 +1553,10 @@ function cambiarEsencial(
   productos[index].esencial =
     Boolean(valor);
 
-
   renderProductos();
 
-
   if (compraCalculada) {
-
     calcularCompra();
-
   }
 
 }
@@ -1686,48 +1575,44 @@ function cambiarMinimo(
     productos[index].minimo *
     FACTOR_BASICA;
 
-
   const familiar =
     productos[index].minimo *
     FACTOR_FAMILIAR;
 
 
-  const basicaEl =
+  const basicaElemento =
     document.getElementById(
       `basica-${index}`
     );
 
-
-  const familiarEl =
+  const familiarElemento =
     document.getElementById(
       `familiar-${index}`
     );
 
 
-  if (basicaEl) {
+  if (basicaElemento) {
 
-    basicaEl.textContent =
-      formatearCantidad(
-        basica
-      );
+    basicaElemento.innerHTML =
+      `<strong>
+        ${formatearCantidad(basica)}
+      </strong>`;
 
   }
 
 
-  if (familiarEl) {
+  if (familiarElemento) {
 
-    familiarEl.textContent =
-      formatearCantidad(
-        familiar
-      );
+    familiarElemento.innerHTML =
+      `<strong>
+        ${formatearCantidad(familiar)}
+      </strong>`;
 
   }
 
 
   if (compraCalculada) {
-
-    actualizarCompraEnVivo();
-
+    recalcularCompraEnVivo();
   }
 
 }
@@ -1743,9 +1628,7 @@ function cambiarPrecio(
 
 
   if (compraCalculada) {
-
-    actualizarCompraEnVivo();
-
+    recalcularCompraEnVivo();
   }
 
 }
@@ -1753,6 +1636,7 @@ function cambiarPrecio(
 
 /* =====================================================
    CARGAR PEDIDOS
+   NO MODIFICADO
 ===================================================== */
 
 async function cargarPedidos() {
@@ -1889,13 +1773,9 @@ function cargarSelectorRondas() {
       selector.innerHTML +=
         `
           <option
-            value="${escapeHTML(
-              ronda
-            )}"
+            value="${escapeHTML(ronda)}"
           >
-            ${escapeHTML(
-              ronda
-            )}
+            ${escapeHTML(ronda)}
           </option>
         `;
 
@@ -1969,12 +1849,8 @@ function obtenerFiltrados() {
 
       const textoOK =
         !texto ||
-        cliente.includes(
-          texto
-        ) ||
-        celular.includes(
-          texto
-        );
+        cliente.includes(texto) ||
+        celular.includes(texto);
 
 
       const estadoOK =
@@ -2008,6 +1884,7 @@ function obtenerFiltrados() {
 
 /* =====================================================
    RENDER PEDIDOS
+   NO MODIFICADO
 ===================================================== */
 
 function renderPedidos() {
@@ -2246,6 +2123,7 @@ function renderPedidos() {
 
 /* =====================================================
    CAMBIAR ESTADO
+   NO MODIFICADO
 ===================================================== */
 
 async function cambiarEstado(
@@ -2548,9 +2426,7 @@ function actualizarConsolidado() {
     `
       Ronda:
       <strong>
-        ${escapeHTML(
-          ronda
-        )}
+        ${escapeHTML(ronda)}
       </strong>
       · Solo pedidos aceptados.
     `
@@ -2580,100 +2456,49 @@ function obtenerEsenciales() {
 
 
 /* =====================================================
-   CALCULAR DATOS DE COMPRA
+   CALCULAR REGALOS
 ===================================================== */
 
-function construirResultadoCompra() {
+function costoRegalos() {
 
-  const lista =
-    obtenerAceptadosRonda();
+  return regalos.reduce(
+    (total, regalo) => {
 
+      const cantidad =
+        Number(
+          regalo.cantidad
+        ) || 0;
 
-  const ronda =
-    document
-      .getElementById(
-        "filtroRonda"
-      )
-      .value;
+      const precio =
+        Number(
+          regalo.precio
+        ) || 0;
 
+      return total +
+        cantidad *
+        precio;
 
-  if (!lista.length) {
+    },
+    0
+  );
 
-    return {
-      error:
-        "No hay pedidos aceptados en la ronda seleccionada."
-    };
-
-  }
-
-
-  if (!ronda) {
-
-    return {
-      error:
-        "Selecciona una ronda específica."
-    };
-
-  }
+}
 
 
-  const datos =
-    calcularConsolidado(
-      lista
-    );
+/* =====================================================
+   COSTO DE ESENCIALES
+===================================================== */
 
+function obtenerResultadosEsenciales(
+  datos
+) {
 
-  const esenciales =
-    obtenerEsenciales();
-
-
-  if (!esenciales.length) {
-
-    return {
-      error:
-        "Todavía no hay productos esenciales definidos."
-    };
-
-  }
-
-
-  const esencialesSinPrecio =
-    esenciales.filter(
-      p =>
-        p.precio <= 0
-    );
-
-
-  if (
-    esencialesSinPrecio.length
-  ) {
-
-    return {
-
-      error:
-
-        "Faltan precios de mercado de productos esenciales: " +
-
-        esencialesSinPrecio
-          .map(
-            p =>
-              p.nombre
-          )
-          .join(", ")
-
-    };
-
-  }
-
-
-  const resultadosEsenciales =
-    productos.map(
-      (p, index) => {
+  return productos
+    .map(
+      (p,index) => {
 
         if (!p.esencial) {
-
           return null;
-
         }
 
 
@@ -2695,11 +2520,8 @@ function construirResultadoCompra() {
 
 
         const minimoConsolidado =
-
           minimoSemilla +
-
           minimoBasica +
-
           minimoFamiliar;
 
 
@@ -2711,9 +2533,8 @@ function construirResultadoCompra() {
 
         const adicional =
           Number(
-            adicionales[index] ||
-            0
-          );
+            adicionales[index]
+          ) || 0;
 
 
         const compraTotal =
@@ -2734,32 +2555,20 @@ function construirResultadoCompra() {
         return {
 
           index,
-
-          nombre:
-            p.nombre,
-
-          unidad:
-            p.unidad,
-
-          precio:
-            p.precio,
+          nombre: p.nombre,
+          unidad: p.unidad,
+          precio: p.precio,
 
           minimoSemilla,
-
           minimoBasica,
-
           minimoFamiliar,
-
           minimoConsolidado,
 
           compraMinima,
-
           adicional,
-
           compraTotal,
 
           costoMinimo,
-
           costo
 
         };
@@ -2768,9 +2577,269 @@ function construirResultadoCompra() {
     )
     .filter(Boolean);
 
+}
+
+
+/* =====================================================
+   CALCULAR COMPRA
+===================================================== */
+
+function calcularCompra() {
+
+  const lista =
+    obtenerAceptadosRonda();
+
+
+  if (!lista.length) {
+
+    compraCalculada = false;
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        No hay pedidos aceptados
+        en la ronda seleccionada.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
+
+
+  if (!ronda) {
+
+    compraCalculada = false;
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Selecciona una ronda específica.
+        </strong>
+
+        <br><br>
+
+        La compra se calcula sobre una sola
+        ronda de pedidos aceptados.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const datos =
+    calcularConsolidado(
+      lista
+    );
+
+
+  const esenciales =
+    obtenerEsenciales();
+
+
+  if (!esenciales.length) {
+
+    compraCalculada = false;
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Todavía no hay productos esenciales definidos.
+        </strong>
+
+        <br><br>
+
+        Marca solamente los productos
+        que quieras garantizar.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const esencialesSinPrecio =
+    esenciales.filter(
+      p =>
+        p.precio <= 0
+    );
+
+
+  if (esencialesSinPrecio.length) {
+
+    compraCalculada = false;
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Faltan precios de mercado
+          de productos esenciales.
+        </strong>
+
+        <br><br>
+
+        Introduce el precio actual de:
+
+        <br><br>
+
+        ${
+          esencialesSinPrecio
+            .map(
+              p =>
+                "• " +
+                escapeHTML(
+                  p.nombre
+                )
+            )
+            .join("<br>")
+        }
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  compraCalculada = true;
+
+  recalcularCompraEnVivo();
+
+}
+
+
+/* =====================================================
+   RECALCULAR SIN RECONSTRUIR
+===================================================== */
+
+function recalcularCompraEnVivo() {
+
+  if (!compraCalculada) {
+    return;
+  }
+
+
+  const lista =
+    obtenerAceptadosRonda();
+
+
+  if (!lista.length) {
+    return;
+  }
+
+
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
+
+
+  if (!ronda) {
+    return;
+  }
+
+
+  const datos =
+    calcularConsolidado(
+      lista
+    );
+
+
+  const esenciales =
+    obtenerEsenciales();
+
+
+  const esencialesSinPrecio =
+    esenciales.filter(
+      p =>
+        p.precio <= 0
+    );
+
+
+  if (esencialesSinPrecio.length) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Faltan precios de mercado
+          de productos esenciales.
+        </strong>
+
+        <br><br>
+
+        Introduce el precio actual de:
+
+        <br><br>
+
+        ${
+          esencialesSinPrecio
+            .map(
+              p =>
+                "• " +
+                escapeHTML(
+                  p.nombre
+                )
+            )
+            .join("<br>")
+        }
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const resultados =
+    obtenerResultadosEsenciales(
+      datos
+    );
+
 
   const costoMinimoTotal =
-    resultadosEsenciales.reduce(
+    resultados.reduce(
       (s,p) =>
         s +
         p.costoMinimo,
@@ -2779,7 +2848,7 @@ function construirResultadoCompra() {
 
 
   const costoEsencialesReal =
-    resultadosEsenciales.reduce(
+    resultados.reduce(
       (s,p) =>
         s +
         p.costo,
@@ -2787,34 +2856,13 @@ function construirResultadoCompra() {
     );
 
 
-  const totalRegalos =
-    regalos.reduce(
-      (s,g) => {
-
-        const cantidad =
-          Number(
-            g.cantidad
-          ) || 0;
-
-
-        const precio =
-          Number(
-            g.precio
-          ) || 0;
-
-
-        return s +
-          cantidad *
-          precio;
-
-      },
-      0
-    );
+  const regalosTotal =
+    costoRegalos();
 
 
   const costoCompraTotal =
     costoEsencialesReal +
-    totalRegalos;
+    regalosTotal;
 
 
   const saldoMinimo =
@@ -2832,90 +2880,25 @@ function construirResultadoCompra() {
     costoCompraTotal;
 
 
-  return {
+  window.ultimoResultadoCompra = {
 
     datos,
-
-    resultadosEsenciales,
-
+    resultadosEsenciales: resultados,
     costoMinimoTotal,
-
     costoEsencialesReal,
-
-    totalRegalos,
-
+    regalosTotal,
     costoCompraTotal,
-
     saldoMinimo,
-
     saldoAntesRegalos,
-
     saldoReal
 
   };
 
-}
-
-
-/* =====================================================
-   ALGORITMO PRINCIPAL
-===================================================== */
-
-function calcularCompra() {
-
-  const resultado =
-    construirResultadoCompra();
-
-
-  if (
-    resultado.error
-  ) {
-
-    document.getElementById(
-      "resultadoCompra"
-    ).innerHTML = `
-
-      <div class="result-warning">
-
-        <strong>
-          ${escapeHTML(
-            resultado.error
-          )}
-        </strong>
-
-        <br><br>
-
-        Revisa la ronda,
-        los esenciales y los precios
-        de mercado.
-
-      </div>
-
-    `;
-
-
-    compraCalculada =
-      false;
-
-
-    return;
-
-  }
-
-
-  window.ultimoResultadoCompra =
-    resultado;
-
-
-  compraCalculada =
-    true;
-
 
   renderResultadoCompra();
 
-  renderRegalos();
 
-  actualizarResumenRegalos();
+  actualizarDOMCompraEnVivo();
 
 }
 
@@ -2933,18 +2916,12 @@ function renderResultadoCompra() {
   if (!r) return;
 
 
-  const deficitMinimo =
-    r.saldoMinimo < 0;
-
-
-  const deficitReal =
-    r.saldoReal < 0;
-
-
   let html = "";
 
 
-  if (deficitMinimo) {
+  if (
+    r.saldoMinimo < 0
+  ) {
 
     html += `
 
@@ -2960,9 +2937,7 @@ function renderResultadoCompra() {
         Presupuesto de alimentos:
 
         <strong>
-          ${soles(
-            r.datos.alimentos
-          )}
+          ${soles(r.datos.alimentos)}
         </strong>
 
         <br>
@@ -2970,9 +2945,7 @@ function renderResultadoCompra() {
         Costo mínimo esencial:
 
         <strong>
-          ${soles(
-            r.costoMinimoTotal
-          )}
+          ${soles(r.costoMinimoTotal)}
         </strong>
 
         <br><br>
@@ -2996,9 +2969,7 @@ function renderResultadoCompra() {
 
     `;
 
-  }
-
-  else {
+  } else {
 
     html += `
 
@@ -3013,9 +2984,7 @@ function renderResultadoCompra() {
         Presupuesto de alimentos:
 
         <strong>
-          ${soles(
-            r.datos.alimentos
-          )}
+          ${soles(r.datos.alimentos)}
         </strong>
 
         <br>
@@ -3023,20 +2992,17 @@ function renderResultadoCompra() {
         Costo mínimo esencial:
 
         <strong>
-          ${soles(
-            r.costoMinimoTotal
-          )}
+          ${soles(r.costoMinimoTotal)}
         </strong>
 
         <br>
 
         Saldo antes de adicionales:
 
-        <strong id="saldoAntesAdicionales">
-          ${soles(
-            r.datos.alimentos -
-            r.costoEsencialesReal
-          )}
+        <strong
+          id="resultadoSaldoMinimo"
+        >
+          ${soles(r.saldoMinimo)}
         </strong>
 
       </div>
@@ -3061,8 +3027,8 @@ function renderResultadoCompra() {
 
         <br>
 
-        El campo "Adicional" es una decisión
-        manual de compra y se suma inmediatamente.
+        Puedes aumentar la compra manualmente.
+        El cambio se refleja inmediatamente.
 
       </p>
 
@@ -3075,33 +3041,13 @@ function renderResultadoCompra() {
 
             <tr>
 
-              <th>
-                Producto
-              </th>
-
-              <th>
-                Mínimo consolidado
-              </th>
-
-              <th>
-                Compra mínima
-              </th>
-
-              <th>
-                Adicional
-              </th>
-
-              <th>
-                Compra total
-              </th>
-
-              <th>
-                Precio
-              </th>
-
-              <th>
-                Costo
-              </th>
+              <th>Producto</th>
+              <th>Mínimo consolidado</th>
+              <th>Compra mínima</th>
+              <th>Adicional</th>
+              <th>Compra total</th>
+              <th>Precio</th>
+              <th>Costo</th>
 
             </tr>
 
@@ -3120,40 +3066,34 @@ function renderResultadoCompra() {
                       <td>
 
                         <strong>
-                          ${escapeHTML(
-                            p.nombre
-                          )}
+                          ${escapeHTML(p.nombre)}
                         </strong>
 
                         <br>
 
                         <small>
-                          ${escapeHTML(
-                            p.unidad
-                          )}
+                          ${escapeHTML(p.unidad)}
                         </small>
 
                       </td>
 
 
-                      <td>
+                      <td
+                        id="minimo-${p.index}"
+                      >
 
-                        <span
-                          id="minimoConsolidado-${p.index}"
-                        >
-                          ${formatearCantidad(
-                            p.minimoConsolidado
-                          )}
-                        </span>
+                        ${formatearCantidad(
+                          p.minimoConsolidado
+                        )}
 
                       </td>
 
 
-                      <td>
+                      <td
+                        id="compraMinima-${p.index}"
+                      >
 
-                        <strong
-                          id="compraMinima-${p.index}"
-                        >
+                        <strong>
                           ${formatearCantidad(
                             p.compraMinima
                           )}
@@ -3180,11 +3120,11 @@ function renderResultadoCompra() {
                       </td>
 
 
-                      <td>
+                      <td
+                        id="compraTotal-${p.index}"
+                      >
 
-                        <strong
-                          id="compraTotal-${p.index}"
-                        >
+                        <strong>
                           ${formatearCantidad(
                             p.compraTotal
                           )}
@@ -3193,28 +3133,20 @@ function renderResultadoCompra() {
                       </td>
 
 
-                      <td>
+                      <td
+                        id="precioResultado-${p.index}"
+                      >
 
-                        <span
-                          id="precioCompra-${p.index}"
-                        >
-                          ${soles(
-                            p.precio
-                          )}
-                        </span>
+                        ${soles(p.precio)}
 
                       </td>
 
 
-                      <td>
+                      <td
+                        id="costo-${p.index}"
+                      >
 
-                        <strong
-                          id="costoCompra-${p.index}"
-                        >
-                          ${soles(
-                            p.costo
-                          )}
-                        </strong>
+                        ${soles(p.costo)}
 
                       </td>
 
@@ -3233,21 +3165,78 @@ function renderResultadoCompra() {
 
     </div>
 
+  `;
 
-    <div class="info-box">
+
+  html += `
+
+    <div class="purchase-section">
+
+      <h3>
+        Variedad / regalos
+      </h3>
+
+      <p class="small-note">
+
+        Estas compras son opcionales.
+        No forman parte del mínimo garantizado.
+
+        <br>
+
+        Puedes agregar cualquier cosa que encuentres
+        conveniente comprar.
+
+        <br><br>
+
+        Ejemplo:
+        <strong>
+          Caja de fruta · 1 caja · S/ 40
+        </strong>
+
+      </p>
+
+
+      <button
+        class="btn-add"
+        onclick="agregarRegalo()"
+      >
+        ＋ Agregar compra
+      </button>
+
+
+      <div
+        id="regalosContainer"
+        style="margin-top:15px;"
+      ></div>
+
+
+      <div
+        id="resumenRegalos"
+        style="margin-top:15px;"
+      ></div>
+
+    </div>
+
+  `;
+
+
+  html += `
+
+    <div
+      class="info-box"
+      id="resumenCompraFinal"
+    >
 
       <strong>
-        Resumen de compra
+        Resumen de la compra
       </strong>
 
       <br><br>
 
-      Presupuesto alimentos:
+      Presupuesto de alimentos:
 
-      <strong id="resumenPresupuestoCompra">
-        ${soles(
-          r.datos.alimentos
-        )}
+      <strong id="resumenPresupuesto">
+        ${soles(r.datos.alimentos)}
       </strong>
 
       <br>
@@ -3255,19 +3244,15 @@ function renderResultadoCompra() {
       Costo mínimo esencial:
 
       <strong id="resumenCostoMinimo">
-        ${soles(
-          r.costoMinimoTotal
-        )}
+        ${soles(r.costoMinimoTotal)}
       </strong>
 
       <br>
 
-      Costo esencial real:
+      Compra esencial real:
 
       <strong id="resumenCostoEsencial">
-        ${soles(
-          r.costoEsencialesReal
-        )}
+        ${soles(r.costoEsencialesReal)}
       </strong>
 
       <br>
@@ -3275,29 +3260,20 @@ function renderResultadoCompra() {
       Regalos / variedad:
 
       <strong id="resumenCostoRegalos">
-        ${soles(
-          r.totalRegalos
-        )}
+        ${soles(r.regalosTotal)}
       </strong>
 
-      <br>
+      <br><br>
 
-      Compra total:
+      <span class="purchase-total">
+        Saldo disponible:
+      </span>
 
-      <strong id="resumenCompraTotal">
-        ${soles(
-          r.costoCompraTotal
-        )}
-      </strong>
-
-      <br>
-
-      Saldo disponible:
-
-      <strong id="resumenSaldoFinal">
-        ${soles(
-          r.saldoReal
-        )}
+      <strong
+        id="resumenSaldo"
+        class="live-balance"
+      >
+        ${soles(r.saldoReal)}
       </strong>
 
     </div>
@@ -3311,77 +3287,16 @@ function renderResultadoCompra() {
     html;
 
 
-  actualizarSaldoPresupuesto(
-    r.saldoReal
-  );
+  renderRegalos();
 
 }
 
 
 /* =====================================================
-   ACTUALIZACIÓN EN VIVO
+   ACTUALIZAR RESULTADO SIN PERDER CURSOR
 ===================================================== */
 
-function actualizarCompraEnVivo() {
-
-  if (!compraCalculada) {
-
-    return;
-
-  }
-
-
-  const resultado =
-    construirResultadoCompra();
-
-
-  if (
-    resultado.error
-  ) {
-
-    document.getElementById(
-      "resultadoCompra"
-    ).innerHTML = `
-
-      <div class="result-warning">
-
-        <strong>
-          ${escapeHTML(
-            resultado.error
-          )}
-        </strong>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  window.ultimoResultadoCompra =
-    resultado;
-
-
-  actualizarFilasEsenciales();
-
-  actualizarResumenCompraDOM();
-
-  actualizarSaldoPresupuesto(
-    resultado.saldoReal
-  );
-
-  actualizarResumenRegalos();
-
-}
-
-
-/* =====================================================
-   ACTUALIZAR FILAS SIN RECARGAR INPUTS
-===================================================== */
-
-function actualizarFilasEsenciales() {
+function actualizarDOMCompraEnVivo() {
 
   const r =
     window.ultimoResultadoCompra;
@@ -3395,31 +3310,27 @@ function actualizarFilasEsenciales() {
 
       const minimo =
         document.getElementById(
-          `minimoConsolidado-${p.index}`
+          `minimo-${p.index}`
         );
-
 
       const compraMinima =
         document.getElementById(
           `compraMinima-${p.index}`
         );
 
-
       const compraTotal =
         document.getElementById(
           `compraTotal-${p.index}`
         );
 
-
       const precio =
         document.getElementById(
-          `precioCompra-${p.index}`
+          `precioResultado-${p.index}`
         );
-
 
       const costo =
         document.getElementById(
-          `costoCompra-${p.index}`
+          `costo-${p.index}`
         );
 
 
@@ -3435,20 +3346,24 @@ function actualizarFilasEsenciales() {
 
       if (compraMinima) {
 
-        compraMinima.textContent =
-          formatearCantidad(
-            p.compraMinima
-          );
+        compraMinima.innerHTML =
+          `<strong>
+            ${formatearCantidad(
+              p.compraMinima
+            )}
+          </strong>`;
 
       }
 
 
       if (compraTotal) {
 
-        compraTotal.textContent =
-          formatearCantidad(
-            p.compraTotal
-          );
+        compraTotal.innerHTML =
+          `<strong>
+            ${formatearCantidad(
+              p.compraTotal
+            )}
+          </strong>`;
 
       }
 
@@ -3475,6 +3390,124 @@ function actualizarFilasEsenciales() {
     }
   );
 
+
+  const saldoMinimo =
+    document.getElementById(
+      "resultadoSaldoMinimo"
+    );
+
+
+  if (saldoMinimo) {
+
+    saldoMinimo.textContent =
+      soles(
+        r.saldoMinimo
+      );
+
+  }
+
+
+  const presupuesto =
+    document.getElementById(
+      "resumenPresupuesto"
+    );
+
+
+  const costoMinimo =
+    document.getElementById(
+      "resumenCostoMinimo"
+    );
+
+
+  const costoEsencial =
+    document.getElementById(
+      "resumenCostoEsencial"
+    );
+
+
+  const costoRegalosElemento =
+    document.getElementById(
+      "resumenCostoRegalos"
+    );
+
+
+  const saldo =
+    document.getElementById(
+      "resumenSaldo"
+    );
+
+
+  if (presupuesto) {
+
+    presupuesto.textContent =
+      soles(
+        r.datos.alimentos
+      );
+
+  }
+
+
+  if (costoMinimo) {
+
+    costoMinimo.textContent =
+      soles(
+        r.costoMinimoTotal
+      );
+
+  }
+
+
+  if (costoEsencial) {
+
+    costoEsencial.textContent =
+      soles(
+        r.costoEsencialesReal
+      );
+
+  }
+
+
+  if (costoRegalosElemento) {
+
+    costoRegalosElemento.textContent =
+      soles(
+        r.regalosTotal
+      );
+
+  }
+
+
+  if (saldo) {
+
+    saldo.textContent =
+      soles(
+        r.saldoReal
+      );
+
+    saldo.classList.remove(
+      "balance-positive",
+      "balance-negative"
+    );
+
+    saldo.classList.add(
+      r.saldoReal >= 0
+        ? "balance-positive"
+        : "balance-negative"
+    );
+
+  }
+
+
+  document.getElementById(
+    "saldoPresupuesto"
+  ).textContent =
+    soles(
+      r.saldoReal
+    );
+
+
+  actualizarResumenRegalos();
+
 }
 
 
@@ -3495,7 +3528,7 @@ function cambiarAdicional(
     compraCalculada
   ) {
 
-    actualizarCompraEnVivo();
+    recalcularCompraEnVivo();
 
   }
 
@@ -3503,180 +3536,240 @@ function cambiarAdicional(
 
 
 /* =====================================================
-   RESUMEN DE COMPRA EN VIVO
-===================================================== */
-
-function actualizarResumenCompraDOM() {
-
-  const r =
-    window.ultimoResultadoCompra;
-
-
-  if (!r) return;
-
-
-  const presupuesto =
-    document.getElementById(
-      "resumenPresupuestoCompra"
-    );
-
-
-  const minimo =
-    document.getElementById(
-      "resumenCostoMinimo"
-    );
-
-
-  const esencial =
-    document.getElementById(
-      "resumenCostoEsencial"
-    );
-
-
-  const regalosEl =
-    document.getElementById(
-      "resumenCostoRegalos"
-    );
-
-
-  const total =
-    document.getElementById(
-      "resumenCompraTotal"
-    );
-
-
-  const saldo =
-    document.getElementById(
-      "resumenSaldoFinal"
-    );
-
-
-  const saldoAntes =
-    document.getElementById(
-      "saldoAntesAdicionales"
-    );
-
-
-  if (presupuesto) {
-
-    presupuesto.textContent =
-      soles(
-        r.datos.alimentos
-      );
-
-  }
-
-
-  if (minimo) {
-
-    minimo.textContent =
-      soles(
-        r.costoMinimoTotal
-      );
-
-  }
-
-
-  if (esencial) {
-
-    esencial.textContent =
-      soles(
-        r.costoEsencialesReal
-      );
-
-  }
-
-
-  if (regalosEl) {
-
-    regalosEl.textContent =
-      soles(
-        r.totalRegalos
-      );
-
-  }
-
-
-  if (total) {
-
-    total.textContent =
-      soles(
-        r.costoCompraTotal
-      );
-
-  }
-
-
-  if (saldo) {
-
-    saldo.textContent =
-      soles(
-        r.saldoReal
-      );
-
-  }
-
-
-  if (saldoAntes) {
-
-    saldoAntes.textContent =
-      soles(
-        r.saldoAntesRegalos
-      );
-
-  }
-
-}
-
-
-/* =====================================================
-   VARIEDAD / REGALOS
+   AGREGAR REGALO
 ===================================================== */
 
 function agregarRegalo() {
 
+  if (!compraCalculada) {
+
+    alert(
+      "Primero calcula la compra de la ronda."
+    );
+
+    return;
+
+  }
+
+
   regalos.push({
 
-    producto:
-      "",
-
-    cantidad:
-      1,
-
-    unidad:
-      "unidad",
-
-    precio:
-      0
+    producto: "",
+    cantidad: 1,
+    unidad: "unidad",
+    precio: 0
 
   });
 
 
   renderRegalos();
 
+}
+
+
+/* =====================================================
+   RENDER REGALOS
+===================================================== */
+
+function renderRegalos() {
+
+  const container =
+    document.getElementById(
+      "regalosContainer"
+    );
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!regalos.length) {
+
+    container.innerHTML = `
+
+      <div class="small-note">
+
+        Todavía no has agregado
+        compras de variedad o regalos.
+
+      </div>
+
+    `;
+
+    actualizarResumenRegalos();
+
+    return;
+
+  }
+
+
+  container.innerHTML = `
+
+    <div class="table-scroll">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Compra</th>
+            <th>Cantidad</th>
+            <th>Unidad</th>
+            <th>Precio</th>
+            <th>Costo</th>
+            <th></th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          ${
+            regalos.map(
+              (r, i) => `
+
+                <tr>
+
+                  <td>
+
+                    <input
+                      class="gift-row-input"
+                      type="text"
+                      value="${escapeHTML(
+                        r.producto
+                      )}"
+                      placeholder="Ej. Caja de fruta"
+                      oninput="
+                        cambiarRegalo(
+                          ${i},
+                          'producto',
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+
+
+                  <td>
+
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="${r.cantidad}"
+                      oninput="
+                        cambiarRegalo(
+                          ${i},
+                          'cantidad',
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+
+
+                  <td>
+
+                    <input
+                      type="text"
+                      value="${escapeHTML(
+                        r.unidad
+                      )}"
+                      placeholder="kg / caja / unidad"
+                      oninput="
+                        cambiarRegalo(
+                          ${i},
+                          'unidad',
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+
+
+                  <td>
+
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value="${r.precio || ""}"
+                      placeholder="S/"
+                      oninput="
+                        cambiarRegalo(
+                          ${i},
+                          'precio',
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+
+
+                  <td>
+
+                    <strong
+                      id="regaloCosto-${i}"
+                    >
+                      ${soles(
+                        (
+                          Number(r.cantidad) || 0
+                        ) *
+                        (
+                          Number(r.precio) || 0
+                        )
+                      )}
+                    </strong>
+
+                  </td>
+
+
+                  <td>
+
+                    <button
+                      class="btn-delete"
+                      onclick="
+                        eliminarRegalo(
+                          ${i}
+                        )
+                      "
+                    >
+                      ×
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              `
+            ).join("")
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+
   actualizarResumenRegalos();
 
 }
 
 
-function eliminarRegalo(
-  index
-) {
-
-  regalos.splice(
-    index,
-    1
-  );
-
-
-  renderRegalos();
-
-  actualizarCompraEnVivo();
-
-  actualizarResumenRegalos();
-
-}
-
+/* =====================================================
+   CAMBIAR REGALO
+===================================================== */
 
 function cambiarRegalo(
   index,
@@ -3692,9 +3785,7 @@ function cambiarRegalo(
     regalos[index][campo] =
       Number(valor) || 0;
 
-  }
-
-  else {
+  } else {
 
     regalos[index][campo] =
       valor;
@@ -3702,75 +3793,555 @@ function cambiarRegalo(
   }
 
 
-  actualizarCostoRegaloFila(
-    index
-  );
-
-  actualizarCompraEnVivo();
-
   actualizarResumenRegalos();
+
+  actualizarCompraDesdeRegalos();
 
 }
 
 
-function actualizarCostoRegaloFila(
+/* =====================================================
+   ELIMINAR REGALO
+===================================================== */
+
+function eliminarRegalo(
   index
 ) {
 
-  const regalo =
-    regalos[index];
+  regalos.splice(
+    index,
+    1
+  );
 
 
-  if (!regalo) return;
+  renderRegalos();
+
+  actualizarCompraDesdeRegalos();
+
+}
 
 
-  const cantidad =
-    Number(
-      regalo.cantidad
-    ) || 0;
+/* =====================================================
+   ACTUALIZAR COSTO DE REGALOS
+===================================================== */
+
+function actualizarResumenRegalos() {
+
+  const total =
+    costoRegalos();
 
 
-  const precio =
-    Number(
-      regalo.precio
-    ) || 0;
+  regalos.forEach(
+    (r, i) => {
+
+      const elemento =
+        document.getElementById(
+          `regaloCosto-${i}`
+        );
 
 
-  const costo =
-    cantidad *
-    precio;
+      if (elemento) {
+
+        elemento.textContent =
+          soles(
+            (
+              Number(r.cantidad) || 0
+            ) *
+            (
+              Number(r.precio) || 0
+            )
+          );
+
+      }
+
+    }
+  );
 
 
-  const elemento =
+  const resumen =
     document.getElementById(
-      `regaloCosto-${index}`
+      "resumenRegalos"
     );
 
 
-  if (elemento) {
+  if (resumen) {
 
-    elemento.textContent =
-      soles(
-        costo
-      );
+    const saldo =
+      window.ultimoResultadoCompra
+      ?
+
+      window.ultimoResultadoCompra
+        .datos
+        .alimentos
+
+      -
+
+      window.ultimoResultadoCompra
+        .costoEsencialesReal
+
+      -
+
+      total
+
+      :
+
+      0;
+
+
+    resumen.innerHTML = `
+
+      <div class="result-gift">
+
+        <strong>
+          Total variedad / regalos:
+        </strong>
+
+        <span
+          id="totalRegalosVisible"
+        >
+          ${soles(total)}
+        </span>
+
+        <br><br>
+
+        <strong>
+          Saldo después de regalos:
+        </strong>
+
+        <span
+          class="
+            live-balance
+            ${
+              saldo >= 0
+              ? "balance-positive"
+              : "balance-negative"
+            }
+          "
+        >
+          ${soles(saldo)}
+        </span>
+
+        ${
+          saldo < 0
+          ?
+
+          `
+            <br><br>
+
+            <strong>
+              ⚠ Los regalos superan
+              el saldo disponible en
+              ${soles(Math.abs(saldo))}
+            </strong>
+          `
+
+          :
+
+          ""
+        }
+
+      </div>
+
+    `;
 
   }
 
 }
 
 
-function renderRegalos() {
+/* =====================================================
+   ACTUALIZAR COMPRA DESDE REGALOS
+===================================================== */
 
-  const body =
-    document.getElementById(
-      "regalosBody"
+function actualizarCompraDesdeRegalos() {
+
+  if (!window.ultimoResultadoCompra) {
+    return;
+  }
+
+
+  const r =
+    window.ultimoResultadoCompra;
+
+
+  r.regalosTotal =
+    costoRegalos();
+
+
+  r.costoCompraTotal =
+    r.costoEsencialesReal +
+    r.regalosTotal;
+
+
+  r.saldoReal =
+    r.datos.alimentos -
+    r.costoCompraTotal;
+
+
+  actualizarDOMCompraEnVivo();
+
+}
+
+
+/* =====================================================
+   RESUMEN GENERAL
+===================================================== */
+
+function actualizarResumen() {
+
+  const pendientes =
+    pedidos.filter(
+      p =>
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        "pendiente"
     );
 
 
-  if (!regalos.length) {
+  const aceptados =
+    pedidos.filter(
+      p =>
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        "aceptado"
+    );
 
-    body.innerHTML = `
 
-      <div class="small-note">
+  const dinero =
+    aceptados.reduce(
+      (s,p) =>
+        s +
+        Number(
+          p.total_solicitado ||
+          0
+        ),
+      0
+    );
 
-        Todavía no
+
+  document.getElementById(
+    "totalPedidos"
+  ).textContent =
+    pedidos.length;
+
+
+  document.getElementById(
+    "totalPendientes"
+  ).textContent =
+    pendientes.length;
+
+
+  document.getElementById(
+    "totalAceptados"
+  ).textContent =
+    aceptados.length;
+
+
+  document.getElementById(
+    "dineroComprometido"
+  ).textContent =
+    soles(
+      dinero
+    );
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR TODO
+===================================================== */
+
+function actualizarTodo() {
+
+  actualizarResumen();
+
+  renderPedidos();
+
+  actualizarConsolidado();
+
+  /*
+   * Si ya se había calculado una compra
+   * y cambiamos de ronda, se vuelve a calcular.
+   */
+
+  if (compraCalculada) {
+
+    calcularCompra();
+
+  }
+
+}
+
+
+/* =====================================================
+   DETALLE PEDIDO
+   NO MODIFICADO
+===================================================== */
+
+function verDetalle(
+  id
+) {
+
+  const p =
+    pedidos.find(
+      x =>
+        Number(x.id)
+        ===
+        Number(id)
+    );
+
+
+  if (!p) return;
+
+
+  document.getElementById(
+    "detalleContenido"
+  ).innerHTML = `
+
+    <p>
+
+      <strong>
+        Cliente:
+      </strong>
+
+      ${escapeHTML(
+        p.cliente ||
+        "-"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Celular:
+      </strong>
+
+      ${escapeHTML(
+        String(
+          p.celular ||
+          "-"
+        )
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Semillas:
+      </strong>
+
+      ${Number(
+        p.canasta_semilla_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Básicas:
+      </strong>
+
+      ${Number(
+        p.canasta_basica_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Familiares:
+      </strong>
+
+      ${Number(
+        p.canasta_familiar_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Total:
+      </strong>
+
+      ${soles(
+        Number(
+          p.total_solicitado ||
+          0
+        )
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Estado:
+      </strong>
+
+      ${escapeHTML(
+        p.estado ||
+        "-"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Ronda:
+      </strong>
+
+      ${escapeHTML(
+        p.ronda_id ||
+        "Sin ronda"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Solicitud:
+      </strong>
+
+      ${escapeHTML(
+        p.solicitud ||
+        "-"
+      )}
+
+    </p>
+
+  `;
+
+
+  document
+    .getElementById(
+      "modalDetalle"
+    )
+    .classList.add(
+      "active"
+    );
+
+}
+
+
+function cerrarModal() {
+
+  document
+    .getElementById(
+      "modalDetalle"
+    )
+    .classList.remove(
+      "active"
+    );
+
+}
+
+
+/* =====================================================
+   UTILIDADES
+===================================================== */
+
+function soles(
+  valor
+) {
+
+  return (
+    "S/ " +
+    Number(
+      valor ||
+      0
+    ).toFixed(2)
+  );
+
+}
+
+
+function formatearCantidad(
+  valor
+) {
+
+  return Number(
+    valor ||
+    0
+  )
+  .toFixed(3)
+  .replace(
+    /0+$/,
+    ""
+  )
+  .replace(
+    /\.$/,
+    ""
+  );
+
+}
+
+
+function escapeHTML(
+  valor
+) {
+
+  return String(
+    valor
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+renderProductos();
+
+cargarPedidos();
+
+</script>
+
+</body>
+</html>
