@@ -1,123 +1,953 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Compra con Misti — Panel Admin</title>
+
 <style>
-:root{--bg:#f5f6f2;--card:#fff;--text:#26312a;--muted:#68736c;--line:#dce3dc;--accent:#496b52;--soft:#e8efe8;--warn:#9a741d;--warnbg:#faf4df;--danger:#9a3e3e;--dangerbg:#faeaea}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
-.wrap{max-width:1180px;margin:auto;padding:28px 20px 50px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}
-h1{margin:0;font-size:28px}.sub{margin:6px 0;color:var(--muted)}.status{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#c28a25;margin-right:7px}
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}.value{font-size:27px;font-weight:700;margin-top:7px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}input,select,button{font:inherit;min-height:44px;border-radius:10px}input,select{border:1px solid var(--line);background:#fff;padding:10px 12px;color:var(--text)}input{flex:1;min-width:220px}button{border:0;padding:10px 15px;font-weight:650;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#fff;border:1px solid var(--line)}
-.table{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted);text-transform:uppercase;background:#fafbfa}tr:last-child td{border-bottom:0}
-.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.pendiente{background:var(--warnbg);color:var(--warn)}.aceptado{background:var(--soft);color:var(--accent)}.rechazado{background:var(--dangerbg);color:var(--danger)}
-.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{min-height:36px;padding:7px 10px;font-size:12px}.empty{text-align:center;padding:40px;color:var(--muted)}.note{color:var(--muted);font-size:13px;line-height:1.5;margin-top:12px}
-@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}header{flex-direction:column}}@media(max-width:520px){.wrap{padding:20px 12px}.cards{gap:8px}.value{font-size:22px}}
+:root{
+  --bg:#f5f6f2;
+  --card:#fff;
+  --text:#26312a;
+  --muted:#68736c;
+  --line:#dce3dc;
+  --accent:#496b52;
+  --soft:#e8efe8;
+  --warn:#9a741d;
+  --warnbg:#faf4df;
+  --danger:#9a3e3e;
+  --dangerbg:#faeaea
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+  color:var(--text)
+}
+
+.wrap{
+  max-width:1180px;
+  margin:auto;
+  padding:28px 20px 50px
+}
+
+header{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  align-items:flex-start;
+  margin-bottom:24px
+}
+
+h1{
+  margin:0;
+  font-size:28px
+}
+
+.sub{
+  margin:6px 0;
+  color:var(--muted)
+}
+
+.status{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:13px
+}
+
+.dot{
+  display:inline-block;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#c28a25;
+  margin-right:7px
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px
+}
+
+.label{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.5px
+}
+
+.value{
+  font-size:27px;
+  font-weight:700;
+  margin-top:7px
+}
+
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px
+}
+
+input,select,button{
+  font:inherit;
+  min-height:44px;
+  border-radius:10px
+}
+
+input,select{
+  border:1px solid var(--line);
+  background:#fff;
+  padding:10px 12px;
+  color:var(--text)
+}
+
+input{
+  flex:1;
+  min-width:220px
+}
+
+button{
+  border:0;
+  padding:10px 15px;
+  font-weight:650;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+.primary{
+  background:var(--accent);
+  color:#fff
+}
+
+.secondary{
+  background:#fff;
+  border:1px solid var(--line)
+}
+
+.table{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:auto
+}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+  min-width:850px
+}
+
+th,td{
+  text-align:left;
+  padding:14px;
+  border-bottom:1px solid var(--line)
+}
+
+th{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  background:#fafbfa
+}
+
+tr:last-child td{
+  border-bottom:0
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700
+}
+
+.pendiente{
+  background:var(--warnbg);
+  color:var(--warn)
+}
+
+.aceptado{
+  background:var(--soft);
+  color:var(--accent)
+}
+
+.rechazado{
+  background:var(--dangerbg);
+  color:var(--danger)
+}
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap
+}
+
+.actions button{
+  min-height:36px;
+  padding:7px 10px;
+  font-size:12px
+}
+
+.empty{
+  text-align:center;
+  padding:40px;
+  color:var(--muted)
+}
+
+.note{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+  margin-top:12px
+}
+
+@media(max-width:800px){
+  .cards{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  header{
+    flex-direction:column
+  }
+}
+
+@media(max-width:520px){
+  .wrap{
+    padding:20px 12px
+  }
+
+  .cards{
+    gap:8px
+  }
+
+  .value{
+    font-size:22px
+  }
+}
 </style>
 </head>
+
 <body>
+
 <main class="wrap" id="app">
-<header><div><h1>Compra con Misti</h1><p class="sub">Panel administrativo · pedidos recibidos</p></div><div class="status"><span class="dot"></span><span id="conn">Conexión n8n pendiente</span></div></header>
+
+<header>
+  <div>
+    <h1>Compra con Misti</h1>
+    <p class="sub">Panel administrativo · pedidos recibidos</p>
+  </div>
+
+  <div class="status">
+    <span class="dot"></span>
+    <span id="conn">Conexión n8n pendiente</span>
+  </div>
+</header>
+
+
 <section class="cards">
-<div class="card"><div class="label">Pedidos</div><div class="value" id="total">0</div></div>
-<div class="card"><div class="label">Pendientes</div><div class="value" id="pending">0</div></div>
-<div class="card"><div class="label">Aceptados</div><div class="value" id="accepted">0</div></div>
-<div class="card"><div class="label">Dinero comprometido</div><div class="value" id="money">S/ 0</div></div>
+
+  <div class="card">
+    <div class="label">Pedidos</div>
+    <div class="value" id="total">0</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Pendientes</div>
+    <div class="value" id="pending">0</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Aceptados</div>
+    <div class="value" id="accepted">0</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Dinero comprometido</div>
+    <div class="value" id="money">S/ 0</div>
+  </div>
+
 </section>
-<div class="toolbar"><input id="search" placeholder="Buscar por cliente o celular"><select id="filter"><option value="todos">Todos los estados</option><option value="pendiente">Pendiente</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select><button class="secondary" id="refresh">Actualizar</button></div>
-<div class="table"><table><thead><tr><th>Cliente</th><th>Celular</th><th>Canastas</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">No hay pedidos.</div></div>
-<p class="note">Esta es la primera interfaz del panel. En el siguiente paso la conectaremos a n8n para leer <b>Data Table → pedidos_admin</b> y guardar los cambios de estado. El flujo de recepción actual no se modifica.</p>
+
+
+<div class="toolbar">
+
+  <input
+    id="search"
+    placeholder="Buscar por cliente o celular"
+  >
+
+  <select id="filter">
+    <option value="todos">Todos los estados</option>
+    <option value="pendiente">Pendiente</option>
+    <option value="aceptado">Aceptado</option>
+    <option value="rechazado">Rechazado</option>
+  </select>
+
+  <button class="secondary" id="refresh">
+    Actualizar
+  </button>
+
+</div>
+
+
+<div class="table">
+
+  <table>
+
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Celular</th>
+        <th>Canastas</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody id="rows"></tbody>
+
+  </table>
+
+  <div class="empty" id="empty">
+    No hay pedidos.
+  </div>
+
+</div>
+
+
+<p class="note">
+  Esta es la primera interfaz del panel. Conectada a
+  <b>n8n → Data Table → pedidos_admin</b>
+  para consultar pedidos y guardar cambios de estado.
+  El flujo de recepción actual no se modifica.
+</p>
+
 </main>
+
+
 <script>
 (()=>{
-  const API_GET="https://msi.tail124b59.ts.net/webhook/admin-pedidos";
+
+  /*
+   * ENDPOINTS
+   * ----------
+   * GET  → lee pedidos desde pedidos_admin
+   * POST → cambia el estado de un pedido
+   */
+
+  const API_GET =
+    "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
+
+  const API_POST =
+    "https://msi.tail124b59.ts.net/webhook/admin-estado";
+
+
   let orders=[];
+
+
   const $=x=>document.getElementById(x);
 
-  const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{maximumFractionDigits:2});
-  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+  /*
+   * Convierte cualquier estado a minúsculas
+   *
+   * "Pendiente" → "pendiente"
+   * "PENDIENTE" → "pendiente"
+   * "Aceptado" → "aceptado"
+   */
+
+  function normalizeStatus(value){
+    return String(value ?? "pendiente")
+      .trim()
+      .toLowerCase();
+  }
+
+
+  /*
+   * Formato de dinero
+   */
+
+  const money=n =>
+    "S/ "+
+    Number(n||0).toLocaleString(
+      "es-PE",
+      {
+        maximumFractionDigits:2
+      }
+    );
+
+
+  /*
+   * Evita insertar HTML no deseado
+   */
+
+  const esc=s =>
+    String(s??"").replace(
+      /[&<>"']/g,
+      c=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[c])
+    );
+
+
+  /*
+   * Texto bonito para mostrar el estado
+   */
+
+  function statusLabel(status){
+
+    const normalized=normalizeStatus(status);
+
+    return normalized.charAt(0).toUpperCase()+
+           normalized.slice(1);
+  }
+
+
+  /*
+   * Dibuja la tabla y los indicadores
+   */
 
   function render(){
-    let q=$("search").value.toLowerCase(),f=$("filter").value;
-    let a=orders.filter(o=>
-      (!q||(String(o.cliente??"")+" "+String(o.celular??"")).toLowerCase().includes(q)) &&
-      (f==="todos"||o.estado===f)
-    );
+
+    const q=$("search").value.toLowerCase();
+
+    const f=$("filter").value;
+
+
+    /*
+     * Normalizamos el estado antes de filtrar.
+     * Así funcionan tanto:
+     *
+     * Pendiente
+     * pendiente
+     * PENDIENTE
+     */
+
+    let a=orders.filter(o=>{
+
+      const estado=normalizeStatus(o.estado);
+
+      const texto=
+        String(o.cliente??"")+
+        " "+
+        String(o.celular??"");
+
+      return(
+        (!q ||
+          texto.toLowerCase().includes(q)
+        )
+        &&
+        (
+          f==="todos" ||
+          estado===f
+        )
+      );
+
+    });
+
+
+    /*
+     * Indicadores
+     */
 
     $("total").textContent=orders.length;
-    $("pending").textContent=orders.filter(o=>o.estado==="pendiente").length;
-    $("accepted").textContent=orders.filter(o=>o.estado==="aceptado").length;
+
+
+    $("pending").textContent=
+      orders.filter(
+        o=>normalizeStatus(o.estado)==="pendiente"
+      ).length;
+
+
+    $("accepted").textContent=
+      orders.filter(
+        o=>normalizeStatus(o.estado)==="aceptado"
+      ).length;
+
+
+    /*
+     * Dinero comprometido:
+     * solamente pedidos aceptados.
+     */
+
     $("money").textContent=money(
-      orders.filter(o=>o.estado==="aceptado")
-            .reduce((s,o)=>s+Number(o.total_solicitado||0),0)
+
+      orders
+        .filter(
+          o=>normalizeStatus(o.estado)==="aceptado"
+        )
+        .reduce(
+          (s,o)=>
+            s+
+            Number(o.total_solicitado||0),
+          0
+        )
+
     );
 
-    $("empty").style.display=a.length?"none":"block";
 
-    $("rows").innerHTML=a.map(o=>`
-      <tr>
-        <td><b>${esc(o.cliente)}</b></td>
-        <td>${esc(o.celular)}</td>
-        <td>
-          Básica ${o.canasta_basica_cantidad||0} ·
-          Semilla ${o.canasta_semilla_cantidad||0} ·
-          Familiar ${o.canasta_familiar_cantidad||0}
-        </td>
-        <td><b>${money(o.total_solicitado)}</b></td>
-        <td>
-          <span class="badge ${esc(o.estado||"pendiente")}">
-            ${esc((o.estado||"pendiente").charAt(0).toUpperCase()+(o.estado||"pendiente").slice(1))}
-          </span>
-        </td>
-        <td>
-          <div class="actions">
-            <button class="primary" disabled title="Se conectará al POST /admin-estado en el siguiente paso">Aceptar</button>
-            <button class="secondary" disabled title="Se conectará al POST /admin-estado en el siguiente paso">Rechazar</button>
-            <button class="secondary" data-a="detail" data-id="${esc(o.id)}">Ver detalle</button>
-          </div>
-        </td>
-      </tr>
-    `).join("");
+    /*
+     * Mensaje cuando no hay resultados
+     */
+
+    $("empty").style.display=
+      a.length ? "none" : "block";
+
+
+    /*
+     * Construimos las filas
+     */
+
+    $("rows").innerHTML=a.map(o=>{
+
+      const estado=normalizeStatus(o.estado);
+
+      const esPendiente=
+        estado==="pendiente";
+
+
+      return `
+
+        <tr>
+
+          <td>
+            <b>${esc(o.cliente)}</b>
+          </td>
+
+
+          <td>
+            ${esc(o.celular)}
+          </td>
+
+
+          <td>
+
+            Básica ${o.canasta_basica_cantidad||0}
+            ·
+            Semilla ${o.canasta_semilla_cantidad||0}
+            ·
+            Familiar ${o.canasta_familiar_cantidad||0}
+
+          </td>
+
+
+          <td>
+            <b>${money(o.total_solicitado)}</b>
+          </td>
+
+
+          <td>
+
+            <span class="badge ${esc(estado)}">
+
+              ${esc(statusLabel(estado))}
+
+            </span>
+
+          </td>
+
+
+          <td>
+
+            <div class="actions">
+
+
+              <button
+                class="primary"
+                data-a="accept"
+                data-id="${esc(o.id)}"
+                ${!esPendiente ? "disabled" : ""}
+              >
+                Aceptar
+              </button>
+
+
+              <button
+                class="secondary"
+                data-a="reject"
+                data-id="${esc(o.id)}"
+                ${!esPendiente ? "disabled" : ""}
+              >
+                Rechazar
+              </button>
+
+
+              <button
+                class="secondary"
+                data-a="detail"
+                data-id="${esc(o.id)}"
+              >
+                Ver detalle
+              </button>
+
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
   }
+
+
+  /*
+   * Carga los pedidos desde n8n
+   */
 
   async function loadOrders(){
-    $("conn").textContent="Conectando con n8n…";
-    try{
-      const response=await fetch(API_GET,{method:"GET",headers:{"Accept":"application/json"}});
-      if(!response.ok) throw new Error("HTTP "+response.status);
 
-      const data=await response.json();
-      if(!Array.isArray(data)) throw new Error("La API no devolvió un arreglo");
+    $("conn").textContent=
+      "Conectando con n8n…";
+
+
+    try{
+
+      const response=
+        await fetch(
+          API_GET,
+          {
+            method:"GET",
+            headers:{
+              "Accept":"application/json"
+            }
+          }
+        );
+
+
+      if(!response.ok){
+
+        throw new Error(
+          "HTTP "+response.status
+        );
+
+      }
+
+
+      const data=
+        await response.json();
+
+
+      if(!Array.isArray(data)){
+
+        throw new Error(
+          "La API no devolvió un arreglo"
+        );
+
+      }
+
 
       orders=data;
-      $("conn").textContent=`n8n conectado · ${orders.length} pedidos`;
+
+
+      $("conn").textContent=
+        `n8n conectado · ${orders.length} pedidos`;
+
+
       render();
+
+
     }catch(error){
+
       console.error(error);
-      $("conn").textContent="Error de conexión con n8n";
-      $("empty").textContent="No se pudieron cargar los pedidos.";
+
+
+      $("conn").textContent=
+        "Error de conexión con n8n";
+
+
+      $("empty").textContent=
+        "No se pudieron cargar los pedidos.";
+
+
       $("empty").style.display="block";
+
+
       $("rows").innerHTML="";
+
+
       $("total").textContent="0";
+
       $("pending").textContent="0";
+
       $("accepted").textContent="0";
+
       $("money").textContent="S/ 0";
+
     }
+
   }
 
-  $("rows").addEventListener("click",e=>{
-    const b=e.target.closest("button");
-    if(!b || b.disabled) return;
-    const o=orders.find(x=>String(x.id)===b.dataset.id);
-    if(b.dataset.a==="detail") alert("Solicitud: "+(o?.solicitud||"—"));
-  });
 
-  $("search").addEventListener("input",render);
-  $("filter").addEventListener("change",render);
-  $("refresh").addEventListener("click",loadOrders);
+  /*
+   * Cambia el estado mediante POST
+   *
+   * Envía exactamente:
+   *
+   * {
+   *   "id": 2,
+   *   "estado": "Aceptado"
+   * }
+   */
+
+  async function changeStatus(id,estado){
+
+    try{
+
+      const response=
+        await fetch(
+          API_POST,
+          {
+            method:"POST",
+
+            headers:{
+              "Content-Type":
+                "application/json",
+
+              "Accept":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+              id:Number(id),
+
+              estado:estado
+
+            })
+
+          }
+        );
+
+
+      if(!response.ok){
+
+        throw new Error(
+          "HTTP "+response.status
+        );
+
+      }
+
+
+      /*
+       * Volvemos a consultar el GET.
+       *
+       * Así no modificamos manualmente
+       * la información del panel.
+       *
+       * El panel vuelve a leer
+       * pedidos_admin.
+       */
+
+      await loadOrders();
+
+
+    }catch(error){
+
+      console.error(error);
+
+      alert(
+        "No se pudo actualizar el estado del pedido."
+      );
+
+    }
+
+  }
+
+
+  /*
+   * Eventos de los botones
+   */
+
+  $("rows").addEventListener(
+    "click",
+    async e=>{
+
+      const b=
+        e.target.closest("button");
+
+
+      if(!b || b.disabled){
+
+        return;
+
+      }
+
+
+      const o=
+        orders.find(
+          x=>
+            String(x.id)===
+            b.dataset.id
+        );
+
+
+      if(!o){
+
+        return;
+
+      }
+
+
+      /*
+       * VER DETALLE
+       */
+
+      if(
+        b.dataset.a==="detail"
+      ){
+
+        alert(
+          "Solicitud: "+
+          (o.solicitud||"—")
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * ACEPTAR
+       */
+
+      if(
+        b.dataset.a==="accept"
+      ){
+
+        const confirmar=
+          confirm(
+            `¿Aceptar el pedido de ${o.cliente} por ${money(o.total_solicitado)}?`
+          );
+
+
+        if(!confirmar){
+
+          return;
+
+        }
+
+
+        b.disabled=true;
+
+
+        await changeStatus(
+          o.id,
+          "Aceptado"
+        );
+
+
+        return;
+
+      }
+
+
+      /*
+       * RECHAZAR
+       */
+
+      if(
+        b.dataset.a==="reject"
+      ){
+
+        const confirmar=
+          confirm(
+            `¿Rechazar el pedido de ${o.cliente}?`
+          );
+
+
+        if(!confirmar){
+
+          return;
+
+        }
+
+
+        b.disabled=true;
+
+
+        await changeStatus(
+          o.id,
+          "Rechazado"
+        );
+
+
+        return;
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Buscador
+   */
+
+  $("search").addEventListener(
+    "input",
+    render
+  );
+
+
+  /*
+   * Filtro
+   */
+
+  $("filter").addEventListener(
+    "change",
+    render
+  );
+
+
+  /*
+   * Actualizar
+   */
+
+  $("refresh").addEventListener(
+    "click",
+    loadOrders
+  );
+
+
+  /*
+   * Primera carga
+   */
 
   loadOrders();
+
+
 })();
 </script>
-</body></html>
+
+</body>
+</html>
