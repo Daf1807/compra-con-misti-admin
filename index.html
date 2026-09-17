@@ -90,7 +90,7 @@ button {
 .btn-delete {
   background: #c62828;
   color: white;
-  padding: 8px 11px;
+  padding: 7px 10px;
 }
 
 .cards {
@@ -345,74 +345,42 @@ td {
 }
 
 .gift-note {
-  background: #f3e5f5;
-  border-left: 5px solid #8e24aa;
+  background: #f5f5f5;
+  border-left: 5px solid #777;
   padding: 15px;
   margin: 15px 0;
   line-height: 1.5;
 }
 
-.gift-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+.balance-box {
+  margin-top: 15px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+}
+
+.balance-number {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.gift-empty {
+  padding: 18px;
+  text-align: center;
+  color: #777;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
   margin-top: 15px;
 }
 
-.gift-summary-box {
+.gift-total {
+  margin-top: 15px;
+  padding: 15px;
   background: #fafafa;
   border: 1px solid #eee;
   border-radius: 9px;
-  padding: 13px;
-}
-
-.gift-summary-box strong {
-  display: block;
-  font-size: 20px;
-  margin-top: 5px;
-}
-
-.final-summary {
-  background: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  margin-top: 18px;
-}
-
-.final-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.final-summary-box {
-  background: white;
-  border-radius: 8px;
-  padding: 12px;
-  border: 1px solid #eee;
-}
-
-.final-summary-box strong {
-  display: block;
-  font-size: 19px;
-  margin-top: 5px;
-}
-
-.saldo-positive {
-  color: #2e7d32;
-}
-
-.saldo-negative {
-  color: #c62828;
-}
-
-.empty-gifts {
-  padding: 15px;
-  color: #777;
-  text-align: center;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
 }
 
 .modal {
@@ -475,11 +443,6 @@ td {
   .filters {
     grid-template-columns: 1fr;
   }
-
-  .gift-summary,
-  .final-summary-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media(max-width:600px) {
@@ -487,9 +450,7 @@ td {
   .cards,
   .summary-grid,
   .budget-grid,
-  .canasta-grid,
-  .gift-summary,
-  .final-summary-grid {
+  .canasta-grid {
     grid-template-columns: 1fr;
   }
 
@@ -800,20 +761,18 @@ td {
 
       <br><br>
 
-      El sistema no crea tres listas diferentes
+      El sistema no intenta crear tres listas diferentes
       de productos.
 
       <br><br>
 
       Primero consolida todo el dinero de la ronda.
-      Después determina cuánto corresponde comprar
-      colectivamente.
+      Después calcula la compra colectiva.
 
       <br><br>
 
-      La distribución individual de lo comprado
-      se resolverá posteriormente según la participación
-      económica de cada familia.
+      Finalmente, la cantidad que corresponde a cada familia
+      se determinará según su participación económica.
 
     </div>
 
@@ -936,106 +895,13 @@ td {
 
       <div class="budget-box">
 
-        Productos esenciales
+        Saldo de compra
 
-        <strong id="productosActivos">
-          0
+        <strong id="saldoPresupuesto">
+          S/ 0.00
         </strong>
 
       </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- =====================================================
-       CONFIGURACIÓN DE ESENCIALES
-  ====================================================== -->
-
-  <div class="section">
-
-    <h2>
-      Productos esenciales
-    </h2>
-
-
-    <p class="section-description">
-
-      Estos son los únicos productos con una cantidad mínima
-      comprometida.
-
-      <br><br>
-
-      El mínimo está definido por una Semilla y se escala
-      automáticamente para Básica y Familiar.
-
-      <br><br>
-
-      <strong>
-        Esta configuración no se hace cada semana.
-      </strong>
-
-      Aquí se define qué productos forman parte del compromiso
-      esencial y cuánto corresponde como mínimo por participación.
-
-    </p>
-
-
-    <div class="essential-note">
-
-      <strong>
-        Importante:
-      </strong>
-
-      los otros productos que Misti utiliza no desaparecen.
-      Siguen formando parte del universo disponible para
-      compras de variedad o regalos.
-
-      <br><br>
-
-      No estamos prometiendo los 24 productos.
-      Solo estamos comprometiéndonos con estos esenciales.
-
-    </div>
-
-
-    <div class="table-scroll">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>
-              Producto
-            </th>
-
-            <th>
-              Unidad
-            </th>
-
-            <th>
-              Mínimo por Semilla
-            </th>
-
-            <th>
-              Precio real
-            </th>
-
-            <th>
-              Activo
-            </th>
-
-          </tr>
-
-        </thead>
-
-
-        <tbody id="esencialesBody"></tbody>
-
-      </table>
 
     </div>
 
@@ -1055,34 +921,116 @@ td {
 
     <p class="section-description">
 
-      Los precios de los productos esenciales se introducen
-      arriba.
+      Introduce únicamente el precio que encuentres
+      en el mercado para esta ronda.
 
       <br><br>
 
-      Los demás productos permanecen disponibles como
-      universo de variedad, pero no tienen un mínimo
-      comprometido.
+      Los precios se actualizan automáticamente
+      mientras escribes.
 
     </p>
 
 
-    <div class="info-box">
+    <div class="table-scroll">
 
-      <strong>
-        Los 24 productos disponibles:
-      </strong>
+      <table>
 
-      Papa amarilla, Papa blanca, Cebolla, Tomate,
-      Zanahoria, Ajo, Ají amarillo, Limón, Calabacín,
-      Zapallo, Choclo, Camote, Palta, Perejil, Culantro,
-      Cebolla china, Apio, Vainita, Beterraga, Alverja,
-      Garbanzo, Frejol panamito, Frejol canario y Lentejas.
+        <thead>
+
+          <tr>
+
+            <th>
+              Producto
+            </th>
+
+            <th>
+              Unidad
+            </th>
+
+            <th>
+              Precio
+            </th>
+
+            <th>
+              Activo
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="productosBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       MÍNIMOS ESENCIALES
+  ====================================================== -->
+
+  <div class="section">
+
+    <h2>
+      Productos esenciales
+    </h2>
+
+
+    <p class="section-description">
+
+      Solo estos productos representan un compromiso mínimo
+      de la compra colectiva.
 
       <br><br>
 
-      No todos tienen que aparecer en una compra.
-      La variedad se puede agregar manualmente como regalo.
+      Los mínimos están definidos por Semilla y se escalan
+      automáticamente según el tamaño económico de cada canasta.
+
+    </p>
+
+
+    <div class="essential-note">
+
+      <strong>
+        Importante:
+      </strong>
+
+      <br><br>
+
+      No significa que los 24 productos sean obligatorios.
+
+      <br><br>
+
+      Los demás productos forman parte del universo de productos
+      disponibles y podrán incorporarse posteriormente como
+      variedad o regalo.
+
+    </div>
+
+
+    <div class="table-scroll">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Producto</th>
+            <th>Unidad</th>
+            <th>Mínimo por Semilla</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="esencialesConfigBody"></tbody>
+
+      </table>
 
     </div>
 
@@ -1096,39 +1044,28 @@ td {
   <div class="section">
 
     <h2>
-      Regla matemática de compra
+      Compra colectiva
     </h2>
 
 
     <div class="formula-box">
 
+      Presupuesto alimentos = dinero comprometido × 0.65
+
+      <br><br>
+
       Mínimo consolidado =
-      mínimo por Semilla × Semillas
-
-      <br>
-
-      +
-      mínimo por Semilla × 1.6667 × Básicas
-
-      <br>
-
-      +
-      mínimo por Semilla × 2.3333 × Familiares
+      mínimo por Semilla × equivalentes económicos de cada canasta
 
       <br><br>
 
       Compra mínima =
-      redondear hacia arriba el mínimo consolidado
+      mínimo consolidado redondeado hacia arriba
 
       <br><br>
 
-      Compra real =
+      Compra total =
       compra mínima + adicional esencial
-
-      <br><br>
-
-      Saldo =
-      presupuesto alimentos − compra real esencial − regalos
 
     </div>
 
@@ -1136,37 +1073,28 @@ td {
     <div class="info-box">
 
       <strong>
-        ¿Qué hace ahora la máquina?
+        ¿Cómo funciona?
       </strong>
 
       <br><br>
 
-      Primero calcula cuánto dinero tiene disponible
-      para alimentos: el 65% del dinero comprometido.
+      Primero se calcula cuánto corresponde al conjunto
+      de familias según sus participaciones.
 
       <br><br>
 
-      Después garantiza solamente los productos esenciales.
+      Después se garantiza únicamente el mínimo de los
+      productos esenciales.
 
       <br><br>
 
-      Para cada esencial calcula el mínimo consolidado
-      según la cantidad de Semillas, Básicas y Familiares.
+      Si deseas comprar más de un producto esencial,
+      puedes colocar el adicional manualmente.
 
       <br><br>
 
-      Luego redondea hacia arriba para obtener una cantidad
-      física de compra.
-
-      <br><br>
-
-      Si quieres comprar más de ese mínimo, puedes colocar
-      el adicional manualmente.
-
-      <br><br>
-
-      Finalmente puedes agregar compras de variedad o regalos.
-      Estas no son una obligación para las familias.
+      Lo que quede del presupuesto puede utilizarse
+      posteriormente para variedad o regalos.
 
     </div>
 
@@ -1200,20 +1128,20 @@ td {
   <div class="section">
 
     <h2>
-      🎁 Variedad / regalos
+      Variedad / regalos
     </h2>
 
 
     <div class="gift-note">
 
       <strong>
-        Esta sección no representa un compromiso con las familias.
+        Esta parte no representa un compromiso mínimo.
       </strong>
 
       <br><br>
 
-      Aquí puedes registrar manualmente algo adicional que
-      hayas decidido comprar.
+      Aquí puedes anotar compras adicionales que quieras
+      hacer con el saldo disponible de alimentos.
 
       <br><br>
 
@@ -1225,8 +1153,8 @@ td {
 
       <br><br>
 
-      El sistema lo resta inmediatamente del saldo disponible
-      y te muestra cuánto dinero queda.
+      El costo se resta inmediatamente del saldo y queda
+      registrado en este panel.
 
     </div>
 
@@ -1236,7 +1164,7 @@ td {
       onclick="agregarRegalo()"
     >
 
-      ＋ Agregar compra de variedad / regalo
+      ＋ Agregar compra
 
     </button>
 
@@ -1246,28 +1174,25 @@ td {
       style="margin-top:15px;"
     >
 
-      <div class="empty-gifts">
+      <div class="gift-empty">
 
-        Todavía no has agregado compras de variedad o regalos.
+        Todavía no hay compras de variedad o regalos.
 
       </div>
 
     </div>
 
 
-    <div
-      id="regalosResumen"
-    ></div>
+    <div id="regalosResumen"></div>
 
   </div>
 
-
-  <!-- =====================================================
-       MODAL
-  ====================================================== -->
-
 </div>
 
+
+<!-- =====================================================
+     MODAL
+===================================================== -->
 
 <div
   class="modal"
@@ -1326,6 +1251,10 @@ const PORCENTAJE_OPERACIONES = 0.35;
 const PORCENTAJE_ALIMENTOS = 0.65;
 
 
+/*
+ * Factores respecto de una Semilla.
+ */
+
 const FACTOR_SEMILLA =
   CANASTA_SEMILLA /
   CANASTA_SEMILLA;
@@ -1342,15 +1271,6 @@ const FACTOR_FAMILIAR =
 /* =====================================================
    UNIVERSO DE PRODUCTOS
 ===================================================== */
-
-/*
- * Estos siguen siendo los 24 productos que Misti
- * puede utilizar/comprar.
- *
- * NO son 24 mínimos.
- *
- * Solo algunos forman parte de los esenciales.
- */
 
 const universoProductos = [
 
@@ -1383,68 +1303,123 @@ const universoProductos = [
 
 
 /* =====================================================
+   PRODUCTOS PARA PRECIOS
+===================================================== */
+
+/*
+ * Se conserva el universo completo de 24 productos.
+ *
+ * Pero estar aquí NO significa que sean mínimos.
+ */
+
+const productos =
+  universoProductos;
+
+
+/*
+ * Solo almacenamos:
+ *
+ * - unidad
+ * - precio real
+ * - activo
+ */
+
+const reglasProductos =
+  productos.map(nombre => ({
+
+    nombre:
+      nombre,
+
+    unidad:
+      "kg",
+
+    precio:
+      0,
+
+    activo:
+      true
+
+  }));
+
+
+/* =====================================================
    PRODUCTOS ESENCIALES
 ===================================================== */
 
 /*
  * SOLO estos productos tienen compromiso mínimo.
  *
- * El mínimo está expresado por UNA CANASTA SEMILLA.
- *
- * Ejemplo:
- *
- * Papa amarilla = 0.50 kg por Semilla.
- *
- * Si existen 12 equivalentes Semilla:
- *
- * 0.50 × 12 = 6 kg
- *
- * La compra física se redondea hacia arriba.
+ * El mínimo está definido para UNA Semilla.
  */
 
 const productosEsenciales = [
 
   {
-    nombre: "Papa amarilla",
-    unidad: "kg",
-    minimoSemilla: 0.50,
-    precio: 0,
-    activo: true
+    nombre:
+      "Papa amarilla",
+
+    unidad:
+      "kg",
+
+    minimoSemilla:
+      0.50
   },
 
   {
-    nombre: "Papa blanca",
-    unidad: "kg",
-    minimoSemilla: 0.50,
-    precio: 0,
-    activo: true
+    nombre:
+      "Papa blanca",
+
+    unidad:
+      "kg",
+
+    minimoSemilla:
+      0.50
   },
 
   {
-    nombre: "Cebolla",
-    unidad: "kg",
-    minimoSemilla: 0.25,
-    precio: 0,
-    activo: true
+    nombre:
+      "Cebolla",
+
+    unidad:
+      "kg",
+
+    minimoSemilla:
+      0.25
   },
 
   {
-    nombre: "Tomate",
-    unidad: "kg",
-    minimoSemilla: 0.25,
-    precio: 0,
-    activo: true
+    nombre:
+      "Tomate",
+
+    unidad:
+      "kg",
+
+    minimoSemilla:
+      0.25
   },
 
   {
-    nombre: "Zanahoria",
-    unidad: "kg",
-    minimoSemilla: 0.25,
-    precio: 0,
-    activo: true
+    nombre:
+      "Zanahoria",
+
+    unidad:
+      "kg",
+
+    minimoSemilla:
+      0.25
   }
 
 ];
+
+
+/* =====================================================
+   ADICIONALES ESENCIALES
+===================================================== */
+
+const adicionalesEsenciales =
+  productosEsenciales.map(
+    () => 0
+  );
 
 
 /* =====================================================
@@ -1454,30 +1429,20 @@ const productosEsenciales = [
 let regalos = [];
 
 
-/*
- * Último resultado calculado.
- *
- * Se mantiene para poder descontar los regalos
- * inmediatamente.
- */
-
-let ultimoResultadoCompra = null;
-
-
 /* =====================================================
-   RENDER PRODUCTOS ESENCIALES
+   RENDER PRODUCTOS
 ===================================================== */
 
-function renderEsenciales() {
+function renderProductos() {
 
   const body =
     document.getElementById(
-      "esencialesBody"
+      "productosBody"
     );
 
 
   body.innerHTML =
-    productosEsenciales.map(
+    reglasProductos.map(
       (p, i) => `
 
         <tr>
@@ -1497,7 +1462,7 @@ function renderEsenciales() {
 
             <select
               onchange="
-                cambiarEsencial(
+                cambiarRegla(
                   ${i},
                   'unidad',
                   this.value
@@ -1551,28 +1516,9 @@ function renderEsenciales() {
               type="number"
               min="0"
               step="0.01"
-              value="${p.minimoSemilla}"
-              oninput="
-                cambiarEsencial(
-                  ${i},
-                  'minimoSemilla',
-                  this.value
-                )
-              "
-            >
-
-          </td>
-
-
-          <td>
-
-            <input
-              type="number"
-              min="0"
-              step="0.01"
               value="${p.precio}"
               oninput="
-                cambiarEsencial(
+                cambiarRegla(
                   ${i},
                   'precio',
                   this.value
@@ -1594,7 +1540,7 @@ function renderEsenciales() {
                 : ""
               }
               onchange="
-                cambiarEsencial(
+                cambiarRegla(
                   ${i},
                   'activo',
                   this.checked
@@ -1631,56 +1577,105 @@ function renderEsenciales() {
 }
 
 
-function cambiarEsencial(
+/* =====================================================
+   RENDER CONFIGURACIÓN ESENCIALES
+===================================================== */
+
+function renderEsencialesConfig() {
+
+  const body =
+    document.getElementById(
+      "esencialesConfigBody"
+    );
+
+
+  body.innerHTML =
+    productosEsenciales.map(
+      p => `
+
+        <tr>
+
+          <td>
+            <strong>
+              ${escapeHTML(
+                p.nombre
+              )}
+            </strong>
+          </td>
+
+          <td>
+            ${escapeHTML(
+              p.unidad
+            )}
+          </td>
+
+          <td>
+            ${formatearCantidad(
+              p.minimoSemilla
+            )}
+            ${escapeHTML(
+              p.unidad
+            )}
+          </td>
+
+        </tr>
+
+      `
+    ).join("");
+
+}
+
+
+/* =====================================================
+   CAMBIAR REGLA
+===================================================== */
+
+function cambiarRegla(
   index,
   campo,
   valor
 ) {
 
   if (
-    campo === "precio" ||
-    campo === "minimoSemilla"
+    campo === "precio"
   ) {
 
-    productosEsenciales[index][campo] =
-      Math.max(
-        0,
-        Number(valor) || 0
-      );
+    reglasProductos[index][campo] =
+      Number(valor);
 
   } else {
 
-    productosEsenciales[index][campo] =
+    reglasProductos[index][campo] =
       valor;
 
   }
 
 
   /*
-   * Actualización inmediata.
+   * IMPORTANTE:
+   *
+   * Si ya existe una compra calculada,
+   * se actualiza inmediatamente.
    */
 
   actualizarConsolidado();
 
-  calcularCompraAutomaticamente();
+  if (
+    document.getElementById(
+      "resultadoCompra"
+    ).dataset.calculado === "true"
+  ) {
 
-}
+    calcularCompra();
 
-
-/* =====================================================
-   ALIAS PARA COMPATIBILIDAD
-===================================================== */
-
-function renderProductos() {
-
-  renderEsenciales();
+  }
 
 }
 
 
 /* =====================================================
    PEDIDOS
-===================================================== */
+   ===================================================== */
 
 async function cargarPedidos() {
 
@@ -2412,7 +2407,7 @@ function actualizarConsolidado() {
 
 
   const activos =
-    productosEsenciales.filter(
+    reglasProductos.filter(
       p =>
         p.activo &&
         p.precio > 0
@@ -2474,10 +2469,20 @@ function actualizarConsolidado() {
     );
 
 
-  document.getElementById(
-    "productosActivos"
-  ).textContent =
-    activos.length;
+  /*
+   * Si ya existe una compra calculada,
+   * el saldo se vuelve a calcular.
+   */
+
+  if (
+    document.getElementById(
+      "resultadoCompra"
+    ).dataset.calculado === "true"
+  ) {
+
+    calcularCompra();
+
+  }
 
 
   const ronda =
@@ -2515,42 +2520,58 @@ function actualizarConsolidado() {
       con una compra específica.
     `;
 
+}
 
-  /*
-   * Si ya existe una compra calculada,
-   * la actualización del consolidado
-   * dispara nuevamente el cálculo.
-   */
+
+/* =====================================================
+   ADICIONALES ESENCIALES
+===================================================== */
+
+function cambiarAdicional(
+  index,
+  valor
+) {
+
+  let numero =
+    Number(
+      valor
+    );
+
 
   if (
-    ultimoResultadoCompra !== null
+    !Number.isFinite(numero) ||
+    numero < 0
   ) {
 
-    calcularCompraAutomaticamente();
+    numero = 0;
 
   }
 
+
+  adicionalesEsenciales[index] =
+    numero;
+
+
+  /*
+   * ACTUALIZACIÓN INMEDIATA
+   */
+
+  calcularCompra();
+
 }
 
 
 /* =====================================================
-   CÁLCULO AUTOMÁTICO
+   CALCULAR COMPRA
 ===================================================== */
 
-function calcularCompraAutomaticamente() {
+function calcularCompra() {
 
-  calcularCompra(true);
+  const resultado =
+    document.getElementById(
+      "resultadoCompra"
+    );
 
-}
-
-
-/* =====================================================
-   ALGORITMO DE COMPRA
-===================================================== */
-
-function calcularCompra(
-  automatico = false
-) {
 
   const lista =
     obtenerAceptadosRonda();
@@ -2558,13 +2579,11 @@ function calcularCompra(
 
   if (!lista.length) {
 
-    ultimoResultadoCompra =
-      null;
+    resultado.dataset.calculado =
+      "false";
 
 
-    document.getElementById(
-      "resultadoCompra"
-    ).innerHTML = `
+    resultado.innerHTML = `
 
       <div class="result-warning">
 
@@ -2577,6 +2596,10 @@ function calcularCompra(
 
 
     renderRegalos();
+
+    actualizarSaldoPresupuesto(
+      0
+    );
 
     return;
 
@@ -2596,238 +2619,156 @@ function calcularCompra(
 
   /*
    * ===================================================
-   * MÍNIMOS ESENCIALES
+   * CALCULAR MÍNIMOS ESENCIALES
    * ===================================================
    */
 
-  const esencialesActivos =
-    productosEsenciales.filter(
-      p =>
-        p.activo &&
-        p.precio > 0
-    );
+  const compraEsencial =
+    productosEsenciales.map(
+      (p, index) => {
+
+        const minimoSemilla =
+          p.minimoSemilla;
 
 
-  /*
-   * Si hay productos activos pero
-   * falta algún precio esencial,
-   * avisamos.
-   */
+        const minimoConsolidado =
 
-  const esencialesSinPrecio =
-    productosEsenciales.filter(
-      p =>
-        p.activo &&
-        p.precio <= 0
-    );
+          (
+            minimoSemilla *
+            datos.semillas
+          )
 
+          +
 
-  if (
-    esencialesSinPrecio.length
-  ) {
-
-    ultimoResultadoCompra =
-      null;
-
-
-    document.getElementById(
-      "resultadoCompra"
-    ).innerHTML = `
-
-      <div class="result-warning">
-
-        <strong>
-          Faltan precios de productos esenciales.
-        </strong>
-
-        <br><br>
-
-        Introduce el precio real del mercado
-        de cada producto esencial activo.
-
-        <br><br>
-
-        Falta precio para:
-
-        <strong>
-          ${
-            esencialesSinPrecio
-              .map(
-                p =>
-                  escapeHTML(
-                    p.nombre
-                  )
-              )
-              .join(", ")
-          }
-        </strong>
-
-      </div>
-
-    `;
-
-
-    renderRegalos();
-
-    return;
-
-  }
-
-
-  /*
-   * ===================================================
-   * CALCULAR MÍNIMOS
-   * ===================================================
-   */
-
-  const compra =
-    productosEsenciales
-      .filter(
-        p =>
-          p.activo
-      )
-      .map(
-        p => {
-
-          const minimoSemilla =
-            p.minimoSemilla *
-            datos.semillas;
-
-
-          const minimoBasica =
-            p.minimoSemilla *
+          (
+            minimoSemilla *
             FACTOR_BASICA *
-            datos.basicas;
+            datos.basicas
+          )
 
+          +
 
-          const minimoFamiliar =
-            p.minimoSemilla *
+          (
+            minimoSemilla *
             FACTOR_FAMILIAR *
-            datos.familiares;
+            datos.familiares
+          );
 
 
-          const minimoConsolidado =
-            minimoSemilla +
-            minimoBasica +
-            minimoFamiliar;
+        /*
+         * Redondeo hacia arriba.
+         */
+
+        const compraMinima =
+          Math.ceil(
+            minimoConsolidado
+          );
 
 
-          /*
-           * Redondeamos hacia arriba.
-           */
-
-          const compraMinima =
-            Math.ceil(
-              minimoConsolidado
-            );
-
-
-          /*
-           * El adicional es introducido
-           * por el usuario.
-           */
-
-          if (
-            p.adicional === undefined
-          ) {
-
-            p.adicional = 0;
-
-          }
+        const adicional =
+          Number(
+            adicionalesEsenciales[
+              index
+            ] ||
+            0
+          );
 
 
-          const adicional =
-            Math.max(
-              0,
-              Number(
-                p.adicional
-              ) || 0
-            );
+        const compraTotal =
+          compraMinima +
+          adicional;
 
 
-          const compraTotal =
-            compraMinima +
-            adicional;
+        const regla =
+          reglasProductos.find(
+            x =>
+              x.nombre ===
+              p.nombre
+          );
 
 
-          const costo =
-            compraTotal *
-            p.precio;
+        const precio =
+          regla
+            ? Number(
+                regla.precio ||
+                0
+              )
+            : 0;
 
 
-          return {
-
-            nombre:
-              p.nombre,
-
-            unidad:
-              p.unidad,
-
-            minimoSemilla:
-              minimoSemilla,
-
-            minimoBasica:
-              minimoBasica,
-
-            minimoFamiliar:
-              minimoFamiliar,
-
-            minimoConsolidado:
-              minimoConsolidado,
-
-            compraMinima:
-              compraMinima,
-
-            adicional:
-              adicional,
-
-            compraTotal:
-              compraTotal,
-
-            precio:
-              p.precio,
-
-            costo:
-              costo
-
-          };
-
-        }
-      );
+        const costo =
+          compraTotal *
+          precio;
 
 
-  /*
-   * ===================================================
-   * COSTOS
-   * ===================================================
-   */
+        const costoMinimo =
+          compraMinima *
+          precio;
+
+
+        const costoAdicional =
+          adicional *
+          precio;
+
+
+        return {
+
+          nombre:
+            p.nombre,
+
+          unidad:
+            p.unidad,
+
+          minimoConsolidado:
+            minimoConsolidado,
+
+          compraMinima:
+            compraMinima,
+
+          adicional:
+            adicional,
+
+          compraTotal:
+            compraTotal,
+
+          precio:
+            precio,
+
+          costoMinimo:
+            costoMinimo,
+
+          costoAdicional:
+            costoAdicional,
+
+          costo:
+            costo
+
+        };
+
+      }
+    );
+
 
   const costoMinimoEsencial =
-    compra.reduce(
+    compraEsencial.reduce(
       (s,p) =>
         s +
-        (
-          p.compraMinima *
-          p.precio
-        ),
+        p.costoMinimo,
       0
     );
 
 
   const costoAdicionalEsencial =
-    compra.reduce(
+    compraEsencial.reduce(
       (s,p) =>
         s +
-        (
-          p.adicional *
-          p.precio
-        ),
+        p.costoAdicional,
       0
     );
 
 
-  const costoRealEsencial =
-    compra.reduce(
+  const costoEsencialReal =
+    compraEsencial.reduce(
       (s,p) =>
         s +
         p.costo,
@@ -2835,16 +2776,22 @@ function calcularCompra(
     );
 
 
+  /*
+   * El saldo antes de regalos
+   */
+
   const saldoAntesRegalos =
     presupuestoAlimentos -
-    costoRealEsencial;
+    costoEsencialReal;
 
 
   /*
-   * Guardamos el resultado.
+   * Guardamos la información
+   * para que los regalos puedan
+   * descontarse inmediatamente.
    */
 
-  ultimoResultadoCompra = {
+  ultimaCompra = {
 
     datos:
       datos,
@@ -2852,48 +2799,47 @@ function calcularCompra(
     presupuestoAlimentos:
       presupuestoAlimentos,
 
-    compra:
-      compra,
-
     costoMinimoEsencial:
       costoMinimoEsencial,
 
     costoAdicionalEsencial:
       costoAdicionalEsencial,
 
-    costoRealEsencial:
-      costoRealEsencial,
+    costoEsencialReal:
+      costoEsencialReal,
 
     saldoAntesRegalos:
-      saldoAntesRegalos
+      saldoAntesRegalos,
+
+    compraEsencial:
+      compraEsencial
 
   };
 
 
-  /*
-   * ===================================================
-   * MENSAJE
-   * ===================================================
-   */
+  resultado.dataset.calculado =
+    "true";
 
-  let mensajeEstado = "";
+
+  let mensajePresupuesto = "";
 
 
   if (
-    saldoAntesRegalos < 0
+    costoEsencialReal >
+    presupuestoAlimentos
   ) {
 
-    mensajeEstado = `
+    mensajePresupuesto = `
 
       <div class="result-error">
 
         <strong>
-          El mínimo esencial supera el presupuesto.
+          El mínimo esencial supera el presupuesto disponible.
         </strong>
 
         <br><br>
 
-        Presupuesto para alimentos:
+        Presupuesto de alimentos:
 
         <strong>
           ${soles(
@@ -2903,23 +2849,22 @@ function calcularCompra(
 
         <br>
 
-        Costo real esencial:
+        Costo esencial:
 
         <strong>
           ${soles(
-            costoRealEsencial
+            costoEsencialReal
           )}
         </strong>
 
-        <br>
+        <br><br>
 
         Déficit:
 
         <strong>
           ${soles(
-            Math.abs(
-              saldoAntesRegalos
-            )
+            costoEsencialReal -
+            presupuestoAlimentos
           )}
         </strong>
 
@@ -2929,17 +2874,17 @@ function calcularCompra(
 
   } else {
 
-    mensajeEstado = `
+    mensajePresupuesto = `
 
       <div class="result-good">
 
         <strong>
-          Compra esencial dentro del presupuesto.
+          Mínimos esenciales cubiertos.
         </strong>
 
         <br><br>
 
-        Después de cubrir los esenciales quedan:
+        El presupuesto todavía tiene un saldo de:
 
         <strong>
           ${soles(
@@ -2947,8 +2892,7 @@ function calcularCompra(
           )}
         </strong>
 
-        disponibles para compras adicionales
-        o regalos.
+        antes de agregar variedad o regalos.
 
       </div>
 
@@ -2957,170 +2901,134 @@ function calcularCompra(
   }
 
 
-  document.getElementById(
-    "resultadoCompra"
-  ).innerHTML = `
+  resultado.innerHTML = `
 
-    ${mensajeEstado}
+    ${mensajePresupuesto}
 
 
-    <div class="info-box">
-
-      <strong>
-        Así se está construyendo la compra:
-      </strong>
-
-      <br><br>
-
-      1. Se toma el dinero comprometido.
-
-      <br>
-
-      2. Se separa el 35% para operaciones.
-
-      <br>
-
-      3. El 65% queda para alimentos.
-
-      <br>
-
-      4. Se calcula el mínimo de cada producto esencial
-      según la participación económica de la ronda.
-
-      <br>
-
-      5. Se redondea hacia arriba para obtener
-      una cantidad física comprable.
-
-      <br>
-
-      6. Si decides comprar más, ese aumento aparece
-      como adicional.
-
-      <br>
-
-      7. Lo que queda puede utilizarse en variedad
-      o regalos.
-
-    </div>
+    <div class="summary-grid">
 
 
-    ${tablaCompra(
-      compra
-    )}
+      <div class="summary-box">
+
+        Presupuesto alimentos
+
+        <strong>
+          ${soles(
+            presupuestoAlimentos
+          )}
+        </strong>
+
+      </div>
 
 
-    <div class="final-summary">
+      <div class="summary-box">
 
-      <h3>
-        Resumen de compra
-      </h3>
+        Mínimo esencial
 
+        <strong>
+          ${soles(
+            costoMinimoEsencial
+          )}
+        </strong>
 
-      <div class="final-summary-grid">
-
-        <div class="final-summary-box">
-
-          Presupuesto alimentos
-
-          <strong>
-            ${soles(
-              presupuestoAlimentos
-            )}
-          </strong>
-
-        </div>
+      </div>
 
 
-        <div class="final-summary-box">
+      <div class="summary-box">
 
-          Mínimo esencial
+        Adicionales esenciales
 
-          <strong>
-            ${soles(
-              costoMinimoEsencial
-            )}
-          </strong>
+        <strong>
+          ${soles(
+            costoAdicionalEsencial
+          )}
+        </strong>
 
-        </div>
-
-
-        <div class="final-summary-box">
-
-          Adicional esencial
-
-          <strong>
-            ${soles(
-              costoAdicionalEsencial
-            )}
-          </strong>
-
-        </div>
+      </div>
 
 
-        <div class="final-summary-box">
+      <div class="summary-box">
 
-          Compra real esencial
+        Compra esencial real
 
-          <strong>
-            ${soles(
-              costoRealEsencial
-            )}
-          </strong>
+        <strong>
+          ${soles(
+            costoEsencialReal
+          )}
+        </strong>
 
-        </div>
-
-
-        <div class="final-summary-box">
-
-          Regalos / variedad
-
-          <strong id="resumenRegalosInline">
-            ${soles(
-              calcularTotalRegalos()
-            )}
-          </strong>
-
-        </div>
+      </div>
 
 
-        <div class="final-summary-box">
+      <div class="summary-box">
 
-          Saldo final
+        Saldo antes de regalos
 
-          <strong
-            id="saldoFinalInline"
-          >
-            ${soles(
-              saldoAntesRegalos -
-              calcularTotalRegalos()
-            )}
-          </strong>
-
-        </div>
+        <strong>
+          ${soles(
+            saldoAntesRegalos
+          )}
+        </strong>
 
       </div>
 
     </div>
 
+
+    <div class="info-box">
+
+      <strong>
+        Compra consolidada.
+      </strong>
+
+      <br><br>
+
+      El mínimo se calculó primero para una Semilla
+      y luego se escaló según las participaciones
+      Semilla, Básica y Familiar de la ronda.
+
+      <br><br>
+
+      La compra mínima se redondea hacia arriba.
+
+      <br><br>
+
+      Si agregas una cantidad adicional a un producto
+      esencial, esa cantidad se suma inmediatamente
+      y su costo se resta del saldo.
+
+    </div>
+
+
+    ${tablaCompraEsencial(
+      compraEsencial
+    )}
+
   `;
 
 
-  /*
-   * Renderizamos regalos después
-   * de actualizar el resultado.
-   */
-
   renderRegalos();
+
+  actualizarSaldoPresupuesto(
+    saldoAntesRegalos
+  );
 
 }
 
 
 /* =====================================================
-   TABLA DE COMPRA
+   ÚLTIMA COMPRA
 ===================================================== */
 
-function tablaCompra(
+let ultimaCompra = null;
+
+
+/* =====================================================
+   TABLA ESENCIALES
+===================================================== */
+
+function tablaCompraEsencial(
   compra
 ) {
 
@@ -3139,10 +3047,6 @@ function tablaCompra(
             </th>
 
             <th>
-              Unidad
-            </th>
-
-            <th>
               Mínimo consolidado
             </th>
 
@@ -3151,7 +3055,7 @@ function tablaCompra(
             </th>
 
             <th>
-              Adicional esencial
+              Adicional
             </th>
 
             <th>
@@ -3175,7 +3079,7 @@ function tablaCompra(
 
           ${
             compra.map(
-              p => `
+              (p, index) => `
 
                 <tr>
 
@@ -3192,17 +3096,12 @@ function tablaCompra(
 
                   <td>
 
-                    ${escapeHTML(
-                      p.unidad
-                    )}
-
-                  </td>
-
-
-                  <td>
-
                     ${formatearCantidad(
                       p.minimoConsolidado
+                    )}
+
+                    ${escapeHTML(
+                      p.unidad
                     )}
 
                   </td>
@@ -3216,6 +3115,10 @@ function tablaCompra(
                       )}
                     </strong>
 
+                    ${escapeHTML(
+                      p.unidad
+                    )}
+
                   </td>
 
 
@@ -3227,10 +3130,8 @@ function tablaCompra(
                       step="0.01"
                       value="${p.adicional}"
                       oninput="
-                        cambiarAdicionalEsencial(
-                          '${escapeJS(
-                            p.nombre
-                          )}',
+                        cambiarAdicional(
+                          ${index},
                           this.value
                         )
                       "
@@ -3246,6 +3147,10 @@ function tablaCompra(
                         p.compraTotal
                       )}
                     </strong>
+
+                    ${escapeHTML(
+                      p.unidad
+                    )}
 
                   </td>
 
@@ -3285,45 +3190,7 @@ function tablaCompra(
 
 
 /* =====================================================
-   CAMBIAR ADICIONAL ESENCIAL
-===================================================== */
-
-function cambiarAdicionalEsencial(
-  nombre,
-  valor
-) {
-
-  const producto =
-    productosEsenciales.find(
-      p =>
-        p.nombre ===
-        nombre
-    );
-
-
-  if (!producto) {
-    return;
-  }
-
-
-  producto.adicional =
-    Math.max(
-      0,
-      Number(valor) || 0
-    );
-
-
-  /*
-   * INMEDIATO.
-   */
-
-  calcularCompraAutomaticamente();
-
-}
-
-
-/* =====================================================
-   REGALOS
+   AGREGAR REGALO
 ===================================================== */
 
 function agregarRegalo() {
@@ -3350,6 +3217,70 @@ function agregarRegalo() {
 }
 
 
+/* =====================================================
+   CAMBIAR REGALO
+===================================================== */
+
+function cambiarRegalo(
+  index,
+  campo,
+  valor
+) {
+
+  if (
+    !regalos[index]
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    campo === "cantidad" ||
+    campo === "precio"
+  ) {
+
+    let numero =
+      Number(
+        valor
+      );
+
+
+    if (
+      !Number.isFinite(numero) ||
+      numero < 0
+    ) {
+
+      numero = 0;
+
+    }
+
+
+    regalos[index][campo] =
+      numero;
+
+  } else {
+
+    regalos[index][campo] =
+      valor;
+
+  }
+
+
+  /*
+   * Se actualiza inmediatamente.
+   */
+
+  renderRegalos();
+
+}
+
+
+/* =====================================================
+   ELIMINAR REGALO
+===================================================== */
+
 function eliminarRegalo(
   index
 ) {
@@ -3365,63 +3296,29 @@ function eliminarRegalo(
 }
 
 
-function cambiarRegalo(
-  index,
-  campo,
-  valor
-) {
-
-  if (
-    campo === "cantidad" ||
-    campo === "precio"
-  ) {
-
-    regalos[index][campo] =
-      Math.max(
-        0,
-        Number(valor) || 0
-      );
-
-  } else {
-
-    regalos[index][campo] =
-      valor;
-
-  }
-
-
-  /*
-   * INMEDIATO.
-   */
-
-  renderRegalos();
-
-  actualizarResumenRegalosEnCompra();
-
-}
-
+/* =====================================================
+   TOTAL REGALOS
+===================================================== */
 
 function calcularTotalRegalos() {
 
   return regalos.reduce(
     (total, regalo) => {
 
-      const cantidad =
-        Number(
-          regalo.cantidad
-        ) || 0;
-
-
-      const precio =
-        Number(
-          regalo.precio
-        ) || 0;
-
-
       return total +
+
         (
-          cantidad *
-          precio
+          Number(
+            regalo.cantidad ||
+            0
+          )
+
+          *
+
+          Number(
+            regalo.precio ||
+            0
+          )
         );
 
     },
@@ -3455,10 +3352,9 @@ function renderRegalos() {
 
     body.innerHTML = `
 
-      <div class="empty-gifts">
+      <div class="gift-empty">
 
-        Todavía no has agregado compras
-        de variedad o regalos.
+        Todavía no hay compras de variedad o regalos.
 
       </div>
 
@@ -3477,7 +3373,7 @@ function renderRegalos() {
             <tr>
 
               <th>
-                Compra
+                Producto
               </th>
 
               <th>
@@ -3509,132 +3405,135 @@ function renderRegalos() {
 
             ${
               regalos.map(
-                (regalo, index) => `
+                (r, index) => {
 
-                  <tr>
-
-                    <td>
-
-                      <input
-                        list="productosDisponibles"
-                        type="text"
-                        value="${escapeHTML(
-                          regalo.producto
-                        )}"
-                        placeholder="Ej. Fruta"
-                        oninput="
-                          cambiarRegalo(
-                            ${index},
-                            'producto',
-                            this.value
-                          )
-                        "
-                      >
-
-                    </td>
+                  const costo =
+                    Number(
+                      r.cantidad ||
+                      0
+                    )
+                    *
+                    Number(
+                      r.precio ||
+                      0
+                    );
 
 
-                    <td>
+                  return `
 
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value="${regalo.cantidad}"
-                        oninput="
-                          cambiarRegalo(
-                            ${index},
-                            'cantidad',
-                            this.value
-                          )
-                        "
-                      >
+                    <tr>
 
-                    </td>
+                      <td>
 
+                        <input
+                          type="text"
+                          list="productosDisponibles"
+                          value="${escapeHTML(
+                            r.producto
+                          )}"
+                          placeholder="Ej. Fruta"
+                          oninput="
+                            cambiarRegalo(
+                              ${index},
+                              'producto',
+                              this.value
+                            )
+                          "
+                        >
 
-                    <td>
-
-                      <input
-                        type="text"
-                        value="${escapeHTML(
-                          regalo.unidad
-                        )}"
-                        placeholder="Ej. caja"
-                        oninput="
-                          cambiarRegalo(
-                            ${index},
-                            'unidad',
-                            this.value
-                          )
-                        "
-                      >
-
-                    </td>
+                      </td>
 
 
-                    <td>
+                      <td>
 
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value="${regalo.precio}"
-                        placeholder="S/"
-                        oninput="
-                          cambiarRegalo(
-                            ${index},
-                            'precio',
-                            this.value
-                          )
-                        "
-                      >
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="${r.cantidad}"
+                          oninput="
+                            cambiarRegalo(
+                              ${index},
+                              'cantidad',
+                              this.value
+                            )
+                          "
+                        >
 
-                    </td>
-
-
-                    <td>
-
-                      <strong>
-
-                        ${soles(
-                          (
-                            Number(
-                              regalo.cantidad
-                            ) || 0
-                          ) *
-                          (
-                            Number(
-                              regalo.precio
-                            ) || 0
-                          )
-                        )}
-
-                      </strong>
-
-                    </td>
+                      </td>
 
 
-                    <td>
+                      <td>
 
-                      <button
-                        class="btn-delete"
-                        onclick="
-                          eliminarRegalo(
-                            ${index}
-                          )
-                        "
-                      >
+                        <input
+                          type="text"
+                          value="${escapeHTML(
+                            r.unidad
+                          )}"
+                          placeholder="caja, kg, unidad..."
+                          oninput="
+                            cambiarRegalo(
+                              ${index},
+                              'unidad',
+                              this.value
+                            )
+                          "
+                        >
 
-                        Eliminar
+                      </td>
 
-                      </button>
 
-                    </td>
+                      <td>
 
-                  </tr>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="${r.precio}"
+                          placeholder="S/"
+                          oninput="
+                            cambiarRegalo(
+                              ${index},
+                              'precio',
+                              this.value
+                            )
+                          "
+                        >
 
-                `
+                      </td>
+
+
+                      <td>
+
+                        <strong>
+                          ${soles(
+                            costo
+                          )}
+                        </strong>
+
+                      </td>
+
+
+                      <td>
+
+                        <button
+                          class="btn-delete"
+                          onclick="
+                            eliminarRegalo(
+                              ${index}
+                            )
+                          "
+                        >
+                          Eliminar
+                        </button>
+
+                      </td>
+
+                    </tr>
+
+                  `;
+
+                }
               ).join("")
             }
 
@@ -3653,30 +3552,10 @@ function renderRegalos() {
     calcularTotalRegalos();
 
 
-  if (
-    !ultimoResultadoCompra
-  ) {
-
-    resumen.innerHTML = `
-
-      <div class="result-warning">
-
-        Primero selecciona una ronda y calcula
-        la compra esencial para conocer
-        el saldo disponible.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
   const saldoAntes =
-    ultimoResultadoCompra
-      .saldoAntesRegalos;
+    ultimaCompra
+      ? ultimaCompra.saldoAntesRegalos
+      : 0;
 
 
   const saldoFinal =
@@ -3684,45 +3563,72 @@ function renderRegalos() {
     totalRegalos;
 
 
-  let claseSaldo =
-    saldoFinal >= 0
-      ? "saldo-positive"
-      : "saldo-negative";
+  resumen.innerHTML = `
+
+    <div class="gift-total">
+
+      <strong>
+        Total variedad / regalos:
+      </strong>
+
+      ${soles(
+        totalRegalos
+      )}
+
+    </div>
 
 
-  let mensajeSaldo = "";
+    ${
+      saldoFinal >= 0
 
+      ?
 
-  if (
-    saldoFinal >= 0
-  ) {
+      `
 
-    mensajeSaldo = `
+      <div class="balance-box">
 
-      <div class="result-good">
+        Saldo restante:
 
-        Después de los regalos quedan:
+        <div class="balance-number">
 
-        <strong>
           ${soles(
             saldoFinal
           )}
-        </strong>
 
-        disponibles.
+        </div>
 
       </div>
 
-    `;
+      `
 
-  } else {
+      :
 
-    mensajeSaldo = `
+      `
 
       <div class="result-error">
 
         <strong>
-          Los regalos superan el saldo disponible.
+          El gasto supera el saldo disponible.
+        </strong>
+
+        <br><br>
+
+        Saldo antes de regalos:
+
+        <strong>
+          ${soles(
+            saldoAntes
+          )}
+        </strong>
+
+        <br>
+
+        Regalos / variedad:
+
+        <strong>
+          ${soles(
+            totalRegalos
+          )}
         </strong>
 
         <br><br>
@@ -3739,132 +3645,113 @@ function renderRegalos() {
 
       </div>
 
-    `;
+      `
 
-  }
-
-
-  resumen.innerHTML = `
-
-    <div class="gift-summary">
-
-
-      <div class="gift-summary-box">
-
-        Saldo antes de regalos
-
-        <strong>
-          ${soles(
-            saldoAntes
-          )}
-        </strong>
-
-      </div>
-
-
-      <div class="gift-summary-box">
-
-        Total regalos / variedad
-
-        <strong>
-          ${soles(
-            totalRegalos
-          )}
-        </strong>
-
-      </div>
-
-
-      <div class="gift-summary-box">
-
-        Saldo después de regalos
-
-        <strong class="${claseSaldo}">
-
-          ${soles(
-            saldoFinal
-          )}
-
-        </strong>
-
-      </div>
-
-    </div>
-
-
-    ${mensajeSaldo}
+    }
 
   `;
 
 
-  actualizarResumenRegalosEnCompra();
+  actualizarSaldoPresupuesto(
+    saldoFinal
+  );
 
 }
 
 
 /* =====================================================
-   ACTUALIZAR RESUMEN DENTRO DE COMPRA
+   ACTUALIZAR SALDO SUPERIOR
 ===================================================== */
 
-function actualizarResumenRegalosEnCompra() {
+function actualizarSaldoPresupuesto(
+  saldo
+) {
 
-  if (
-    !ultimoResultadoCompra
-  ) {
+  const elemento =
+    document.getElementById(
+      "saldoPresupuesto"
+    );
+
+
+  if (!elemento) {
     return;
   }
 
 
-  const totalRegalos =
-    calcularTotalRegalos();
-
-
-  const saldoFinal =
-    ultimoResultadoCompra
-      .saldoAntesRegalos -
-    totalRegalos;
-
-
-  const regalosInline =
-    document.getElementById(
-      "resumenRegalosInline"
-    );
-
-
-  const saldoInline =
-    document.getElementById(
-      "saldoFinalInline"
+  elemento.textContent =
+    soles(
+      saldo
     );
 
 
   if (
-    regalosInline
+    saldo < 0
   ) {
 
-    regalosInline.textContent =
-      soles(
-        totalRegalos
-      );
+    elemento.style.color =
+      "#c62828";
+
+  } else {
+
+    elemento.style.color =
+      "#2e7d32";
 
   }
 
+}
 
-  if (
-    saldoInline
-  ) {
 
-    saldoInline.textContent =
-      soles(
-        saldoFinal
+/* =====================================================
+   DATOS DISPONIBLES PARA REGALOS
+===================================================== */
+
+function crearListaProductos() {
+
+  let lista =
+    document.getElementById(
+      "productosDisponibles"
+    );
+
+
+  if (lista) {
+    return;
+  }
+
+
+  lista =
+    document.createElement(
+      "datalist"
+    );
+
+
+  lista.id =
+    "productosDisponibles";
+
+
+  universoProductos.forEach(
+    nombre => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        nombre;
+
+
+      lista.appendChild(
+        option
       );
 
+    }
+  );
 
-    saldoInline.className =
-      saldoFinal >= 0
-        ? "saldo-positive"
-        : "saldo-negative";
 
-  }
+  document.body.appendChild(
+    lista
+  );
 
 }
 
@@ -3952,14 +3839,6 @@ function actualizarTodo() {
   renderPedidos();
 
   actualizarConsolidado();
-
-
-  /*
-   * Si cambiamos de ronda,
-   * volvemos a calcular automáticamente.
-   */
-
-  calcularCompraAutomaticamente();
 
 }
 
@@ -4216,97 +4095,19 @@ function escapeHTML(
 }
 
 
-function escapeJS(
-  valor
-) {
-
-  return String(
-    valor
-  )
-  .replace(
-    /\\/g,
-    "\\\\"
-  )
-  .replace(
-    /'/g,
-    "\\'"
-  )
-  .replace(
-    /\n/g,
-    "\\n"
-  )
-  .replace(
-    /\r/g,
-    "\\r"
-  );
-
-}
-
-
-/* =====================================================
-   DATOS PARA PRODUCTOS DE REGALO
-===================================================== */
-
-function crearDatalistProductos() {
-
-  let datalist =
-    document.getElementById(
-      "productosDisponibles"
-    );
-
-
-  if (!datalist) {
-
-    datalist =
-      document.createElement(
-        "datalist"
-      );
-
-    datalist.id =
-      "productosDisponibles";
-
-
-    document.body.appendChild(
-      datalist
-    );
-
-  }
-
-
-  datalist.innerHTML =
-    universoProductos
-      .map(
-        producto => `
-
-          <option
-            value="${escapeHTML(
-              producto
-            )}"
-          ></option>
-
-        `
-      )
-      .join("");
-
-}
-
-
 /* =====================================================
    INICIO
 ===================================================== */
 
-crearDatalistProductos();
-
 renderProductos();
 
-renderRegalos();
+renderEsencialesConfig();
+
+crearListaProductos();
 
 cargarPedidos();
 
 </script>
-
-
-<datalist id="productosDisponibles"></datalist>
 
 </body>
 </html>
