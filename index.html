@@ -1,2222 +1,1489 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Compra con Misti — Administración</title>
+  <title>Compra con Misti — Panel administrativo</title>
 
-<style>
+  <style>
     * {
-        box-sizing: border-box;
+      box-sizing: border-box;
     }
 
     body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #f5f5f5;
-        color: #222;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      color: #222;
     }
 
     header {
-        background: #b5121b;
-        color: white;
-        padding: 20px;
+      background: #b71c1c;
+      color: white;
+      padding: 20px;
     }
 
     header h1 {
-        margin: 0;
-        font-size: 26px;
+      margin: 0 0 5px;
+      font-size: 26px;
     }
 
     header p {
-        margin: 6px 0 0;
-        opacity: .9;
+      margin: 0;
+      opacity: 0.9;
     }
 
-    main {
-        max-width: 1400px;
-        margin: auto;
-        padding: 20px;
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
-    .barra {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 20px;
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
-    button,
-    select,
-    input {
-        font: inherit;
+    .connection {
+      font-size: 14px;
+      color: #666;
     }
 
     button {
-        border: none;
-        border-radius: 8px;
-        padding: 10px 14px;
-        cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
-    .btn-principal {
-        background: #b5121b;
-        color: white;
+    .btn-refresh {
+      background: #333;
+      color: white;
     }
 
-    .btn-secundario {
-        background: #ddd;
-        color: #222;
+    .btn-accept {
+      background: #2e7d32;
+      color: white;
     }
 
-    .btn-aceptar {
-        background: #198754;
-        color: white;
+    .btn-reject {
+      background: #c62828;
+      color: white;
     }
 
-    .btn-rechazar {
-        background: #dc3545;
-        color: white;
+    .btn-detail {
+      background: #e0e0e0;
+      color: #222;
     }
 
-    .conexion {
-        padding: 10px 14px;
-        border-radius: 8px;
-        background: #fff3cd;
-        color: #664d03;
-        display: inline-block;
-    }
-
-    .conexion.ok {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-    .conexion.error {
-        background: #f8d7da;
-        color: #842029;
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
     .cards {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
-        margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
     }
 
     .card {
-        background: white;
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .card .titulo {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 8px;
+    .card-title {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 8px;
     }
 
-    .card .numero {
-        font-size: 27px;
-        font-weight: bold;
+    .card-value {
+      font-size: 25px;
+      font-weight: bold;
     }
 
-    .seccion {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    .filters {
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .seccion h2 {
-        margin-top: 0;
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 12px;
     }
 
-    .filtros {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 15px;
+    input,
+    select {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      font-size: 14px;
     }
 
-    .filtros input,
-    .filtros select,
-    .form-ronda input,
-    .form-ronda select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        background: white;
+    .round-info {
+      margin-top: 15px;
+      padding: 12px;
+      background: #fff8e1;
+      border-left: 4px solid #f9a825;
+      border-radius: 6px;
+      font-size: 14px;
     }
 
-    .checkbox {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        font-size: 14px;
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .tabla-wrapper {
-        overflow-x: auto;
+    .section h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .table-container {
+      overflow-x: auto;
     }
 
     table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 950px;
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 950px;
     }
 
     th,
     td {
-        padding: 11px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        vertical-align: middle;
+      padding: 12px 10px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      vertical-align: middle;
     }
 
     th {
-        background: #fafafa;
-        font-size: 13px;
+      background: #fafafa;
+      font-size: 13px;
+      color: #555;
     }
 
-    .estado {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
+    td {
+      font-size: 14px;
     }
 
-    .estado-pendiente {
-        background: #fff3cd;
-        color: #664d03;
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
     }
 
-    .estado-aceptado {
-        background: #d1e7dd;
-        color: #0f5132;
+    .status-pendiente {
+      background: #fff3cd;
+      color: #856404;
     }
 
-    .estado-rechazado {
-        background: #f8d7da;
-        color: #842029;
+    .status-aceptado {
+      background: #d4edda;
+      color: #155724;
     }
 
-    .acciones {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
+    .status-rechazado {
+      background: #f8d7da;
+      color: #721c24;
     }
 
-    .acciones button {
-        padding: 7px 9px;
-        font-size: 12px;
+    .round-badge {
+      display: inline-block;
+      background: #eeeeee;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
     }
 
-    .ronda-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
-    .ronda-info {
-        background: #fafafa;
-        border-radius: 10px;
-        padding: 15px;
+    .consolidado-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
     }
 
-    .dato {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        border-bottom: 1px solid #eee;
-        padding: 8px 0;
+    .mini-card {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid #eee;
     }
 
-    .dato:last-child {
-        border-bottom: none;
+    .mini-card strong {
+      display: block;
+      font-size: 20px;
+      margin-top: 5px;
     }
 
-    .dato strong {
-        text-align: right;
+    .budget {
+      margin-top: 18px;
+      border-top: 1px solid #eee;
+      padding-top: 18px;
     }
 
-    .form-ronda {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        align-items: end;
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
 
-    .campo {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+    .budget-box {
+      padding: 15px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid #eee;
     }
 
-    .campo label {
-        font-size: 13px;
-        font-weight: bold;
+    .budget-box strong {
+      display: block;
+      font-size: 20px;
+      margin-top: 5px;
     }
 
-    .presupuesto {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 15px;
-        margin-top: 15px;
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #777;
     }
 
-    .presupuesto .bloque {
-        border-radius: 10px;
-        padding: 15px;
-        background: #fafafa;
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #777;
     }
 
-    .presupuesto .monto {
-        font-size: 23px;
-        font-weight: bold;
-        margin-top: 5px;
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .nota {
-        font-size: 13px;
-        color: #666;
-        margin-top: 10px;
+    .modal.active {
+      display: flex;
     }
 
-    .vacio {
-        text-align: center;
-        color: #777;
-        padding: 30px;
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 12px;
+      padding: 22px;
     }
 
-    .mini {
-        font-size: 12px;
-        color: #777;
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
     }
 
-    .ronda-badge {
-        background: #eee;
-        padding: 5px 8px;
-        border-radius: 6px;
-        font-size: 12px;
-        white-space: nowrap;
+    .modal-header h3 {
+      margin: 0;
     }
 
-    @media (max-width: 900px) {
-        .cards {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    .close {
+      background: #eee;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      padding: 0;
+      font-size: 18px;
+    }
 
-        .ronda-grid {
-            grid-template-columns: 1fr;
-        }
+    .detail-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
 
-        .form-ronda {
-            grid-template-columns: 1fr 1fr;
-        }
+    .detail-label {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 4px;
+    }
 
-        .presupuesto {
-            grid-template-columns: 1fr;
-        }
+    .detail-value {
+      font-weight: bold;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    @media (max-width: 1000px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .consolidado-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 600px) {
-        main {
-            padding: 12px;
-        }
+      .container {
+        padding: 12px;
+      }
 
-        header {
-            padding: 16px;
-        }
+      .cards {
+        grid-template-columns: 1fr;
+      }
 
-        header h1 {
-            font-size: 22px;
-        }
+      .consolidado-grid,
+      .budget-grid {
+        grid-template-columns: 1fr;
+      }
 
-        .cards {
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .card {
-            padding: 13px;
-        }
-
-        .card .numero {
-            font-size: 21px;
-        }
-
-        .form-ronda {
-            grid-template-columns: 1fr;
-        }
-
-        .barra {
-            align-items: stretch;
-        }
-
-        .barra button {
-            width: 100%;
-        }
+      header h1 {
+        font-size: 22px;
+      }
     }
-</style>
+  </style>
 </head>
 
 <body>
 
 <header>
+  <div class="container">
     <h1>Compra con Misti</h1>
     <p>Panel administrativo · pedidos y consolidado de compra</p>
+  </div>
 </header>
 
-<main>
+<div class="container">
 
-    <!-- CONEXIÓN -->
-    <div class="barra">
-        <span id="conexion" class="conexion">
-            Conectando con n8n…
-        </span>
-
-        <button class="btn-principal" onclick="loadOrders()">
-            Actualizar
-        </button>
+  <div class="topbar">
+    <div class="connection" id="connectionStatus">
+      Conectando con n8n…
     </div>
 
+    <button class="btn-refresh" onclick="cargarPedidos()">
+      ↻ Actualizar
+    </button>
+  </div>
 
-    <!-- RESUMEN GENERAL -->
-    <section class="cards">
+  <div id="message" class="message"></div>
 
-        <div class="card">
-            <div class="titulo">Pedidos</div>
-            <div class="numero" id="totalPedidos">0</div>
+  <!-- RESUMEN -->
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-title">Pedidos</div>
+      <div class="card-value" id="totalPedidos">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Pendientes</div>
+      <div class="card-value" id="totalPendientes">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Aceptados</div>
+      <div class="card-value" id="totalAceptados">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Dinero comprometido</div>
+      <div class="card-value" id="dineroComprometido">
+        S/ 0.00
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters">
+
+    <div class="filters-grid">
+
+      <input
+        type="text"
+        id="buscar"
+        placeholder="Buscar cliente o celular..."
+        oninput="renderPedidos()"
+      >
+
+      <select id="filtroEstado" onchange="renderPedidos()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="Aceptado">Aceptado</option>
+        <option value="Rechazado">Rechazado</option>
+      </select>
+
+      <select id="filtroRonda" onchange="renderPedidos()">
+        <option value="">Todas las rondas</option>
+      </select>
+
+    </div>
+
+    <div class="round-info" id="roundInfo">
+      Las rondas se asignan automáticamente desde n8n según la fecha y hora de recepción del pedido.
+    </div>
+
+  </div>
+
+  <!-- PEDIDOS -->
+  <div class="section">
+
+    <h2>Pedidos</h2>
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Celular</th>
+            <th>Canastas</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Ronda</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="pedidosBody">
+          <tr>
+            <td colspan="7" class="loading">
+              Cargando pedidos...
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <!-- CONSOLIDADO -->
+  <div class="section">
+
+    <h2>Consolidado de compra</h2>
+
+    <div class="consolidado-grid">
+
+      <div class="mini-card">
+        Familias aceptadas
+        <strong id="familiasAceptadas">0</strong>
+      </div>
+
+      <div class="mini-card">
+        Canastas Básicas
+        <strong id="basicasAceptadas">0</strong>
+      </div>
+
+      <div class="mini-card">
+        Canastas Semilla
+        <strong id="semillasAceptadas">0</strong>
+      </div>
+
+      <div class="mini-card">
+        Canastas Familiares
+        <strong id="familiaresAceptadas">0</strong>
+      </div>
+
+      <div class="mini-card">
+        Dinero comprometido
+        <strong id="consolidadoDinero">S/ 0.00</strong>
+      </div>
+
+    </div>
+
+    <!-- PRESUPUESTO 35 / 65 -->
+    <div class="budget">
+
+      <h3>Distribución del dinero comprometido</h3>
+
+      <p>
+        Regla del modelo:
+        <strong>35% operaciones</strong> y
+        <strong>65% alimentos</strong>.
+      </p>
+
+      <div class="budget-grid">
+
+        <div class="budget-box">
+          Operaciones · 35%
+          <strong id="presupuestoOperaciones">
+            S/ 0.00
+          </strong>
         </div>
 
-        <div class="card">
-            <div class="titulo">Pendientes</div>
-            <div class="numero" id="totalPendientes">0</div>
+        <div class="budget-box">
+          Alimentos · 65%
+          <strong id="presupuestoAlimentos">
+            S/ 0.00
+          </strong>
         </div>
 
-        <div class="card">
-            <div class="titulo">Aceptados</div>
-            <div class="numero" id="totalAceptados">0</div>
+        <div class="budget-box">
+          Total comprometido
+          <strong id="presupuestoTotal">
+            S/ 0.00
+          </strong>
         </div>
 
-        <div class="card">
-            <div class="titulo">Dinero comprometido</div>
-            <div class="numero" id="dineroComprometido">S/ 0.00</div>
-        </div>
+      </div>
 
-    </section>
+    </div>
 
+  </div>
 
-    <!-- PEDIDOS -->
-    <section class="seccion">
+</div>
 
-        <h2>Pedidos</h2>
+<!-- MODAL DETALLE -->
+<div class="modal" id="modalDetalle">
 
-        <div class="filtros">
+  <div class="modal-content">
 
-            <input
-                type="text"
-                id="busqueda"
-                placeholder="Buscar cliente o celular"
-                oninput="renderOrders()"
-            >
+    <div class="modal-header">
 
-            <select id="filtroEstado" onchange="renderOrders()">
-                <option value="">Todos los estados</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="Aceptado">Aceptados</option>
-                <option value="Rechazado">Rechazados</option>
-            </select>
+      <h3>Detalle del pedido</h3>
 
-            <label class="checkbox">
-                <input
-                    type="checkbox"
-                    id="soloRonda"
-                    onchange="renderOrders()"
-                >
-                Mostrar solo pedidos de la ronda seleccionada
-            </label>
+      <button class="close" onclick="cerrarModal()">
+        ×
+      </button>
 
-        </div>
+    </div>
 
-        <div class="tabla-wrapper">
+    <div id="detalleContenido"></div>
 
-            <table>
+  </div>
 
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Celular</th>
-                        <th>Canastas</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Ronda</th>
-                        <th>Recepción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tablaPedidos">
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- RONDA -->
-    <section class="seccion">
-
-        <h2>Ronda de compra</h2>
-
-        <div class="ronda-grid">
-
-            <div>
-
-                <div class="campo">
-                    <label>Ronda seleccionada</label>
-
-                    <select
-                        id="rondaSelector"
-                        onchange="seleccionarRonda(this.value)"
-                    >
-                    </select>
-                </div>
-
-                <div id="rondaInfo" class="ronda-info" style="margin-top:15px;">
-                </div>
-
-            </div>
-
-
-            <div>
-
-                <h3>Crear una ronda</h3>
-
-                <div class="form-ronda">
-
-                    <div class="campo">
-                        <label>Fecha de compra</label>
-                        <input type="date" id="fechaCompra">
-                    </div>
-
-                    <div class="campo">
-                        <label>Estado</label>
-                        <select id="estadoRonda">
-                            <option value="abierta">Abierta</option>
-                            <option value="cerrada">Cerrada</option>
-                        </select>
-                    </div>
-
-                    <div class="campo">
-                        <label>Cierre automático</label>
-                        <input
-                            type="text"
-                            value="Viernes 15:00"
-                            disabled
-                        >
-                    </div>
-
-                    <div class="campo">
-                        <button
-                            class="btn-principal"
-                            onclick="guardarRonda()"
-                        >
-                            Guardar ronda
-                        </button>
-                    </div>
-
-                </div>
-
-                <div class="nota">
-                    Las rondas de compra siempre ocurren los domingos.
-                    El cierre de pedidos es automáticamente el viernes
-                    anterior a las 15:00.
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- CONSOLIDADO -->
-        <div style="margin-top:25px;">
-
-            <h3>Consolidado de la ronda</h3>
-
-            <div class="presupuesto">
-
-                <div class="bloque">
-                    <div class="mini">Familias aceptadas</div>
-                    <div class="monto" id="familiasRonda">0</div>
-                </div>
-
-                <div class="bloque">
-                    <div class="mini">Canastas básicas</div>
-                    <div class="monto" id="basicasRonda">0</div>
-                </div>
-
-                <div class="bloque">
-                    <div class="mini">Canastas semilla</div>
-                    <div class="monto" id="semillasRonda">0</div>
-                </div>
-
-                <div class="bloque">
-                    <div class="mini">Canastas familiares</div>
-                    <div class="monto" id="familiaresRonda">0</div>
-                </div>
-
-                <div class="bloque">
-                    <div class="mini">Dinero comprometido</div>
-                    <div class="monto" id="dineroRonda">S/ 0.00</div>
-                </div>
-
-            </div>
-
-
-            <!-- PRESUPUESTO -->
-            <div style="margin-top:25px;">
-
-                <h3>Distribución del dinero</h3>
-
-                <div class="presupuesto">
-
-                    <div class="bloque">
-                        <div class="mini">
-                            Fondo operativo — 35%
-                        </div>
-
-                        <div
-                            class="monto"
-                            id="gastosOperativos"
-                        >
-                            S/ 0.00
-                        </div>
-                    </div>
-
-
-                    <div class="bloque">
-                        <div class="mini">
-                            Presupuesto alimentos — 65%
-                        </div>
-
-                        <div
-                            class="monto"
-                            id="presupuestoAlimentos"
-                        >
-                            S/ 0.00
-                        </div>
-                    </div>
-
-
-                    <div class="bloque">
-                        <div class="mini">
-                            Total comprometido
-                        </div>
-
-                        <div
-                            class="monto"
-                            id="presupuestoTotal"
-                        >
-                            S/ 0.00
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="nota">
-                    El modelo reserva 35% del dinero comprometido
-                    para operación y utiliza 65% como presupuesto
-                    destinado a alimentos.
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
+</div>
 
 <script>
 
-/* ============================================================
-   CONFIGURACIÓN
-   ============================================================ */
+  const API_PEDIDOS =
+    "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
 
-const API_BASE =
-    "https://msi.tail124b59.ts.net/webhook";
+  const API_ESTADO =
+    "https://msi.tail124b59.ts.net/webhook/admin-estado";
 
-const API_GET =
-    API_BASE + "/admin-pedidos";
 
-const API_POST =
-    API_BASE + "/admin-estado";
+  let pedidos = [];
 
-const API_RONDAS_GET =
-    API_BASE + "/admin-rondas";
 
-const API_RONDA_GUARDAR =
-    API_BASE + "/admin-ronda-guardar";
+  /*
+   * ============================
+   * CARGAR PEDIDOS
+   * ============================
+   */
 
-const RONDA_PREFERENCIA_KEY =
-    "compra_con_misti_ronda_seleccionada";
+  async function cargarPedidos() {
 
-const GASTOS_OPERATIVOS_PCT =
-    0.35;
+    const status =
+      document.getElementById("connectionStatus");
 
-const PRESUPUESTO_ALIMENTOS_PCT =
-    0.65;
-
-
-/* ============================================================
-   VARIABLES
-   ============================================================ */
-
-let pedidos = [];
-let rondas = [];
-let rondaSeleccionada = "";
-
-
-/* ============================================================
-   UTILIDADES
-   ============================================================ */
-
-function dinero(valor) {
-
-    const numero = Number(valor || 0);
-
-    return numero.toLocaleString("es-PE", {
-        style: "currency",
-        currency: "PEN"
-    });
-}
-
-
-function escaparHTML(texto) {
-
-    if (texto === null || texto === undefined) {
-        return "";
-    }
-
-    return String(texto)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-/*
-    Convierte una fecha a objeto Date.
-
-    Las fechas que vienen de n8n pueden estar en formato ISO UTC.
-*/
-function fechaObjeto(valor) {
-
-    if (!valor) {
-        return null;
-    }
-
-    const fecha = new Date(valor);
-
-    if (isNaN(fecha.getTime())) {
-        return null;
-    }
-
-    return fecha;
-}
-
-
-/*
-    Fecha visible para Lima.
-
-    Importante:
-    No usamos toISOString() para mostrar fechas al usuario,
-    porque eso puede mover el día por UTC.
-*/
-function fechaVisible(valor) {
-
-    const fecha = fechaObjeto(valor);
-
-    if (!fecha) {
-        return "-";
-    }
-
-    return fecha.toLocaleString("es-PE", {
-        timeZone: "America/Lima",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-
-/*
-    Obtiene solamente la fecha YYYY-MM-DD
-    usando horario de Lima.
-*/
-function fechaLimaYYYYMMDD(valor) {
-
-    const fecha = fechaObjeto(valor);
-
-    if (!fecha) {
-        return null;
-    }
-
-    return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "America/Lima",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit"
-    }).format(fecha);
-}
-
-
-/* ============================================================
-   FUNCIÓN CENTRAL DE RONDAS
-   ============================================================ */
-
-/*
-    REGLA DEL NEGOCIO:
-
-    - Las compras son siempre domingo.
-    - El cierre es siempre viernes 15:00.
-    - Si el pedido llega antes del viernes 15:00,
-      pertenece al domingo inmediato.
-    - Si llega desde viernes 15:00 en adelante,
-      pertenece al domingo siguiente.
-
-    No hay asignación manual.
-*/
-
-function calcularRondaPorFecha(fechaRecepcion) {
-
-    const fecha = fechaObjeto(fechaRecepcion);
-
-    if (!fecha) {
-        return null;
-    }
-
-    /*
-        Convertimos la fecha a componentes de Lima.
-    */
-
-    const partes = new Intl.DateTimeFormat("en-US", {
-        timeZone: "America/Lima",
-        weekday: "short",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-    }).formatToParts(fecha);
-
-    const obtener = nombre => {
-        const parte = partes.find(p => p.type === nombre);
-        return parte ? parte.value : "";
-    };
-
-    const year = Number(obtener("year"));
-    const month = Number(obtener("month"));
-    const day = Number(obtener("day"));
-
-    let hora = Number(obtener("hour"));
-
-    /*
-        En algunos formatos Intl puede aparecer 24.
-    */
-    if (hora === 24) {
-        hora = 0;
-    }
-
-    const minuto = Number(obtener("minute"));
-
-    /*
-        Creamos una fecha calendario en horario local del navegador,
-        pero utilizando los componentes de Lima.
-    */
-
-    const calendario = new Date(
-        year,
-        month - 1,
-        day
-    );
-
-    /*
-        getDay():
-        0 domingo
-        1 lunes
-        2 martes
-        3 miércoles
-        4 jueves
-        5 viernes
-        6 sábado
-    */
-
-    const diaSemana = calendario.getDay();
-
-    let diasHastaDomingo;
-
-    /*
-        Antes del viernes 15:00:
-        buscamos el domingo inmediato.
-
-        Viernes 14:59 → 2 días
-        Jueves → 3 días
-        Miércoles → 4 días
-        etc.
-
-        Desde viernes 15:00:
-        domingo siguiente.
-
-        Sábado → domingo siguiente.
-        Domingo → siguiente domingo.
-        Lunes → siguiente domingo.
-    */
-
-    if (diaSemana === 5) {
-
-        if (
-            hora < 15 ||
-            (hora === 14 && minuto < 60)
-        ) {
-            diasHastaDomingo = 2;
-        } else {
-            diasHastaDomingo = 9;
-        }
-
-    } else if (diaSemana === 6) {
-
-        diasHastaDomingo = 8;
-
-    } else if (diaSemana === 0) {
-
-        diasHastaDomingo = 7;
-
-    } else {
-
-        diasHastaDomingo = 7 - diaSemana;
-    }
-
-    const domingo = new Date(calendario);
-
-    domingo.setDate(
-        domingo.getDate() + diasHastaDomingo
-    );
-
-    const yyyy =
-        domingo.getFullYear();
-
-    const mm =
-        String(domingo.getMonth() + 1)
-        .padStart(2, "0");
-
-    const dd =
-        String(domingo.getDate())
-        .padStart(2, "0");
-
-    return `R-${yyyy}-${mm}-${dd}`;
-}
-
-
-/* ============================================================
-   INFORMACIÓN DE UNA RONDA
-   ============================================================ */
-
-function fechaCompraDesdeRonda(rondaId) {
-
-    if (!rondaId) {
-        return null;
-    }
-
-    const match =
-        String(rondaId).match(
-            /^R-(\d{4})-(\d{2})-(\d{2})$/
-        );
-
-    if (!match) {
-        return null;
-    }
-
-    return `${match[1]}-${match[2]}-${match[3]}`;
-}
-
-
-function calcularCierreDesdeCompra(fechaCompra) {
-
-    if (!fechaCompra) {
-        return null;
-    }
-
-    const partes =
-        fechaCompra.split("-").map(Number);
-
-    const fecha = new Date(
-        partes[0],
-        partes[1] - 1,
-        partes[2]
-    );
-
-    /*
-        Domingo - 2 días = viernes.
-    */
-
-    fecha.setDate(
-        fecha.getDate() - 2
-    );
-
-    const yyyy =
-        fecha.getFullYear();
-
-    const mm =
-        String(fecha.getMonth() + 1)
-        .padStart(2, "0");
-
-    const dd =
-        String(fecha.getDate())
-        .padStart(2, "0");
-
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-
-function fechaTexto(fecha) {
-
-    if (!fecha) {
-        return "-";
-    }
-
-    const partes =
-        fecha.split("-");
-
-    if (partes.length !== 3) {
-        return fecha;
-    }
-
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-
-/* ============================================================
-   CARGAR RONDAS
-   ============================================================ */
-
-async function loadRondas() {
+    status.textContent =
+      "Conectando con n8n…";
 
     try {
 
-        const response =
-            await fetch(API_RONDAS_GET, {
-                method: "GET",
-                cache: "no-store"
-            });
-
-        if (!response.ok) {
-            throw new Error(
-                "Error HTTP " + response.status
-            );
-        }
-
-        const data =
-            await response.json();
-
-        rondas =
-            Array.isArray(data)
-                ? data
-                : [];
-
-        /*
-            Ordenamos por fecha de compra.
-        */
-
-        rondas.sort((a, b) => {
-
-            const fa =
-                fechaCompraDesdeRonda(a.ronda_id);
-
-            const fb =
-                fechaCompraDesdeRonda(b.ronda_id);
-
-            return String(fa).localeCompare(
-                String(fb)
-            );
+      const response =
+        await fetch(API_PEDIDOS, {
+          method: "GET",
+          cache: "no-store"
         });
 
+      if (!response.ok) {
+        throw new Error(
+          "HTTP " + response.status
+        );
+      }
 
-        /*
-            Preferencia anterior del usuario.
-        */
+      const data =
+        await response.json();
 
-        const guardada =
-            localStorage.getItem(
-                RONDA_PREFERENCIA_KEY
-            );
+      /*
+       * n8n puede devolver directamente
+       * un array o un objeto con value.
+       */
 
+      if (Array.isArray(data)) {
+        pedidos = data;
+      } else if (Array.isArray(data.value)) {
+        pedidos = data.value;
+      } else {
+        pedidos = [];
+      }
 
-        /*
-            Si existe, la utilizamos.
-        */
+      status.textContent =
+        "✓ Conectado con n8n";
 
-        if (
-            guardada &&
-            rondas.some(
-                r => r.ronda_id === guardada
-            )
-        ) {
-
-            rondaSeleccionada =
-                guardada;
-
-        } else {
-
-            /*
-                Si hay rondas, seleccionamos
-                la primera.
-            */
-
-            if (rondas.length > 0) {
-
-                rondaSeleccionada =
-                    rondas[0].ronda_id;
-
-            } else {
-
-                rondaSeleccionada = "";
-            }
-        }
-
-
-        renderRondaSelector();
-
-        renderRondaInfoYConsolidado();
+      actualizarResumen();
+      cargarRondas();
+      renderPedidos();
+      actualizarConsolidado();
 
     } catch (error) {
 
-        console.error(
-            "Error cargando rondas:",
-            error
-        );
+      console.error(error);
 
-        rondas = [];
+      status.textContent =
+        "✕ Error de conexión con n8n";
 
-        renderRondaSelector();
+      mostrarMensaje(
+        "No se pudieron cargar los pedidos.",
+        "error"
+      );
 
-        renderRondaInfoYConsolidado();
     }
-}
+
+  }
 
 
-/* ============================================================
-   SELECTOR DE RONDA
-   ============================================================ */
+  /*
+   * ============================
+   * RONDAS
+   * ============================
+   *
+   * IMPORTANTE:
+   * El HTML NO calcula ni asigna
+   * rondas.
+   *
+   * Solamente lee ronda_id
+   * que viene desde n8n.
+   */
 
-function renderRondaSelector() {
+  function cargarRondas() {
 
     const selector =
-        document.getElementById(
-            "rondaSelector"
-        );
+      document.getElementById("filtroRonda");
 
-    if (!selector) {
-        return;
-    }
+    const rondaActual =
+      selector.value;
 
-    selector.innerHTML = "";
+    const rondas =
+      [...new Set(
+        pedidos
+          .map(p => p.ronda_id)
+          .filter(r => r)
+      )].sort();
 
-    if (rondas.length === 0) {
-
-        const option =
-            document.createElement("option");
-
-        option.value = "";
-
-        option.textContent =
-            "No hay rondas creadas";
-
-        selector.appendChild(option);
-
-        return;
-    }
-
+    selector.innerHTML =
+      `<option value="">Todas las rondas</option>`;
 
     rondas.forEach(ronda => {
 
-        const option =
-            document.createElement("option");
+      const option =
+        document.createElement("option");
 
-        option.value =
-            ronda.ronda_id;
+      option.value = ronda;
+      option.textContent = ronda;
 
-        const fechaCompra =
-            fechaCompraDesdeRonda(
-                ronda.ronda_id
-            );
-
-        option.textContent =
-            `${ronda.ronda_id} — compra ${fechaTexto(fechaCompra)}`;
-
-        selector.appendChild(option);
+      selector.appendChild(option);
 
     });
 
-
-    selector.value =
-        rondaSeleccionada;
-}
-
-
-function seleccionarRonda(rondaId) {
-
-    rondaSeleccionada =
-        rondaId;
-
-    localStorage.setItem(
-        RONDA_PREFERENCIA_KEY,
-        rondaId
-    );
-
-    renderOrders();
-
-    renderRondaInfoYConsolidado();
-}
-
-
-/* ============================================================
-   INFORMACIÓN Y CONSOLIDADO
-   ============================================================ */
-
-function obtenerRondaSeleccionada() {
-
-    return rondas.find(
-        r => r.ronda_id === rondaSeleccionada
-    );
-}
-
-
-function computeConsolidadoRonda() {
-
-    const ronda =
-        rondaSeleccionada;
-
-    const aceptados =
-        pedidos.filter(p => {
-
-            const estado =
-                String(
-                    p.estado || ""
-                ).toLowerCase();
-
-            /*
-                MUY IMPORTANTE:
-
-                No confiamos en que el pedido tenga
-                ronda_id manual.
-
-                Si tiene ronda_id, lo usamos.
-
-                Si no tiene, calculamos automáticamente
-                desde fecha_recepcion.
-            */
-
-            const rondaPedido =
-                p.ronda_id ||
-                calcularRondaPorFecha(
-                    p.fecha_recepcion
-                );
-
-            return (
-                estado === "aceptado" &&
-                rondaPedido === ronda
-            );
-
-        });
-
-
-    let basicas = 0;
-    let semillas = 0;
-    let familiares = 0;
-    let dinero = 0;
-
-
-    aceptados.forEach(p => {
-
-        basicas += Number(
-            p.canasta_basica_cantidad || 0
-        );
-
-        semillas += Number(
-            p.canasta_semilla_cantidad || 0
-        );
-
-        familiares += Number(
-            p.canasta_familiar_cantidad || 0
-        );
-
-        dinero += Number(
-            p.total_solicitado || 0
-        );
-
-    });
-
-
-    return {
-        familias: aceptados.length,
-        basicas,
-        semillas,
-        familiares,
-        dinero
-    };
-}
-
-
-function renderRondaInfoYConsolidado() {
-
-    const info =
-        document.getElementById(
-            "rondaInfo"
-        );
-
-    const ronda =
-        obtenerRondaSeleccionada();
-
-    if (!ronda) {
-
-        if (info) {
-
-            info.innerHTML = `
-                <div class="vacio">
-                    No hay una ronda seleccionada.
-                </div>
-            `;
-        }
-
-        document.getElementById(
-            "familiasRonda"
-        ).textContent = "0";
-
-        document.getElementById(
-            "basicasRonda"
-        ).textContent = "0";
-
-        document.getElementById(
-            "semillasRonda"
-        ).textContent = "0";
-
-        document.getElementById(
-            "familiaresRonda"
-        ).textContent = "0";
-
-        document.getElementById(
-            "dineroRonda"
-        ).textContent = "S/ 0.00";
-
-        document.getElementById(
-            "gastosOperativos"
-        ).textContent = "S/ 0.00";
-
-        document.getElementById(
-            "presupuestoAlimentos"
-        ).textContent = "S/ 0.00";
-
-        document.getElementById(
-            "presupuestoTotal"
-        ).textContent = "S/ 0.00";
-
-        return;
+    if (rondas.includes(rondaActual)) {
+      selector.value = rondaActual;
     }
 
+  }
 
-    const fechaCompra =
-        fechaCompraDesdeRonda(
-            ronda.ronda_id
-        );
 
-    const fechaCierre =
-        calcularCierreDesdeCompra(
-            fechaCompra
-        );
+  /*
+   * ============================
+   * RESUMEN
+   * ============================
+   */
 
-
-    if (info) {
-
-        info.innerHTML = `
-
-            <div class="dato">
-                <span>Ronda</span>
-                <strong>${escaparHTML(ronda.ronda_id)}</strong>
-            </div>
-
-            <div class="dato">
-                <span>Estado</span>
-                <strong>
-                    ${escaparHTML(ronda.estado_ronda || "abierta")}
-                </strong>
-            </div>
-
-            <div class="dato">
-                <span>Cierre de pedidos</span>
-                <strong>
-                    Viernes ${fechaTexto(fechaCierre)} · 15:00
-                </strong>
-            </div>
-
-            <div class="dato">
-                <span>Compra</span>
-                <strong>
-                    Domingo ${fechaTexto(fechaCompra)} · 04:00
-                </strong>
-            </div>
-
-        `;
-    }
-
-
-    const consolidado =
-        computeConsolidadoRonda();
-
-
-    document.getElementById(
-        "familiasRonda"
-    ).textContent =
-        consolidado.familias;
-
-
-    document.getElementById(
-        "basicasRonda"
-    ).textContent =
-        consolidado.basicas;
-
-
-    document.getElementById(
-        "semillasRonda"
-    ).textContent =
-        consolidado.semillas;
-
-
-    document.getElementById(
-        "familiaresRonda"
-    ).textContent =
-        consolidado.familiares;
-
-
-    document.getElementById(
-        "dineroRonda"
-    ).textContent =
-        dinero(consolidado.dinero);
-
-
-    const operaciones =
-        consolidado.dinero *
-        GASTOS_OPERATIVOS_PCT;
-
-
-    const alimentos =
-        consolidado.dinero *
-        PRESUPUESTO_ALIMENTOS_PCT;
-
-
-    document.getElementById(
-        "gastosOperativos"
-    ).textContent =
-        dinero(operaciones);
-
-
-    document.getElementById(
-        "presupuestoAlimentos"
-    ).textContent =
-        dinero(alimentos);
-
-
-    document.getElementById(
-        "presupuestoTotal"
-    ).textContent =
-        dinero(consolidado.dinero);
-}
-
-
-/* ============================================================
-   GUARDAR RONDA
-   ============================================================ */
-
-async function guardarRonda() {
-
-    const fechaCompra =
-        document.getElementById(
-            "fechaCompra"
-        ).value;
-
-    const estado =
-        document.getElementById(
-            "estadoRonda"
-        ).value;
-
-
-    if (!fechaCompra) {
-
-        alert(
-            "Selecciona la fecha de compra."
-        );
-
-        return;
-    }
-
-
-    /*
-        La compra debe ser domingo.
-    */
-
-    const partes =
-        fechaCompra.split("-").map(Number);
-
-    const fecha =
-        new Date(
-            partes[0],
-            partes[1] - 1,
-            partes[2]
-        );
-
-    if (fecha.getDay() !== 0) {
-
-        alert(
-            "La fecha de compra debe ser domingo."
-        );
-
-        return;
-    }
-
-
-    const rondaId =
-        `R-${fechaCompra}`;
-
-
-    const fechaCierre =
-        calcularCierreDesdeCompra(
-            fechaCompra
-        );
-
-
-    const body = {
-
-        ronda_id:
-            rondaId,
-
-        fecha_compra:
-            fechaCompra,
-
-        fecha_cierre_pedidos:
-            `${fechaCierre}T15:00:00`,
-
-        estado_ronda:
-            estado
-    };
-
-
-    try {
-
-        const response =
-            await fetch(
-                API_RONDA_GUARDAR,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(body)
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Error HTTP " +
-                response.status
-            );
-        }
-
-
-        alert(
-            `Ronda ${rondaId} guardada.`
-        );
-
-
-        await loadRondas();
-
-        rondaSeleccionada =
-            rondaId;
-
-        localStorage.setItem(
-            RONDA_PREFERENCIA_KEY,
-            rondaId
-        );
-
-        renderRondaSelector();
-
-        renderRondaInfoYConsolidado();
-
-        renderOrders();
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "No se pudo guardar la ronda."
-        );
-    }
-}
-
-
-/* ============================================================
-   CARGAR PEDIDOS
-   ============================================================ */
-
-async function loadOrders() {
-
-    const conexion =
-        document.getElementById(
-            "conexion"
-        );
-
-    conexion.textContent =
-        "Conectando con n8n…";
-
-    conexion.className =
-        "conexion";
-
-
-    try {
-
-        const response =
-            await fetch(
-                API_GET,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Error HTTP " +
-                response.status
-            );
-        }
-
-
-        const data =
-            await response.json();
-
-
-        pedidos =
-            Array.isArray(data)
-                ? data
-                : [];
-
-
-        conexion.textContent =
-            "Conectado con n8n";
-
-        conexion.className =
-            "conexion ok";
-
-
-        /*
-            Primero cargamos rondas.
-        */
-
-        await loadRondas();
-
-
-        /*
-            Luego mostramos pedidos.
-        */
-
-        renderOrders();
-
-        renderResumen();
-
-        renderRondaInfoYConsolidado();
-
-
-    } catch (error) {
-
-        console.error(
-            "Error cargando pedidos:",
-            error
-        );
-
-        conexion.textContent =
-            "Error de conexión con n8n";
-
-        conexion.className =
-            "conexion error";
-    }
-}
-
-
-/* ============================================================
-   RESUMEN
-   ============================================================ */
-
-function renderResumen() {
-
-    const total =
-        pedidos.length;
-
+  function actualizarResumen() {
 
     const pendientes =
-        pedidos.filter(p =>
-            String(
-                p.estado || ""
-            ).toLowerCase() ===
-            "pendiente"
-        ).length;
-
+      pedidos.filter(
+        p => String(p.estado).toLowerCase()
+          === "pendiente"
+      );
 
     const aceptados =
-        pedidos.filter(p =>
-            String(
-                p.estado || ""
-            ).toLowerCase() ===
-            "aceptado"
-        );
-
+      pedidos.filter(
+        p => String(p.estado).toLowerCase()
+          === "aceptado"
+      );
 
     const dinero =
-        aceptados.reduce(
-            (suma, p) =>
-                suma +
-                Number(
-                    p.total_solicitado || 0
-                ),
-            0
-        );
-
+      aceptados.reduce(
+        (sum, p) =>
+          sum + Number(p.total_solicitado || 0),
+        0
+      );
 
     document.getElementById(
-        "totalPedidos"
-    ).textContent =
-        total;
-
+      "totalPedidos"
+    ).textContent = pedidos.length;
 
     document.getElementById(
-        "totalPendientes"
-    ).textContent =
-        pendientes;
-
+      "totalPendientes"
+    ).textContent = pendientes.length;
 
     document.getElementById(
-        "totalAceptados"
-    ).textContent =
-        aceptados.length;
-
+      "totalAceptados"
+    ).textContent = aceptados.length;
 
     document.getElementById(
-        "dineroComprometido"
+      "dineroComprometido"
     ).textContent =
-        dineroTotal(dinero);
-}
+      formatoSoles(dinero);
+
+  }
 
 
-function dineroTotal(valor) {
+  /*
+   * ============================
+   * FILTRAR Y MOSTRAR PEDIDOS
+   * ============================
+   */
 
-    return Number(valor || 0)
-        .toLocaleString(
-            "es-PE",
-            {
-                style: "currency",
-                currency: "PEN"
-            }
-        );
-}
+  function obtenerPedidosFiltrados() {
 
-
-/* ============================================================
-   RENDER PEDIDOS
-   ============================================================ */
-
-function renderOrders() {
-
-    const tbody =
-        document.getElementById(
-            "tablaPedidos"
-        );
-
-
-    const busqueda =
-        String(
-            document.getElementById(
-                "busqueda"
-            ).value || ""
-        )
+    const buscar =
+      document.getElementById("buscar")
+        .value
         .trim()
         .toLowerCase();
 
-
-    const filtroEstado =
-        document.getElementById(
-            "filtroEstado"
-        ).value;
-
-
-    const soloRonda =
-        document.getElementById(
-            "soloRonda"
-        ).checked;
-
-
-    const filtrados =
-        pedidos.filter(p => {
-
-
-            const cliente =
-                String(
-                    p.cliente || ""
-                ).toLowerCase();
-
-
-            const celular =
-                String(
-                    p.celular || ""
-                ).toLowerCase();
-
-
-            if (
-                busqueda &&
-                !cliente.includes(busqueda) &&
-                !celular.includes(busqueda)
-            ) {
-
-                return false;
-            }
-
-
-            if (
-                filtroEstado &&
-                String(
-                    p.estado || ""
-                ) !== filtroEstado
-            ) {
-
-                return false;
-            }
-
-
-            if (soloRonda) {
-
-                const rondaPedido =
-                    p.ronda_id ||
-                    calcularRondaPorFecha(
-                        p.fecha_recepcion
-                    );
-
-
-                if (
-                    rondaPedido !==
-                    rondaSeleccionada
-                ) {
-
-                    return false;
-                }
-            }
-
-
-            return true;
-
-        });
-
-
-    tbody.innerHTML = "";
-
-
-    if (filtrados.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="vacio">
-                    No hay pedidos para mostrar.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    filtrados.forEach(pedido => {
-
-        const tr =
-            document.createElement("tr");
-
-
-        const basica =
-            Number(
-                pedido.canasta_basica_cantidad || 0
-            );
-
-        const semilla =
-            Number(
-                pedido.canasta_semilla_cantidad || 0
-            );
-
-        const familiar =
-            Number(
-                pedido.canasta_familiar_cantidad || 0
-            );
-
-
-        /*
-            AQUÍ ESTÁ LA PARTE IMPORTANTE:
-
-            Si el backend todavía no tiene ronda_id,
-            el HTML la calcula automáticamente.
-
-            Así no tienes que asignarla manualmente.
-        */
-
-        const ronda =
-            pedido.ronda_id ||
-            calcularRondaPorFecha(
-                pedido.fecha_recepcion
-            );
-
-
-        const estado =
-            String(
-                pedido.estado || "pendiente"
-            );
-
-
-        let claseEstado =
-            "estado-pendiente";
-
-
-        if (
-            estado.toLowerCase() ===
-            "aceptado"
-        ) {
-
-            claseEstado =
-                "estado-aceptado";
-
-        } else if (
-            estado.toLowerCase() ===
-            "rechazado"
-        ) {
-
-            claseEstado =
-                "estado-rechazado";
-        }
-
-
-        tr.innerHTML = `
-
-            <td>
-                <strong>
-                    ${escaparHTML(pedido.cliente)}
-                </strong>
-            </td>
-
-            <td>
-                ${escaparHTML(pedido.celular)}
-            </td>
-
-            <td>
-
-                Básica:
-                ${basica}
-
-                <br>
-
-                Semilla:
-                ${semilla}
-
-                <br>
-
-                Familiar:
-                ${familiar}
-
-            </td>
-
-            <td>
-                ${dinero(pedido.total_solicitado)}
-            </td>
-
-            <td>
-                <span class="estado ${claseEstado}">
-                    ${escaparHTML(estado)}
-                </span>
-            </td>
-
-            <td>
-                <span class="ronda-badge">
-                    ${escaparHTML(ronda || "Sin ronda")}
-                </span>
-            </td>
-
-            <td>
-                <span class="mini">
-                    ${fechaVisible(
-                        pedido.fecha_recepcion
-                    )}
-                </span>
-            </td>
-
-            <td>
-
-                <div class="acciones">
-
-                    ${
-                        estado.toLowerCase() !==
-                        "aceptado"
-                        ?
-                        `
-                        <button
-                            class="btn-aceptar"
-                            onclick="changeStatus(
-                                ${pedido.id},
-                                'Aceptado'
-                            )"
-                        >
-                            Aceptar
-                        </button>
-                        `
-                        :
-                        ""
-                    }
-
-
-                    ${
-                        estado.toLowerCase() !==
-                        "rechazado"
-                        ?
-                        `
-                        <button
-                            class="btn-rechazar"
-                            onclick="changeStatus(
-                                ${pedido.id},
-                                'Rechazado'
-                            )"
-                        >
-                            Rechazar
-                        </button>
-                        `
-                        :
-                        ""
-                    }
-
-
-                    <button
-                        class="btn-secundario"
-                        onclick='verDetalle(${JSON.stringify(pedido)})'
-                    >
-                        Ver detalle
-                    </button>
-
-                </div>
-
-            </td>
-
-        `;
-
-
-        tbody.appendChild(tr);
+    const estado =
+      document.getElementById("filtroEstado")
+        .value;
+
+    const ronda =
+      document.getElementById("filtroRonda")
+        .value;
+
+    return pedidos.filter(p => {
+
+      const cliente =
+        String(p.cliente || "")
+          .toLowerCase();
+
+      const celular =
+        String(p.celular || "");
+
+      const coincideBusqueda =
+        !buscar ||
+        cliente.includes(buscar) ||
+        celular.includes(buscar);
+
+      const coincideEstado =
+        !estado ||
+        String(p.estado || "")
+          .toLowerCase() === estado.toLowerCase();
+
+      const coincideRonda =
+        !ronda ||
+        p.ronda_id === ronda;
+
+      return (
+        coincideBusqueda &&
+        coincideEstado &&
+        coincideRonda
+      );
 
     });
 
-}
+  }
 
 
-/* ============================================================
-   CAMBIAR ESTADO
-   ============================================================ */
+  function renderPedidos() {
 
-async function changeStatus(id, estado) {
+    const body =
+      document.getElementById("pedidosBody");
 
-    const confirmacion =
-        confirm(
-            `¿Quieres marcar este pedido como "${estado}"?`
-        );
+    const filtrados =
+      obtenerPedidosFiltrados();
 
+    if (!filtrados.length) {
 
-    if (!confirmacion) {
-        return;
+      body.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty">
+            No hay pedidos que coincidan con los filtros.
+          </td>
+        </tr>
+      `;
+
+      actualizarConsolidado();
+
+      return;
     }
 
+
+    body.innerHTML =
+      filtrados.map(p => {
+
+        const basicas =
+          Number(
+            p.canasta_basica_cantidad || 0
+          );
+
+        const semillas =
+          Number(
+            p.canasta_semilla_cantidad || 0
+          );
+
+        const familiares =
+          Number(
+            p.canasta_familiar_cantidad || 0
+          );
+
+        const total =
+          Number(
+            p.total_solicitado || 0
+          );
+
+        const estado =
+          String(
+            p.estado || "pendiente"
+          );
+
+        const claseEstado =
+          estado.toLowerCase()
+            .replace("í", "i");
+
+        return `
+
+          <tr>
+
+            <td>
+              <strong>
+                ${escapeHTML(
+                  p.cliente || "Sin nombre"
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${escapeHTML(
+                String(p.celular || "")
+              )}
+            </td>
+
+            <td>
+              B: ${basicas}
+              · S: ${semillas}
+              · F: ${familiares}
+            </td>
+
+            <td>
+              ${formatoSoles(total)}
+            </td>
+
+            <td>
+              <span class="status status-${claseEstado}">
+                ${escapeHTML(estado)}
+              </span>
+            </td>
+
+            <td>
+              ${
+                p.ronda_id
+                  ? `<span class="round-badge">
+                      ${escapeHTML(p.ronda_id)}
+                     </span>`
+                  : `<span style="color:#999;">
+                      Sin ronda
+                     </span>`
+              }
+            </td>
+
+            <td>
+
+              <div class="actions">
+
+                ${
+                  estado.toLowerCase() === "pendiente"
+                  ? `
+                    <button
+                      class="btn-accept"
+                      onclick="cambiarEstado(${p.id}, 'Aceptado')"
+                    >
+                      Aceptar
+                    </button>
+
+                    <button
+                      class="btn-reject"
+                      onclick="cambiarEstado(${p.id}, 'Rechazado')"
+                    >
+                      Rechazar
+                    </button>
+                  `
+                  : ""
+                }
+
+                <button
+                  class="btn-detail"
+                  onclick="verDetalle(${p.id})"
+                >
+                  Ver detalle
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join("");
+
+    actualizarConsolidado();
+
+  }
+
+
+  /*
+   * ============================
+   * CAMBIAR ESTADO
+   * ============================
+   *
+   * ESTE FLUJO ES EL QUE YA
+   * FUNCIONABA Y NO LO MODIFICAMOS.
+   */
+
+  async function cambiarEstado(
+    id,
+    estado
+  ) {
+
+    const confirmar =
+      confirm(
+        `¿Deseas marcar este pedido como "${estado}"?`
+      );
+
+    if (!confirmar) {
+      return;
+    }
 
     try {
 
-        const response =
-            await fetch(
-                API_POST,
-                {
-                    method: "POST",
+      const response =
+        await fetch(API_ESTADO, {
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+          method: "POST",
 
-                    body:
-                        JSON.stringify({
-                            id: id,
-                            estado: estado
-                        })
-                }
-            );
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
+          body: JSON.stringify({
+            id: id,
+            estado: estado
+          })
 
-        if (!response.ok) {
+        });
 
-            throw new Error(
-                "Error HTTP " +
-                response.status
-            );
-        }
+      if (!response.ok) {
+        throw new Error(
+          "HTTP " + response.status
+        );
+      }
 
+      mostrarMensaje(
+        `Pedido actualizado a "${estado}".`,
+        "success"
+      );
 
-        await loadOrders();
-
+      await cargarPedidos();
 
     } catch (error) {
 
-        console.error(error);
+      console.error(error);
 
-        alert(
-            "No se pudo actualizar el estado."
-        );
+      mostrarMensaje(
+        "No se pudo actualizar el estado.",
+        "error"
+      );
+
     }
-}
+
+  }
 
 
-/* ============================================================
-   DETALLE
-   ============================================================ */
+  /*
+   * ============================
+   * CONSOLIDADO
+   * ============================
+   */
 
-function verDetalle(pedido) {
+  function actualizarConsolidado() {
 
     const ronda =
-        pedido.ronda_id ||
-        calcularRondaPorFecha(
-            pedido.fecha_recepcion
+      document.getElementById("filtroRonda")
+        .value;
+
+    /*
+     * El consolidado toma únicamente
+     * pedidos ACEPTADOS.
+     */
+
+    let aceptados =
+      pedidos.filter(p =>
+        String(p.estado || "")
+          .toLowerCase() === "aceptado"
+      );
+
+    /*
+     * Si se seleccionó una ronda,
+     * consolidamos solamente esa ronda.
+     */
+
+    if (ronda) {
+
+      aceptados =
+        aceptados.filter(
+          p => p.ronda_id === ronda
         );
-
-
-    const mensaje =
-
-        `CLIENTE
-${pedido.cliente || "-"}
-
-CELULAR
-${pedido.celular || "-"}
-
-CANASTA BÁSICA
-${pedido.canasta_basica_cantidad || 0}
-
-CANASTA SEMILLA
-${pedido.canasta_semilla_cantidad || 0}
-
-CANASTA FAMILIAR
-${pedido.canasta_familiar_cantidad || 0}
-
-TOTAL
-${dinero(pedido.total_solicitado)}
-
-ESTADO
-${pedido.estado || "-"}
-
-RONDA
-${ronda || "-"}
-
-FECHA DE RECEPCIÓN
-${fechaVisible(pedido.fecha_recepcion)}
-
-SOLICITUD
-${pedido.solicitud || "-"}`;
-
-
-    alert(mensaje);
-}
-
-
-/* ============================================================
-   INICIALIZACIÓN
-   ============================================================ */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function() {
-
-        /*
-            Ponemos automáticamente
-            la próxima fecha domingo en el formulario.
-        */
-
-        const hoy =
-            new Date();
-
-        const domingo =
-            new Date(hoy);
-
-        const dia =
-            domingo.getDay();
-
-        const dias =
-            dia === 0
-                ? 7
-                : 7 - dia;
-
-        domingo.setDate(
-            domingo.getDate() + dias
-        );
-
-
-        const yyyy =
-            domingo.getFullYear();
-
-        const mm =
-            String(
-                domingo.getMonth() + 1
-            ).padStart(2, "0");
-
-        const dd =
-            String(
-                domingo.getDate()
-            ).padStart(2, "0");
-
-
-        document.getElementById(
-            "fechaCompra"
-        ).value =
-            `${yyyy}-${mm}-${dd}`;
-
-
-        await loadOrders();
 
     }
-);
+
+
+    const familias =
+      aceptados.length;
+
+    const basicas =
+      aceptados.reduce(
+        (sum, p) =>
+          sum +
+          Number(
+            p.canasta_basica_cantidad || 0
+          ),
+        0
+      );
+
+    const semillas =
+      aceptados.reduce(
+        (sum, p) =>
+          sum +
+          Number(
+            p.canasta_semilla_cantidad || 0
+          ),
+        0
+      );
+
+    const familiares =
+      aceptados.reduce(
+        (sum, p) =>
+          sum +
+          Number(
+            p.canasta_familiar_cantidad || 0
+          ),
+        0
+      );
+
+    const dinero =
+      aceptados.reduce(
+        (sum, p) =>
+          sum +
+          Number(
+            p.total_solicitado || 0
+          ),
+        0
+      );
+
+
+    document.getElementById(
+      "familiasAceptadas"
+    ).textContent = familias;
+
+    document.getElementById(
+      "basicasAceptadas"
+    ).textContent = basicas;
+
+    document.getElementById(
+      "semillasAceptadas"
+    ).textContent = semillas;
+
+    document.getElementById(
+      "familiaresAceptadas"
+    ).textContent = familiares;
+
+    document.getElementById(
+      "consolidadoDinero"
+    ).textContent =
+      formatoSoles(dinero);
+
+
+    /*
+     * REGLA FIJA DEL MODELO:
+     *
+     * 35% operaciones
+     * 65% alimentos
+     */
+
+    const operaciones =
+      dinero * 0.35;
+
+    const alimentos =
+      dinero * 0.65;
+
+
+    document.getElementById(
+      "presupuestoOperaciones"
+    ).textContent =
+      formatoSoles(operaciones);
+
+    document.getElementById(
+      "presupuestoAlimentos"
+    ).textContent =
+      formatoSoles(alimentos);
+
+    document.getElementById(
+      "presupuestoTotal"
+    ).textContent =
+      formatoSoles(dinero);
+
+
+    const roundInfo =
+      document.getElementById("roundInfo");
+
+    if (ronda) {
+
+      roundInfo.innerHTML =
+        `
+          Mostrando el consolidado de la ronda
+          <strong>${escapeHTML(ronda)}</strong>.
+          <br>
+          La ronda fue asignada automáticamente por n8n.
+        `;
+
+    } else {
+
+      roundInfo.innerHTML =
+        `
+          Mostrando todas las rondas.
+          Selecciona una ronda para ver su consolidado.
+          <br>
+          La asignación de rondas se realiza automáticamente por n8n.
+        `;
+
+    }
+
+  }
+
+
+  /*
+   * ============================
+   * DETALLE
+   * ============================
+   */
+
+  function verDetalle(id) {
+
+    const pedido =
+      pedidos.find(
+        p => Number(p.id) === Number(id)
+      );
+
+    if (!pedido) {
+      return;
+    }
+
+    const contenido =
+      document.getElementById(
+        "detalleContenido"
+      );
+
+
+    contenido.innerHTML = `
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Cliente
+        </div>
+        <div class="detail-value">
+          ${escapeHTML(
+            pedido.cliente || "Sin nombre"
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Celular
+        </div>
+        <div class="detail-value">
+          ${escapeHTML(
+            String(pedido.celular || "")
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Canasta Básica
+        </div>
+        <div class="detail-value">
+          ${Number(
+            pedido.canasta_basica_cantidad || 0
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Canasta Semilla
+        </div>
+        <div class="detail-value">
+          ${Number(
+            pedido.canasta_semilla_cantidad || 0
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Canasta Familiar
+        </div>
+        <div class="detail-value">
+          ${Number(
+            pedido.canasta_familiar_cantidad || 0
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Total solicitado
+        </div>
+        <div class="detail-value">
+          ${formatoSoles(
+            Number(pedido.total_solicitado || 0)
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Estado
+        </div>
+        <div class="detail-value">
+          ${escapeHTML(
+            pedido.estado || ""
+          )}
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Ronda
+        </div>
+        <div class="detail-value">
+          ${
+            pedido.ronda_id
+              ? escapeHTML(pedido.ronda_id)
+              : "Sin ronda"
+          }
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Fecha de recepción
+        </div>
+        <div class="detail-value">
+          ${
+            pedido.fecha_recepcion
+              ? formatearFecha(
+                  pedido.fecha_recepcion
+                )
+              : "-"
+          }
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">
+          Solicitud
+        </div>
+        <div class="detail-value">
+          ${escapeHTML(
+            pedido.solicitud || "-"
+          )}
+        </div>
+      </div>
+
+    `;
+
+    document
+      .getElementById("modalDetalle")
+      .classList.add("active");
+
+  }
+
+
+  function cerrarModal() {
+
+    document
+      .getElementById("modalDetalle")
+      .classList.remove("active");
+
+  }
+
+
+  /*
+   * ============================
+   * UTILIDADES
+   * ============================
+   */
+
+  function formatoSoles(valor) {
+
+    return (
+      "S/ " +
+      Number(valor || 0)
+        .toFixed(2)
+    );
+
+  }
+
+
+  function formatearFecha(valor) {
+
+    try {
+
+      return new Date(valor)
+        .toLocaleString(
+          "es-PE",
+          {
+            dateStyle: "short",
+            timeStyle: "short"
+          }
+        );
+
+    } catch {
+
+      return valor;
+
+    }
+
+  }
+
+
+  function escapeHTML(valor) {
+
+    return String(valor)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
+
+
+  function mostrarMensaje(
+    texto,
+    tipo
+  ) {
+
+    const elemento =
+      document.getElementById("message");
+
+    elemento.textContent = texto;
+
+    elemento.className =
+      "message show " + tipo;
+
+    setTimeout(() => {
+
+      elemento.className =
+        "message";
+
+    }, 4000);
+
+  }
+
+
+  /*
+   * Cerrar modal haciendo clic
+   * fuera de la ventana.
+   */
+
+  document
+    .getElementById("modalDetalle")
+    .addEventListener(
+      "click",
+      function(event) {
+
+        if (
+          event.target === this
+        ) {
+          cerrarModal();
+        }
+
+      }
+    );
+
+
+  /*
+   * ============================
+   * INICIO
+   * ============================
+   */
+
+  cargarPedidos();
 
 </script>
 
