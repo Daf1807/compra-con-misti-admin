@@ -82,11 +82,6 @@ button {
   padding: 13px 20px;
 }
 
-.connection {
-  color: #666;
-  font-size: 14px;
-}
-
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -302,9 +297,24 @@ td {
   margin-bottom: 15px;
 }
 
+.formula-box {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  padding: 15px;
+  margin: 15px 0;
+  font-family: monospace;
+  line-height: 1.7;
+}
+
+.connection {
+  color: #666;
+  font-size: 14px;
+}
+
 .product-active {
-  font-weight: bold;
   color: #2e7d32;
+  font-weight: bold;
 }
 
 .product-inactive {
@@ -350,7 +360,7 @@ td {
   background: #eee;
 }
 
-@media(max-width: 1000px) {
+@media(max-width:1000px) {
 
   .cards {
     grid-template-columns: repeat(2,1fr);
@@ -568,38 +578,17 @@ td {
 
           <tr>
 
-            <th>
-              Cliente
-            </th>
-
-            <th>
-              Celular
-            </th>
-
-            <th>
-              Canastas
-            </th>
-
-            <th>
-              Total
-            </th>
-
-            <th>
-              Estado
-            </th>
-
-            <th>
-              Ronda
-            </th>
-
-            <th>
-              Acciones
-            </th>
+            <th>Cliente</th>
+            <th>Celular</th>
+            <th>Canastas</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Ronda</th>
+            <th>Acciones</th>
 
           </tr>
 
         </thead>
-
 
         <tbody id="pedidosBody"></tbody>
 
@@ -611,20 +600,21 @@ td {
 
 
   <!-- =====================================================
-       MODELO ECONÓMICO DE LAS CANASTAS
+       MODELO ECONÓMICO
   ====================================================== -->
 
   <div class="section">
 
     <h2>
-      Estructura económica de las canastas
+      Modelo económico de las canastas
     </h2>
+
 
     <p class="section-description">
 
-      Las tres canastas no se consideran tres compras
-      diferentes. Son tres tamaños de participación económica
-      dentro de una misma compra colectiva.
+      Las tres canastas representan diferentes tamaños
+      de participación económica dentro de una misma
+      compra colectiva.
 
     </p>
 
@@ -634,16 +624,20 @@ td {
 
       <div class="canasta-box">
 
-        <h3>
-          🌱 Semilla
-        </h3>
+        <h3>🌱 Semilla</h3>
 
         <div class="canasta-price">
           S/ 15
         </div>
 
         <div class="canasta-factor">
-          Factor económico: <strong>1.00</strong>
+
+          Factor:
+
+          <strong>
+            1.00
+          </strong>
+
         </div>
 
       </div>
@@ -651,19 +645,22 @@ td {
 
       <div class="canasta-box">
 
-        <h3>
-          🧺 Básica
-        </h3>
+        <h3>🧺 Básica</h3>
 
         <div class="canasta-price">
           S/ 25
         </div>
 
         <div class="canasta-factor">
-          Factor económico:
-          <strong id="factorBasica">
+
+          Factor:
+
+          <strong>
             1.67
           </strong>
+
+          Semillas
+
         </div>
 
       </div>
@@ -671,19 +668,22 @@ td {
 
       <div class="canasta-box">
 
-        <h3>
-          👨‍👩‍👧‍👦 Familiar
-        </h3>
+        <h3>👨‍👩‍👧‍👦 Familiar</h3>
 
         <div class="canasta-price">
           S/ 35
         </div>
 
         <div class="canasta-factor">
-          Factor económico:
-          <strong id="factorFamiliar">
+
+          Factor:
+
+          <strong>
             2.33
           </strong>
+
+          Semillas
+
         </div>
 
       </div>
@@ -694,32 +694,23 @@ td {
     <div class="info-box">
 
       <strong>
-        ¿Qué significa esto?
+        Una misma compra, tres tamaños de participación.
       </strong>
 
       <br><br>
 
-      La Semilla representa una participación económica
-      de S/15.
-
-      <br>
-
-      La Básica representa
-      <strong>25/15 = 1.67</strong>
-      participaciones Semilla.
-
-      <br>
-
-      La Familiar representa
-      <strong>35/15 = 2.33</strong>
-      participaciones Semilla.
+      El sistema no intenta crear tres listas diferentes
+      de productos.
 
       <br><br>
 
-      Por tanto, la diferencia entre ellas no consiste
-      principalmente en tener productos distintos,
-      sino en tener una mayor o menor capacidad de compra
-      dentro de la misma estructura colectiva.
+      Primero consolida todo el dinero de la ronda.
+      Después calcula la compra colectiva.
+
+      <br><br>
+
+      Finalmente, la cantidad que corresponde a cada familia
+      se determinará según su participación económica.
 
     </div>
 
@@ -793,9 +784,9 @@ td {
 
       <div class="summary-box">
 
-        Participaciones Semilla
+        Equivalentes Semilla
 
-        <strong id="participacionesSemilla">
+        <strong id="equivalenteSemilla">
           0.00
         </strong>
 
@@ -842,10 +833,10 @@ td {
 
       <div class="budget-box">
 
-        Equivalente Semilla
+        Productos activos
 
-        <strong id="equivalenteSemilla">
-          0.00
+        <strong id="productosActivos">
+          0
         </strong>
 
       </div>
@@ -856,58 +847,26 @@ td {
 
 
   <!-- =====================================================
-       PRODUCTOS Y PRECIOS
+       PRECIOS
   ====================================================== -->
 
   <div class="section">
 
     <h2>
-      Productos disponibles para la compra colectiva
+      Precios reales del mercado
     </h2>
 
 
     <p class="section-description">
 
-      Aquí solamente se registra el precio real encontrado
-      en el mercado y si el producto está disponible para
-      esta ronda.
+      Introduce únicamente el precio que encuentres
+      en el mercado para esta ronda.
 
       <br><br>
 
-      La cantidad no se introduce manualmente.
-      La cantidad será calculada por el algoritmo.
+      La cantidad será calculada automáticamente.
 
     </p>
-
-
-    <div class="info-box">
-
-      <strong>
-        Regla del sistema
-      </strong>
-
-      <br><br>
-
-      Las canastas determinan cuánto dinero existe para
-      comprar alimentos.
-
-      <br>
-
-      Los precios determinan cuánto producto puede comprarse
-      con ese dinero.
-
-      <br>
-
-      La estructura de productos determina cómo se distribuye
-      ese presupuesto entre alimentos diversos.
-
-      <br><br>
-
-      <strong>
-        No se define un mínimo arbitrario por producto.
-      </strong>
-
-    </div>
 
 
     <div class="table-scroll">
@@ -927,11 +886,11 @@ td {
             </th>
 
             <th>
-              Precio real
+              Precio
             </th>
 
             <th>
-              Disponible
+              Activo
             </th>
 
           </tr>
@@ -949,33 +908,63 @@ td {
 
 
   <!-- =====================================================
-       ALGORITMO
+       REGLA DEL ALGORITMO
   ====================================================== -->
 
   <div class="section">
 
     <h2>
-      Compra colectiva
+      Regla matemática de compra
     </h2>
 
 
-    <p class="section-description">
+    <div class="formula-box">
 
-      El sistema primero determina el tamaño económico
-      de la ronda y el presupuesto disponible para alimentos.
-
-      <br><br>
-
-      Después utilizará los precios reales del mercado para
-      transformar ese presupuesto en cantidades de productos.
+      Presupuesto alimentos = dinero comprometido × 0.65
 
       <br><br>
 
-      La compra se realiza de manera consolidada.
-      La distribución individual entre familias ocurre
-      después de conocer la compra total.
+      Presupuesto por producto =
+      presupuesto alimentos ÷ número de productos activos
 
-    </p>
+      <br><br>
+
+      Cantidad del producto =
+      presupuesto por producto ÷ precio del producto
+
+    </div>
+
+
+    <div class="info-box">
+
+      <strong>
+        ¿Por qué?
+      </strong>
+
+      <br><br>
+
+      La máquina no debe gastar automáticamente
+      todo el dinero en los productos más baratos.
+
+      <br><br>
+
+      Primero garantiza una participación económica
+      para cada producto activo.
+
+      <br><br>
+
+      El precio determina después cuánto producto físico
+      puede obtenerse con esa participación.
+
+      <br><br>
+
+      Esta es una primera regla matemática de diversidad.
+      Más adelante podremos reemplazarla por una estructura
+      más sofisticada cuando tengamos información suficiente
+      sobre necesidades, cantidades, estacionalidad y
+      experiencia real de las familias.
+
+    </div>
 
 
     <button
@@ -983,7 +972,7 @@ td {
       onclick="calcularCompra()"
     >
 
-      Calcular estructura de compra
+      Calcular compra colectiva
 
     </button>
 
@@ -993,7 +982,7 @@ td {
       style="margin-top:20px;"
     >
 
-      Todavía no se ha calculado la compra.
+      Todavía no se ha calculado una compra.
 
     </div>
 
@@ -1003,8 +992,8 @@ td {
 
 
 <!-- =====================================================
-     MODAL DETALLE
-====================================================== -->
+     MODAL
+===================================================== -->
 
 <div
   class="modal"
@@ -1019,7 +1008,6 @@ td {
         Detalle del pedido
       </h3>
 
-
       <button
         class="close"
         onclick="cerrarModal()"
@@ -1028,7 +1016,6 @@ td {
       </button>
 
     </div>
-
 
     <div id="detalleContenido"></div>
 
@@ -1066,7 +1053,7 @@ const PORCENTAJE_ALIMENTOS = 0.65;
 
 
 /*
- * Factores económicos respecto de una Semilla.
+ * Factores respecto de una Semilla.
  */
 
 const FACTOR_SEMILLA =
@@ -1117,27 +1104,31 @@ const productos = [
 
 
 /*
- * Aquí NO se almacenan mínimos.
- *
- * Solo:
+ * Solo almacenamos:
  *
  * - unidad
  * - precio real
  * - activo
  *
- * Las cantidades serán responsabilidad del algoritmo.
+ * NO almacenamos cantidades.
+ * NO almacenamos mínimos.
+ * NO almacenamos incrementos.
  */
 
 const reglasProductos =
   productos.map(nombre => ({
 
-    nombre: nombre,
+    nombre:
+      nombre,
 
-    unidad: "kg",
+    unidad:
+      "kg",
 
-    precio: 0,
+    precio:
+      0,
 
-    activo: true
+    activo:
+      true
 
   }));
 
@@ -1154,114 +1145,133 @@ function renderProductos() {
     reglasProductos.map(
       (p, i) => `
 
-      <tr>
+        <tr>
 
-        <td>
+          <td>
 
-          <strong>
-            ${escapeHTML(p.nombre)}
-          </strong>
+            <strong>
+              ${escapeHTML(
+                p.nombre
+              )}
+            </strong>
 
-        </td>
+          </td>
 
 
-        <td>
+          <td>
 
-          <select
-            onchange="
-              cambiarRegla(
-                ${i},
-                'unidad',
-                this.value
-              )
-            "
-          >
-
-            <option
-              value="kg"
-              ${p.unidad === "kg"
-                ? "selected"
-                : ""}
+            <select
+              onchange="
+                cambiarRegla(
+                  ${i},
+                  'unidad',
+                  this.value
+                )
+              "
             >
-              kg
-            </option>
 
-            <option
-              value="unidad"
-              ${p.unidad === "unidad"
-                ? "selected"
-                : ""}
+              <option
+                value="kg"
+                ${
+                  p.unidad === "kg"
+                  ? "selected"
+                  : ""
+                }
+              >
+                kg
+              </option>
+
+
+              <option
+                value="unidad"
+                ${
+                  p.unidad === "unidad"
+                  ? "selected"
+                  : ""
+                }
+              >
+                unidad
+              </option>
+
+
+              <option
+                value="atado"
+                ${
+                  p.unidad === "atado"
+                  ? "selected"
+                  : ""
+                }
+              >
+                atado
+              </option>
+
+            </select>
+
+          </td>
+
+
+          <td>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value="${p.precio}"
+              onchange="
+                cambiarRegla(
+                  ${i},
+                  'precio',
+                  this.value
+                )
+              "
+              placeholder="S/"
             >
-              unidad
-            </option>
 
-            <option
-              value="atado"
-              ${p.unidad === "atado"
-                ? "selected"
-                : ""}
+          </td>
+
+
+          <td>
+
+            <input
+              type="checkbox"
+              ${
+                p.activo
+                ? "checked"
+                : ""
+              }
+              onchange="
+                cambiarRegla(
+                  ${i},
+                  'activo',
+                  this.checked
+                )
+              "
             >
-              atado
-            </option>
 
-          </select>
+            ${
+              p.activo
+              ?
 
-        </td>
-
-
-        <td>
-
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value="${p.precio}"
-            onchange="
-              cambiarRegla(
-                ${i},
-                'precio',
-                this.value
-              )
-            "
-            placeholder="S/"
-          >
-
-        </td>
-
-
-        <td>
-
-          <input
-            type="checkbox"
-            ${p.activo ? "checked" : ""}
-            onchange="
-              cambiarRegla(
-                ${i},
-                'activo',
-                this.checked
-              )
-            "
-          >
-
-          ${
-            p.activo
-            ? `
+              `
               <span class="product-active">
                 Activo
               </span>
-            `
-            : `
+              `
+
+              :
+
+              `
               <span class="product-inactive">
                 Inactivo
               </span>
-            `
-          }
+              `
+            }
 
-        </td>
+          </td>
 
-      </tr>
+        </tr>
 
-    `
+      `
     ).join("");
 
 }
@@ -1286,6 +1296,9 @@ function cambiarRegla(
       valor;
 
   }
+
+
+  actualizarConsolidado();
 
 }
 
@@ -1312,7 +1325,8 @@ async function cargarPedidos() {
       await fetch(
         API_PEDIDOS,
         {
-          cache: "no-store"
+          cache:
+            "no-store"
         }
       );
 
@@ -1331,19 +1345,26 @@ async function cargarPedidos() {
       await response.json();
 
 
-    if (Array.isArray(data)) {
-
-      pedidos = data;
-
-    } else if (
-      Array.isArray(data.value)
+    if (
+      Array.isArray(data)
     ) {
 
-      pedidos = data.value;
+      pedidos =
+        data;
+
+    } else if (
+      Array.isArray(
+        data.value
+      )
+    ) {
+
+      pedidos =
+        data.value;
 
     } else {
 
-      pedidos = [];
+      pedidos =
+        [];
 
     }
 
@@ -1359,7 +1380,10 @@ async function cargarPedidos() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     status.textContent =
       "✕ Error de conexión";
@@ -1413,9 +1437,13 @@ function cargarSelectorRondas() {
       selector.innerHTML +=
         `
         <option
-          value="${escapeHTML(ronda)}"
+          value="${escapeHTML(
+            ronda
+          )}"
         >
-          ${escapeHTML(ronda)}
+          ${escapeHTML(
+            ronda
+          )}
         </option>
         `;
 
@@ -1474,14 +1502,16 @@ function obtenerFiltrados() {
 
       const cliente =
         String(
-          p.cliente || ""
+          p.cliente ||
+          ""
         )
         .toLowerCase();
 
 
       const celular =
         String(
-          p.celular || ""
+          p.celular ||
+          ""
         );
 
 
@@ -1498,7 +1528,8 @@ function obtenerFiltrados() {
       const coincideEstado =
         !estado ||
         String(
-          p.estado || ""
+          p.estado ||
+          ""
         )
         .toLowerCase()
         ===
@@ -1688,7 +1719,9 @@ function renderPedidos() {
 
                 `
                 <span
-                  style="color:#999"
+                  style="
+                    color:#999
+                  "
                 >
                   Sin ronda
                 </span>
@@ -1771,7 +1804,7 @@ function renderPedidos() {
 
 
 /* =====================================================
-   CAMBIAR ESTADO
+   ESTADO
 ===================================================== */
 
 async function cambiarEstado(
@@ -1837,7 +1870,10 @@ async function cambiarEstado(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     alert(
       "No se pudo actualizar el estado."
@@ -1849,7 +1885,7 @@ async function cambiarEstado(
 
 
 /* =====================================================
-   OBTENER ACEPTADOS
+   CONSOLIDADO ECONÓMICO
 ===================================================== */
 
 function obtenerAceptadosRonda() {
@@ -1866,7 +1902,8 @@ function obtenerAceptadosRonda() {
     pedidos.filter(
       p =>
         String(
-          p.estado || ""
+          p.estado ||
+          ""
         )
         .toLowerCase()
         ===
@@ -1890,10 +1927,6 @@ function obtenerAceptadosRonda() {
 
 }
 
-
-/* =====================================================
-   CONSOLIDADO
-===================================================== */
 
 function calcularConsolidadoEconomico(
   lista
@@ -1935,23 +1968,20 @@ function calcularConsolidadoEconomico(
     );
 
 
-  /*
-   * Todas las canastas se convierten
-   * a una unidad común:
-   *
-   * 1 participación Semilla = S/15
-   */
-
-  const participaciones =
-    semillas * FACTOR_SEMILLA +
-    basicas * FACTOR_BASICA +
-    familiares * FACTOR_FAMILIAR;
-
-
   const dinero =
-    semillas * CANASTA_SEMILLA +
-    basicas * CANASTA_BASICA +
-    familiares * CANASTA_FAMILIAR;
+    semillas *
+      CANASTA_SEMILLA +
+
+    basicas *
+      CANASTA_BASICA +
+
+    familiares *
+      CANASTA_FAMILIAR;
+
+
+  const equivalentes =
+    dinero /
+    CANASTA_SEMILLA;
 
 
   return {
@@ -1965,11 +1995,11 @@ function calcularConsolidadoEconomico(
     familiares:
       familiares,
 
-    participaciones:
-      participaciones,
-
     dinero:
-      dinero
+      dinero,
+
+    equivalentes:
+      equivalentes
 
   };
 
@@ -1986,13 +2016,31 @@ function actualizarConsolidado() {
     obtenerAceptadosRonda();
 
 
+  const datos =
+    calcularConsolidadoEconomico(
+      lista
+    );
+
+
   const familias =
     lista.length;
 
 
-  const datos =
-    calcularConsolidadoEconomico(
-      lista
+  const operaciones =
+    datos.dinero *
+    PORCENTAJE_OPERACIONES;
+
+
+  const alimentos =
+    datos.dinero *
+    PORCENTAJE_ALIMENTOS;
+
+
+  const activos =
+    reglasProductos.filter(
+      p =>
+        p.activo &&
+        p.precio > 0
     );
 
 
@@ -2021,9 +2069,9 @@ function actualizarConsolidado() {
 
 
   document.getElementById(
-    "participacionesSemilla"
+    "equivalenteSemilla"
   ).textContent =
-    datos.participaciones
+    datos.equivalentes
       .toFixed(2);
 
 
@@ -2033,16 +2081,6 @@ function actualizarConsolidado() {
     soles(
       datos.dinero
     );
-
-
-  const operaciones =
-    datos.dinero *
-    PORCENTAJE_OPERACIONES;
-
-
-  const alimentos =
-    datos.dinero *
-    PORCENTAJE_ALIMENTOS;
 
 
   document.getElementById(
@@ -2062,13 +2100,9 @@ function actualizarConsolidado() {
 
 
   document.getElementById(
-    "equivalenteSemilla"
+    "productosActivos"
   ).textContent =
-    (
-      datos.dinero /
-      CANASTA_SEMILLA
-    )
-    .toFixed(2);
+    activos.length;
 
 
   const ronda =
@@ -2088,13 +2122,15 @@ function actualizarConsolidado() {
     ?
 
     `
-      Ronda seleccionada:
-      <strong>
-        ${escapeHTML(ronda)}
-      </strong>.
+      Ronda:
 
-      Se consideran únicamente
-      los pedidos aceptados.
+      <strong>
+        ${escapeHTML(
+          ronda
+        )}
+      </strong>
+
+      · Solo pedidos aceptados.
     `
 
     :
@@ -2110,30 +2146,6 @@ function actualizarConsolidado() {
 /* =====================================================
    ALGORITMO DE COMPRA
 ===================================================== */
-
-/*
- * IMPORTANTE
- *
- * En esta versión ya NO existen:
- *
- * - mínimos manuales
- * - incrementos manuales
- * - cantidades manuales
- *
- * El sistema primero calcula:
- *
- * 1. Tamaño económico de la ronda.
- * 2. Presupuesto total.
- * 3. 35% operaciones.
- * 4. 65% alimentos.
- * 5. Equivalente en participaciones Semilla.
- *
- * La composición física de productos se deja como
- * siguiente capa del algoritmo.
- *
- * Esto evita inventar una cantidad arbitraria de papa,
- * cebolla, tomate, etc.
- */
 
 function calcularCompra() {
 
@@ -2172,6 +2184,10 @@ function calcularCompra() {
     PORCENTAJE_ALIMENTOS;
 
 
+  /*
+   * PRODUCTOS DISPONIBLES
+   */
+
   const activos =
     reglasProductos.filter(
       p =>
@@ -2179,10 +2195,6 @@ function calcularCompra() {
         p.precio > 0
     );
 
-
-  /*
-   * Verificación de precios.
-   */
 
   if (!activos.length) {
 
@@ -2192,45 +2204,8 @@ function calcularCompra() {
 
       <div class="result-warning">
 
-        <strong>
-          La ronda ya tiene un presupuesto
-          de alimentos calculado.
-        </strong>
-
-        <p>
-
-          Presupuesto para alimentos:
-
-          <strong>
-            ${soles(
-              presupuestoAlimentos
-            )}
-          </strong>
-
-        </p>
-
-
-        <p>
-
-          Equivalente económico:
-
-          <strong>
-            ${datos.dinero /
-              CANASTA_SEMILLA
-            .toFixed(2)}
-            participaciones Semilla
-          </strong>
-
-        </p>
-
-
-        <p>
-
-          Ahora introduce los precios reales
-          del mercado de los productos que
-          quieras considerar.
-
-        </p>
+        Introduce primero los precios reales
+        del mercado.
 
       </div>
 
@@ -2242,14 +2217,84 @@ function calcularCompra() {
 
 
   /*
-   * En este punto tenemos todo lo que
-   * la máquina puede conocer objetivamente:
+   * ===================================================
+   * REGLA CENTRAL
    *
-   * presupuesto + productos + precios.
+   * El presupuesto se divide económicamente
+   * entre los productos activos.
    *
-   * Todavía no inventamos una estructura
-   * de cantidades.
+   * No se divide la cantidad física.
+   *
+   * Se divide el dinero.
+   * ===================================================
    */
+
+  const presupuestoPorProducto =
+    presupuestoAlimentos /
+    activos.length;
+
+
+  /*
+   * Crear compra
+   */
+
+  const compra =
+    activos.map(
+      p => {
+
+        const cantidad =
+          presupuestoPorProducto /
+          p.precio;
+
+
+        const costo =
+          cantidad *
+          p.precio;
+
+
+        return {
+
+          nombre:
+            p.nombre,
+
+          unidad:
+            p.unidad,
+
+          precio:
+            p.precio,
+
+          presupuestoAsignado:
+            presupuestoPorProducto,
+
+          cantidad:
+            cantidad,
+
+          costo:
+            costo
+
+        };
+
+      }
+    );
+
+
+  /*
+   * Costo final.
+   */
+
+  const costoFinal =
+    compra.reduce(
+      (s,p) =>
+        s +
+        p.costo,
+      0
+    );
+
+
+  const saldo =
+    presupuestoAlimentos -
+    costoFinal;
+
 
   document.getElementById(
     "resultadoCompra"
@@ -2258,7 +2303,7 @@ function calcularCompra() {
     <div class="result-good">
 
       <strong>
-        Estructura económica calculada.
+        Compra colectiva calculada.
       </strong>
 
 
@@ -2267,7 +2312,9 @@ function calcularCompra() {
         Dinero comprometido:
 
         <strong>
-          ${soles(datos.dinero)}
+          ${soles(
+            datos.dinero
+          )}
         </strong>
 
       </p>
@@ -2289,7 +2336,7 @@ function calcularCompra() {
 
       <p>
 
-        Alimentos · 65%:
+        Presupuesto alimentos · 65%:
 
         <strong>
           ${soles(
@@ -2302,14 +2349,36 @@ function calcularCompra() {
 
       <p>
 
-        Equivalente económico:
+        Productos activos:
 
         <strong>
-          ${(
-            datos.dinero /
-            CANASTA_SEMILLA
-          ).toFixed(2)}
-          participaciones Semilla
+          ${activos.length}
+        </strong>
+
+      </p>
+
+
+      <p>
+
+        Presupuesto económico por producto:
+
+        <strong>
+          ${soles(
+            presupuestoPorProducto
+          )}
+        </strong>
+
+      </p>
+
+
+      <p>
+
+        Saldo por redondeo:
+
+        <strong>
+          ${soles(
+            saldo
+          )}
         </strong>
 
       </p>
@@ -2320,41 +2389,36 @@ function calcularCompra() {
     <div class="info-box">
 
       <strong>
-        Siguiente etapa del algoritmo
+        ¿Qué acaba de hacer la máquina?
       </strong>
 
       <br><br>
 
-      El sistema ya sabe cuánto dinero puede utilizar
-      para alimentos y cuánto representa cada tipo de
-      canasta.
+      No decidió que una papa es más importante
+      que una lenteja.
 
       <br><br>
 
-      Ahora falta establecer la
-      <strong>
-        estructura común de productos
-      </strong>
-      que convertirá ese presupuesto en cantidades
-      físicas.
+      Tampoco decidió que el producto barato
+      debe recibir todo el presupuesto.
 
       <br><br>
 
-      Esta parte todavía no se inventa automáticamente,
-      porque hacerlo sin una regla económica definida
-      produciría una composición arbitraria.
+      Distribuyó el presupuesto económico de la
+      compra colectiva entre los productos activos.
 
       <br><br>
 
-      Una vez definida esa estructura, el sistema podrá
-      calcular automáticamente los kilos, unidades o
-      atados que debe comprar utilizando los precios
-      reales introducidos arriba.
+      Después convirtió ese dinero en cantidades
+      físicas utilizando el precio real introducido
+      para cada producto.
 
     </div>
 
 
-    ${tablaProductosActivos(activos)}
+    ${tablaCompra(
+      compra
+    )}
 
   `;
 
@@ -2362,11 +2426,11 @@ function calcularCompra() {
 
 
 /* =====================================================
-   TABLA PRODUCTOS ACTIVOS
+   TABLA DE COMPRA
 ===================================================== */
 
-function tablaProductosActivos(
-  activos
+function tablaCompra(
+  compra
 ) {
 
   return `
@@ -2392,7 +2456,15 @@ function tablaProductosActivos(
             </th>
 
             <th>
-              Estado
+              Presupuesto
+            </th>
+
+            <th>
+              Cantidad
+            </th>
+
+            <th>
+              Costo
             </th>
 
           </tr>
@@ -2403,7 +2475,7 @@ function tablaProductosActivos(
         <tbody>
 
           ${
-            activos.map(
+            compra.map(
               p => `
 
                 <tr>
@@ -2439,11 +2511,29 @@ function tablaProductosActivos(
 
                   <td>
 
-                    <span
-                      class="product-active"
-                    >
-                      Disponible
-                    </span>
+                    ${soles(
+                      p.presupuestoAsignado
+                    )}
+
+                  </td>
+
+
+                  <td>
+
+                    <strong>
+                      ${formatearCantidad(
+                        p.cantidad
+                      )}
+                    </strong>
+
+                  </td>
+
+
+                  <td>
+
+                    ${soles(
+                      p.costo
+                    )}
 
                   </td>
 
@@ -2474,7 +2564,8 @@ function actualizarResumen() {
     pedidos.filter(
       p =>
         String(
-          p.estado || ""
+          p.estado ||
+          ""
         )
         .toLowerCase()
         ===
@@ -2486,7 +2577,8 @@ function actualizarResumen() {
     pedidos.filter(
       p =>
         String(
-          p.estado || ""
+          p.estado ||
+          ""
         )
         .toLowerCase()
         ===
@@ -2740,9 +2832,31 @@ function soles(
   return (
     "S/ " +
     Number(
-      valor || 0
+      valor ||
+      0
     )
     .toFixed(2)
+  );
+
+}
+
+
+function formatearCantidad(
+  valor
+) {
+
+  return Number(
+    valor ||
+    0
+  )
+  .toFixed(3)
+  .replace(
+    /0+$/,
+    ""
+  )
+  .replace(
+    /\.$/,
+    ""
   );
 
 }
@@ -2752,27 +2866,29 @@ function escapeHTML(
   valor
 ) {
 
-  return String(valor)
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
+  return String(
+    valor
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
 
 }
 
@@ -2780,18 +2896,6 @@ function escapeHTML(
 /* =====================================================
    INICIO
 ===================================================== */
-
-document.getElementById(
-  "factorBasica"
-).textContent =
-  FACTOR_BASICA.toFixed(2);
-
-
-document.getElementById(
-  "factorFamiliar"
-).textContent =
-  FACTOR_FAMILIAR.toFixed(2);
-
 
 renderProductos();
 
