@@ -1386,6 +1386,12 @@ function guardarConfiguracion() {
 
   try {
 
+    const rondaSeleccionada =
+      document.getElementById(
+        "filtroRonda"
+      )?.value || "";
+
+
     const datos = {
 
       productos:
@@ -1410,8 +1416,10 @@ function guardarConfiguracion() {
           })
         ),
 
+
       adicionales:
         [...adicionales],
+
 
       regalos:
         regalos.map(
@@ -1432,16 +1440,9 @@ function guardarConfiguracion() {
           })
         ),
 
-      ronda:
-        document.getElementById(
-          "filtroRonda"
-        )
-        ?
-        document.getElementById(
-          "filtroRonda"
-        ).value
-        :
-        ""
+
+      rondaSeleccionada:
+        rondaSeleccionada
 
     };
 
@@ -1485,9 +1486,9 @@ function cargarConfiguracion() {
       );
 
 
-    /* ---------------------------------------------
-       RESTAURAR PRODUCTOS
-    --------------------------------------------- */
+    /* -----------------------------------------
+       PRODUCTOS
+    ----------------------------------------- */
 
     if (
       Array.isArray(
@@ -1497,7 +1498,7 @@ function cargarConfiguracion() {
 
       datos.productos.forEach(
         (
-          guardadoProducto,
+          productoGuardado,
           index
         ) => {
 
@@ -1512,19 +1513,19 @@ function cargarConfiguracion() {
 
           productos[index].esencial =
             Boolean(
-              guardadoProducto.esencial
+              productoGuardado.esencial
             );
 
 
           productos[index].minimo =
             Number(
-              guardadoProducto.minimo
+              productoGuardado.minimo
             ) || 0;
 
 
           productos[index].precio =
             Number(
-              guardadoProducto.precio
+              productoGuardado.precio
             ) || 0;
 
         }
@@ -1533,9 +1534,9 @@ function cargarConfiguracion() {
     }
 
 
-    /* ---------------------------------------------
-       RESTAURAR ADICIONALES
-    --------------------------------------------- */
+    /* -----------------------------------------
+       ADICIONALES
+    ----------------------------------------- */
 
     if (
       Array.isArray(
@@ -1567,9 +1568,9 @@ function cargarConfiguracion() {
     }
 
 
-    /* ---------------------------------------------
-       RESTAURAR REGALOS
-    --------------------------------------------- */
+    /* -----------------------------------------
+       REGALOS
+    ----------------------------------------- */
 
     if (
       Array.isArray(
@@ -1604,18 +1605,13 @@ function cargarConfiguracion() {
     }
 
 
-    /* ---------------------------------------------
-       RESTAURAR RONDA
-    --------------------------------------------- */
+    /* -----------------------------------------
+       RONDA
+    ----------------------------------------- */
 
-    if (
-      datos.ronda
-    ) {
-
-      window.rondaGuardada =
-        datos.ronda;
-
-    }
+    window.rondaGuardada =
+      datos.rondaSeleccionada ||
+      "";
 
 
   } catch(error) {
@@ -1811,12 +1807,11 @@ function cambiarEsencial(
     Boolean(valor);
 
 
-  /* AGREGADO */
-
   guardarConfiguracion();
 
 
   renderProductos();
+
 
   if (compraCalculada) {
     calcularCompra();
@@ -1833,8 +1828,6 @@ function cambiarMinimo(
   productos[index].minimo =
     Number(valor) || 0;
 
-
-  /* AGREGADO */
 
   guardarConfiguracion();
 
@@ -1894,8 +1887,6 @@ function cambiarPrecio(
   productos[index].precio =
     Number(valor) || 0;
 
-
-  /* AGREGADO */
 
   guardarConfiguracion();
 
@@ -2056,26 +2047,26 @@ function cargarSelectorRondas() {
   );
 
 
-  /*
-   * AGREGADO:
-   * Primero intenta recuperar la ronda
-   * guardada y, si no existe, mantiene
-   * el comportamiento anterior.
-   */
-
-  const rondaParaRestaurar =
-    window.rondaGuardada ||
-    actual;
-
-
   if (
+    window.rondaGuardada &&
     rondas.includes(
-      rondaParaRestaurar
+      window.rondaGuardada
     )
   ) {
 
     selector.value =
-      rondaParaRestaurar;
+      window.rondaGuardada;
+
+  }
+
+  else if (
+    rondas.includes(
+      actual
+    )
+  ) {
+
+    selector.value =
+      actual;
 
   }
 
@@ -3022,6 +3013,10 @@ function calcularCompra() {
 
   compraCalculada = true;
 
+
+  guardarConfiguracion();
+
+
   recalcularCompraEnVivo();
 
 }
@@ -3810,8 +3805,6 @@ function cambiarAdicional(
     Number(valor) || 0;
 
 
-  /* AGREGADO */
-
   guardarConfiguracion();
 
 
@@ -3852,8 +3845,6 @@ function agregarRegalo() {
 
   });
 
-
-  /* AGREGADO */
 
   guardarConfiguracion();
 
@@ -4089,8 +4080,6 @@ function cambiarRegalo(
   }
 
 
-  /* AGREGADO */
-
   guardarConfiguracion();
 
 
@@ -4114,8 +4103,6 @@ function eliminarRegalo(
     1
   );
 
-
-  /* AGREGADO */
 
   guardarConfiguracion();
 
@@ -4366,9 +4353,6 @@ function actualizarResumen() {
 ===================================================== */
 
 function actualizarTodo() {
-
-  /* AGREGADO:
-     guardar la ronda seleccionada */
 
   guardarConfiguracion();
 
@@ -4649,10 +4633,10 @@ function escapeHTML(
    INICIO
 ===================================================== */
 
-
-/* AGREGADO:
-   Primero recuperamos todos los cambios
-   guardados antes de dibujar la tabla. */
+/*
+ * Primero recuperamos los cambios guardados.
+ * Luego dibujamos la tabla con esos valores.
+ */
 
 cargarConfiguracion();
 
