@@ -1,360 +1,505 @@
-<!doctype html>
+```html
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Compra con Misti — Panel Admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-:root{
-  --bg:#f5f6f2;
-  --card:#fff;
-  --text:#26312a;
-  --muted:#68736c;
-  --line:#dce3dc;
-  --accent:#496b52;
-  --soft:#e8efe8;
-  --warn:#9a741d;
-  --warnbg:#faf4df;
-  --danger:#9a3e3e;
-  --dangerbg:#faeaea
-}
+  <title>Compra con Misti · Panel administrativo</title>
 
-*{box-sizing:border-box}
+  <style>
+    *{
+      box-sizing:border-box;
+    }
 
-body{
-  margin:0;
-  background:var(--bg);
-  font-family:system-ui,-apple-system,Segoe UI,sans-serif;
-  color:var(--text)
-}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:#f5f5f5;
+      color:#222;
+    }
 
-.wrap{
-  max-width:1180px;
-  margin:auto;
-  padding:28px 20px 50px
-}
+    header{
+      background:#b51f1f;
+      color:white;
+      padding:24px 32px;
+    }
 
-header{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  align-items:flex-start;
-  margin-bottom:24px
-}
+    header h1{
+      margin:0 0 6px;
+      font-size:28px;
+    }
 
-h1{
-  margin:0;
-  font-size:28px
-}
+    header p{
+      margin:0;
+      opacity:.9;
+    }
 
-.sub{
-  margin:6px 0;
-  color:var(--muted)
-}
+    main{
+      max-width:1200px;
+      margin:0 auto;
+      padding:28px 20px 50px;
+    }
 
-.status{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:10px;
-  padding:9px 12px;
-  font-size:13px
-}
+    .connection{
+      background:white;
+      border-radius:12px;
+      padding:14px 18px;
+      margin-bottom:24px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+      flex-wrap:wrap;
+    }
 
-.dot{
-  display:inline-block;
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:#c28a25;
-  margin-right:7px
-}
+    .connection-status{
+      color:#198754;
+      font-weight:bold;
+    }
 
-.cards{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:18px
-}
+    .section-title{
+      margin:32px 0 16px;
+      font-size:22px;
+    }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:17px
-}
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:24px;
+    }
 
-.label{
-  font-size:12px;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.5px
-}
+    .card{
+      background:white;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
 
-.value{
-  font-size:27px;
-  font-weight:700;
-  margin-top:7px
-}
+    .card-label{
+      font-size:13px;
+      color:#777;
+      margin-bottom:8px;
+    }
 
-.toolbar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:14px
-}
+    .card-value{
+      font-size:28px;
+      font-weight:bold;
+    }
 
-input,select,button{
-  font:inherit;
-  min-height:44px;
-  border-radius:10px
-}
+    .filters{
+      background:white;
+      border-radius:12px;
+      padding:18px;
+      margin-bottom:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
 
-input,select{
-  border:1px solid var(--line);
-  background:#fff;
-  padding:10px 12px;
-  color:var(--text)
-}
+    input,select{
+      padding:11px 13px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:14px;
+      background:white;
+    }
 
-input{
-  flex:1;
-  min-width:220px
-}
+    input{
+      min-width:260px;
+      flex:1;
+    }
 
-button{
-  border:0;
-  padding:10px 15px;
-  font-weight:650;
-  cursor:pointer
-}
+    button{
+      border:none;
+      border-radius:8px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-size:14px;
+    }
 
-button:disabled{
-  opacity:.55;
-  cursor:not-allowed
-}
+    button.primary{
+      background:#b51f1f;
+      color:white;
+    }
 
-.primary{
-  background:var(--accent);
-  color:#fff
-}
+    button.secondary{
+      background:#eee;
+      color:#222;
+    }
 
-.secondary{
-  background:#fff;
-  border:1px solid var(--line)
-}
+    button:hover{
+      opacity:.9;
+    }
 
-.table{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:14px;
-  overflow:auto
-}
+    button:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
 
-table{
-  border-collapse:collapse;
-  width:100%;
-  min-width:850px
-}
+    .table-container{
+      background:white;
+      border-radius:12px;
+      overflow:auto;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
 
-th,td{
-  text-align:left;
-  padding:14px;
-  border-bottom:1px solid var(--line)
-}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:850px;
+    }
 
-th{
-  font-size:12px;
-  color:var(--muted);
-  text-transform:uppercase;
-  background:#fafbfa
-}
+    th,td{
+      padding:14px 16px;
+      text-align:left;
+      border-bottom:1px solid #eee;
+      vertical-align:middle;
+    }
 
-tr:last-child td{
-  border-bottom:0
-}
+    th{
+      background:#fafafa;
+      font-size:13px;
+      color:#666;
+    }
 
-.badge{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700
-}
+    td{
+      font-size:14px;
+    }
 
-.pendiente{
-  background:var(--warnbg);
-  color:var(--warn)
-}
+    .status{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:20px;
+      font-size:12px;
+      font-weight:bold;
+    }
 
-.aceptado{
-  background:var(--soft);
-  color:var(--accent)
-}
+    .status-pendiente{
+      background:#fff3cd;
+      color:#856404;
+    }
 
-.rechazado{
-  background:var(--dangerbg);
-  color:var(--danger)
-}
+    .status-aceptado{
+      background:#d1e7dd;
+      color:#0f5132;
+    }
 
-.actions{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap
-}
+    .status-rechazado{
+      background:#f8d7da;
+      color:#842029;
+    }
 
-.actions button{
-  min-height:36px;
-  padding:7px 10px;
-  font-size:12px
-}
+    .actions{
+      display:flex;
+      gap:7px;
+      flex-wrap:wrap;
+    }
 
-.empty{
-  text-align:center;
-  padding:40px;
-  color:var(--muted)
-}
+    .empty{
+      padding:35px;
+      text-align:center;
+      color:#777;
+    }
 
-.note{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.5;
-  margin-top:12px
-}
+    .error{
+      background:#f8d7da;
+      color:#842029;
+      border-radius:10px;
+      padding:14px;
+      margin-bottom:20px;
+      display:none;
+    }
 
-@media(max-width:800px){
-  .cards{
-    grid-template-columns:repeat(2,1fr)
-  }
+    /* CONSOLIDADO */
 
-  header{
-    flex-direction:column
-  }
-}
+    .consolidado-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:24px;
+    }
 
-@media(max-width:520px){
-  .wrap{
-    padding:20px 12px
-  }
+    .summary-card{
+      background:white;
+      border-radius:12px;
+      padding:22px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
 
-  .cards{
-    gap:8px
-  }
+    .summary-card h3{
+      margin:0 0 12px;
+      font-size:15px;
+      color:#666;
+      font-weight:normal;
+    }
 
-  .value{
-    font-size:22px
-  }
-}
-</style>
+    .summary-number{
+      font-size:30px;
+      font-weight:bold;
+    }
+
+    .money-card{
+      background:#222;
+      color:white;
+    }
+
+    .money-card h3{
+      color:#ccc;
+    }
+
+    .money-card .summary-number{
+      color:white;
+    }
+
+    .consolidado-table{
+      background:white;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+      margin-bottom:30px;
+    }
+
+    .consolidado-table table{
+      min-width:0;
+    }
+
+    .total-row{
+      font-weight:bold;
+      background:#fafafa;
+    }
+
+    .last-update{
+      color:#777;
+      font-size:13px;
+      margin-top:10px;
+    }
+
+    @media(max-width:900px){
+      .cards,
+      .consolidado-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:600px){
+      header{
+        padding:20px;
+      }
+
+      main{
+        padding:20px 12px 40px;
+      }
+
+      .cards,
+      .consolidado-grid{
+        grid-template-columns:1fr;
+      }
+
+      input{
+        min-width:100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<main class="wrap" id="app">
-
 <header>
-  <div>
-    <h1>Compra con Misti</h1>
-    <p class="sub">Panel administrativo · pedidos recibidos</p>
-  </div>
-
-  <div class="status">
-    <span class="dot"></span>
-    <span id="conn">Conexión n8n pendiente</span>
-  </div>
+  <h1>Compra con Misti</h1>
+  <p>Panel administrativo · pedidos y consolidado de compra</p>
 </header>
 
+<main>
 
-<section class="cards">
+  <div class="connection">
+    <div>
+      <strong>Estado del sistema</strong>
+      <div id="connectionStatus" class="connection-status">
+        Conectando con n8n…
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="label">Pedidos</div>
-    <div class="value" id="total">0</div>
+    <button class="secondary" id="refresh">
+      Actualizar
+    </button>
   </div>
 
-  <div class="card">
-    <div class="label">Pendientes</div>
-    <div class="value" id="pending">0</div>
+  <div id="error" class="error"></div>
+
+
+  <!-- ======================================================
+       PEDIDOS
+       ====================================================== -->
+
+  <h2 class="section-title">1. Pedidos</h2>
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-label">Pedidos</div>
+      <div class="card-value" id="total">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Pendientes</div>
+      <div class="card-value" id="pending">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Aceptados</div>
+      <div class="card-value" id="accepted">0</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Dinero comprometido</div>
+      <div class="card-value" id="money">S/ 0</div>
+    </div>
+
   </div>
 
-  <div class="card">
-    <div class="label">Aceptados</div>
-    <div class="value" id="accepted">0</div>
+  <div class="filters">
+
+    <input
+      id="search"
+      type="text"
+      placeholder="Buscar por cliente o celular"
+    >
+
+    <select id="filter">
+      <option value="todos">Todos los estados</option>
+      <option value="pendiente">Pendientes</option>
+      <option value="aceptado">Aceptados</option>
+      <option value="rechazado">Rechazados</option>
+    </select>
+
   </div>
 
-  <div class="card">
-    <div class="label">Dinero comprometido</div>
-    <div class="value" id="money">S/ 0</div>
+  <div class="table-container">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Celular</th>
+          <th>Canastas</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody id="rows"></tbody>
+
+    </table>
+
+    <div id="empty" class="empty" style="display:none;">
+      No hay pedidos que coincidan con la búsqueda.
+    </div>
+
   </div>
 
-</section>
 
+  <!-- ======================================================
+       CONSOLIDADO
+       ====================================================== -->
 
-<div class="toolbar">
+  <h2 class="section-title">2. Consolidado</h2>
 
-  <input
-    id="search"
-    placeholder="Buscar por cliente o celular"
-  >
+  <div class="consolidado-grid">
 
-  <select id="filter">
-    <option value="todos">Todos los estados</option>
-    <option value="pendiente">Pendiente</option>
-    <option value="aceptado">Aceptado</option>
-    <option value="rechazado">Rechazado</option>
-  </select>
+    <div class="summary-card">
+      <h3>Familias aceptadas</h3>
+      <div class="summary-number" id="familiasAceptadas">
+        0
+      </div>
+    </div>
 
-  <button class="secondary" id="refresh">
-    Actualizar
-  </button>
+    <div class="summary-card">
+      <h3>Canastas Básicas</h3>
+      <div class="summary-number" id="basicas">
+        0
+      </div>
+    </div>
 
-</div>
+    <div class="summary-card">
+      <h3>Canastas Semilla</h3>
+      <div class="summary-number" id="semillas">
+        0
+      </div>
+    </div>
 
+    <div class="summary-card">
+      <h3>Canastas Familiares</h3>
+      <div class="summary-number" id="familiares">
+        0
+      </div>
+    </div>
 
-<div class="table">
-
-  <table>
-
-    <thead>
-      <tr>
-        <th>Cliente</th>
-        <th>Celular</th>
-        <th>Canastas</th>
-        <th>Total</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody id="rows"></tbody>
-
-  </table>
-
-  <div class="empty" id="empty">
-    No hay pedidos.
   </div>
 
-</div>
 
+  <div class="consolidado-table">
 
-<p class="note">
-  Esta es la primera interfaz del panel. Conectada a
-  <b>n8n → Data Table → pedidos_admin</b>
-  para consultar pedidos y guardar cambios de estado.
-  El flujo de recepción actual no se modifica.
-</p>
+    <table>
+
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>Familias aceptadas</td>
+          <td id="familiasAceptadasTabla">0</td>
+        </tr>
+
+        <tr>
+          <td>Canasta Básica</td>
+          <td id="basicasTabla">0</td>
+        </tr>
+
+        <tr>
+          <td>Canasta Semilla</td>
+          <td id="semillasTabla">0</td>
+        </tr>
+
+        <tr>
+          <td>Canasta Familiar</td>
+          <td id="familiaresTabla">0</td>
+        </tr>
+
+        <tr class="total-row">
+          <td>Dinero comprometido</td>
+          <td id="dineroConsolidado">S/ 0</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <div class="last-update">
+    El consolidado se calcula automáticamente a partir de los pedidos con estado Aceptado.
+  </div>
 
 </main>
 
 
 <script>
-(()=>{
 
   /*
-   * ENDPOINTS
-   * ----------
-   * GET  → lee pedidos desde pedidos_admin
-   * POST → cambia el estado de un pedido
+   * =========================================================
+   * CONFIGURACIÓN
+   * =========================================================
    */
 
   const API_GET =
@@ -364,49 +509,35 @@ tr:last-child td{
     "https://msi.tail124b59.ts.net/webhook/admin-estado";
 
 
-  let orders=[];
+  /*
+   * =========================================================
+   * ESTADO LOCAL
+   * =========================================================
+   */
+
+  let orders = [];
 
 
-  const $=x=>document.getElementById(x);
+  const $ = id => document.getElementById(id);
 
 
   /*
-   * Convierte cualquier estado a minúsculas
-   *
-   * "Pendiente" → "pendiente"
-   * "PENDIENTE" → "pendiente"
-   * "Aceptado" → "aceptado"
+   * =========================================================
+   * FUNCIONES AUXILIARES
+   * =========================================================
    */
 
-  function normalizeStatus(value){
-    return String(value ?? "pendiente")
-      .trim()
-      .toLowerCase();
-  }
+  const money = n =>
+    "S/ " +
+    Number(n || 0).toLocaleString("es-PE", {
+      maximumFractionDigits: 2
+    });
 
 
-  /*
-   * Formato de dinero
-   */
-
-  const money=n =>
-    "S/ "+
-    Number(n||0).toLocaleString(
-      "es-PE",
-      {
-        maximumFractionDigits:2
-      }
-    );
-
-
-  /*
-   * Evita insertar HTML no deseado
-   */
-
-  const esc=s =>
-    String(s??"").replace(
+  function esc(s){
+    return String(s ?? "").replace(
       /[&<>"']/g,
-      c=>({
+      c => ({
         "&":"&amp;",
         "<":"&lt;",
         ">":"&gt;",
@@ -414,294 +545,413 @@ tr:last-child td{
         "'":"&#039;"
       }[c])
     );
+  }
 
 
-  /*
-   * Texto bonito para mostrar el estado
-   */
+  function normalizeStatus(value){
 
-  function statusLabel(status){
+    return String(value ?? "pendiente")
+      .trim()
+      .toLowerCase();
 
-    const normalized=normalizeStatus(status);
-
-    return normalized.charAt(0).toUpperCase()+
-           normalized.slice(1);
   }
 
 
   /*
-   * Dibuja la tabla y los indicadores
+   * =========================================================
+   * CONSOLIDADO
+   * =========================================================
+   */
+
+  function renderConsolidado(){
+
+    const aceptados =
+      orders.filter(
+        o => normalizeStatus(o.estado) === "aceptado"
+      );
+
+
+    const familias =
+      aceptados.length;
+
+
+    const basicas =
+      aceptados.reduce(
+        (sum, o) =>
+          sum + Number(o.canasta_basica_cantidad || 0),
+        0
+      );
+
+
+    const semillas =
+      aceptados.reduce(
+        (sum, o) =>
+          sum + Number(o.canasta_semilla_cantidad || 0),
+        0
+      );
+
+
+    const familiares =
+      aceptados.reduce(
+        (sum, o) =>
+          sum + Number(o.canasta_familiar_cantidad || 0),
+        0
+      );
+
+
+    const dinero =
+      aceptados.reduce(
+        (sum, o) =>
+          sum + Number(o.total_solicitado || 0),
+        0
+      );
+
+
+    /*
+     * Tarjetas
+     */
+
+    $("familiasAceptadas").textContent =
+      familias;
+
+    $("basicas").textContent =
+      basicas;
+
+    $("semillas").textContent =
+      semillas;
+
+    $("familiares").textContent =
+      familiares;
+
+
+    /*
+     * Tabla
+     */
+
+    $("familiasAceptadasTabla").textContent =
+      familias;
+
+    $("basicasTabla").textContent =
+      basicas;
+
+    $("semillasTabla").textContent =
+      semillas;
+
+    $("familiaresTabla").textContent =
+      familiares;
+
+    $("dineroConsolidado").textContent =
+      money(dinero);
+
+  }
+
+
+  /*
+   * =========================================================
+   * RENDER PEDIDOS
+   * =========================================================
    */
 
   function render(){
 
-    const q=$("search").value.toLowerCase();
+    const q =
+      $("search").value
+        .toLowerCase()
+        .trim();
 
-    const f=$("filter").value;
+    const f =
+      $("filter").value;
+
+
+    const filtered =
+      orders.filter(o => {
+
+        const cliente =
+          String(o.cliente ?? "");
+
+        const celular =
+          String(o.celular ?? "");
+
+        const estado =
+          normalizeStatus(o.estado);
+
+
+        const matchesSearch =
+          !q ||
+          (
+            cliente +
+            " " +
+            celular
+          )
+          .toLowerCase()
+          .includes(q);
+
+
+        const matchesFilter =
+          f === "todos" ||
+          estado === f;
+
+
+        return (
+          matchesSearch &&
+          matchesFilter
+        );
+
+      });
 
 
     /*
-     * Normalizamos el estado antes de filtrar.
-     * Así funcionan tanto:
-     *
-     * Pendiente
-     * pendiente
-     * PENDIENTE
+     * Métricas generales
      */
 
-    let a=orders.filter(o=>{
-
-      const estado=normalizeStatus(o.estado);
-
-      const texto=
-        String(o.cliente??"")+
-        " "+
-        String(o.celular??"");
-
-      return(
-        (!q ||
-          texto.toLowerCase().includes(q)
-        )
-        &&
-        (
-          f==="todos" ||
-          estado===f
-        )
-      );
-
-    });
+    $("total").textContent =
+      orders.length;
 
 
-    /*
-     * Indicadores
-     */
-
-    $("total").textContent=orders.length;
-
-
-    $("pending").textContent=
+    $("pending").textContent =
       orders.filter(
-        o=>normalizeStatus(o.estado)==="pendiente"
+        o =>
+          normalizeStatus(o.estado) ===
+          "pendiente"
       ).length;
 
 
-    $("accepted").textContent=
+    $("accepted").textContent =
       orders.filter(
-        o=>normalizeStatus(o.estado)==="aceptado"
+        o =>
+          normalizeStatus(o.estado) ===
+          "aceptado"
       ).length;
 
 
-    /*
-     * Dinero comprometido:
-     * solamente pedidos aceptados.
-     */
-
-    $("money").textContent=money(
-
+    const moneyAccepted =
       orders
         .filter(
-          o=>normalizeStatus(o.estado)==="aceptado"
+          o =>
+            normalizeStatus(o.estado) ===
+            "aceptado"
         )
         .reduce(
-          (s,o)=>
-            s+
-            Number(o.total_solicitado||0),
+          (sum,o) =>
+            sum + Number(o.total_solicitado || 0),
           0
-        )
-
-    );
+        );
 
 
-    /*
-     * Mensaje cuando no hay resultados
-     */
-
-    $("empty").style.display=
-      a.length ? "none" : "block";
+    $("money").textContent =
+      money(moneyAccepted);
 
 
     /*
-     * Construimos las filas
+     * Tabla vacía
      */
 
-    $("rows").innerHTML=a.map(o=>{
-
-      const estado=normalizeStatus(o.estado);
-
-      const esPendiente=
-        estado==="pendiente";
+    $("empty").style.display =
+      filtered.length
+        ? "none"
+        : "block";
 
 
-      return `
+    /*
+     * Filas
+     */
 
-        <tr>
+    $("rows").innerHTML =
+      filtered.map(o => {
 
-          <td>
-            <b>${esc(o.cliente)}</b>
-          </td>
-
-
-          <td>
-            ${esc(o.celular)}
-          </td>
+        const estado =
+          normalizeStatus(o.estado);
 
 
-          <td>
-
-            Básica ${o.canasta_basica_cantidad||0}
-            ·
-            Semilla ${o.canasta_semilla_cantidad||0}
-            ·
-            Familiar ${o.canasta_familiar_cantidad||0}
-
-          </td>
+        const esPendiente =
+          estado === "pendiente";
 
 
-          <td>
-            <b>${money(o.total_solicitado)}</b>
-          </td>
+        const estadoTexto =
+          estado.charAt(0).toUpperCase() +
+          estado.slice(1);
 
 
-          <td>
-
-            <span class="badge ${esc(estado)}">
-
-              ${esc(statusLabel(estado))}
-
-            </span>
-
-          </td>
+        const statusClass =
+          estado === "aceptado"
+            ? "status-aceptado"
+            : estado === "rechazado"
+              ? "status-rechazado"
+              : "status-pendiente";
 
 
-          <td>
+        const canastas = [
 
-            <div class="actions">
+          Number(o.canasta_basica_cantidad || 0)
+            ? `Básica ${Number(o.canasta_basica_cantidad || 0)}`
+            : "",
 
+          Number(o.canasta_semilla_cantidad || 0)
+            ? `Semilla ${Number(o.canasta_semilla_cantidad || 0)}`
+            : "",
 
-              <button
-                class="primary"
-                data-a="accept"
-                data-id="${esc(o.id)}"
-                ${!esPendiente ? "disabled" : ""}
-              >
-                Aceptar
-              </button>
+          Number(o.canasta_familiar_cantidad || 0)
+            ? `Familiar ${Number(o.canasta_familiar_cantidad || 0)}`
+            : ""
 
-
-              <button
-                class="secondary"
-                data-a="reject"
-                data-id="${esc(o.id)}"
-                ${!esPendiente ? "disabled" : ""}
-              >
-                Rechazar
-              </button>
+        ]
+        .filter(Boolean)
+        .join(" · ");
 
 
-              <button
-                class="secondary"
-                data-a="detail"
-                data-id="${esc(o.id)}"
-              >
-                Ver detalle
-              </button>
+        return `
+
+          <tr>
+
+            <td>
+              <strong>
+                ${esc(o.cliente)}
+              </strong>
+            </td>
+
+            <td>
+              ${esc(o.celular)}
+            </td>
+
+            <td>
+              ${esc(canastas)}
+            </td>
+
+            <td>
+              ${money(o.total_solicitado)}
+            </td>
+
+            <td>
+              <span class="status ${statusClass}">
+                ${esc(estadoTexto)}
+              </span>
+            </td>
+
+            <td>
+
+              <div class="actions">
+
+                <button
+                  class="primary"
+                  data-a="accept"
+                  data-id="${esc(o.id)}"
+                  ${!esPendiente ? "disabled" : ""}
+                >
+                  Aceptar
+                </button>
+
+                <button
+                  class="secondary"
+                  data-a="reject"
+                  data-id="${esc(o.id)}"
+                  ${!esPendiente ? "disabled" : ""}
+                >
+                  Rechazar
+                </button>
+
+                <button
+                  class="secondary"
+                  data-a="detail"
+                  data-id="${esc(o.id)}"
+                >
+                  Ver detalle
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join("");
 
 
-            </div>
+    /*
+     * También actualizamos consolidado
+     */
 
-          </td>
-
-        </tr>
-
-      `;
-
-    }).join("");
+    renderConsolidado();
 
   }
 
 
   /*
-   * Carga los pedidos desde n8n
+   * =========================================================
+   * CARGAR PEDIDOS
+   * =========================================================
    */
 
   async function loadOrders(){
 
-    $("conn").textContent=
-      "Conectando con n8n…";
-
-
     try{
 
-      const response=
+      $("connectionStatus").textContent =
+        "Conectando con n8n…";
+
+
+      const response =
         await fetch(
           API_GET,
           {
             method:"GET",
             headers:{
               "Accept":"application/json"
-            }
+            },
+            cache:"no-store"
           }
         );
 
 
       if(!response.ok){
-
         throw new Error(
-          "HTTP "+response.status
+          "HTTP " + response.status
         );
-
       }
 
 
-      const data=
+      const data =
         await response.json();
 
 
-      if(!Array.isArray(data)){
+      /*
+       * El endpoint devuelve un array.
+       */
 
-        throw new Error(
-          "La API no devolvió un arreglo"
-        );
-
-      }
-
-
-      orders=data;
+      orders =
+        Array.isArray(data)
+          ? data
+          : [data];
 
 
-      $("conn").textContent=
-        `n8n conectado · ${orders.length} pedidos`;
+      $("connectionStatus").textContent =
+        "n8n conectado · " +
+        orders.length +
+        " pedidos";
+
+
+      $("error").style.display =
+        "none";
 
 
       render();
-
 
     }catch(error){
 
       console.error(error);
 
 
-      $("conn").textContent=
-        "Error de conexión con n8n";
+      $("connectionStatus").textContent =
+        "Error de conexión";
 
 
-      $("empty").textContent=
-        "No se pudieron cargar los pedidos.";
+      $("error").textContent =
+        "No se pudieron cargar los pedidos. Revisa la conexión con n8n.";
 
 
-      $("empty").style.display="block";
-
-
-      $("rows").innerHTML="";
-
-
-      $("total").textContent="0";
-
-      $("pending").textContent="0";
-
-      $("accepted").textContent="0";
-
-      $("money").textContent="S/ 0";
+      $("error").style.display =
+        "block";
 
     }
 
@@ -709,21 +959,16 @@ tr:last-child td{
 
 
   /*
-   * Cambia el estado mediante POST
-   *
-   * Envía exactamente:
-   *
-   * {
-   *   "id": 2,
-   *   "estado": "Aceptado"
-   * }
+   * =========================================================
+   * CAMBIAR ESTADO
+   * =========================================================
    */
 
-  async function changeStatus(id,estado){
+  async function changeStatus(id, estado){
 
     try{
 
-      const response=
+      const response =
         await fetch(
           API_POST,
           {
@@ -737,13 +982,11 @@ tr:last-child td{
                 "application/json"
             },
 
-            body:JSON.stringify({
-
-              id:Number(id),
-
-              estado:estado
-
-            })
+            body:
+              JSON.stringify({
+                id:Number(id),
+                estado:estado
+              })
 
           }
         );
@@ -752,20 +995,17 @@ tr:last-child td{
       if(!response.ok){
 
         throw new Error(
-          "HTTP "+response.status
+          "HTTP " + response.status
         );
 
       }
 
 
       /*
-       * Volvemos a consultar el GET.
+       * Volvemos a leer Data Table.
        *
-       * Así no modificamos manualmente
-       * la información del panel.
-       *
-       * El panel vuelve a leer
-       * pedidos_admin.
+       * Esto hace que el panel muestre
+       * el estado real guardado.
        */
 
       await loadOrders();
@@ -774,6 +1014,7 @@ tr:last-child td{
     }catch(error){
 
       console.error(error);
+
 
       alert(
         "No se pudo actualizar el estado del pedido."
@@ -785,123 +1026,112 @@ tr:last-child td{
 
 
   /*
-   * Eventos de los botones
+   * =========================================================
+   * EVENTOS DE LOS BOTONES
+   * =========================================================
    */
 
   $("rows").addEventListener(
     "click",
-    async e=>{
+    async event => {
 
-      const b=
-        e.target.closest("button");
+      const button =
+        event.target.closest("button");
 
 
-      if(!b || b.disabled){
-
+      if(!button){
         return;
-
       }
 
 
-      const o=
-        orders.find(
-          x=>
-            String(x.id)===
-            b.dataset.id
-        );
+      const action =
+        button.dataset.a;
+
+      const id =
+        button.dataset.id;
 
 
-      if(!o){
+      if(action === "accept"){
 
-        return;
-
-      }
-
-
-      /*
-       * VER DETALLE
-       */
-
-      if(
-        b.dataset.a==="detail"
-      ){
-
-        alert(
-          "Solicitud: "+
-          (o.solicitud||"—")
-        );
-
-        return;
-
-      }
-
-
-      /*
-       * ACEPTAR
-       */
-
-      if(
-        b.dataset.a==="accept"
-      ){
-
-        const confirmar=
+        const confirmar =
           confirm(
-            `¿Aceptar el pedido de ${o.cliente} por ${money(o.total_solicitado)}?`
+            "¿Aceptar este pedido?"
           );
 
 
         if(!confirmar){
-
           return;
-
         }
 
 
-        b.disabled=true;
-
-
         await changeStatus(
-          o.id,
+          id,
           "Aceptado"
         );
 
-
-        return;
-
       }
 
 
-      /*
-       * RECHAZAR
-       */
+      else if(action === "reject"){
 
-      if(
-        b.dataset.a==="reject"
-      ){
-
-        const confirmar=
+        const confirmar =
           confirm(
-            `¿Rechazar el pedido de ${o.cliente}?`
+            "¿Rechazar este pedido?"
           );
 
 
         if(!confirmar){
-
           return;
-
         }
 
 
-        b.disabled=true;
-
-
         await changeStatus(
-          o.id,
+          id,
           "Rechazado"
         );
 
+      }
 
-        return;
+
+      else if(action === "detail"){
+
+        const pedido =
+          orders.find(
+            o =>
+              String(o.id) ===
+              String(id)
+          );
+
+
+        if(!pedido){
+          return;
+        }
+
+
+        alert(
+
+          "Cliente: " +
+          (pedido.cliente ?? "") +
+
+          "\n\nCelular: " +
+          (pedido.celular ?? "") +
+
+          "\n\nCanasta Básica: " +
+          (pedido.canasta_basica_cantidad ?? 0) +
+
+          "\nCanasta Semilla: " +
+          (pedido.canasta_semilla_cantidad ?? 0) +
+
+          "\nCanasta Familiar: " +
+          (pedido.canasta_familiar_cantidad ?? 0) +
+
+          "\n\nTotal solicitado: " +
+          money(pedido.total_solicitado) +
+
+          "\n\nSolicitud: " +
+          (pedido.solicitud ?? "")
+
+        );
 
       }
 
@@ -910,7 +1140,9 @@ tr:last-child td{
 
 
   /*
-   * Buscador
+   * =========================================================
+   * FILTROS
+   * =========================================================
    */
 
   $("search").addEventListener(
@@ -919,19 +1151,11 @@ tr:last-child td{
   );
 
 
-  /*
-   * Filtro
-   */
-
   $("filter").addEventListener(
     "change",
     render
   );
 
-
-  /*
-   * Actualizar
-   */
 
   $("refresh").addEventListener(
     "click",
@@ -940,14 +1164,15 @@ tr:last-child td{
 
 
   /*
-   * Primera carga
+   * =========================================================
+   * INICIO
+   * =========================================================
    */
 
   loadOrders();
 
-
-})();
 </script>
 
 </body>
 </html>
+```
