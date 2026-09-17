@@ -7,1504 +7,3947 @@
 <title>Compra con Misti — Administración</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-        color: #222;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    header {
-        background: #b51f2b;
-        color: white;
-        padding: 18px 20px;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  color: #222;
+}
 
-    header h1 {
-        margin: 0;
-        font-size: 24px;
-    }
+header {
+  background: #b71c1c;
+  color: white;
+  padding: 20px;
+}
 
-    header p {
-        margin: 6px 0 0;
-        opacity: .9;
-        font-size: 14px;
-    }
+header h1 {
+  margin: 0 0 5px;
+}
 
-    .container {
-        max-width: 1200px;
-        margin: auto;
-        padding: 20px;
-    }
+header p {
+  margin: 0;
+  opacity: .9;
+}
 
-    .card {
-        background: white;
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    }
+.container {
+  max-width: 1450px;
+  margin: auto;
+  padding: 18px;
+}
 
-    h2 {
-        margin-top: 0;
-        font-size: 20px;
-    }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
 
-    h3 {
-        margin-top: 0;
-    }
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-    }
+.btn-refresh {
+  background: #333;
+  color: white;
+}
 
-    .metric {
-        background: #fafafa;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 14px;
-    }
+.btn-accept {
+  background: #2e7d32;
+  color: white;
+}
 
-    .metric small {
-        display: block;
-        color: #666;
-        margin-bottom: 5px;
-    }
+.btn-reject {
+  background: #c62828;
+  color: white;
+}
 
-    .metric strong {
-        font-size: 20px;
-    }
+.btn-detail {
+  background: #ddd;
+}
 
-    .canastas {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-    }
+.btn-calculate {
+  background: #b71c1c;
+  color: white;
+  font-size: 16px;
+  padding: 13px 20px;
+}
 
-    .canasta {
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        padding: 16px;
-    }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
 
-    .canasta strong {
-        font-size: 21px;
-    }
+.card,
+.section {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
 
-    .factor {
-        color: #777;
-        margin-top: 6px;
-    }
+.card-title {
+  color: #666;
+  font-size: 14px;
+}
 
-    .table-wrapper {
-        overflow-x: auto;
-    }
+.card-value {
+  font-size: 25px;
+  font-weight: bold;
+  margin-top: 6px;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 850px;
-    }
+.section {
+  margin-bottom: 18px;
+}
 
-    th, td {
-        border-bottom: 1px solid #ddd;
-        padding: 10px 8px;
-        text-align: left;
-        font-size: 14px;
-    }
+.section h2 {
+  margin-top: 0;
+}
 
-    th {
-        background: #fafafa;
-    }
+.section-description {
+  color: #666;
+  line-height: 1.5;
+}
 
-    input, select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 7px;
-        font-size: 14px;
-    }
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
 
-    input[type="checkbox"] {
-        width: auto;
-        transform: scale(1.2);
-    }
+input,
+select {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 14px;
+}
 
-    button {
-        border: none;
-        border-radius: 9px;
-        padding: 11px 16px;
-        cursor: pointer;
-        font-weight: bold;
-    }
+input[type="checkbox"] {
+  width: auto;
+  transform: scale(1.2);
+}
 
-    .btn-main {
-        background: #b51f2b;
-        color: white;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-    .btn-secondary {
-        background: #eee;
-        color: #222;
-    }
+th,
+td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle;
+}
 
-    .btn-success {
-        background: #27864b;
-        color: white;
-    }
+th {
+  background: #fafafa;
+  color: #555;
+  font-size: 13px;
+}
 
-    .btn-danger {
-        background: #d9534f;
-        color: white;
-    }
+td {
+  font-size: 14px;
+}
 
-    .actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
+.table-scroll {
+  overflow-x: auto;
+}
 
-    .status {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-    }
+.status {
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
 
-    .pendiente {
-        background: #fff3cd;
-        color: #856404;
-    }
+.status-pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
 
-    .aceptado {
-        background: #d4edda;
-        color: #155724;
-    }
+.status-aceptado {
+  background: #d4edda;
+  color: #155724;
+}
 
-    .rechazado {
-        background: #f8d7da;
-        color: #721c24;
-    }
+.status-rechazado {
+  background: #f8d7da;
+  color: #721c24;
+}
 
-    .essential-row {
-        background: #fffaf0;
-    }
+.round {
+  background: #eee;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
 
-    .optional-row {
-        background: white;
-    }
+.actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
 
-    .result-box {
-        border: 2px solid #b51f2b;
-        border-radius: 12px;
-        padding: 18px;
-        margin-top: 15px;
-    }
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
 
-    .warning {
-        background: #fff3cd;
-        border-left: 5px solid #f0ad4e;
-        padding: 12px;
-        border-radius: 7px;
-        margin-top: 12px;
-    }
+.summary-box {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 9px;
+  padding: 13px;
+}
 
-    .success {
-        background: #d4edda;
-        border-left: 5px solid #27864b;
-        padding: 12px;
-        border-radius: 7px;
-        margin-top: 12px;
-    }
+.summary-box strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 5px;
+}
 
-    .danger {
-        background: #f8d7da;
-        border-left: 5px solid #d9534f;
-        padding: 12px;
-        border-radius: 7px;
-        margin-top: 12px;
-    }
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 15px;
+}
 
-    .muted {
-        color: #666;
-        font-size: 13px;
-    }
+.budget-box {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 9px;
+  padding: 13px;
+}
 
-    .big-number {
-        font-size: 28px;
-        font-weight: bold;
-    }
+.budget-box strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 5px;
+}
 
-    @media (max-width: 700px) {
-        .canastas {
-            grid-template-columns: 1fr;
-        }
+.canasta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+}
 
-        .container {
-            padding: 12px;
-        }
+.canasta-box {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  background: #fafafa;
+}
 
-        .card {
-            padding: 15px;
-        }
-    }
+.canasta-box h3 {
+  margin: 0 0 8px;
+}
+
+.canasta-price {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.canasta-factor {
+  margin-top: 6px;
+  color: #666;
+  font-size: 13px;
+}
+
+.info-box {
+  background: #f5f5f5;
+  border-left: 5px solid #777;
+  padding: 15px;
+  margin: 15px 0;
+  line-height: 1.5;
+}
+
+.result-good {
+  background: #e8f5e9;
+  border-left: 5px solid #2e7d32;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.result-warning {
+  background: #fff3cd;
+  border-left: 5px solid #f9a825;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.result-error {
+  background: #f8d7da;
+  border-left: 5px solid #c62828;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.result-gift {
+  background: #f3e5f5;
+  border-left: 5px solid #8e24aa;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.formula-box {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  padding: 15px;
+  margin: 15px 0;
+  font-family: monospace;
+  line-height: 1.7;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  z-index: 1000;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close {
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: #eee;
+}
+
+.muted {
+  color: #777;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.essential-badge {
+  display: inline-block;
+  background: #d4edda;
+  color: #155724;
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.optional-badge {
+  display: inline-block;
+  background: #eee;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.small-note {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.4;
+}
+
+.purchase-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.purchase-total {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+@media(max-width:1000px) {
+
+  .cards {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .budget-grid {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .canasta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media(max-width:600px) {
+
+  .cards,
+  .summary-grid,
+  .budget-grid,
+  .canasta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  th,
+  td {
+    min-width: 100px;
+  }
+}
+
 </style>
 </head>
+
 
 <body>
 
 <header>
+
+  <div class="container">
+
     <h1>Compra con Misti</h1>
-    <p>Panel de administración y consolidación de compras</p>
+
+    <p>
+      Administración · pedidos · rondas · compra colectiva
+    </p>
+
+  </div>
+
 </header>
+
 
 <div class="container">
 
-    <!-- RONDA -->
-    <div class="card">
-        <h2>1. Ronda de compra</h2>
 
-        <div class="grid">
-            <div class="metric">
-                <small>Ronda</small>
-                <strong id="rondaActual">Cargando...</strong>
-            </div>
+<!-- =====================================================
+     CONEXIÓN
+====================================================== -->
 
-            <div class="metric">
-                <small>Fecha de compra</small>
-                <strong id="fechaCompra">—</strong>
-            </div>
+<div class="topbar">
 
-            <div class="metric">
-                <small>Pedidos aceptados</small>
-                <strong id="familiasAceptadas">0</strong>
-            </div>
-        </div>
+  <div id="connectionStatus">
+    Conectando con n8n…
+  </div>
+
+  <button
+    class="btn-refresh"
+    onclick="cargarPedidos()"
+  >
+    ↻ Actualizar
+  </button>
+
+</div>
+
+
+<!-- =====================================================
+     RESUMEN
+====================================================== -->
+
+<div class="cards">
+
+  <div class="card">
+
+    <div class="card-title">
+      Pedidos
+    </div>
+
+    <div
+      class="card-value"
+      id="totalPedidos"
+    >
+      0
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="card-title">
+      Pendientes
+    </div>
+
+    <div
+      class="card-value"
+      id="totalPendientes"
+    >
+      0
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="card-title">
+      Aceptados
+    </div>
+
+    <div
+      class="card-value"
+      id="totalAceptados"
+    >
+      0
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="card-title">
+      Dinero comprometido
+    </div>
+
+    <div
+      class="card-value"
+      id="dineroComprometido"
+    >
+      S/ 0.00
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     PEDIDOS
+====================================================== -->
+
+<div class="section">
+
+  <h2>Pedidos</h2>
+
+  <div class="filters">
+
+    <input
+      id="buscar"
+      placeholder="Buscar cliente o celular..."
+      oninput="renderPedidos()"
+    >
+
+
+    <select
+      id="filtroEstado"
+      onchange="renderPedidos()"
+    >
+
+      <option value="">
+        Todos los estados
+      </option>
+
+      <option value="pendiente">
+        Pendiente
+      </option>
+
+      <option value="Aceptado">
+        Aceptado
+      </option>
+
+      <option value="Rechazado">
+        Rechazado
+      </option>
+
+    </select>
+
+
+    <select
+      id="filtroRonda"
+      onchange="actualizarTodo()"
+    >
+
+      <option value="">
+        Todas las rondas
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="table-scroll">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Cliente</th>
+          <th>Celular</th>
+          <th>Canastas</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Ronda</th>
+          <th>Acciones</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="pedidosBody"></tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     MODELO DE CANASTAS
+====================================================== -->
+
+<div class="section">
+
+  <h2>
+    Estructura de las canastas
+  </h2>
+
+  <p class="section-description">
+
+    Las tres canastas participan en la misma compra colectiva.
+    No tienen listas de productos diferentes.
+    La diferencia está en la cantidad económica de participación.
+
+  </p>
+
+
+  <div class="canasta-grid">
+
+    <div class="canasta-box">
+
+      <h3>🌱 Semilla</h3>
+
+      <div class="canasta-price">
+        S/ 15
+      </div>
+
+      <div class="canasta-factor">
+        Factor: <strong>1.00</strong>
+      </div>
+
     </div>
 
 
-    <!-- RESUMEN ECONÓMICO -->
-    <div class="card">
-        <h2>2. Dinero comprometido</h2>
+    <div class="canasta-box">
 
-        <div class="grid">
+      <h3>🧺 Básica</h3>
 
-            <div class="metric">
-                <small>Semilla</small>
-                <strong id="cantidadSemilla">0</strong>
-            </div>
+      <div class="canasta-price">
+        S/ 25
+      </div>
 
-            <div class="metric">
-                <small>Básica</small>
-                <strong id="cantidadBasica">0</strong>
-            </div>
-
-            <div class="metric">
-                <small>Familiar</small>
-                <strong id="cantidadFamiliar">0</strong>
-            </div>
-
-            <div class="metric">
-                <small>Total comprometido</small>
-                <strong id="totalComprometido">S/ 0.00</strong>
-            </div>
-
-            <div class="metric">
-                <small>35% operaciones</small>
-                <strong id="presupuestoOperativo">S/ 0.00</strong>
-            </div>
-
-            <div class="metric">
-                <small>65% alimentos</small>
-                <strong id="presupuestoAlimentos">S/ 0.00</strong>
-            </div>
-
-        </div>
-    </div>
-
-
-    <!-- CANASTAS -->
-    <div class="card">
-        <h2>3. Estructura económica de las canastas</h2>
-
-        <div class="canastas">
-
-            <div class="canasta">
-                <strong>Semilla — S/ 15</strong>
-                <div class="factor">Factor económico: 1.0000</div>
-            </div>
-
-            <div class="canasta">
-                <strong>Básica — S/ 25</strong>
-                <div class="factor">
-                    Factor económico: <span id="factorBasica">1.6667</span>
-                </div>
-            </div>
-
-            <div class="canasta">
-                <strong>Familiar — S/ 35</strong>
-                <div class="factor">
-                    Factor económico: <span id="factorFamiliar">2.3333</span>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="result-box">
-            <div class="muted">
-                Participaciones equivalentes de Semilla
-            </div>
-
-            <div class="big-number" id="participacionesEquivalentes">
-                0.00
-            </div>
-        </div>
-    </div>
-
-
-    <!-- PEDIDOS -->
-    <div class="card">
-        <h2>4. Pedidos de la ronda</h2>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Semilla</th>
-                        <th>Básica</th>
-                        <th>Familiar</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Ronda</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tablaPedidos">
-                    <tr>
-                        <td colspan="8">Cargando pedidos...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-
-    <!-- PRODUCTOS -->
-    <div class="card">
-
-        <h2>5. Productos disponibles</h2>
-
-        <p class="muted">
-            Los productos de esta lista forman parte del universo de compra de Misti.
-            Solo los marcados como <b>esenciales</b> generan un compromiso mínimo.
-        </p>
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Unidad</th>
-                        <th>Precio mercado</th>
-                        <th>Esencial</th>
-                        <th>Mínimo por Semilla</th>
-                        <th>Compra adicional</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tablaProductos"></tbody>
-
-            </table>
-
-        </div>
-
-        <div class="actions" style="margin-top:15px;">
-            <button class="btn-main" onclick="calcularCompra()">
-                Calcular compra
-            </button>
-
-            <button class="btn-secondary" onclick="limpiarCalculo()">
-                Limpiar cálculo
-            </button>
-        </div>
+      <div class="canasta-factor">
+        Factor: <strong>1.6667</strong>
+      </div>
 
     </div>
 
 
-    <!-- RESULTADO -->
-    <div class="card">
+    <div class="canasta-box">
 
-        <h2>6. Resultado de la compra consolidada</h2>
+      <h3>👨‍👩‍👧‍👦 Familiar</h3>
 
-        <div id="resultadoCompra">
+      <div class="canasta-price">
+        S/ 35
+      </div>
 
-            <p class="muted">
-                Ingresa los precios reales del mercado y define cuáles productos
-                son esenciales. Luego presiona <b>Calcular compra</b>.
-            </p>
-
-        </div>
+      <div class="canasta-factor">
+        Factor: <strong>2.3333</strong>
+      </div>
 
     </div>
+
+  </div>
+
+
+  <div class="info-box">
+
+    <strong>
+      Regla fundamental
+    </strong>
+
+    <br><br>
+
+    Los 24 productos son el universo de productos
+    que Misti puede utilizar.
+
+    <br><br>
+
+    Solo una cantidad pequeña de ellos se define
+    como <strong>esencial</strong>.
+
+    <br><br>
+
+    Los productos esenciales tienen un mínimo garantizado
+    para una Semilla.
+
+    <br><br>
+
+    La Básica y Familiar no tienen mínimos independientes:
+    la máquina los calcula mediante sus factores económicos.
+
+    <br><br>
+
+    Los demás productos pueden comprarse como variedad,
+    adicional o regalo, pero no forman parte del compromiso
+    mínimo de la canasta.
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONSOLIDADO
+====================================================== -->
+
+<div class="section">
+
+  <h2>
+    Consolidado de la ronda
+  </h2>
+
+
+  <div id="roundDescription">
+    Selecciona una ronda.
+  </div>
+
+
+  <div class="summary-grid">
+
+    <div class="summary-box">
+
+      Familias aceptadas
+
+      <strong id="familiasAceptadas">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="summary-box">
+
+      Semillas
+
+      <strong id="semillasAceptadas">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="summary-box">
+
+      Básicas
+
+      <strong id="basicasAceptadas">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="summary-box">
+
+      Familiares
+
+      <strong id="familiaresAceptadas">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="summary-box">
+
+      Equivalentes Semilla
+
+      <strong id="equivalenteSemilla">
+        0.00
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <div class="budget-grid">
+
+    <div class="budget-box">
+
+      Dinero comprometido
+
+      <strong id="presupuestoTotal">
+        S/ 0.00
+      </strong>
+
+    </div>
+
+
+    <div class="budget-box">
+
+      Operaciones · 35%
+
+      <strong id="presupuestoOperaciones">
+        S/ 0.00
+      </strong>
+
+    </div>
+
+
+    <div class="budget-box">
+
+      Alimentos · 65%
+
+      <strong id="presupuestoAlimentos">
+        S/ 0.00
+      </strong>
+
+    </div>
+
+
+    <div class="budget-box">
+
+      Excedente / déficit
+
+      <strong id="saldoPresupuesto">
+        S/ 0.00
+      </strong>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     CONFIGURACIÓN DE PRODUCTOS
+====================================================== -->
+
+<div class="section">
+
+  <h2>
+    Universo de productos y esenciales
+  </h2>
+
+
+  <p class="section-description">
+
+    Los 24 productos permanecen disponibles para la compra.
+    Aquí decides cuáles forman parte del compromiso esencial.
+
+    <br><br>
+
+    <strong>
+      No necesitas definir mínimos para todos.
+    </strong>
+
+    Marca solamente los productos que quieras garantizar
+    y coloca su mínimo para una Semilla.
+
+  </p>
+
+
+  <div class="info-box">
+
+    <strong>
+      ¿Qué significa "Esencial"?
+    </strong>
+
+    <br><br>
+
+    Un producto esencial sí entra en el cálculo obligatorio
+    de la ronda.
+
+    <br><br>
+
+    Un producto no esencial permanece disponible,
+    pero no se promete automáticamente a las familias.
+
+    <br><br>
+
+    Esto permite que la variedad cambie de una ronda
+    a otra sin aumentar el compromiso.
+
+  </div>
+
+
+  <div class="table-scroll">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Esencial
+          </th>
+
+          <th>
+            Producto
+          </th>
+
+          <th>
+            Unidad
+          </th>
+
+          <th>
+            Mínimo Semilla
+          </th>
+
+          <th>
+            Básica × 1.6667
+          </th>
+
+          <th>
+            Familiar × 2.3333
+          </th>
+
+          <th>
+            Precio mercado
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="productosBody"></tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     ALGORITMO
+====================================================== -->
+
+<div class="section">
+
+  <h2>
+    Calcular compra
+  </h2>
+
+
+  <div class="formula-box">
+
+    Para cada producto esencial:
+
+    <br><br>
+
+    Mínimo consolidado =
+    (Semillas × mínimo Semilla)
+    +
+    (Básicas × mínimo Semilla × 1.6667)
+    +
+    (Familiares × mínimo Semilla × 2.3333)
+
+    <br><br>
+
+    Compra mínima =
+    redondear hacia arriba(
+    mínimo consolidado
+    )
+
+    <br><br>
+
+    Compra real =
+    compra mínima
+    +
+    adicional decidido por administradora
+
+    <br><br>
+
+    Saldo =
+    presupuesto de alimentos
+    − costo de compra real
+
+  </div>
+
+
+  <div class="info-box">
+
+    <strong>
+      El algoritmo primero protege lo esencial.
+    </strong>
+
+    <br><br>
+
+    Después de cubrir los mínimos esenciales,
+    el dinero que quede disponible puede utilizarse
+    para variedad o regalo.
+
+    <br><br>
+
+    Esa variedad no modifica el mínimo garantizado
+    y no crea una nueva obligación para las familias.
+
+  </div>
+
+
+  <button
+    class="btn-calculate"
+    onclick="calcularCompra()"
+  >
+
+    Calcular compra
+
+  </button>
+
+
+  <div
+    id="resultadoCompra"
+    style="margin-top:20px;"
+  >
+
+    Todavía no se ha calculado.
+
+  </div>
+
+</div>
+
+
+</div>
+
+
+<!-- =====================================================
+     MODAL
+====================================================== -->
+
+<div
+  class="modal"
+  id="modalDetalle"
+>
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+
+      <h3>
+        Detalle del pedido
+      </h3>
+
+      <button
+        class="close"
+        onclick="cerrarModal()"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <div id="detalleContenido"></div>
+
+  </div>
 
 </div>
 
 
 <script>
 
+/* =====================================================
+   APIs
+===================================================== */
+
 const API_PEDIDOS =
-    "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
+  "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
 
 const API_ESTADO =
-    "https://msi.tail124b59.ts.net/webhook/admin-estado";
+  "https://msi.tail124b59.ts.net/webhook/admin-estado";
 
 
-/*
-=========================================================
-PRODUCTOS
-=========================================================
+let pedidos = [];
 
-Los 24 productos NO son compromisos.
 
-"esencial" empieza en false.
+/* =====================================================
+   CANASTAS
+===================================================== */
 
-Cuando decidamos los esenciales definitivos,
-solo tendremos que cambiar:
-    esencial: true
-    minimoSemilla: X
+const CANASTA_SEMILLA = 15;
+const CANASTA_BASICA = 25;
+const CANASTA_FAMILIAR = 35;
 
-Los demás permanecen como universo disponible.
-*/
+const PORCENTAJE_OPERACIONES = 0.35;
+const PORCENTAJE_ALIMENTOS = 0.65;
+
+const FACTOR_SEMILLA = 1;
+const FACTOR_BASICA = 25 / 15;
+const FACTOR_FAMILIAR = 35 / 15;
+
+
+/* =====================================================
+   UNIVERSO DE PRODUCTOS
+=====================================================
+
+   Los 24 productos siguen existiendo.
+
+   IMPORTANTE:
+
+   esEsencial = false
+
+   significa que NO es un compromiso.
+
+   Para convertir un producto en esencial,
+   se marca desde la tabla.
+
+===================================================== */
 
 const productos = [
 
-    { nombre:"Papa amarilla", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Papa blanca", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Cebolla", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Tomate", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Zanahoria", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Ajo", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Ají amarillo", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Limón", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Calabacín", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Zapallo", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Choclo", unidad:"unidad", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Camote", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Palta", unidad:"unidad", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Perejil", unidad:"atado", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Culantro", unidad:"atado", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Cebolla china", unidad:"atado", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Apio", unidad:"unidad", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Vainita", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Beterraga", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Alverja", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Garbanzo", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Frejol panamito", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Frejol canario", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 },
-    { nombre:"Lentejas", unidad:"kg", precio:0, esencial:false, minimoSemilla:0, adicional:0 }
+  {
+    nombre: "Papa amarilla",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.50,
+    precio: 0
+  },
+
+  {
+    nombre: "Papa blanca",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.50,
+    precio: 0
+  },
+
+  {
+    nombre: "Cebolla",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Tomate",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Zanahoria",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Ajo",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.05,
+    precio: 0
+  },
+
+  {
+    nombre: "Ají amarillo",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.10,
+    precio: 0
+  },
+
+  {
+    nombre: "Limón",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Calabacín",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Zapallo",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.30,
+    precio: 0
+  },
+
+  {
+    nombre: "Choclo",
+    unidad: "unidad",
+    esencial: false,
+    minimo: 1,
+    precio: 0
+  },
+
+  {
+    nombre: "Camote",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.50,
+    precio: 0
+  },
+
+  {
+    nombre: "Palta",
+    unidad: "unidad",
+    esencial: false,
+    minimo: 1,
+    precio: 0
+  },
+
+  {
+    nombre: "Perejil",
+    unidad: "atado",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Culantro",
+    unidad: "atado",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Cebolla china",
+    unidad: "atado",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Apio",
+    unidad: "atado",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Vainita",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Beterraga",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Alverja",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Garbanzo",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Frejol panamito",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Frejol canario",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  },
+
+  {
+    nombre: "Lentejas",
+    unidad: "kg",
+    esencial: false,
+    minimo: 0.25,
+    precio: 0
+  }
 
 ];
 
 
-let pedidos = [];
-let rondaActual = null;
-
-
 /*
-=========================================================
-INICIO
-=========================================================
-*/
-
-document.addEventListener("DOMContentLoaded", async () => {
-
-    renderProductos();
-
-    await cargarPedidos();
-
-});
-
-
-/*
-=========================================================
-PEDIDOS
-=========================================================
-*/
-
-async function cargarPedidos() {
-
-    try {
-
-        const respuesta =
-            await fetch(API_PEDIDOS);
-
-        const data =
-            await respuesta.json();
-
-        if (Array.isArray(data)) {
-
-            pedidos = data;
-
-        } else if (Array.isArray(data.value)) {
-
-            pedidos = data.value;
-
-        } else {
-
-            pedidos = [];
-
-        }
-
-        determinarRonda();
-
-        renderPedidos();
-
-        calcularResumen();
-
-    } catch(error) {
-
-        console.error(error);
-
-        document.getElementById("tablaPedidos").innerHTML = `
-            <tr>
-                <td colspan="8">
-                    No se pudieron cargar los pedidos.
-                </td>
-            </tr>
-        `;
-    }
-
-}
-
-
-/*
-=========================================================
-DETERMINAR RONDA
-=========================================================
-*/
-
-function determinarRonda() {
-
-    const aceptados =
-        pedidos.filter(
-            p => String(p.estado || "").toLowerCase() === "aceptado"
-        );
-
-    const rondas =
-        aceptados
-        .map(p => p.ronda_id)
-        .filter(Boolean);
-
-    if (rondas.length === 0) {
-
-        rondaActual = null;
-
-        return;
-    }
-
-    /*
-    La ronda más frecuente entre pedidos aceptados.
-    */
-
-    const frecuencia = {};
-
-    rondas.forEach(r => {
-
-        frecuencia[r] =
-            (frecuencia[r] || 0) + 1;
-
-    });
-
-    rondaActual =
-        Object.keys(frecuencia)
-        .sort(
-            (a,b) =>
-                frecuencia[b] -
-                frecuencia[a]
-        )[0];
-
-    document.getElementById("rondaActual")
-        .textContent =
-        rondaActual || "—";
-
-    if (rondaActual) {
-
-        const partes =
-            rondaActual.split("-");
-
-        if (partes.length === 4) {
-
-            const fecha =
-                `${partes[1]}-${partes[2]}-${partes[3]}`;
-
-            document.getElementById("fechaCompra")
-                .textContent =
-                formatearFecha(fecha);
-
-        }
-
-    }
-
-}
-
-
-function formatearFecha(fecha) {
-
-    const partes =
-        fecha.split("-");
-
-    if (partes.length !== 3) {
-
-        return fecha;
-
-    }
-
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-
-}
-
-
-/*
-=========================================================
-RENDER PEDIDOS
-=========================================================
-*/
-
-function renderPedidos() {
-
-    const tbody =
-        document.getElementById("tablaPedidos");
-
-    const filtrados =
-        pedidos.filter(p => {
-
-            if (!rondaActual) {
-                return false;
-            }
-
-            return p.ronda_id === rondaActual;
-
-        });
-
-    if (filtrados.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8">
-                    No hay pedidos para esta ronda.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML =
-        filtrados.map(p => {
-
-            const estado =
-                String(p.estado || "pendiente")
-                .toLowerCase();
-
-            let clase = "pendiente";
-
-            if (estado === "aceptado") {
-                clase = "aceptado";
-            }
-
-            if (estado === "rechazado") {
-                clase = "rechazado";
-            }
-
-            return `
-                <tr>
-
-                    <td>${p.id ?? "—"}</td>
-
-                    <td>${escapeHtml(p.cliente || "—")}</td>
-
-                    <td>${Number(p.canasta_semilla_cantidad || 0)}</td>
-
-                    <td>${Number(p.canasta_basica_cantidad || 0)}</td>
-
-                    <td>${Number(p.canasta_familiar_cantidad || 0)}</td>
-
-                    <td>S/ ${Number(p.total_solicitado || 0).toFixed(2)}</td>
-
-                    <td>
-                        <span class="status ${clase}">
-                            ${estado}
-                        </span>
-                    </td>
-
-                    <td>${p.ronda_id || "—"}</td>
-
-                </tr>
-            `;
-
-        }).join("");
-
-}
-
-
-/*
-=========================================================
-RESUMEN ECONÓMICO
-=========================================================
-*/
-
-function calcularResumen() {
-
-    const aceptados =
-        pedidos.filter(p =>
-            String(p.estado || "").toLowerCase() === "aceptado"
-            &&
-            p.ronda_id === rondaActual
-        );
-
-
-    let semilla = 0;
-    let basica = 0;
-    let familiar = 0;
-
-
-    aceptados.forEach(p => {
-
-        semilla +=
-            Number(p.canasta_semilla_cantidad || 0);
-
-        basica +=
-            Number(p.canasta_basica_cantidad || 0);
-
-        familiar +=
-            Number(p.canasta_familiar_cantidad || 0);
-
-    });
-
-
-    const total =
-        semilla * 15 +
-        basica * 25 +
-        familiar * 35;
-
-
-    const operaciones =
-        total * 0.35;
-
-    const alimentos =
-        total * 0.65;
-
-
-    const equivalentes =
-        semilla +
-        basica * (25 / 15) +
-        familiar * (35 / 15);
-
-
-    document.getElementById("familiasAceptadas")
-        .textContent =
-        aceptados.length;
-
-    document.getElementById("cantidadSemilla")
-        .textContent =
-        semilla;
-
-    document.getElementById("cantidadBasica")
-        .textContent =
-        basica;
-
-    document.getElementById("cantidadFamiliar")
-        .textContent =
-        familiar;
-
-    document.getElementById("totalComprometido")
-        .textContent =
-        `S/ ${total.toFixed(2)}`;
-
-    document.getElementById("presupuestoOperativo")
-        .textContent =
-        `S/ ${operaciones.toFixed(2)}`;
-
-    document.getElementById("presupuestoAlimentos")
-        .textContent =
-        `S/ ${alimentos.toFixed(2)}`;
-
-    document.getElementById("participacionesEquivalentes")
-        .textContent =
-        equivalentes.toFixed(4);
-
-}
-
-
-/*
-=========================================================
-PRODUCTOS
-=========================================================
-*/
+ * Adicional elegido por la administradora.
+ *
+ * El adicional NO es una obligación.
+ */
+
+const adicionales =
+  productos.map(
+    () => 0
+  );
+
+
+/* =====================================================
+   TABLA DE PRODUCTOS
+===================================================== */
 
 function renderProductos() {
 
-    const tbody =
-        document.getElementById("tablaProductos");
+  const body =
+    document.getElementById(
+      "productosBody"
+    );
 
-    tbody.innerHTML =
-        productos.map((p, index) => {
 
-            return `
-                <tr id="producto-row-${index}">
+  body.innerHTML =
+    productos.map(
+      (p, i) => {
 
-                    <td>
-                        <strong>${p.nombre}</strong>
-                    </td>
+        const basica =
+          p.minimo *
+          FACTOR_BASICA;
 
-                    <td>
-                        ${p.unidad}
-                    </td>
 
-                    <td>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="S/ 0.00"
-                            onchange="actualizarPrecio(${index}, this.value)"
-                        >
-                    </td>
+        const familiar =
+          p.minimo *
+          FACTOR_FAMILIAR;
 
-                    <td style="text-align:center;">
 
-                        <input
-                            type="checkbox"
-                            onchange="cambiarEsencial(${index}, this.checked)"
-                        >
+        return `
 
-                    </td>
+          <tr>
 
-                    <td>
+            <td>
 
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.001"
-                            placeholder="0"
-                            disabled
-                            id="minimo-${index}"
-                            onchange="actualizarMinimo(${index}, this.value)"
-                        >
+              <input
+                type="checkbox"
+                ${p.esencial ? "checked" : ""}
+                onchange="
+                  cambiarEsencial(
+                    ${i},
+                    this.checked
+                  )
+                "
+              >
 
-                    </td>
+            </td>
 
-                    <td>
 
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.001"
-                            placeholder="0"
-                            id="adicional-${index}"
-                            onchange="actualizarAdicional(${index}, this.value)"
-                        >
+            <td>
 
-                    </td>
+              <strong>
+                ${escapeHTML(
+                  p.nombre
+                )}
+              </strong>
 
-                </tr>
-            `;
+              <br>
 
-        }).join("");
+              ${
+                p.esencial
+
+                ?
+
+                `
+                  <span class="essential-badge">
+                    ESENCIAL
+                  </span>
+                `
+
+                :
+
+                `
+                  <span class="optional-badge">
+                    UNIVERSO
+                  </span>
+                `
+              }
+
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                p.unidad
+              )}
+            </td>
+
+
+            <td>
+
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${p.minimo}"
+                ${
+                  !p.esencial
+                  ? "disabled"
+                  : ""
+                }
+                onchange="
+                  cambiarMinimo(
+                    ${i},
+                    this.value
+                  )
+                "
+              >
+
+              ${
+                !p.esencial
+
+                ?
+
+                `
+                  <div class="small-note">
+                    Se activa al marcar
+                    como esencial.
+                  </div>
+                `
+
+                :
+
+                ""
+              }
+
+            </td>
+
+
+            <td>
+
+              ${
+                p.esencial
+
+                ?
+
+                `
+                  <strong>
+                    ${formatearCantidad(
+                      basica
+                    )}
+                  </strong>
+                `
+
+                :
+
+                `<span class="muted">—</span>`
+              }
+
+            </td>
+
+
+            <td>
+
+              ${
+                p.esencial
+
+                ?
+
+                `
+                  <strong>
+                    ${formatearCantidad(
+                      familiar
+                    )}
+                  </strong>
+                `
+
+                :
+
+                `<span class="muted">—</span>`
+              }
+
+            </td>
+
+
+            <td>
+
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value="${p.precio || ""}"
+                placeholder="Precio"
+                onchange="
+                  cambiarPrecio(
+                    ${i},
+                    this.value
+                  )
+                "
+              >
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }
+    ).join("");
 
 }
 
 
-function actualizarPrecio(index, valor) {
+function cambiarEsencial(
+  index,
+  valor
+) {
 
-    productos[index].precio =
-        Number(valor) || 0;
+  productos[index].esencial =
+    Boolean(valor);
+
+
+  renderProductos();
 
 }
 
 
-function cambiarEsencial(index, valor) {
+function cambiarMinimo(
+  index,
+  valor
+) {
 
-    productos[index].esencial =
-        valor;
+  productos[index].minimo =
+    Number(valor) || 0;
 
-    const input =
-        document.getElementById(`minimo-${index}`);
 
-    input.disabled =
-        !valor;
+  renderProductos();
 
-    const fila =
-        document.getElementById(`producto-row-${index}`);
+}
 
-    if (valor) {
 
-        fila.classList.add("essential-row");
+function cambiarPrecio(
+  index,
+  valor
+) {
 
-    } else {
+  productos[index].precio =
+    Number(valor) || 0;
 
-        fila.classList.remove("essential-row");
+}
 
-        productos[index].minimoSemilla = 0;
 
-        input.value = "";
+/* =====================================================
+   CARGAR PEDIDOS
+===================================================== */
+
+async function cargarPedidos() {
+
+  const status =
+    document.getElementById(
+      "connectionStatus"
+    );
+
+
+  status.textContent =
+    "Conectando con n8n…";
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_PEDIDOS,
+        {
+          cache:
+            "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
 
     }
 
+
+    const data =
+      await response.json();
+
+
+    if (
+      Array.isArray(data)
+    ) {
+
+      pedidos =
+        data;
+
+    }
+
+    else if (
+      Array.isArray(
+        data.value
+      )
+    ) {
+
+      pedidos =
+        data.value;
+
+    }
+
+    else {
+
+      pedidos =
+        [];
+
+    }
+
+
+    status.textContent =
+      "✓ Conectado con n8n";
+
+
+    cargarSelectorRondas();
+
+    actualizarTodo();
+
+
+  } catch(error) {
+
+    console.error(
+      error
+    );
+
+
+    status.textContent =
+      "✕ Error de conexión";
+
+  }
+
 }
 
 
-function actualizarMinimo(index, valor) {
+/* =====================================================
+   RONDAS
+===================================================== */
 
-    productos[index].minimoSemilla =
-        Number(valor) || 0;
+function cargarSelectorRondas() {
+
+  const selector =
+    document.getElementById(
+      "filtroRonda"
+    );
+
+
+  const actual =
+    selector.value;
+
+
+  const rondas =
+    [
+      ...new Set(
+        pedidos
+          .map(
+            p =>
+              p.ronda_id
+          )
+          .filter(Boolean)
+      )
+    ]
+    .sort();
+
+
+  selector.innerHTML =
+    `
+      <option value="">
+        Todas las rondas
+      </option>
+    `;
+
+
+  rondas.forEach(
+    ronda => {
+
+      selector.innerHTML +=
+        `
+          <option
+            value="${escapeHTML(
+              ronda
+            )}"
+          >
+            ${escapeHTML(
+              ronda
+            )}
+          </option>
+        `;
+
+    }
+  );
+
+
+  if (
+    rondas.includes(
+      actual
+    )
+  ) {
+
+    selector.value =
+      actual;
+
+  }
 
 }
 
 
-function actualizarAdicional(index, valor) {
+/* =====================================================
+   FILTROS
+===================================================== */
 
-    productos[index].adicional =
-        Number(valor) || 0;
+function obtenerFiltrados() {
 
-}
+  const texto =
+    document
+      .getElementById(
+        "buscar"
+      )
+      .value
+      .toLowerCase()
+      .trim();
 
 
-/*
-=========================================================
-CALCULAR COMPRA
-=========================================================
-*/
+  const estado =
+    document
+      .getElementById(
+        "filtroEstado"
+      )
+      .value;
 
-function calcularCompra() {
 
-    /*
-    Recuperamos el resumen directamente
-    para evitar depender de valores visuales.
-    */
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
 
-    const aceptados =
-        pedidos.filter(p =>
-            String(p.estado || "").toLowerCase() === "aceptado"
-            &&
-            p.ronda_id === rondaActual
+
+  return pedidos.filter(
+    p => {
+
+      const cliente =
+        String(
+          p.cliente ||
+          ""
+        )
+        .toLowerCase();
+
+
+      const celular =
+        String(
+          p.celular ||
+          ""
         );
 
 
-    let semilla = 0;
-    let basica = 0;
-    let familiar = 0;
+      const textoOK =
+        !texto ||
+        cliente.includes(
+          texto
+        ) ||
+        celular.includes(
+          texto
+        );
 
 
-    aceptados.forEach(p => {
+      const estadoOK =
+        !estado ||
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        estado.toLowerCase();
 
-        semilla +=
-            Number(p.canasta_semilla_cantidad || 0);
 
-        basica +=
-            Number(p.canasta_basica_cantidad || 0);
+      const rondaOK =
+        !ronda ||
+        p.ronda_id ===
+        ronda;
 
-        familiar +=
-            Number(p.canasta_familiar_cantidad || 0);
 
-    });
+      return (
+        textoOK &&
+        estadoOK &&
+        rondaOK
+      );
 
+    }
+  );
 
-    const presupuestoAlimentos =
-        (
-            semilla * 15 +
-            basica * 25 +
-            familiar * 35
-        ) * 0.65;
+}
 
 
-    /*
-    FACTORES ECONÓMICOS
-    */
+/* =====================================================
+   RENDER PEDIDOS
+===================================================== */
 
-    const factorSemilla = 1;
+function renderPedidos() {
 
-    const factorBasica =
-        25 / 15;
+  const body =
+    document.getElementById(
+      "pedidosBody"
+    );
 
-    const factorFamiliar =
-        35 / 15;
 
+  const lista =
+    obtenerFiltrados();
 
-    /*
-    EQUIVALENTES
-    */
 
-    const equivalentes =
-        semilla * factorSemilla +
-        basica * factorBasica +
-        familiar * factorFamiliar;
+  if (!lista.length) {
 
+    body.innerHTML = `
 
-    /*
-    RESULTADO POR PRODUCTO
-    */
+      <tr>
 
-    let costoMinimos = 0;
+        <td
+          colspan="7"
+          style="text-align:center;"
+        >
+          No hay pedidos.
+        </td>
 
-    let costoAdicional = 0;
-
-    let filas = [];
-
-
-    productos.forEach(p => {
-
-        if (p.precio <= 0) {
-
-            return;
-
-        }
-
-
-        let minimoConsolidado = 0;
-
-        let compraMinimaRedondeada = 0;
-
-        let adicional = Number(p.adicional || 0);
-
-        /*
-        SOLO LOS ESENCIALES
-        generan mínimo.
-        */
-
-        if (p.esencial) {
-
-            minimoConsolidado =
-                p.minimoSemilla *
-                equivalentes;
-
-            /*
-            REDONDEO HACIA ARRIBA
-            */
-
-            compraMinimaRedondeada =
-                Math.ceil(minimoConsolidado);
-
-        }
-
-
-        const compraTotal =
-            compraMinimaRedondeada +
-            adicional;
-
-
-        const costo =
-            compraTotal *
-            p.precio;
-
-
-        const costoMinimo =
-            compraMinimaRedondeada *
-            p.precio;
-
-
-        const costoExtra =
-            adicional *
-            p.precio;
-
-
-        costoMinimos +=
-            costoMinimo;
-
-        costoAdicional +=
-            costoExtra;
-
-
-        filas.push({
-
-            nombre: p.nombre,
-
-            unidad: p.unidad,
-
-            precio: p.precio,
-
-            esencial: p.esencial,
-
-            minimoConsolidado,
-
-            compraMinimaRedondeada,
-
-            adicional,
-
-            compraTotal,
-
-            costo
-
-        });
-
-    });
-
-
-    /*
-    COSTO TOTAL DE LO QUE
-    SE ESTÁ PROPONIENDO COMPRAR
-    */
-
-    const costoCompra =
-        costoMinimos +
-        costoAdicional;
-
-
-    const saldo =
-        presupuestoAlimentos -
-        costoCompra;
-
-
-    let html = "";
-
-
-    /*
-    RESUMEN
-    */
-
-    html += `
-
-        <div class="grid">
-
-            <div class="metric">
-
-                <small>Presupuesto alimentos</small>
-
-                <strong>
-                    S/ ${presupuestoAlimentos.toFixed(2)}
-                </strong>
-
-            </div>
-
-
-            <div class="metric">
-
-                <small>Mínimos esenciales</small>
-
-                <strong>
-                    S/ ${costoMinimos.toFixed(2)}
-                </strong>
-
-            </div>
-
-
-            <div class="metric">
-
-                <small>Compra adicional</small>
-
-                <strong>
-                    S/ ${costoAdicional.toFixed(2)}
-                </strong>
-
-            </div>
-
-
-            <div class="metric">
-
-                <small>Costo propuesto</small>
-
-                <strong>
-                    S/ ${costoCompra.toFixed(2)}
-                </strong>
-
-            </div>
-
-
-            <div class="metric">
-
-                <small>Saldo disponible</small>
-
-                <strong>
-                    S/ ${saldo.toFixed(2)}
-                </strong>
-
-            </div>
-
-        </div>
+      </tr>
 
     `;
 
+    return;
 
-    /*
-    ALERTA PRESUPUESTARIA
-    */
+  }
 
-    if (saldo < 0) {
 
-        html += `
+  body.innerHTML =
+    lista.map(
+      p => {
 
-            <div class="danger">
+        const estado =
+          String(
+            p.estado ||
+            "pendiente"
+          );
 
-                <strong>El presupuesto no alcanza.</strong>
 
-                <br><br>
+        const clase =
+          estado
+            .toLowerCase()
+            .replace(
+              "í",
+              "i"
+            );
 
-                Faltan
-                <strong>
-                    S/ ${Math.abs(saldo).toFixed(2)}
-                </strong>
 
-                para cubrir la compra propuesta.
+        return `
 
-                <br><br>
+          <tr>
 
-                Esto no se oculta ni se corrige automáticamente:
-                el sistema muestra el déficit para que puedas
-                reducir compras adicionales o revisar los mínimos
-                esenciales.
+            <td>
 
-            </div>
+              <strong>
+                ${escapeHTML(
+                  p.cliente ||
+                  "Sin nombre"
+                )}
+              </strong>
+
+            </td>
+
+
+            <td>
+
+              ${escapeHTML(
+                String(
+                  p.celular ||
+                  ""
+                )
+              )}
+
+            </td>
+
+
+            <td>
+
+              B:
+              ${Number(
+                p.canasta_basica_cantidad ||
+                0
+              )}
+
+              · S:
+              ${Number(
+                p.canasta_semilla_cantidad ||
+                0
+              )}
+
+              · F:
+              ${Number(
+                p.canasta_familiar_cantidad ||
+                0
+              )}
+
+            </td>
+
+
+            <td>
+
+              ${soles(
+                Number(
+                  p.total_solicitado ||
+                  0
+                )
+              )}
+
+            </td>
+
+
+            <td>
+
+              <span
+                class="
+                  status
+                  status-${clase}
+                "
+              >
+
+                ${escapeHTML(
+                  estado
+                )}
+
+              </span>
+
+            </td>
+
+
+            <td>
+
+              ${
+                p.ronda_id
+
+                ?
+
+                `
+                  <span class="round">
+                    ${escapeHTML(
+                      p.ronda_id
+                    )}
+                  </span>
+                `
+
+                :
+
+                `
+                  <span class="muted">
+                    Sin ronda
+                  </span>
+                `
+              }
+
+            </td>
+
+
+            <td>
+
+              <div class="actions">
+
+                ${
+                  estado
+                    .toLowerCase()
+                    ===
+                    "pendiente"
+
+                  ?
+
+                  `
+
+                    <button
+                      class="btn-accept"
+                      onclick="
+                        cambiarEstado(
+                          ${p.id},
+                          'Aceptado'
+                        )
+                      "
+                    >
+                      Aceptar
+                    </button>
+
+
+                    <button
+                      class="btn-reject"
+                      onclick="
+                        cambiarEstado(
+                          ${p.id},
+                          'Rechazado'
+                        )
+                      "
+                    >
+                      Rechazar
+                    </button>
+
+                  `
+
+                  :
+
+                  ""
+                }
+
+
+                <button
+                  class="btn-detail"
+                  onclick="
+                    verDetalle(
+                      ${p.id}
+                    )
+                  "
+                >
+                  Detalle
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
 
         `;
 
-    } else {
+      }
+    ).join("");
 
-        html += `
+}
 
-            <div class="success">
 
-                La compra propuesta cabe dentro del presupuesto
-                de alimentos.
+/* =====================================================
+   CAMBIAR ESTADO
+===================================================== */
 
-                <br><br>
+async function cambiarEstado(
+  id,
+  estado
+) {
 
-                Quedan
-                <strong>
-                    S/ ${saldo.toFixed(2)}
-                </strong>
+  if (
+    !confirm(
+      `¿Marcar pedido como "${estado}"?`
+    )
+  ) {
 
-                disponibles para compras opcionales de
-                variedad o regalo.
+    return;
 
-                <br><br>
+  }
 
-                Ese saldo <strong>no constituye un compromiso</strong>
-                adicional con las familias.
 
-            </div>
+  try {
 
-        `;
+    const response =
+      await fetch(
+        API_ESTADO,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              id:
+                id,
+
+              estado:
+                estado
+
+            })
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
 
     }
 
 
-    /*
-    TABLA RESULTADO
-    */
+    await cargarPedidos();
 
-    html += `
 
-        <h3 style="margin-top:25px;">
-            Compra consolidada
-        </h3>
+  } catch(error) {
 
-        <div class="table-wrapper">
+    console.error(
+      error
+    );
 
-            <table>
 
-                <thead>
+    alert(
+      "No se pudo actualizar el estado."
+    );
 
-                    <tr>
+  }
 
-                        <th>Producto</th>
+}
 
-                        <th>Tipo</th>
 
-                        <th>Precio</th>
+/* =====================================================
+   PEDIDOS ACEPTADOS
+===================================================== */
 
-                        <th>Mínimo calculado</th>
+function obtenerAceptadosRonda() {
 
-                        <th>Mínimo redondeado</th>
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
 
-                        <th>Adicional</th>
 
-                        <th>Total a comprar</th>
+  let lista =
+    pedidos.filter(
+      p =>
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        "aceptado"
+    );
 
-                        <th>Costo</th>
 
-                    </tr>
+  if (ronda) {
 
-                </thead>
+    lista =
+      lista.filter(
+        p =>
+          p.ronda_id ===
+          ronda
+      );
 
-                <tbody>
+  }
+
+
+  return lista;
+
+}
+
+
+/* =====================================================
+   CONSOLIDADO ECONÓMICO
+===================================================== */
+
+function calcularConsolidado(
+  lista
+) {
+
+  const semillas =
+    lista.reduce(
+      (total,p) =>
+        total +
+        Number(
+          p.canasta_semilla_cantidad ||
+          0
+        ),
+      0
+    );
+
+
+  const basicas =
+    lista.reduce(
+      (total,p) =>
+        total +
+        Number(
+          p.canasta_basica_cantidad ||
+          0
+        ),
+      0
+    );
+
+
+  const familiares =
+    lista.reduce(
+      (total,p) =>
+        total +
+        Number(
+          p.canasta_familiar_cantidad ||
+          0
+        ),
+      0
+    );
+
+
+  const dinero =
+
+    semillas *
+      CANASTA_SEMILLA
+
+    +
+
+    basicas *
+      CANASTA_BASICA
+
+    +
+
+    familiares *
+      CANASTA_FAMILIAR;
+
+
+  return {
+
+    semillas,
+    basicas,
+    familiares,
+
+    dinero,
+
+    alimentos:
+      dinero *
+      PORCENTAJE_ALIMENTOS,
+
+    operaciones:
+      dinero *
+      PORCENTAJE_OPERACIONES,
+
+    equivalentesSemilla:
+
+      semillas +
+
+      basicas *
+        FACTOR_BASICA +
+
+      familiares *
+        FACTOR_FAMILIAR
+
+  };
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR CONSOLIDADO
+===================================================== */
+
+function actualizarConsolidado() {
+
+  const lista =
+    obtenerAceptadosRonda();
+
+
+  const datos =
+    calcularConsolidado(
+      lista
+    );
+
+
+  document.getElementById(
+    "familiasAceptadas"
+  ).textContent =
+    lista.length;
+
+
+  document.getElementById(
+    "semillasAceptadas"
+  ).textContent =
+    datos.semillas;
+
+
+  document.getElementById(
+    "basicasAceptadas"
+  ).textContent =
+    datos.basicas;
+
+
+  document.getElementById(
+    "familiaresAceptadas"
+  ).textContent =
+    datos.familiares;
+
+
+  document.getElementById(
+    "equivalenteSemilla"
+  ).textContent =
+    datos.equivalentesSemilla
+      .toFixed(2);
+
+
+  document.getElementById(
+    "presupuestoTotal"
+  ).textContent =
+    soles(
+      datos.dinero
+    );
+
+
+  document.getElementById(
+    "presupuestoOperaciones"
+  ).textContent =
+    soles(
+      datos.operaciones
+    );
+
+
+  document.getElementById(
+    "presupuestoAlimentos"
+  ).textContent =
+    soles(
+      datos.alimentos
+    );
+
+
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
+
+
+  document.getElementById(
+    "roundDescription"
+  ).innerHTML =
+
+    ronda
+
+    ?
+
+    `
+      Ronda:
+      <strong>
+        ${escapeHTML(
+          ronda
+        )}
+      </strong>
+      · Solo pedidos aceptados.
+    `
+
+    :
+
+    `
+      Selecciona una ronda específica
+      antes de calcular la compra.
+    `;
+
+}
+
+
+/* =====================================================
+   PRODUCTOS ESENCIALES
+===================================================== */
+
+function obtenerEsenciales() {
+
+  return productos.filter(
+    p =>
+      p.esencial === true
+  );
+
+}
+
+
+/* =====================================================
+   ALGORITMO PRINCIPAL
+===================================================== */
+
+function calcularCompra() {
+
+  const lista =
+    obtenerAceptadosRonda();
+
+
+  if (!lista.length) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        No hay pedidos aceptados
+        en la ronda seleccionada.
+
+      </div>
 
     `;
 
+    return;
 
-    filas.forEach(f => {
+  }
 
-        html += `
+
+  const ronda =
+    document
+      .getElementById(
+        "filtroRonda"
+      )
+      .value;
+
+
+  if (!ronda) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Selecciona una ronda específica.
+        </strong>
+
+        <br><br>
+
+        La compra se calcula sobre una sola
+        ronda de pedidos aceptados.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const datos =
+    calcularConsolidado(
+      lista
+    );
+
+
+  const esenciales =
+    obtenerEsenciales();
+
+
+  /*
+   * Todavía no se ha definido
+   * ningún producto esencial.
+   */
+
+  if (!esenciales.length) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Todavía no hay productos esenciales definidos.
+        </strong>
+
+        <br><br>
+
+        Los 24 productos están disponibles,
+        pero ninguno está comprometido como mínimo.
+
+        <br><br>
+
+        Marca en la tabla superior solamente
+        los productos que quieras garantizar.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  /*
+   * ===================================================
+   * VALIDAR PRECIOS SOLO DE ESENCIALES
+   * ===================================================
+   */
+
+  const esencialesSinPrecio =
+    esenciales.filter(
+      p =>
+        p.precio <= 0
+    );
+
+
+  if (esencialesSinPrecio.length) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Faltan precios de mercado de productos esenciales.
+        </strong>
+
+        <br><br>
+
+        Introduce el precio actual de:
+
+        <br><br>
+
+        ${esencialesSinPrecio
+          .map(
+            p =>
+              "• " +
+              escapeHTML(
+                p.nombre
+              )
+          )
+          .join("<br>")
+        }
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  /*
+   * ===================================================
+   * RESULTADOS DE ESENCIALES
+   * ===================================================
+   */
+
+  const resultadosEsenciales =
+    productos.map(
+      (p, index) => {
+
+        if (!p.esencial) {
+          return null;
+        }
+
+
+        const minimoSemilla =
+          p.minimo *
+          datos.semillas;
+
+
+        const minimoBasica =
+          p.minimo *
+          FACTOR_BASICA *
+          datos.basicas;
+
+
+        const minimoFamiliar =
+          p.minimo *
+          FACTOR_FAMILIAR *
+          datos.familiares;
+
+
+        const minimoConsolidado =
+
+          minimoSemilla +
+
+          minimoBasica +
+
+          minimoFamiliar;
+
+
+        /*
+         * Compra física:
+         * siempre hacia arriba.
+         */
+
+        const compraMinima =
+          Math.ceil(
+            minimoConsolidado
+          );
+
+
+        const adicional =
+          Number(
+            adicionales[index] ||
+            0
+          );
+
+
+        const compraTotal =
+          compraMinima +
+          adicional;
+
+
+        const costoMinimo =
+          compraMinima *
+          p.precio;
+
+
+        const costo =
+          compraTotal *
+          p.precio;
+
+
+        return {
+
+          index,
+
+          nombre:
+            p.nombre,
+
+          unidad:
+            p.unidad,
+
+          precio:
+            p.precio,
+
+          minimoSemilla:
+            minimoSemilla,
+
+          minimoBasica:
+            minimoBasica,
+
+          minimoFamiliar:
+            minimoFamiliar,
+
+          minimoConsolidado:
+            minimoConsolidado,
+
+          compraMinima:
+            compraMinima,
+
+          adicional:
+            adicional,
+
+          compraTotal:
+            compraTotal,
+
+          costoMinimo:
+            costoMinimo,
+
+          costo:
+            costo
+
+        };
+
+      }
+    )
+    .filter(Boolean);
+
+
+  /*
+   * ===================================================
+   * PRODUCTOS NO ESENCIALES CON ADICIONAL
+   * ===================================================
+   *
+   * Estos productos no tienen mínimo.
+   *
+   * Solo aparecen en la compra si la administradora
+   * decide colocar una cantidad adicional.
+   */
+
+  const resultadosVariedad =
+    productos.map(
+      (p, index) => {
+
+        if (p.esencial) {
+          return null;
+        }
+
+
+        const adicional =
+          Number(
+            adicionales[index] ||
+            0
+          );
+
+
+        if (
+          adicional <= 0
+        ) {
+
+          return null;
+
+        }
+
+
+        if (
+          p.precio <= 0
+        ) {
+
+          return {
+
+            index,
+
+            nombre:
+              p.nombre,
+
+            unidad:
+              p.unidad,
+
+            precio:
+              p.precio,
+
+            adicional:
+              adicional,
+
+            error:
+              true
+
+          };
+
+        }
+
+
+        return {
+
+          index,
+
+          nombre:
+            p.nombre,
+
+          unidad:
+            p.unidad,
+
+          precio:
+            p.precio,
+
+          adicional:
+            adicional,
+
+          compraTotal:
+            adicional,
+
+          costo:
+            adicional *
+            p.precio,
+
+          error:
+            false
+
+        };
+
+      }
+    )
+    .filter(Boolean);
+
+
+  /*
+   * ===================================================
+   * COSTOS
+   * ===================================================
+   */
+
+  const costoMinimoTotal =
+    resultadosEsenciales.reduce(
+      (s,p) =>
+        s +
+        p.costoMinimo,
+      0
+    );
+
+
+  const costoEsencialesReal =
+    resultadosEsenciales.reduce(
+      (s,p) =>
+        s +
+        p.costo,
+      0
+    );
+
+
+  const costoVariedad =
+    resultadosVariedad
+      .filter(
+        p =>
+          !p.error
+      )
+      .reduce(
+        (s,p) =>
+          s +
+          p.costo,
+        0
+      );
+
+
+  const costoCompraTotal =
+    costoEsencialesReal +
+    costoVariedad;
+
+
+  /*
+   * ===================================================
+   * PRODUCTOS DE VARIEDAD SIN PRECIO
+   * ===================================================
+   */
+
+  const variedadSinPrecio =
+    resultadosVariedad.filter(
+      p =>
+        p.error
+    );
+
+
+  if (
+    variedadSinPrecio.length
+  ) {
+
+    document.getElementById(
+      "resultadoCompra"
+    ).innerHTML = `
+
+      <div class="result-warning">
+
+        <strong>
+          Hay productos adicionales
+          sin precio de mercado.
+        </strong>
+
+        <br><br>
+
+        Introduce el precio de:
+
+        <br><br>
+
+        ${variedadSinPrecio
+          .map(
+            p =>
+              "• " +
+              escapeHTML(
+                p.nombre
+              )
+          )
+          .join("<br>")
+        }
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  /*
+   * ===================================================
+   * SALDOS
+   * ===================================================
+   */
+
+  const saldoMinimo =
+    datos.alimentos -
+    costoMinimoTotal;
+
+
+  const saldoReal =
+    datos.alimentos -
+    costoCompraTotal;
+
+
+  window.ultimoResultadoCompra = {
+
+    datos,
+
+    resultadosEsenciales,
+
+    resultadosVariedad,
+
+    costoMinimoTotal,
+
+    costoCompraTotal,
+
+    saldoMinimo,
+
+    saldoReal
+
+  };
+
+
+  renderResultadoCompra();
+
+}
+
+
+/* =====================================================
+   RESULTADO
+===================================================== */
+
+function renderResultadoCompra() {
+
+  const r =
+    window.ultimoResultadoCompra;
+
+
+  if (!r) return;
+
+
+  const deficitMinimo =
+    r.saldoMinimo < 0;
+
+
+  const deficitReal =
+    r.saldoReal < 0;
+
+
+  let html = "";
+
+
+  /*
+   * MENSAJE PRINCIPAL
+   */
+
+  if (deficitMinimo) {
+
+    html += `
+
+      <div class="result-error">
+
+        <strong>
+          ⚠ No alcanza para cumplir
+          los mínimos esenciales.
+        </strong>
+
+        <br><br>
+
+        Presupuesto de alimentos:
+
+        <strong>
+          ${soles(
+            r.datos.alimentos
+          )}
+        </strong>
+
+        <br>
+
+        Costo mínimo esencial redondeado:
+
+        <strong>
+          ${soles(
+            r.costoMinimoTotal
+          )}
+        </strong>
+
+        <br><br>
+
+        Déficit:
+
+        <strong>
+          ${soles(
+            Math.abs(
+              r.saldoMinimo
+            )
+          )}
+        </strong>
+
+        <br><br>
+
+        La máquina no reduce
+        automáticamente los mínimos.
+
+      </div>
+
+    `;
+
+  }
+
+  else {
+
+    html += `
+
+      <div class="result-good">
+
+        <strong>
+          ✓ Los mínimos esenciales pueden cumplirse.
+        </strong>
+
+        <br><br>
+
+        Presupuesto de alimentos:
+
+        <strong>
+          ${soles(
+            r.datos.alimentos
+          )}
+        </strong>
+
+        <br>
+
+        Costo mínimo esencial redondeado:
+
+        <strong>
+          ${soles(
+            r.costoMinimoTotal
+          )}
+        </strong>
+
+        <br>
+
+        Saldo antes de adicionales:
+
+        <strong>
+          ${soles(
+            r.saldoMinimo
+          )}
+        </strong>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+   * SI LOS ADICIONALES PASAN
+   * EL PRESUPUESTO
+   */
+
+  if (
+    !deficitMinimo &&
+    deficitReal
+  ) {
+
+    html += `
+
+      <div class="result-warning">
+
+        <strong>
+          Los adicionales superan
+          el presupuesto disponible.
+        </strong>
+
+        <br><br>
+
+        Presupuesto:
+
+        ${soles(
+          r.datos.alimentos
+        )}
+
+        <br>
+
+        Compra real:
+
+        ${soles(
+          r.costoCompraTotal
+        )}
+
+        <br>
+
+        Exceso:
+
+        ${soles(
+          Math.abs(
+            r.saldoReal
+          )
+        )}
+
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+   * SI SOBRA DINERO
+   */
+
+  if (
+    !deficitReal
+  ) {
+
+    html += `
+
+      <div class="result-gift">
+
+        <strong>
+          🎁 Presupuesto disponible
+          para variedad / regalo:
+        </strong>
+
+        <br><br>
+
+        ${soles(
+          r.saldoReal
+        )}
+
+        <br><br>
+
+        Este monto NO representa
+        una obligación adicional
+        para las familias.
+
+        <br><br>
+
+        Puede utilizarse para comprar
+        frutas, variedades u otros
+        productos del universo de Misti.
+
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+   * ===================================================
+   * TABLA DE ESENCIALES
+   * ===================================================
+   */
+
+  html += `
+
+    <div class="purchase-section">
+
+      <h3>
+        Productos esenciales
+      </h3>
+
+      <p class="small-note">
+        Estos son los productos que sí forman
+        parte del compromiso mínimo.
+      </p>
+
+      <div class="table-scroll">
+
+        <table>
+
+          <thead>
 
             <tr>
 
-                <td>
-                    <strong>${f.nombre}</strong>
-                </td>
+              <th>
+                Producto
+              </th>
 
-                <td>
-                    ${
-                        f.esencial
-                        ? "Esencial"
-                        : "Opcional"
-                    }
-                </td>
+              <th>
+                Mínimo consolidado
+              </th>
 
-                <td>
-                    S/ ${f.precio.toFixed(2)}
-                </td>
+              <th>
+                Compra mínima
+              </th>
 
-                <td>
-                    ${
-                        f.esencial
-                        ? f.minimoConsolidado.toFixed(3)
-                        : "—"
-                    }
-                </td>
+              <th>
+                Adicional
+              </th>
 
-                <td>
-                    ${
-                        f.esencial
-                        ? f.compraMinimaRedondeada
-                        : "—"
-                    }
-                </td>
+              <th>
+                Compra total
+              </th>
 
-                <td>
-                    ${f.adicional}
-                </td>
+              <th>
+                Precio
+              </th>
 
-                <td>
-                    <strong>
-                        ${f.compraTotal}
-                        ${f.unidad}
-                    </strong>
-                </td>
-
-                <td>
-                    S/ ${f.costo.toFixed(2)}
-                </td>
+              <th>
+                Costo
+              </th>
 
             </tr>
 
-        `;
-
-    });
+          </thead>
 
 
-    html += `
+          <tbody>
 
-                </tbody>
+            ${
+              r.resultadosEsenciales
+                .map(
+                  p => `
 
-            </table>
+                    <tr>
 
-        </div>
+                      <td>
 
-    `;
+                        <strong>
+                          ${escapeHTML(
+                            p.nombre
+                          )}
+                        </strong>
 
+                        <br>
 
-    /*
-    EXPLICACIÓN
-    */
+                        <small>
+                          ${escapeHTML(
+                            p.unidad
+                          )}
+                        </small>
 
-    html += `
-
-        <div class="warning">
-
-            <strong>Cómo leer este resultado</strong>
-
-            <br><br>
-
-            <b>Esencial:</b>
-            producto que sí tiene una cantidad mínima comprometida.
-
-            <br><br>
-
-            <b>Mínimo calculado:</b>
-            cantidad que resulta de multiplicar el mínimo
-            de una Semilla por las participaciones económicas
-            de toda la ronda.
-
-            <br><br>
-
-            <b>Mínimo redondeado:</b>
-            cantidad que efectivamente se propone comprar,
-            redondeada hacia arriba.
-
-            <br><br>
-
-            <b>Adicional:</b>
-            cantidad que tú decides comprar por encima del mínimo.
-            No aumenta automáticamente el compromiso de las familias.
-
-            <br><br>
-
-            <b>Saldo:</b>
-            dinero de alimentos que todavía puede utilizarse
-            para variedad, fruta u otros productos opcionales.
-
-        </div>
-
-    `;
+                      </td>
 
 
-    document.getElementById("resultadoCompra")
-        .innerHTML =
-        html;
+                      <td>
+
+                        ${formatearCantidad(
+                          p.minimoConsolidado
+                        )}
+
+                      </td>
+
+
+                      <td>
+
+                        <strong>
+                          ${formatearCantidad(
+                            p.compraMinima
+                          )}
+                        </strong>
+
+                      </td>
+
+
+                      <td>
+
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="${p.adicional}"
+                          onchange="
+                            cambiarAdicional(
+                              ${p.index},
+                              this.value
+                            )
+                          "
+                        >
+
+                      </td>
+
+
+                      <td>
+
+                        <strong>
+                          ${formatearCantidad(
+                            p.compraTotal
+                          )}
+                        </strong>
+
+                      </td>
+
+
+                      <td>
+
+                        ${soles(
+                          p.precio
+                        )}
+
+                      </td>
+
+
+                      <td>
+
+                        ${soles(
+                          p.costo
+                        )}
+
+                      </td>
+
+                    </tr>
+
+                  `
+                )
+                .join("")
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  /*
+   * ===================================================
+   * TABLA DE VARIEDAD / REGALO
+   * ===================================================
+   */
+
+  html += `
+
+    <div class="purchase-section">
+
+      <h3>
+        Variedad / adicionales
+      </h3>
+
+      <p class="small-note">
+
+        Los productos de esta sección NO tienen
+        mínimo garantizado.
+
+        <br>
+
+        Solo aparecen porque se decidió comprar
+        una cantidad adicional.
+
+      </p>
+
+
+      <div class="table-scroll">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Producto
+              </th>
+
+              <th>
+                Cantidad adicional
+              </th>
+
+              <th>
+                Precio
+              </th>
+
+              <th>
+                Costo
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${
+              r.resultadosVariedad.length
+
+              ?
+
+              r.resultadosVariedad
+                .map(
+                  p => `
+
+                    <tr>
+
+                      <td>
+
+                        <strong>
+                          ${escapeHTML(
+                            p.nombre
+                          )}
+                        </strong>
+
+                        <br>
+
+                        <small>
+                          ${escapeHTML(
+                            p.unidad
+                          )}
+                        </small>
+
+                      </td>
+
+
+                      <td>
+
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value="${p.adicional}"
+                          onchange="
+                            cambiarAdicional(
+                              ${p.index},
+                              this.value
+                            )
+                          "
+                        >
+
+                      </td>
+
+
+                      <td>
+
+                        ${soles(
+                          p.precio
+                        )}
+
+                      </td>
+
+
+                      <td>
+
+                        ${soles(
+                          p.costo
+                        )}
+
+                      </td>
+
+                    </tr>
+
+                  `
+                )
+                .join("")
+
+              :
+
+              `
+
+                <tr>
+
+                  <td
+                    colspan="4"
+                    style="text-align:center;"
+                  >
+
+                    No hay compras adicionales
+                    de productos no esenciales.
+
+                  </td>
+
+                </tr>
+
+              `
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  /*
+   * ===================================================
+   * RESUMEN FINAL
+   * ===================================================
+   */
+
+  html += `
+
+    <div class="info-box">
+
+      <strong>
+        Resumen de la compra
+      </strong>
+
+      <br><br>
+
+      Presupuesto de alimentos:
+
+      <strong>
+        ${soles(
+          r.datos.alimentos
+        )}
+      </strong>
+
+      <br>
+
+      Costo mínimo esencial:
+
+      <strong>
+        ${soles(
+          r.costoMinimoTotal
+        )}
+      </strong>
+
+      <br>
+
+      Compra real incluyendo adicionales:
+
+      <strong>
+        ${soles(
+          r.costoCompraTotal
+        )}
+      </strong>
+
+      <br>
+
+      Saldo disponible:
+
+      <strong>
+        ${soles(
+          r.saldoReal
+        )}
+      </strong>
+
+    </div>
+
+  `;
+
+
+  document.getElementById(
+    "resultadoCompra"
+  ).innerHTML =
+    html;
+
+
+  document.getElementById(
+    "saldoPresupuesto"
+  ).textContent =
+    soles(
+      r.saldoReal
+    );
 
 }
 
 
-/*
-=========================================================
-LIMPIAR
-=========================================================
-*/
+/* =====================================================
+   ADICIONAL
+===================================================== */
 
-function limpiarCalculo() {
+function cambiarAdicional(
+  index,
+  valor
+) {
 
-    document.getElementById("resultadoCompra")
-        .innerHTML = `
+  adicionales[index] =
+    Number(valor) || 0;
 
-            <p class="muted">
 
-                Cálculo eliminado.
-                Puedes volver a ingresar precios y calcular.
+  if (
+    window.ultimoResultadoCompra
+  ) {
 
-            </p>
+    calcularCompra();
 
-        `;
+  }
+
+}
+
+
+/* =====================================================
+   RESUMEN GENERAL
+===================================================== */
+
+function actualizarResumen() {
+
+  const pendientes =
+    pedidos.filter(
+      p =>
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        "pendiente"
+    );
+
+
+  const aceptados =
+    pedidos.filter(
+      p =>
+        String(
+          p.estado ||
+          ""
+        )
+        .toLowerCase()
+        ===
+        "aceptado"
+    );
+
+
+  const dinero =
+    aceptados.reduce(
+      (s,p) =>
+        s +
+        Number(
+          p.total_solicitado ||
+          0
+        ),
+      0
+    );
+
+
+  document.getElementById(
+    "totalPedidos"
+  ).textContent =
+    pedidos.length;
+
+
+  document.getElementById(
+    "totalPendientes"
+  ).textContent =
+    pendientes.length;
+
+
+  document.getElementById(
+    "totalAceptados"
+  ).textContent =
+    aceptados.length;
+
+
+  document.getElementById(
+    "dineroComprometido"
+  ).textContent =
+    soles(
+      dinero
+    );
 
 }
 
 
-/*
-=========================================================
-UTILIDAD
-=========================================================
-*/
+/* =====================================================
+   ACTUALIZAR TODO
+===================================================== */
 
-function escapeHtml(text) {
+function actualizarTodo() {
 
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+  actualizarResumen();
+
+  renderPedidos();
+
+  actualizarConsolidado();
 
 }
+
+
+/* =====================================================
+   DETALLE PEDIDO
+===================================================== */
+
+function verDetalle(
+  id
+) {
+
+  const p =
+    pedidos.find(
+      x =>
+        Number(x.id)
+        ===
+        Number(id)
+    );
+
+
+  if (!p) return;
+
+
+  document.getElementById(
+    "detalleContenido"
+  ).innerHTML = `
+
+    <p>
+
+      <strong>
+        Cliente:
+      </strong>
+
+      ${escapeHTML(
+        p.cliente ||
+        "-"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Celular:
+      </strong>
+
+      ${escapeHTML(
+        String(
+          p.celular ||
+          "-"
+        )
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Semillas:
+      </strong>
+
+      ${Number(
+        p.canasta_semilla_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Básicas:
+      </strong>
+
+      ${Number(
+        p.canasta_basica_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Familiares:
+      </strong>
+
+      ${Number(
+        p.canasta_familiar_cantidad ||
+        0
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Total:
+      </strong>
+
+      ${soles(
+        Number(
+          p.total_solicitado ||
+          0
+        )
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Estado:
+      </strong>
+
+      ${escapeHTML(
+        p.estado ||
+        "-"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Ronda:
+      </strong>
+
+      ${escapeHTML(
+        p.ronda_id ||
+        "Sin ronda"
+      )}
+
+    </p>
+
+
+    <p>
+
+      <strong>
+        Solicitud:
+      </strong>
+
+      ${escapeHTML(
+        p.solicitud ||
+        "-"
+      )}
+
+    </p>
+
+  `;
+
+
+  document
+    .getElementById(
+      "modalDetalle"
+    )
+    .classList.add(
+      "active"
+    );
+
+}
+
+
+function cerrarModal() {
+
+  document
+    .getElementById(
+      "modalDetalle"
+    )
+    .classList.remove(
+      "active"
+    );
+
+}
+
+
+/* =====================================================
+   UTILIDADES
+===================================================== */
+
+function soles(
+  valor
+) {
+
+  return (
+    "S/ " +
+    Number(
+      valor ||
+      0
+    ).toFixed(2)
+  );
+
+}
+
+
+function formatearCantidad(
+  valor
+) {
+
+  return Number(
+    valor ||
+    0
+  )
+  .toFixed(3)
+  .replace(
+    /0+$/,
+    ""
+  )
+  .replace(
+    /\.$/,
+    ""
+  );
+
+}
+
+
+function escapeHTML(
+  valor
+) {
+
+  return String(
+    valor
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+renderProductos();
+
+cargarPedidos();
 
 </script>
 
