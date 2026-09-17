@@ -30,13 +30,94 @@ h1{margin:0;font-size:28px}.sub{margin:6px 0;color:var(--muted)}.status{backgrou
 <p class="note">Esta es la primera interfaz del panel. En el siguiente paso la conectaremos a n8n para leer <b>Data Table → pedidos_admin</b> y guardar los cambios de estado. El flujo de recepción actual no se modifica.</p>
 </main>
 <script>
-(()=>{const orders=[{id:2,cliente:"isabell Smith",celular:934495196,canasta_basica_cantidad:1,canasta_semilla_cantidad:2,canasta_familiar_cantidad:1,total_solicitado:95,solicitud:"Confirmar día de entrega y coordinar pago.",estado:"pendiente"}];const $=x=>document.getElementById(x);
-const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{maximumFractionDigits:2});
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-function render(){let q=$("search").value.toLowerCase(),f=$("filter").value;let a=orders.filter(o=>(!q||(o.cliente+" "+o.celular).toLowerCase().includes(q))&&(f==="todos"||o.estado===f));
-$("total").textContent=orders.length;$("pending").textContent=orders.filter(o=>o.estado==="pendiente").length;$("accepted").textContent=orders.filter(o=>o.estado==="aceptado").length;$("money").textContent=money(orders.filter(o=>o.estado==="aceptado").reduce((s,o)=>s+Number(o.total_solicitado||0),0));
-$("empty").style.display=a.length?"none":"block";$("rows").innerHTML=a.map(o=>`<tr><td><b>${esc(o.cliente)}</b></td><td>${esc(o.celular)}</td><td>Básica ${o.canasta_basica_cantidad||0} · Semilla ${o.canasta_semilla_cantidad||0} · Familiar ${o.canasta_familiar_cantidad||0}</td><td><b>${money(o.total_solicitado)}</b></td><td><span class="badge ${esc(o.estado)}">${esc(o.estado.charAt(0).toUpperCase()+o.estado.slice(1))}</span></td><td><div class="actions">${o.estado==="pendiente"?`<button class="primary" data-a="accept" data-id="${o.id}">Aceptar</button><button class="secondary" data-a="reject" data-id="${o.id}">Rechazar</button>`:`<button class="secondary" data-a="detail" data-id="${o.id}">Ver detalle</button>`}</div></td></tr>`).join("")}
-$("rows").addEventListener("click",e=>{let b=e.target.closest("button");if(!b)return;let o=orders.find(x=>String(x.id)===b.dataset.id);if(!o)return;if(b.dataset.a==="accept")o.estado="aceptado";if(b.dataset.a==="reject")o.estado="rechazado";if(b.dataset.a==="detail")alert("Solicitud: "+(o.solicitud||"—"));render()});
-$("search").addEventListener("input",render);$("filter").addEventListener("change",render);$("refresh").addEventListener("click",()=>{$("conn").textContent="Lista preparada para conectar con n8n";render()});render()})()
+(()=>{
+  const API_GET="https://msi.tail124b59.ts.net/webhook/admin-pedidos";
+  let orders=[];
+  const $=x=>document.getElementById(x);
+
+  const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{maximumFractionDigits:2});
+  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+  function render(){
+    let q=$("search").value.toLowerCase(),f=$("filter").value;
+    let a=orders.filter(o=>
+      (!q||(String(o.cliente??"")+" "+String(o.celular??"")).toLowerCase().includes(q)) &&
+      (f==="todos"||o.estado===f)
+    );
+
+    $("total").textContent=orders.length;
+    $("pending").textContent=orders.filter(o=>o.estado==="pendiente").length;
+    $("accepted").textContent=orders.filter(o=>o.estado==="aceptado").length;
+    $("money").textContent=money(
+      orders.filter(o=>o.estado==="aceptado")
+            .reduce((s,o)=>s+Number(o.total_solicitado||0),0)
+    );
+
+    $("empty").style.display=a.length?"none":"block";
+
+    $("rows").innerHTML=a.map(o=>`
+      <tr>
+        <td><b>${esc(o.cliente)}</b></td>
+        <td>${esc(o.celular)}</td>
+        <td>
+          Básica ${o.canasta_basica_cantidad||0} ·
+          Semilla ${o.canasta_semilla_cantidad||0} ·
+          Familiar ${o.canasta_familiar_cantidad||0}
+        </td>
+        <td><b>${money(o.total_solicitado)}</b></td>
+        <td>
+          <span class="badge ${esc(o.estado||"pendiente")}">
+            ${esc((o.estado||"pendiente").charAt(0).toUpperCase()+(o.estado||"pendiente").slice(1))}
+          </span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="primary" disabled title="Se conectará al POST /admin-estado en el siguiente paso">Aceptar</button>
+            <button class="secondary" disabled title="Se conectará al POST /admin-estado en el siguiente paso">Rechazar</button>
+            <button class="secondary" data-a="detail" data-id="${esc(o.id)}">Ver detalle</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadOrders(){
+    $("conn").textContent="Conectando con n8n…";
+    try{
+      const response=await fetch(API_GET,{method:"GET",headers:{"Accept":"application/json"}});
+      if(!response.ok) throw new Error("HTTP "+response.status);
+
+      const data=await response.json();
+      if(!Array.isArray(data)) throw new Error("La API no devolvió un arreglo");
+
+      orders=data;
+      $("conn").textContent=`n8n conectado · ${orders.length} pedidos`;
+      render();
+    }catch(error){
+      console.error(error);
+      $("conn").textContent="Error de conexión con n8n";
+      $("empty").textContent="No se pudieron cargar los pedidos.";
+      $("empty").style.display="block";
+      $("rows").innerHTML="";
+      $("total").textContent="0";
+      $("pending").textContent="0";
+      $("accepted").textContent="0";
+      $("money").textContent="S/ 0";
+    }
+  }
+
+  $("rows").addEventListener("click",e=>{
+    const b=e.target.closest("button");
+    if(!b || b.disabled) return;
+    const o=orders.find(x=>String(x.id)===b.dataset.id);
+    if(b.dataset.a==="detail") alert("Solicitud: "+(o?.solicitud||"—"));
+  });
+
+  $("search").addEventListener("input",render);
+  $("filter").addEventListener("change",render);
+  $("refresh").addEventListener("click",loadOrders);
+
+  loadOrders();
+})();
 </script>
 </body></html>
