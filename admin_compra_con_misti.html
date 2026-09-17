@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compra con Misti — Panel Admin</title>
+<style>
+:root{--bg:#f5f6f2;--card:#fff;--text:#26312a;--muted:#68736c;--line:#dce3dc;--accent:#496b52;--soft:#e8efe8;--warn:#9a741d;--warnbg:#faf4df;--danger:#9a3e3e;--dangerbg:#faeaea}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+.wrap{max-width:1180px;margin:auto;padding:28px 20px 50px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}
+h1{margin:0;font-size:28px}.sub{margin:6px 0;color:var(--muted)}.status{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#c28a25;margin-right:7px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}.value{font-size:27px;font-weight:700;margin-top:7px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}input,select,button{font:inherit;min-height:44px;border-radius:10px}input,select{border:1px solid var(--line);background:#fff;padding:10px 12px;color:var(--text)}input{flex:1;min-width:220px}button{border:0;padding:10px 15px;font-weight:650;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#fff;border:1px solid var(--line)}
+.table{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--muted);text-transform:uppercase;background:#fafbfa}tr:last-child td{border-bottom:0}
+.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}.pendiente{background:var(--warnbg);color:var(--warn)}.aceptado{background:var(--soft);color:var(--accent)}.rechazado{background:var(--dangerbg);color:var(--danger)}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.actions button{min-height:36px;padding:7px 10px;font-size:12px}.empty{text-align:center;padding:40px;color:var(--muted)}.note{color:var(--muted);font-size:13px;line-height:1.5;margin-top:12px}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,1fr)}header{flex-direction:column}}@media(max-width:520px){.wrap{padding:20px 12px}.cards{gap:8px}.value{font-size:22px}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app">
+<header><div><h1>Compra con Misti</h1><p class="sub">Panel administrativo · pedidos recibidos</p></div><div class="status"><span class="dot"></span><span id="conn">Conexión n8n pendiente</span></div></header>
+<section class="cards">
+<div class="card"><div class="label">Pedidos</div><div class="value" id="total">0</div></div>
+<div class="card"><div class="label">Pendientes</div><div class="value" id="pending">0</div></div>
+<div class="card"><div class="label">Aceptados</div><div class="value" id="accepted">0</div></div>
+<div class="card"><div class="label">Dinero comprometido</div><div class="value" id="money">S/ 0</div></div>
+</section>
+<div class="toolbar"><input id="search" placeholder="Buscar por cliente o celular"><select id="filter"><option value="todos">Todos los estados</option><option value="pendiente">Pendiente</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select><button class="secondary" id="refresh">Actualizar</button></div>
+<div class="table"><table><thead><tr><th>Cliente</th><th>Celular</th><th>Canastas</th><th>Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">No hay pedidos.</div></div>
+<p class="note">Esta es la primera interfaz del panel. En el siguiente paso la conectaremos a n8n para leer <b>Data Table → pedidos_admin</b> y guardar los cambios de estado. El flujo de recepción actual no se modifica.</p>
+</main>
+<script>
+(()=>{const orders=[{id:2,cliente:"isabell Smith",celular:934495196,canasta_basica_cantidad:1,canasta_semilla_cantidad:2,canasta_familiar_cantidad:1,total_solicitado:95,solicitud:"Confirmar día de entrega y coordinar pago.",estado:"pendiente"}];const $=x=>document.getElementById(x);
+const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{maximumFractionDigits:2});
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function render(){let q=$("search").value.toLowerCase(),f=$("filter").value;let a=orders.filter(o=>(!q||(o.cliente+" "+o.celular).toLowerCase().includes(q))&&(f==="todos"||o.estado===f));
+$("total").textContent=orders.length;$("pending").textContent=orders.filter(o=>o.estado==="pendiente").length;$("accepted").textContent=orders.filter(o=>o.estado==="aceptado").length;$("money").textContent=money(orders.filter(o=>o.estado==="aceptado").reduce((s,o)=>s+Number(o.total_solicitado||0),0));
+$("empty").style.display=a.length?"none":"block";$("rows").innerHTML=a.map(o=>`<tr><td><b>${esc(o.cliente)}</b></td><td>${esc(o.celular)}</td><td>Básica ${o.canasta_basica_cantidad||0} · Semilla ${o.canasta_semilla_cantidad||0} · Familiar ${o.canasta_familiar_cantidad||0}</td><td><b>${money(o.total_solicitado)}</b></td><td><span class="badge ${esc(o.estado)}">${esc(o.estado.charAt(0).toUpperCase()+o.estado.slice(1))}</span></td><td><div class="actions">${o.estado==="pendiente"?`<button class="primary" data-a="accept" data-id="${o.id}">Aceptar</button><button class="secondary" data-a="reject" data-id="${o.id}">Rechazar</button>`:`<button class="secondary" data-a="detail" data-id="${o.id}">Ver detalle</button>`}</div></td></tr>`).join("")}
+$("rows").addEventListener("click",e=>{let b=e.target.closest("button");if(!b)return;let o=orders.find(x=>String(x.id)===b.dataset.id);if(!o)return;if(b.dataset.a==="accept")o.estado="aceptado";if(b.dataset.a==="reject")o.estado="rechazado";if(b.dataset.a==="detail")alert("Solicitud: "+(o.solicitud||"—"));render()});
+$("search").addEventListener("input",render);$("filter").addEventListener("change",render);$("refresh").addEventListener("click",()=>{$("conn").textContent="Lista preparada para conectar con n8n";render()});render()})()
+</script>
+</body></html>
