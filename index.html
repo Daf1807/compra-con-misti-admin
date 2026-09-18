@@ -64,6 +64,11 @@ button {
   color: white;
 }
 
+.btn-json {
+  background: #1565c0;
+  color: white;
+}
+
 .btn-accept {
   background: #2e7d32;
   color: white;
@@ -514,12 +519,24 @@ CONEXIÓN
 Conectando con n8n…
 </div>
 
+<div class="actions">
+
 <button
 class="btn-refresh"
 onclick="cargarPedidos()"
 >
 ↻ Actualizar
 </button>
+
+<button
+class="btn-json"
+onclick="generarJSONCompra()"
+title="Descarga un JSON con el estado completo actual de la compra"
+>
+⇩ Generar JSON
+</button>
+
+</div>
 
 </div>
 
@@ -1893,6 +1910,16 @@ pedidos = [];
 
 }
 
+/*
+Si n8n todavía no manda estado, el pedido se considera
+PENDIENTE en la interfaz. El cambio definitivo de estado
+se realiza únicamente con Aceptar / Rechazar.
+*/
+pedidos = pedidos.map(p => ({
+  ...p,
+  estado: normalizarEstado(p.estado)
+}));
+
 status.textContent =
 "✓ Conectado con n8n";
 
@@ -2222,12 +2249,7 @@ Sin ronda
 
 <div class="actions">
 
-<!-- =================================================
-ÚNICO AJUSTE:
-AHORA LOS BOTONES SIEMPRE ESTÁN VISIBLES.
-ANTES SOLO APARECÍAN SI EL ESTADO ERA PENDIENTE.
-================================================== -->
-
+${estado.toLowerCase() === 'pendiente' ? `
 <button
 class="btn-accept"
 onclick="
@@ -2251,6 +2273,11 @@ ${p.id},
 >
 Rechazar
 </button>
+` : `
+<span class="muted small-note">
+Decisión registrada
+</span>
+`}
 
 <button
 class="btn-detail"
@@ -2279,79 +2306,238 @@ Detalle
 
 
 /* =====================================================
-CAMBIAR ESTADO NO MODIFICADO
+CAMBIAR ESTADO Y AVISAR A N8N
 ===================================================== */
 
 async function cambiarEstado(
-id,
-estado
+  id,
+  estado
 ) {
 
-if (
-!confirm(
-`¿Marcar pedido como "${estado}"?`
-)
-) {
+  const estadoNormalizado = normalizarEstado(estado);
 
-return;
+  if (!['Aceptado', 'Rechazado'].includes(estadoNormalizado)) {
+    return;
+  }
 
+  if (!confirm(`¿Marcar pedido como "${estadoNormalizado}"?`)) {
+    return;
+  }
+
+  const pedido = pedidos.find(p => String(p.id) === String(id));
+
+  try {
+
+    const payload = {
+      accion: 'cambiar_estado',
+      id: id,
+      estado: estadoNormalizado,
+      fecha: new Date().toISOString(),
+      pedido: pedido || null
+    };
+
+    const response = await fetch(
+      API_ESTADO,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    /* Actualización inmediata de la interfaz. */
+    pedidos = pedidos.map(p =>
+      String(p.id) === String(id)
+        ? { ...p, estado: estadoNormalizado }
+        : p
+    );
+
+    renderPedidos();
+    actualizarTodo();
+
+    alert(`Pedido ${estadoNormalizado.toLowerCase()} correctamente.`);
+
+  } catch(error) {
+
+    console.error(error);
+
+    alert(
+      'No se pudo actualizar el estado en n8n.
+Verifica que el webhook admin-estado esté activo.'
+    );
+  }
 }
 
-try {
 
-const response =
-await fetch(
-API_ESTADO,
-{
+/* =====================================================
+ESTADO DE PEDIDO
+===================================================== */
 
-method:
-"POST",
+function normalizarEstado(estado) {
 
-headers:
-{
-"Content-Type":
-"application/json"
-},
+  const valor = String(estado || '').trim().toLowerCase();
 
-body:
-JSON.stringify(
-{
-id:
-id,
+  if (valor === 'aceptado') return 'Aceptado';
+  if (valor === 'rechazado') return 'Rechazado';
 
-estado:
-estado
-}
-)
-
-}
-);
-
-if (!response.ok) {
-
-throw new Error(
-"HTTP " +
-response.status
-);
-
+  /* Todo pedido nuevo/sin estado empieza como pendiente. */
+  return 'pendiente';
 }
 
-await cargarPedidos();
 
+/* =====================================================
+GENERAR JSON COMPLETO DE LA COMPRA
+===================================================== */
+
+function obtenerLocalStorageCompleto() {
+
+  const resultado = {};
+
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+
+    const raw = localStorage.getItem(key);
+
+    try {
+      resultado[key] = JSON.parse(raw);
+    } catch (_) {
+      resultado[key] = raw;
+    }
+  }
+
+  return resultado;
 }
 
-catch(error) {
 
-console.error(
-error
-);
+function generarJSONCompra() {
 
-alert(
-"No se pudo actualizar el estado."
-);
+  try {
 
-}
+    /* Recalcula el consolidado con los pedidos que estén aceptados
+       para que el JSON represente exactamente el estado actual. */
+    actualizarTodo();
 
+    const aceptados = obtenerAceptadosRonda();
+    const consolidado = calcularConsolidado(aceptados);
+    const resultadoCompra = window.ultimoResultadoCompra || null;
+
+    const adicionalesActuales = Array.isArray(window.adicionales)
+      ? [...window.adicionales]
+      : (typeof adicionales !== 'undefined' ? [...adicionales] : []);
+
+    const regalosActuales = Array.isArray(window.regalos)
+      ? [...window.regalos]
+      : (typeof regalos !== 'undefined' ? [...regalos] : []);
+
+    const ronda = document.getElementById('filtroRonda')?.value || '';
+
+    const estados = pedidos.reduce((acc, p) => {
+      const e = normalizarEstado(p.estado);
+      acc[e] = (acc[e] || 0) + 1;
+      return acc;
+    }, { pendiente: 0, Aceptado: 0, Rechazado: 0 });
+
+    /* Productos con el precio configurado AHORA y el cálculo actual. */
+    const productosSnapshot = productos.map(p => {
+      const adicional = adicionalesActuales.find(a =>
+        String(a.producto || a.nombre || '') === String(p.nombre)
+      );
+
+      let cantidadConsolidada = 0;
+      let costoConsolidado = 0;
+
+      if (resultadoCompra && Array.isArray(resultadoCompra.resultadosEsenciales)) {
+        const r = resultadoCompra.resultadosEsenciales.find(x =>
+          String(x.nombre || '') === String(p.nombre)
+        );
+        if (r) {
+          cantidadConsolidada = Number(r.cantidad || r.cantidadCompra || r.compra || 0);
+          costoConsolidado = Number(r.costo || 0);
+        }
+      }
+
+      return {
+        nombre: p.nombre,
+        unidad: p.unidad,
+        esencial: !!p.esencial,
+        minimo_semilla: Number(p.minimo || 0),
+        precio_actual: Number(p.precio || 0),
+        adicional: adicional || null,
+        cantidad_consolidada: cantidadConsolidada,
+        costo_consolidado: costoConsolidado
+      };
+    });
+
+    const snapshot = {
+      version_snapshot: '1.0',
+      fecha_generacion: new Date().toISOString(),
+      fecha_local: new Date().toLocaleString('es-PE'),
+
+      ronda_actual: ronda,
+
+      pedidos: {
+        total: pedidos.length,
+        pendientes: estados.pendiente,
+        aceptados: estados.Aceptado,
+        rechazados: estados.Rechazado,
+        detalle: JSON.parse(JSON.stringify(pedidos))
+      },
+
+      consolidado: {
+        pedidos_aceptados_considerados: aceptados.length,
+        datos: JSON.parse(JSON.stringify(consolidado || {}))
+      },
+
+      productos: productosSnapshot,
+
+      adicionales: JSON.parse(JSON.stringify(adicionalesActuales)),
+
+      regalos: JSON.parse(JSON.stringify(regalosActuales)),
+
+      compra: resultadoCompra
+        ? JSON.parse(JSON.stringify(resultadoCompra))
+        : null,
+
+      /* Copia literal de TODO lo que existe actualmente en localStorage. */
+      localStorage_completo: obtenerLocalStorageCompleto(),
+
+      navegador: {
+        url: window.location.href,
+        idioma: navigator.language,
+        zona_horaria: Intl.DateTimeFormat().resolvedOptions().timeZone
+      }
+    };
+
+    const json = JSON.stringify(snapshot, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const fecha = new Date().toISOString()
+      .replace(/[:.]/g, '-')
+      .replace('T', '_')
+      .replace('Z', '');
+
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = `compra_con_misti_snapshot_${fecha}.json`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    URL.revokeObjectURL(url);
+
+    alert('JSON generado correctamente con el estado completo actual de la compra.');
+
+  } catch (error) {
+    console.error('Error generando JSON:', error);
+    alert('No se pudo generar el JSON. Revisa la consola del navegador.');
+  }
 }
 
 
