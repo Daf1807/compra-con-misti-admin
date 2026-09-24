@@ -1301,6 +1301,15 @@ function cambiarRondaActiva(valor) {
   aplicarPreciosRondaAProductos();
   refrescarSelectorRondas();
 
+  if (rondaActiva) {
+    cargarRegalosDeRonda(rondaActiva);
+  } else {
+    regalos = [];
+    if (document.getElementById("regalosContainer")) {
+      renderRegalos();
+    }
+  }
+
   /* Si cambia la ronda, recargamos precios desde n8n automáticamente */
   if (rondaActiva) {
     /* Carga silenciosa: no alerta si falla */
@@ -2046,6 +2055,18 @@ function renderResultadoCompra() {
         Ejemplo: <strong>Caja de fruta · 1 caja · S/ 40</strong>
       </p>
       <button class="btn-add" onclick="agregarRegalo()">＋ Agregar compra</button>
+
+      <div class="actions" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
+        <button class="btn-accept" onclick="guardarRegalosEnN8N()">
+          💾 Guardar regalos en n8n
+        </button>
+        <button class="btn-refresh" onclick="cargarRegalosDeRonda(rondaActiva)">
+          ↻ Cargar regalos guardados
+        </button>
+      </div>
+
+      <div id="resultadoGuardarRegalos" style="margin-top:10px;"></div>
+
       <div id="regalosContainer" style="margin-top:15px;"></div>
       <div id="resumenRegalos" style="margin-top:15px;"></div>
     </div>
@@ -2377,6 +2398,121 @@ function escapeHTML(valor) {
 
 
 /* =====================================================
+GUARDAR / CARGAR REGALOS EN N8N
+===================================================== */
+
+async function guardarRegalosEnN8N() {
+
+  if (!rondaActiva) {
+    alert("Seleccioná una ronda activa primero.");
+    return;
+  }
+
+  if (!regalos.length) {
+    alert("No hay regalos para guardar en esta ronda.");
+    return;
+  }
+
+  const resultado = document.getElementById("resultadoGuardarRegalos");
+  if (!resultado) return;
+
+  if (!confirm(`¿Guardar ${regalos.length} regalo(s) para ${rondaActiva}?`)) {
+    return;
+  }
+
+  resultado.innerHTML = `<div class="small-note">Guardando regalos en n8n…</div>`;
+
+  try {
+
+    const items = regalos.map(rg => ({
+      id_producto: null,
+      producto: rg.producto || "Regalo",
+      unidad: rg.unidad || "unidad",
+      cantidad: Number(rg.cantidad) || 0,
+      precio_unitario: Number(rg.precio) || 0,
+      costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0)
+    }));
+
+    const response = await fetch(
+      "https://msi.tail124b59.ts.net/webhook/admin-compras-guardar",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_ronda: rondaActiva, items: items })
+      }
+    );
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json().catch(() => ({}));
+
+    resultado.innerHTML =
+      `<div class="result-good">✓ ${data.filas || items.length} regalo(s) guardado(s) para la ronda <strong>${escapeHTML(rondaActiva)}</strong></div>`;
+
+  } catch (error) {
+
+    console.error(error);
+    resultado.innerHTML =
+      `<div class="result-error">✕ No se pudieron guardar los regalos.</div>`;
+  }
+}
+
+
+async function cargarRegalosDeRonda(ronda) {
+
+  if (!ronda) return;
+
+  const resultado = document.getElementById("resultadoGuardarRegalos");
+
+  if (resultado) {
+    resultado.innerHTML = `<div class="small-note">Cargando regalos de ${escapeHTML(ronda)}…</div>`;
+  }
+
+  try {
+
+    const url =
+      "https://msi.tail124b59.ts.net/webhook/admin-compras?ronda=" +
+      encodeURIComponent(ronda);
+
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json();
+    const lista = Array.isArray(data) ? data : (data.value || []);
+
+    regalos = lista.map(item => ({
+      producto: item.producto || "",
+      cantidad: Number(item.cantidad) || 0,
+      unidad: item.unidad || "unidad",
+      precio: Number(item.precio_unitario) || 0
+    }));
+
+    guardarConfiguracion();
+
+    if (document.getElementById("regalosContainer")) {
+      renderRegalos();
+      actualizarCompraDesdeRegalos();
+    }
+
+    if (resultado) {
+      resultado.innerHTML = lista.length
+        ? `<div class="result-good">✓ ${lista.length} regalo(s) cargado(s) de la ronda <strong>${escapeHTML(ronda)}</strong></div>`
+        : `<div class="result-warning">Sin regalos guardados para <strong>${escapeHTML(ronda)}</strong>.</div>`;
+    }
+
+  } catch (error) {
+
+    console.error("Error cargando regalos:", error);
+
+    if (resultado) {
+      resultado.innerHTML =
+        `<div class="result-error">✕ No se pudieron cargar los regalos.</div>`;
+    }
+  }
+}
+
+
+/* =====================================================
 INICIO
 ===================================================== */
 
@@ -2388,6 +2524,12 @@ aplicarPreciosRondaAProductos();
 renderProductos();
 
 cargarPedidos();
+
+setTimeout(() => {
+  if (rondaActiva) {
+    cargarRegalosDeRonda(rondaActiva);
+  }
+}, 1200);
 
 /* =====================================================
 NOTA: cuando exista admin-rondas, agregar aquí:
