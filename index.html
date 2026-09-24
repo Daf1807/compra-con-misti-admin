@@ -422,6 +422,10 @@ BARRA DE RONDA ACTIVA (NUEVA)
     ✎ Manual
   </button>
 
+  <button class="btn-reject" onclick="eliminarRondaActiva()" title="Eliminar la ronda activa">
+    🗑️ Eliminar ronda
+  </button>
+
   <input
     type="text"
     id="rondaManualInput"
@@ -729,6 +733,9 @@ const API_COMPRAS_GET =
 
 const API_COMPRAS_BORRAR =
 "https://msi.tail124b59.ts.net/webhook/admin-compras-borrar";
+
+const API_PRECIOS_BORRAR =
+"https://msi.tail124b59.ts.net/webhook/admin-precios-borrar";
 
 /* TODO: cuando exista el webhook de rondas, descomentar:
 const API_RONDAS =
@@ -2592,6 +2599,81 @@ function autoGuardarRegalos() {
 /* =====================================================
 INICIO
 ===================================================== */
+
+async function eliminarRondaActiva() {
+
+  if (!rondaActiva) {
+    alert("No hay ronda activa para eliminar.");
+    return;
+  }
+
+  const ronda = rondaActiva;
+
+  if (!confirm(`¿Eliminar la ronda ${ronda} de la lista?`)) {
+    return;
+  }
+
+  const borrarEnN8N = confirm(
+    `¿También querés borrar los datos de n8n (precios y compras) de la ronda ${ronda}?\n\n` +
+    `Aceptar = borrar todo en n8n\n` +
+    `Cancelar = solo quitar del HTML`
+  );
+
+  if (borrarEnN8N) {
+    try {
+      await fetch(API_COMPRAS_BORRAR, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_ronda: ronda })
+      });
+      console.log("✓ Filas de compras_ronda borradas:", ronda);
+    } catch (e) {
+      console.warn("No se pudo borrar compras_ronda:", e);
+    }
+
+    try {
+      await fetch(API_PRECIOS_BORRAR, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_ronda: ronda })
+      });
+      console.log("✓ Filas de precios_ronda borradas:", ronda);
+    } catch (e) {
+      console.warn("No se pudo borrar precios_ronda:", e);
+    }
+  }
+
+  // Eliminar del array en memoria
+  rondasConocidas = rondasConocidas.filter(r => r !== ronda);
+
+  // Elegir siguiente ronda (la primera disponible o vacío)
+  const siguiente = rondasConocidas[0] || "";
+  rondaActiva = siguiente;
+
+  // Limpiar estado local
+  preciosRonda = {};
+  regalos = [];
+  adicionales.fill(0);
+  compraCalculada = false;
+
+  // Persistir y refrescar
+  guardarConfiguracion();
+  refrescarSelectorRondas();
+  renderPreciosRonda();
+  aplicarPreciosRondaAProductos();
+
+  const resultado = document.getElementById("resultadoCompra");
+  if (resultado) resultado.innerHTML = "Todavía no se ha calculado.";
+
+  if (rondaActiva) {
+    cargarCompraFinalDeRonda(rondaActiva);
+    cargarPreciosGuardadosSilencioso();
+  }
+
+  actualizarTodo();
+
+  alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
+}
 
 cargarConfiguracion();
 
