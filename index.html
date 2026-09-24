@@ -2418,12 +2418,23 @@ function escapeHTML(valor) {
 GUARDAR / CARGAR REGALOS EN N8N
 ===================================================== */
 
+let _guardandoRegalos = false;
+let _timeoutGuardarRegalos = null;
+
 async function guardarRegalosEnN8N() {
 
   if (!rondaActiva) return;
 
+  // Si ya hay un guardado en vuelo, no dispares otro
+  if (_guardandoRegalos) {
+    console.log("Ya hay un guardado en curso, se omite.");
+    return;
+  }
+  _guardandoRegalos = true;
+  clearTimeout(_timeoutGuardarRegalos);
+
   try {
-    // 1) Borrar filas viejas
+    // 1) Borrar filas viejas de esta ronda
     try {
       await fetch(API_COMPRAS_BORRAR, {
         method: "POST",
@@ -2434,14 +2445,20 @@ async function guardarRegalosEnN8N() {
       console.warn("No se pudieron borrar filas viejas:", e);
     }
 
-    // 2) Si no hay regalos, ya terminamos
-    if (!regalos.length) {
-      console.log("Sin regalos para guardar en", rondaActiva);
+    // 2) Filtrar solo regalos válidos (con producto o cantidad > 0)
+    const regalosValidos = regalos.filter(rg =>
+      (String(rg.producto || "").trim() !== "") ||
+      (Number(rg.cantidad) > 0)
+    );
+
+    // 3) Si no hay válidos, terminamos (la tabla queda limpia)
+    if (!regalosValidos.length) {
+      console.log("Sin regalos válidos para guardar en", rondaActiva);
       return;
     }
 
-    // 3) Armar items
-    const items = regalos.map(rg => ({
+    // 4) Armar items
+    const items = regalosValidos.map(rg => ({
       id_producto: null,
       producto: rg.producto || "Regalo",
       unidad: rg.unidad || "unidad",
@@ -2450,7 +2467,7 @@ async function guardarRegalosEnN8N() {
       costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0)
     }));
 
-    // 4) Insertar
+    // 5) Insertar
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2463,6 +2480,8 @@ async function guardarRegalosEnN8N() {
 
   } catch (error) {
     console.error("Error guardando regalos:", error);
+  } finally {
+    _guardandoRegalos = false;
   }
 }
 
@@ -2483,12 +2502,19 @@ async function cargarRegalosDeRonda(ronda) {
     const data = await response.json();
     const lista = Array.isArray(data) ? data : (data.value || []);
 
-    regalos = lista.map(item => ({
-      producto: item.producto || "",
-      cantidad: Number(item.cantidad) || 0,
-      unidad: item.unidad || "unidad",
-      precio: Number(item.precio_unitario) || 0
-    }));
+    // FILTRO: descartar filas basura (sin producto Y sin cantidad)
+    regalos = lista
+      .filter(item => {
+        const prod = String(item.producto || "").trim();
+        const cant = Number(item.cantidad) || 0;
+        return prod !== "" || cant > 0;
+      })
+      .map(item => ({
+        producto: item.producto || "",
+        cantidad: Number(item.cantidad) || 0,
+        unidad:   item.unidad || "unidad",
+        precio:   Number(item.precio_unitario) || 0
+      }));
 
     guardarConfiguracion();
 
@@ -2505,13 +2531,11 @@ async function cargarRegalosDeRonda(ronda) {
 }
 
 
-let _timeoutGuardarRegalos = null;
-
 function autoGuardarRegalos() {
   clearTimeout(_timeoutGuardarRegalos);
   _timeoutGuardarRegalos = setTimeout(() => {
-    if (rondaActiva) guardarRegalosEnN8N();
-  }, 900);
+    if (rondaActiva && !_guardandoRegalos) guardarRegalosEnN8N();
+  }, 1500);
 }
 
 
