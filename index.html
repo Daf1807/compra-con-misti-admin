@@ -721,6 +721,15 @@ const API_PRECIOS_GUARDAR =
 const API_PRECIOS_GET =
 "https://msi.tail124b59.ts.net/webhook/admin-precios";
 
+const API_COMPRAS_GUARDAR =
+"https://msi.tail124b59.ts.net/webhook/admin-compras-guardar";
+
+const API_COMPRAS_GET =
+"https://msi.tail124b59.ts.net/webhook/admin-compras";
+
+const API_COMPRAS_BORRAR =
+"https://msi.tail124b59.ts.net/webhook/admin-compras-borrar";
+
 /* TODO: cuando exista el webhook de rondas, descomentar:
 const API_RONDAS =
 "https://msi.tail124b59.ts.net/webhook/admin-rondas";
@@ -850,7 +859,9 @@ function guardarConfiguracion() {
 
       ronda: rondaActiva,
 
-      preciosRonda: preciosRonda
+      preciosRonda: preciosRonda,
+
+      rondasConocidas: [...rondasConocidas]
     };
 
     localStorage.setItem(
@@ -909,6 +920,11 @@ function cargarConfiguracion() {
     /* -------- Precios de ronda -------- */
     if (datos.preciosRonda && typeof datos.preciosRonda === "object") {
       preciosRonda = datos.preciosRonda;
+    }
+
+    /* -------- Rondas conocidas -------- */
+    if (Array.isArray(datos.rondasConocidas)) {
+      rondasConocidas = datos.rondasConocidas.map(String).filter(Boolean);
     }
 
   } catch(error) {
@@ -1305,9 +1321,7 @@ function cambiarRondaActiva(valor) {
     cargarRegalosDeRonda(rondaActiva);
   } else {
     regalos = [];
-    if (document.getElementById("regalosContainer")) {
-      renderRegalos();
-    }
+    if (document.getElementById("regalosContainer")) renderRegalos();
   }
 
   /* Si cambia la ronda, recargamos precios desde n8n automáticamente */
@@ -2163,6 +2177,7 @@ function agregarRegalo() {
   regalos.push({ producto: "", cantidad: 1, unidad: "unidad", precio: 0 });
   guardarConfiguracion();
   renderRegalos();
+  autoGuardarRegalos();
 }
 
 
@@ -2237,6 +2252,7 @@ function cambiarRegalo(index, campo, valor) {
   guardarConfiguracion();
   actualizarResumenRegalos();
   actualizarCompraDesdeRegalos();
+  autoGuardarRegalos();
 }
 
 
@@ -2245,6 +2261,7 @@ function eliminarRegalo(index) {
   guardarConfiguracion();
   renderRegalos();
   actualizarCompraDesdeRegalos();
+  autoGuardarRegalos();
 }
 
 
@@ -2403,27 +2420,27 @@ GUARDAR / CARGAR REGALOS EN N8N
 
 async function guardarRegalosEnN8N() {
 
-  if (!rondaActiva) {
-    alert("Seleccioná una ronda activa primero.");
-    return;
-  }
-
-  if (!regalos.length) {
-    alert("No hay regalos para guardar en esta ronda.");
-    return;
-  }
-
-  const resultado = document.getElementById("resultadoGuardarRegalos");
-  if (!resultado) return;
-
-  if (!confirm(`¿Guardar ${regalos.length} regalo(s) para ${rondaActiva}?`)) {
-    return;
-  }
-
-  resultado.innerHTML = `<div class="small-note">Guardando regalos en n8n…</div>`;
+  if (!rondaActiva) return;
 
   try {
+    // 1) Borrar filas viejas
+    try {
+      await fetch(API_COMPRAS_BORRAR, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_ronda: rondaActiva })
+      });
+    } catch (e) {
+      console.warn("No se pudieron borrar filas viejas:", e);
+    }
 
+    // 2) Si no hay regalos, ya terminamos
+    if (!regalos.length) {
+      console.log("Sin regalos para guardar en", rondaActiva);
+      return;
+    }
+
+    // 3) Armar items
     const items = regalos.map(rg => ({
       id_producto: null,
       producto: rg.producto || "Regalo",
@@ -2433,27 +2450,19 @@ async function guardarRegalosEnN8N() {
       costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0)
     }));
 
-    const response = await fetch(
-      "https://msi.tail124b59.ts.net/webhook/admin-compras-guardar",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_ronda: rondaActiva, items: items })
-      }
-    );
+    // 4) Insertar
+    const response = await fetch(API_COMPRAS_GUARDAR, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_ronda: rondaActiva, items: items })
+    });
 
     if (!response.ok) throw new Error("HTTP " + response.status);
 
-    const data = await response.json().catch(() => ({}));
-
-    resultado.innerHTML =
-      `<div class="result-good">✓ ${data.filas || items.length} regalo(s) guardado(s) para la ronda <strong>${escapeHTML(rondaActiva)}</strong></div>`;
+    console.log("✓ Regalos guardados en n8n:", items.length);
 
   } catch (error) {
-
-    console.error(error);
-    resultado.innerHTML =
-      `<div class="result-error">✕ No se pudieron guardar los regalos.</div>`;
+    console.error("Error guardando regalos:", error);
   }
 }
 
@@ -2462,19 +2471,13 @@ async function cargarRegalosDeRonda(ronda) {
 
   if (!ronda) return;
 
-  const resultado = document.getElementById("resultadoGuardarRegalos");
-
-  if (resultado) {
-    resultado.innerHTML = `<div class="small-note">Cargando regalos de ${escapeHTML(ronda)}…</div>`;
-  }
-
   try {
 
-    const url =
-      "https://msi.tail124b59.ts.net/webhook/admin-compras?ronda=" +
-      encodeURIComponent(ronda);
+    const response = await fetch(
+      API_COMPRAS_GET + "?ronda=" + encodeURIComponent(ronda),
+      { cache: "no-store" }
+    );
 
-    const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) throw new Error("HTTP " + response.status);
 
     const data = await response.json();
@@ -2494,21 +2497,21 @@ async function cargarRegalosDeRonda(ronda) {
       actualizarCompraDesdeRegalos();
     }
 
-    if (resultado) {
-      resultado.innerHTML = lista.length
-        ? `<div class="result-good">✓ ${lista.length} regalo(s) cargado(s) de la ronda <strong>${escapeHTML(ronda)}</strong></div>`
-        : `<div class="result-warning">Sin regalos guardados para <strong>${escapeHTML(ronda)}</strong>.</div>`;
-    }
+    console.log("✓ Regalos cargados de", ronda, ":", regalos.length);
 
   } catch (error) {
-
     console.error("Error cargando regalos:", error);
-
-    if (resultado) {
-      resultado.innerHTML =
-        `<div class="result-error">✕ No se pudieron cargar los regalos.</div>`;
-    }
   }
+}
+
+
+let _timeoutGuardarRegalos = null;
+
+function autoGuardarRegalos() {
+  clearTimeout(_timeoutGuardarRegalos);
+  _timeoutGuardarRegalos = setTimeout(() => {
+    if (rondaActiva) guardarRegalosEnN8N();
+  }, 900);
 }
 
 
