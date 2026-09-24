@@ -598,7 +598,7 @@ PRECIOS DE LA RONDA ACTUAL (NUEVA SECCIÓN)
     </table>
   </div>
 
-  <div class="actions" style="margin-top:15px;" id="preciosRondaActions" style="display:none;">
+  <div class="actions" id="preciosRondaActions" style="margin-top:15px; display:none;">
     <button class="btn-save-prices" onclick="registrarPreciosRonda()">
       💾 Registrar precios de la ronda
     </button>
@@ -833,6 +833,9 @@ let preciosRonda = {};
 /* Lista de rondas conocidas (por ahora solo pedidos + manual) */
 let rondasConocidas = [];
 
+  /* Rondas eliminadas por el usuario (no deben reaparecer aunque n8n las devuelva) */
+  let rondasEliminadas = [];
+
 
 /* =====================================================
 PERSISTENCIA LOCAL
@@ -868,7 +871,9 @@ function guardarConfiguracion() {
 
       preciosRonda: preciosRonda,
 
-      rondasConocidas: [...rondasConocidas]
+      rondasConocidas: [...rondasConocidas],
+
+      rondasEliminadas: [...rondasEliminadas]
     };
 
     localStorage.setItem(
@@ -932,6 +937,11 @@ function cargarConfiguracion() {
     /* -------- Rondas conocidas -------- */
     if (Array.isArray(datos.rondasConocidas)) {
       rondasConocidas = datos.rondasConocidas.map(String).filter(Boolean);
+    }
+
+    /* -------- Rondas eliminadas -------- */
+    if (Array.isArray(datos.rondasEliminadas)) {
+      rondasEliminadas = datos.rondasEliminadas.map(String).filter(Boolean);
     }
 
   } catch(error) {
@@ -1068,6 +1078,7 @@ function renderPreciosRonda() {
   const header  = document.getElementById("preciosRondaHeader");
   const wrapper = document.getElementById("preciosRondaWrapper");
   const actions = document.getElementById("preciosRondaActions");
+  const body    = document.getElementById("preciosRondaBody");
 
   if (!rondaActiva) {
     header.style.display = "block";
@@ -1075,6 +1086,7 @@ function renderPreciosRonda() {
       "Sin ronda activa. Elegí o creá una ronda arriba.";
     wrapper.style.display = "none";
     actions.style.display = "none";
+    if (body) body.innerHTML = "";   // ← NUEVO: limpia las filas viejas
     return;
   }
 
@@ -1085,8 +1097,6 @@ function renderPreciosRonda() {
 
   wrapper.style.display = "block";
   actions.style.display = "flex";
-
-  const body = document.getElementById("preciosRondaBody");
 
   body.innerHTML = PRODUCTOS_PRECIOS.map(pp => {
 
@@ -1290,6 +1300,9 @@ function refrescarSelectorRondas() {
   pedidos.forEach(p => { if (p.ronda_id) setRondas.add(p.ronda_id); });
   if (rondaActiva) setRondas.add(rondaActiva);
 
+  /* Quitar las rondas que el usuario eliminó explícitamente */
+  rondasEliminadas.forEach(r => setRondas.delete(r));
+
   const lista = [...setRondas].sort();
 
   selector.innerHTML = `<option value="">— Sin ronda —</option>`;
@@ -1394,6 +1407,10 @@ function crearNuevaRonda() {
   const nueva = `R-${yyyy}-${mm}-${dd}`;
 
   rondasConocidas.push(nueva);
+
+  /* Si estaba marcada como eliminada, el usuario la está recreando */
+  rondasEliminadas = rondasEliminadas.filter(r => r !== nueva);
+
   rondaActiva = nueva;
   preciosRonda = {};
   guardarConfiguracion();
@@ -1422,6 +1439,10 @@ function aplicarRondaManual() {
   if (!valor) return;
 
   rondasConocidas.push(valor);
+
+  /* Si estaba marcada como eliminada, el usuario la está recreando */
+  rondasEliminadas = rondasEliminadas.filter(r => r !== valor);
+
   rondaActiva = valor;
   guardarConfiguracion();
 
@@ -2646,6 +2667,14 @@ async function eliminarRondaActiva() {
   // Eliminar del array en memoria
   rondasConocidas = rondasConocidas.filter(r => r !== ronda);
 
+  // Recordar que esta ronda fue eliminada (para que no reaparezca desde pedidos/n8n)
+  if (!rondasEliminadas.includes(ronda)) {
+    rondasEliminadas.push(ronda);
+  }
+
+  // Cancelar cualquier autoguardado pendiente hacia esta ronda
+  clearTimeout(_timeoutGuardarRegalos);
+
   // Elegir siguiente ronda (la primera disponible o vacío)
   const siguiente = rondasConocidas[0] || "";
   rondaActiva = siguiente;
@@ -2655,6 +2684,12 @@ async function eliminarRondaActiva() {
   regalos = [];
   adicionales.fill(0);
   compraCalculada = false;
+
+  // Limpiar la tabla de precios en el DOM inmediatamente
+  const preciosBodyEl = document.getElementById("preciosRondaBody");
+  if (preciosBodyEl) preciosBodyEl.innerHTML = "";
+  const preciosStatusEl = document.getElementById("preciosRondaStatus");
+  if (preciosStatusEl) preciosStatusEl.textContent = "";
 
   // Persistir y refrescar
   guardarConfiguracion();
