@@ -1318,9 +1318,10 @@ function cambiarRondaActiva(valor) {
   refrescarSelectorRondas();
 
   if (rondaActiva) {
-    cargarRegalosDeRonda(rondaActiva);
+    cargarCompraFinalDeRonda(rondaActiva);
   } else {
     regalos = [];
+    adicionales.fill(0);
     if (document.getElementById("regalosContainer")) renderRegalos();
   }
 
@@ -1844,11 +1845,11 @@ function obtenerResultadosEsenciales(datos) {
 
     const minimoConsolidado = minimoSemilla + minimoBasica + minimoFamiliar;
     const compraMinima      = Math.ceil(minimoConsolidado);
-    const adicional         = Number(adicionales[index]) || 0;
-    const compraTotal       = compraMinima + adicional;
+    const compraFinalManual = Number(adicionales[index]) || 0;
+    const compraFinal = compraFinalManual > 0 ? compraFinalManual : compraMinima;
 
     const costoMinimo = compraMinima * p.precio;
-    const costo       = compraTotal  * p.precio;
+    const costo       = compraFinal * p.precio;
 
     return {
       index,
@@ -1860,8 +1861,7 @@ function obtenerResultadosEsenciales(datos) {
       minimoFamiliar,
       minimoConsolidado,
       compraMinima,
-      adicional,
-      compraTotal,
+      compraFinal,
       costoMinimo,
       costo
     };
@@ -2028,10 +2028,8 @@ function renderResultadoCompra() {
           <thead>
             <tr>
               <th>Producto</th>
-              <th>Mínimo consolidado</th>
-              <th>Compra mínima</th>
-              <th>Adicional</th>
-              <th>Compra total</th>
+              <th>Mínimo (ref.)</th>
+              <th>Compra final</th>
               <th>Precio</th>
               <th>Costo</th>
             </tr>
@@ -2043,17 +2041,18 @@ function renderResultadoCompra() {
                   <strong>${escapeHTML(p.nombre)}</strong><br>
                   <small>${escapeHTML(p.unidad)}</small>
                 </td>
-                <td id="minimo-${p.index}">${formatearCantidad(p.minimoConsolidado)}</td>
-                <td id="compraMinima-${p.index}"><strong>${formatearCantidad(p.compraMinima)}</strong></td>
+                <td>
+                  <span class="muted">${formatearCantidad(p.compraMinima)}</span>
+                </td>
                 <td>
                   <input
                     type="number" min="0" step="0.01"
-                    value="${p.adicional}"
-                    oninput="cambiarAdicional(${p.index}, this.value)"
+                    id="compraFinal-${p.index}"
+                    value="${p.compraFinal || p.compraMinima}"
+                    oninput="cambiarCompraFinal(${p.index}, this.value)"
                   >
                 </td>
-                <td id="compraTotal-${p.index}"><strong>${formatearCantidad(p.compraTotal)}</strong></td>
-                <td id="precioResultado-${p.index}">${soles(p.precio)}</td>
+                <td>${soles(p.precio)}</td>
                 <td id="costo-${p.index}">${soles(p.costo)}</td>
               </tr>
             `).join("")}
@@ -2070,17 +2069,6 @@ function renderResultadoCompra() {
       </p>
       <button class="btn-add" onclick="agregarRegalo()">＋ Agregar compra</button>
 
-      <div class="actions" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
-        <button class="btn-accept" onclick="guardarRegalosEnN8N()">
-          💾 Guardar regalos en n8n
-        </button>
-        <button class="btn-refresh" onclick="cargarRegalosDeRonda(rondaActiva)">
-          ↻ Cargar regalos guardados
-        </button>
-      </div>
-
-      <div id="resultadoGuardarRegalos" style="margin-top:10px;"></div>
-
       <div id="regalosContainer" style="margin-top:15px;"></div>
       <div id="resumenRegalos" style="margin-top:15px;"></div>
     </div>
@@ -2095,6 +2083,25 @@ function renderResultadoCompra() {
       <br><br>
       <span class="purchase-total">Saldo disponible:</span>
       <strong id="resumenSaldo" class="live-balance">${soles(r.saldoReal)}</strong>
+    </div>
+  `;
+
+  html += `
+    <div class="purchase-section" style="margin-top:20px;">
+      <h3>Guardar compra final en n8n</h3>
+      <p class="small-note">
+        Guarda TODA la compra de esta ronda (esenciales + regalos) en la tabla
+        compras_ronda. Reemplaza lo anterior de esta ronda.
+      </p>
+      <div class="actions" style="gap:10px;flex-wrap:wrap;">
+        <button class="btn-accept" onclick="guardarCompraFinalEnN8N()">
+          💾 Guardar compra final en n8n
+        </button>
+        <button class="btn-refresh" onclick="cargarCompraFinalDeRonda(rondaActiva)">
+          ↻ Cargar compra final
+        </button>
+      </div>
+      <div id="resultadoGuardarCompra" style="margin-top:10px;"></div>
     </div>
   `;
 
@@ -2114,14 +2121,10 @@ function actualizarDOMCompraEnVivo() {
 
   r.resultadosEsenciales.forEach(p => {
     const m = document.getElementById(`minimo-${p.index}`);
-    const cm = document.getElementById(`compraMinima-${p.index}`);
-    const ct = document.getElementById(`compraTotal-${p.index}`);
     const pr = document.getElementById(`precioResultado-${p.index}`);
     const co = document.getElementById(`costo-${p.index}`);
 
-    if (m)  m.textContent = formatearCantidad(p.minimoConsolidado);
-    if (cm) cm.innerHTML  = `<strong>${formatearCantidad(p.compraMinima)}</strong>`;
-    if (ct) ct.innerHTML  = `<strong>${formatearCantidad(p.compraTotal)}</strong>`;
+    if (m)  m.textContent = formatearCantidad(p.compraMinima);
     if (pr) pr.textContent = soles(p.precio);
     if (co) co.textContent = soles(p.costo);
   });
@@ -2156,10 +2159,11 @@ function actualizarDOMCompraEnVivo() {
 ADICIONALES
 ===================================================== */
 
-function cambiarAdicional(index, valor) {
+function cambiarCompraFinal(index, valor) {
   adicionales[index] = Number(valor) || 0;
   guardarConfiguracion();
   if (compraCalculada) recalcularCompraEnVivo();
+  autoGuardarRegalos();
 }
 
 
@@ -2421,17 +2425,15 @@ GUARDAR / CARGAR REGALOS EN N8N
 let _guardandoRegalos = false;
 let _timeoutGuardarRegalos = null;
 
-async function guardarRegalosEnN8N() {
+async function guardarCompraFinalEnN8N() {
 
   if (!rondaActiva) return;
 
-  // Si ya hay un guardado en vuelo, no dispares otro
-  if (_guardandoRegalos) {
-    console.log("Ya hay un guardado en curso, se omite.");
+  const r = window.ultimoResultadoCompra;
+  if (!r) {
+    console.warn("No hay compra calculada para guardar.");
     return;
   }
-  _guardandoRegalos = true;
-  clearTimeout(_timeoutGuardarRegalos);
 
   try {
     // 1) Borrar filas viejas de esta ronda
@@ -2445,29 +2447,39 @@ async function guardarRegalosEnN8N() {
       console.warn("No se pudieron borrar filas viejas:", e);
     }
 
-    // 2) Filtrar solo regalos válidos (con producto o cantidad > 0)
-    const regalosValidos = regalos.filter(rg =>
-      (String(rg.producto || "").trim() !== "") ||
-      (Number(rg.cantidad) > 0)
-    );
+    // 2) Armar items: esenciales + regalos
+    const itemsEsenciales = r.resultadosEsenciales
+      .filter(p => Number(p.compraFinal) > 0)
+      .map(p => ({
+        id_producto: buscarIdProductoEsencial(p.nombre),
+        producto: p.nombre,
+        unidad: p.unidad,
+        cantidad: Number(p.compraFinal) || 0,
+        precio_unitario: Number(p.precio) || 0,
+        costo: (Number(p.compraFinal) || 0) * (Number(p.precio) || 0),
+        tipo: "esencial"
+      }));
 
-    // 3) Si no hay válidos, terminamos (la tabla queda limpia)
-    if (!regalosValidos.length) {
-      console.log("Sin regalos válidos para guardar en", rondaActiva);
+    const itemsRegalos = regalos
+      .filter(rg => (rg.producto && rg.producto.trim()) || Number(rg.cantidad) > 0)
+      .map(rg => ({
+        id_producto: null,
+        producto: rg.producto || "Regalo",
+        unidad: rg.unidad || "unidad",
+        cantidad: Number(rg.cantidad) || 0,
+        precio_unitario: Number(rg.precio) || 0,
+        costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0),
+        tipo: "regalo"
+      }));
+
+    const items = [...itemsEsenciales, ...itemsRegalos];
+
+    if (!items.length) {
+      console.log("Sin items para guardar en", rondaActiva);
       return;
     }
 
-    // 4) Armar items
-    const items = regalosValidos.map(rg => ({
-      id_producto: null,
-      producto: rg.producto || "Regalo",
-      unidad: rg.unidad || "unidad",
-      cantidad: Number(rg.cantidad) || 0,
-      precio_unitario: Number(rg.precio) || 0,
-      costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0)
-    }));
-
-    // 5) Insertar
+    // 3) Insertar
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2476,22 +2488,37 @@ async function guardarRegalosEnN8N() {
 
     if (!response.ok) throw new Error("HTTP " + response.status);
 
-    console.log("✓ Regalos guardados en n8n:", items.length);
+    console.log("✓ Compra final guardada en n8n:", items.length, "items");
+
+    const resultado = document.getElementById("resultadoGuardarCompra");
+    if (resultado) {
+      resultado.innerHTML = `<div class="result-good">✓ Guardados ${items.length} item(s) en n8n (${itemsEsenciales.length} esenciales + ${itemsRegalos.length} regalos)</div>`;
+    }
 
   } catch (error) {
-    console.error("Error guardando regalos:", error);
-  } finally {
-    _guardandoRegalos = false;
+    console.error("Error guardando compra final:", error);
+    const resultado = document.getElementById("resultadoGuardarCompra");
+    if (resultado) {
+      resultado.innerHTML = `<div class="result-error">✕ No se pudo guardar la compra final.</div>`;
+    }
   }
 }
 
 
-async function cargarRegalosDeRonda(ronda) {
+function buscarIdProductoEsencial(nombre) {
+  if (typeof PRODUCTOS_PRECIOS === "undefined" || !Array.isArray(PRODUCTOS_PRECIOS)) {
+    return null;
+  }
+  const encontrado = PRODUCTOS_PRECIOS.find(pp => pp.nombre === nombre);
+  return encontrado ? encontrado.id : null;
+}
+
+
+async function cargarCompraFinalDeRonda(ronda) {
 
   if (!ronda) return;
 
   try {
-
     const response = await fetch(
       API_COMPRAS_GET + "?ronda=" + encodeURIComponent(ronda),
       { cache: "no-store" }
@@ -2502,31 +2529,54 @@ async function cargarRegalosDeRonda(ronda) {
     const data = await response.json();
     const lista = Array.isArray(data) ? data : (data.value || []);
 
-    // FILTRO: descartar filas basura (sin producto Y sin cantidad)
-    regalos = lista
-      .filter(item => {
-        const prod = String(item.producto || "").trim();
-        const cant = Number(item.cantidad) || 0;
-        return prod !== "" || cant > 0;
-      })
-      .map(item => ({
-        producto: item.producto || "",
-        cantidad: Number(item.cantidad) || 0,
-        unidad:   item.unidad || "unidad",
-        precio:   Number(item.precio_unitario) || 0
-      }));
+    // Filtrar filas válidas
+    const filas = lista.filter(f =>
+      f && f.producto && Number(f.cantidad) > 0
+    );
+
+    const filasEsenciales = filas.filter(f =>
+      String(f.tipo || "").toLowerCase() === "esencial"
+    );
+    const filasRegalos = filas.filter(f =>
+      String(f.tipo || "").toLowerCase() === "regalo" ||
+      String(f.tipo || "").toLowerCase() === ""
+    );
+
+    // Cargar compra final de esenciales en `adicionales`
+    adicionales.fill(0);
+    filasEsenciales.forEach(f => {
+      const idx = productos.findIndex(p => p.nombre === f.producto);
+      if (idx >= 0) {
+        adicionales[idx] = Number(f.cantidad) || 0;
+      }
+    });
+
+    // Cargar regalos
+    regalos = filasRegalos.map(item => ({
+      producto: item.producto || "",
+      cantidad: Number(item.cantidad) || 0,
+      unidad: item.unidad || "unidad",
+      precio: Number(item.precio_unitario) || 0
+    }));
 
     guardarConfiguracion();
+
+    // Refrescar UI
+    if (compraCalculada) {
+      recalcularCompraEnVivo();
+    }
 
     if (document.getElementById("regalosContainer")) {
       renderRegalos();
       actualizarCompraDesdeRegalos();
     }
 
-    console.log("✓ Regalos cargados de", ronda, ":", regalos.length);
+    console.log("✓ Compra final cargada de", ronda, "-",
+      filasEsenciales.length, "esenciales,",
+      filasRegalos.length, "regalos");
 
   } catch (error) {
-    console.error("Error cargando regalos:", error);
+    console.error("Error cargando compra final:", error);
   }
 }
 
@@ -2534,8 +2584,8 @@ async function cargarRegalosDeRonda(ronda) {
 function autoGuardarRegalos() {
   clearTimeout(_timeoutGuardarRegalos);
   _timeoutGuardarRegalos = setTimeout(() => {
-    if (rondaActiva && !_guardandoRegalos) guardarRegalosEnN8N();
-  }, 1500);
+    if (rondaActiva) guardarCompraFinalEnN8N();
+  }, 900);
 }
 
 
@@ -2554,7 +2604,7 @@ cargarPedidos();
 
 setTimeout(() => {
   if (rondaActiva) {
-    cargarRegalosDeRonda(rondaActiva);
+    cargarCompraFinalDeRonda(rondaActiva);
   }
 }, 1200);
 
