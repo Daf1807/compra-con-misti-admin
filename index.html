@@ -371,7 +371,7 @@ td { font-size: 14px; }
 .gift-row-input { min-width: 120px; }
 
 /* ═══════════════════════════════════════════════════════
-   LAYOUT NUEVO — NAVEGACIÓN EN 5 VISTAS
+   LAYOUT NUEVO — NAVEGACIÓN EN 6 VISTAS
    ═══════════════════════════════════════════════════════ */
 
 .app-shell {
@@ -581,6 +581,87 @@ td { font-size: 14px; }
 .summary-mini-col .row:last-child { border-bottom: 0; }
 .summary-mini-col .row .val { font-weight: bold; }
 
+/* Reportes */
+.reportes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.reportes-acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.reporte-meta {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 9px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.reporte-meta strong { color: #222; }
+
+.reporte-cuadro {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.reporte-cuadro h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  color: #b71c1c;
+}
+
+.reporte-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+.reporte-tabla td {
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed #eee;
+}
+.reporte-tabla tr:last-child td { border-bottom: 0; }
+.reporte-tabla .concepto { color: #444; }
+.reporte-tabla .monto    { text-align: right; font-weight: bold; width: 140px; }
+.reporte-tabla .subtotal {
+  border-top: 2px solid #ddd;
+  padding-top: 8px;
+  font-weight: bold;
+}
+.reporte-tabla .titulo-seccion {
+  padding-top: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #999;
+  border-bottom: 0;
+}
+
+.reporte-final {
+  margin-top: 14px;
+}
+
+.snapshot-aviso {
+  background: #fff8e1;
+  border-left: 5px solid #f9a825;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
 @media(max-width:1000px) {
   .cards        { grid-template-columns: repeat(2,1fr); }
   .summary-grid { grid-template-columns: repeat(2,1fr); }
@@ -623,6 +704,70 @@ td { font-size: 14px; }
   .fin-result .num { font-size: 26px; }
 }
 
+/* ═══════════════════════════════════════════════════════
+   IMPRESIÓN — SOLO REPORTES
+   ═══════════════════════════════════════════════════════ */
+
+@media print {
+  header,
+  .roundbar,
+  .topbar,
+  .sidebar,
+  .cards,
+  .dash-hero,
+  .dash-row,
+  #view-dashboard,
+  #view-pedidos,
+  #view-configuracion,
+  #view-compra,
+  #view-cierre,
+  .modal,
+  .nav-btn,
+  .btn-refresh,
+  .btn-json,
+  .btn-accept,
+  .btn-reject,
+  .btn-detail,
+  .btn-add,
+  .btn-delete,
+  .btn-save-prices,
+  .btn-load-prices,
+  .btn-calculate,
+  .btn-round-new,
+  .btn-round-manual,
+  #selectorReporteHistorico,
+  .reportes-acciones {
+    display: none !important;
+  }
+
+  #view-reportes {
+    display: block !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12px;
+  }
+
+  .container { padding: 0 !important; }
+  .app-shell { display: block !important; }
+  .main-col  { width: 100% !important; }
+
+  .section, .info-box, .formula-box, .reporte-cuadro {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+    margin-bottom: 12px;
+  }
+
+  .fin-result { page-break-inside: avoid; }
+  .fin-result.good { background: #e8f5e9 !important; }
+  .fin-result.bad  { background: #f8d7da !important; }
+}
+
 </style>
 
 </head>
@@ -650,6 +795,7 @@ td { font-size: 14px; }
     <button class="nav-btn"        data-view="configuracion" onclick="mostrarVista('configuracion')">⚙️ Configuración</button>
     <button class="nav-btn"        data-view="compra"        onclick="mostrarVista('compra')">🛒 Compra</button>
     <button class="nav-btn"        data-view="cierre"        onclick="mostrarVista('cierre')">🔒 Cierre</button>
+    <button class="nav-btn"        data-view="reportes"      onclick="mostrarVista('reportes')">📊 Reportes</button>
   </nav>
 
   <div class="main-col">
@@ -1046,6 +1192,46 @@ td { font-size: 14px; }
 
     </section>
 
+    <!-- ══════════════════════════════════════════════════
+         VISTA 6 — REPORTES
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-reportes">
+
+      <div class="section">
+        <h2 class="section-head">📊 Reportes de la ronda</h2>
+        <p class="section-sub">P&L · Flujo de Caja · Balance — calculados en n8n</p>
+
+        <div class="anchor-notice">
+          Los reportes se calculan en n8n con los datos ya guardados en
+          <strong>pedidos_admin</strong>, <strong>compras_ronda</strong>,
+          <strong>gastos_ronda</strong> y <strong>ventas_excedente</strong>.
+          El HTML solo muestra el resultado.
+        </div>
+
+        <div class="reportes-header">
+          <div class="reportes-acciones">
+            <button class="btn-calculate" onclick="calcularReportes()">🔄 Calcular reportes</button>
+            <button class="btn-accept" onclick="guardarSnapshotReporte()">💾 Guardar snapshot</button>
+            <button class="btn-refresh" onclick="descargarReportePDF()">⬇️ PDF</button>
+            <button class="btn-json" onclick="descargarReporteCSV()">⬇️ CSV</button>
+            <button class="btn-json" onclick="descargarReporteJSON()">⬇️ JSON</button>
+          </div>
+
+          <div>
+            <select id="selectorReporteHistorico" onchange="cambiarReporteHistorico(this.value)">
+              <option value="">— Ronda activa —</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="resultadoSnapshot" style="margin-top:10px;"></div>
+        <div id="reportesContenido" style="margin-top:14px;">
+          <div class="small-note">Seleccioná una ronda en la barra superior y presioná "🔄 Calcular reportes".</div>
+        </div>
+      </div>
+
+    </section>
+
   </div><!-- /main-col -->
 
 </div><!-- /app-shell -->
@@ -1107,6 +1293,16 @@ const API_COMPRAS_BORRAR =
 
 const API_PRECIOS_BORRAR =
 "https://msi.tail124b59.ts.net/webhook/admin-precios-borrar";
+
+/* APIs NUEVAS — Reportes */
+const API_REPORTES =
+"https://msi.tail124b59.ts.net/webhook/admin-reportes";
+
+const API_REPORTES_GUARDAR =
+"https://msi.tail124b59.ts.net/webhook/admin-reportes-guardar";
+
+const API_REPORTES_HISTORIAL =
+"https://msi.tail124b59.ts.net/webhook/admin-reportes-historial";
 
 let pedidos = [];
 
@@ -1204,6 +1400,11 @@ let excedentesRonda = [];
 /* cache del último mensaje de guardado (para sincronizar vistas) */
 let ultimoMensajeGuardado = "";
 
+/* reportes */
+let reporteActual = null;
+let snapshotsGuardados = [];
+let rondaReporteActiva = "";
+
 
 /* =====================================================
 NAVEGACIÓN ENTRE VISTAS
@@ -1224,6 +1425,10 @@ function mostrarVista(nombre) {
 
   if (nombre === "cierre") {
     renderResumenFinancieroAmpliado();
+  }
+
+  if (nombre === "reportes") {
+    renderReportes();
   }
 }
 
@@ -1731,6 +1936,9 @@ function cambiarRondaActiva(valor) {
   gastosRonda = [];
   excedentesRonda = [];
 
+  reporteActual = null;
+  rondaReporteActiva = "";
+
   rondaActiva = valor || "";
   guardarConfiguracion();
 
@@ -1761,6 +1969,8 @@ function cambiarRondaActiva(valor) {
   if (typeof renderResumenFinancieroAmpliado === "function") {
     renderResumenFinancieroAmpliado();
   }
+
+  if (typeof renderReportes === "function") renderReportes();
 }
 
 
@@ -1821,6 +2031,9 @@ function crearNuevaRonda() {
 
   gastosRonda = [];
   excedentesRonda = [];
+
+  reporteActual = null;
+  rondaReporteActiva = "";
 
   guardarConfiguracion();
 
@@ -2788,7 +3001,6 @@ function actualizarDOMCompraEnVivo() {
 
 /* =====================================================
 RESUMEN FINANCIERO AMPLIADO — VISTA CIERRE
-Fórmula estricta: resultadoNeto = saldoReal − gastos + excedentes
 ===================================================== */
 
 function renderResumenFinancieroAmpliado() {
@@ -3204,7 +3416,6 @@ function actualizarGastoRonda(index, campo, valor) {
     totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
   }
 
-  /* Refrescar los valores del resumen final si está visible */
   const gastosEl = document.getElementById("resumenGastos");
   if (gastosEl) gastosEl.textContent = soles(totalGastosRonda());
 
@@ -3332,7 +3543,6 @@ function actualizarExcedenteRonda(index, campo, valor) {
     totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
   }
 
-  /* Refrescar los valores del resumen final si está visible */
   const excedentesEl = document.getElementById("resumenExcedentes");
   if (excedentesEl) excedentesEl.textContent = soles(totalExcedentesRonda());
 
@@ -3398,6 +3608,11 @@ function actualizarTodo() {
 
   if (compraCalculada) {
     calcularCompra();
+  }
+
+  if (document.getElementById("view-reportes") &&
+      document.getElementById("view-reportes").classList.contains("active")) {
+    renderReportes();
   }
 }
 
@@ -3724,6 +3939,487 @@ function autoGuardarRegalos() {
 
 
 /* =====================================================
+REPORTES — NUEVA VISTA
+===================================================== */
+
+function renderReportes() {
+
+  const cont = document.getElementById("reportesContenido");
+  if (!cont) return;
+
+  if (!rondaActiva) {
+    cont.innerHTML =
+      `<div class="result-warning">
+        <strong>Seleccioná una ronda en la barra superior.</strong>
+      </div>`;
+    return;
+  }
+
+  if (!reporteActual) {
+    cont.innerHTML =
+      `<div class="info-box">
+        Presioná <strong>🔄 Calcular reportes</strong> para obtener el P&L,
+        el Flujo de Caja y el Balance de la ronda
+        <strong>${escapeHTML(rondaActiva)}</strong> desde n8n.
+      </div>`;
+    return;
+  }
+
+  renderCuadrosReporte(reporteActual);
+}
+
+
+function renderCuadrosReporte(data) {
+
+  const cont = document.getElementById("reportesContenido");
+  if (!cont || !data) return;
+
+  const pl = data.pl || {};
+  const flujo = data.flujo || {};
+  const balance = data.balance || {};
+
+  const ing = pl.ingresos || {};
+  const cogs = pl.cogs || {};
+  const gastos = pl.gastos || {};
+
+  const cfo = flujo.cfo || {};
+  const cfi = flujo.cfi || {};
+  const cff = flujo.cff || {};
+  const vari = flujo.variacion || {};
+
+  const act = balance.activos || {};
+  const pas = balance.pasivos || {};
+  const pat = balance.patrimonio || {};
+  const ver = balance.verificacion || {};
+
+  const utilidadNeta = Number(pl.utilidad_neta || 0);
+  const claseUtilidad = utilidadNeta >= 0 ? "good" : "bad";
+
+  const cajaFinal = Number(vari.caja_final || 0);
+  const claseCaja = cajaFinal >= 0 ? "good" : "bad";
+
+  const cuadra = Boolean(ver.cuadra);
+  const claseBalance = cuadra ? "good" : "bad";
+
+  const esSnapshot = rondaReporteActiva !== rondaActiva;
+
+  let html = "";
+
+  if (esSnapshot) {
+    html += `<div class="snapshot-aviso">
+      ⚠ Estás viendo un <strong>snapshot histórico</strong> de la ronda
+      <strong>${escapeHTML(data.id_ronda || "")}</strong>. No se recalcula.
+    </div>`;
+  }
+
+  html += `
+    <div class="reporte-meta">
+      <div><strong>Ronda:</strong> ${escapeHTML(data.id_ronda || rondaActiva)}</div>
+      <div><strong>Fecha de cálculo:</strong> ${escapeHTML(data.fecha_calculo || "-")}</div>
+      <div><strong>Fuente:</strong> n8n · admin-reportes</div>
+    </div>
+  `;
+
+  /* -------- CUADRO 1: P&L -------- */
+  html += `
+    <div class="reporte-cuadro">
+      <h3>📈 Estado de Resultados (P&L)</h3>
+      <table class="reporte-tabla">
+        <tr><td class="titulo-seccion" colspan="2">INGRESOS</td></tr>
+        <tr><td class="concepto">Canastas aceptadas</td><td class="monto">${soles(ing.canastas)}</td></tr>
+        <tr><td class="concepto">Excedentes</td><td class="monto">${soles(ing.excedentes)}</td></tr>
+        <tr><td class="concepto subtotal">TOTAL INGRESOS</td><td class="monto subtotal">${soles(ing.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">COGS</td></tr>
+        <tr><td class="concepto">Compra a proveedor</td><td class="monto">(${soles(cogs.compras)})</td></tr>
+        <tr><td class="concepto subtotal">MARGEN BRUTO</td><td class="monto subtotal">${soles(pl.margen_bruto)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">GASTOS OPERATIVOS</td></tr>
+        <tr><td class="concepto">Transporte</td><td class="monto">(${soles(gastos.transporte)})</td></tr>
+        <tr><td class="concepto">Empaque</td><td class="monto">(${soles(gastos.empaque)})</td></tr>
+        <tr><td class="concepto">Sueldo</td><td class="monto">(${soles(gastos.sueldo)})</td></tr>
+        <tr><td class="concepto">Otro</td><td class="monto">(${soles(gastos.otro)})</td></tr>
+        <tr><td class="concepto subtotal">TOTAL GASTOS</td><td class="monto subtotal">(${soles(gastos.total)})</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">RESULTADO</td></tr>
+        <tr><td class="concepto">EBIT</td><td class="monto">${soles(pl.ebit)}</td></tr>
+        <tr><td class="concepto">Impuestos (1.5% MYPE)</td><td class="monto">(${soles(pl.impuestos)})</td></tr>
+      </table>
+
+      <div class="fin-result ${claseUtilidad} reporte-final">
+        <div class="lbl">UTILIDAD NETA</div>
+        <div class="num">${soles(utilidadNeta)}</div>
+      </div>
+    </div>
+  `;
+
+  /* -------- CUADRO 2: FLUJO DE CAJA -------- */
+  html += `
+    <div class="reporte-cuadro">
+      <h3>💵 Flujo de Caja</h3>
+      <table class="reporte-tabla">
+        <tr><td class="titulo-seccion" colspan="2">FLUJO OPERATIVO</td></tr>
+        <tr><td class="concepto">+ Cobros clientes</td><td class="monto">${soles(cfo.cobros)}</td></tr>
+        <tr><td class="concepto">+ Excedentes</td><td class="monto">${soles(cfo.excedentes)}</td></tr>
+        <tr><td class="concepto">− Pagos proveedor</td><td class="monto">(${soles(cfo.pagos_proveedor)})</td></tr>
+        <tr><td class="concepto">− Pagos gastos</td><td class="monto">(${soles(cfo.pagos_gastos)})</td></tr>
+        <tr><td class="concepto subtotal">CFO</td><td class="monto subtotal">${soles(cfo.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">FLUJO INVERSIÓN</td></tr>
+        <tr><td class="concepto">CFI</td><td class="monto">${soles(cfi.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">FLUJO FINANCIAMIENTO</td></tr>
+        <tr><td class="concepto">Aportes Misti</td><td class="monto">${soles(cff.aportes)}</td></tr>
+        <tr><td class="concepto">Retiros Misti</td><td class="monto">(${soles(cff.retiros)})</td></tr>
+        <tr><td class="concepto subtotal">CFF</td><td class="monto subtotal">${soles(cff.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">VARIACIÓN</td></tr>
+        <tr><td class="concepto">ΔCaja</td><td class="monto">${soles(vari.delta_caja)}</td></tr>
+        <tr><td class="concepto">Caja inicial</td><td class="monto">${soles(vari.caja_inicial)}</td></tr>
+      </table>
+
+      <div class="fin-result ${claseCaja} reporte-final">
+        <div class="lbl">CAJA FINAL</div>
+        <div class="num">${soles(cajaFinal)}</div>
+      </div>
+    </div>
+  `;
+
+  /* -------- CUADRO 3: BALANCE -------- */
+  html += `
+    <div class="reporte-cuadro">
+      <h3>⚖️ Balance General</h3>
+      <table class="reporte-tabla">
+        <tr><td class="titulo-seccion" colspan="2">ACTIVOS</td></tr>
+        <tr><td class="concepto">Caja</td><td class="monto">${soles(act.caja)}</td></tr>
+        <tr><td class="concepto">Inventario</td><td class="monto">${soles(act.inventario)}</td></tr>
+        <tr><td class="concepto">CxC</td><td class="monto">${soles(act.cxc)}</td></tr>
+        <tr><td class="concepto">Equipo</td><td class="monto">${soles(act.equipo)}</td></tr>
+        <tr><td class="concepto subtotal">TOTAL ACTIVOS</td><td class="monto subtotal">${soles(act.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">PASIVOS</td></tr>
+        <tr><td class="concepto">CxP</td><td class="monto">${soles(pas.cxp)}</td></tr>
+        <tr><td class="concepto">Ingresos diferidos</td><td class="monto">${soles(pas.ingresos_diferidos)}</td></tr>
+        <tr><td class="concepto subtotal">TOTAL PASIVOS</td><td class="monto subtotal">${soles(pas.total)}</td></tr>
+
+        <tr><td class="titulo-seccion" colspan="2">PATRIMONIO</td></tr>
+        <tr><td class="concepto">Capital</td><td class="monto">${soles(pat.capital)}</td></tr>
+        <tr><td class="concepto">Resultados acumulados</td><td class="monto">${soles(pat.resultados_acumulados)}</td></tr>
+        <tr><td class="concepto subtotal">TOTAL PATRIMONIO</td><td class="monto subtotal">${soles(pat.total)}</td></tr>
+      </table>
+
+      <div class="fin-result ${claseBalance} reporte-final">
+        <div class="lbl">ACTIVOS = PASIVOS + PATRIMONIO</div>
+        <div class="num">${cuadra ? "✓" : "✗"}</div>
+      </div>
+    </div>
+  `;
+
+  cont.innerHTML = html;
+}
+
+
+async function calcularReportes() {
+
+  if (!rondaActiva) {
+    alert("Primero elegí una ronda.");
+    return;
+  }
+
+  const cont = document.getElementById("reportesContenido");
+  if (cont) {
+    cont.innerHTML = `<div class="small-note">Calculando reportes en n8n…</div>`;
+  }
+
+  try {
+    const url = API_REPORTES + "?ronda=" + encodeURIComponent(rondaActiva);
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json();
+
+    let payload = null;
+    if (Array.isArray(data) && data.length) payload = data[0];
+    else if (Array.isArray(data.value) && data.value.length) payload = data.value[0];
+    else if (data && typeof data === "object") payload = data;
+
+    if (!payload || !payload.pl) {
+      throw new Error("Respuesta sin datos de reporte");
+    }
+
+    reporteActual = payload;
+    rondaReporteActiva = rondaActiva;
+
+    renderReportes();
+
+  } catch (error) {
+    console.error("Error calculando reportes:", error);
+    if (cont) {
+      cont.innerHTML = `<div class="result-error">
+        ✕ No se pudieron calcular los reportes.<br>
+        Verificá que el webhook <code>admin-reportes</code> esté activo en n8n.
+      </div>`;
+    }
+  }
+}
+
+
+async function guardarSnapshotReporte() {
+
+  if (!reporteActual) {
+    alert("Primero calculá los reportes.");
+    return;
+  }
+
+  const cont = document.getElementById("resultadoSnapshot");
+
+  try {
+    const response = await fetch(API_REPORTES_GUARDAR, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id_ronda: reporteActual.id_ronda || rondaActiva,
+        snapshot: reporteActual
+      })
+    });
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    if (cont) {
+      cont.innerHTML = `<div class="result-good">
+        ✓ Snapshot guardado para la ronda ${escapeHTML(reporteActual.id_ronda || rondaActiva)}.
+      </div>`;
+    }
+
+    cargarHistorialReportes();
+
+  } catch (error) {
+    console.error("Error guardando snapshot:", error);
+    if (cont) {
+      cont.innerHTML = `<div class="result-error">
+        ✕ No se pudo guardar el snapshot.<br>
+        Verificá que el webhook <code>admin-reportes-guardar</code> esté activo.
+      </div>`;
+    }
+  }
+}
+
+
+function descargarReportePDF() {
+  if (!reporteActual) {
+    alert("Primero calculá los reportes.");
+    return;
+  }
+  window.print();
+}
+
+
+function descargarReporteCSV() {
+
+  if (!reporteActual) {
+    alert("Primero calculá los reportes.");
+    return;
+  }
+
+  const ronda = reporteActual.id_ronda || rondaActiva;
+  const fecha = new Date().toISOString().slice(0, 10);
+
+  const pl = reporteActual.pl || {};
+  const flujo = reporteActual.flujo || {};
+  const balance = reporteActual.balance || {};
+
+  const csvPL = [
+    ["P&L", ""],
+    ["Concepto", "Monto"],
+    ["Canastas", pl.ingresos?.canastas || 0],
+    ["Excedentes", pl.ingresos?.excedentes || 0],
+    ["Total ingresos", pl.ingresos?.total || 0],
+    ["Compra a proveedor", -(pl.cogs?.compras || 0)],
+    ["Margen bruto", pl.margen_bruto || 0],
+    ["Gastos transporte", -(pl.gastos?.transporte || 0)],
+    ["Gastos empaque", -(pl.gastos?.empaque || 0)],
+    ["Gastos sueldo", -(pl.gastos?.sueldo || 0)],
+    ["Gastos otro", -(pl.gastos?.otro || 0)],
+    ["Total gastos", -(pl.gastos?.total || 0)],
+    ["EBIT", pl.ebit || 0],
+    ["Impuestos", -(pl.impuestos || 0)],
+    ["Utilidad neta", pl.utilidad_neta || 0]
+  ];
+
+  const csvFlujo = [
+    ["Flujo de Caja", ""],
+    ["Concepto", "Monto"],
+    ["Cobros clientes", flujo.cfo?.cobros || 0],
+    ["Excedentes", flujo.cfo?.excedentes || 0],
+    ["Pagos proveedor", -(flujo.cfo?.pagos_proveedor || 0)],
+    ["Pagos gastos", -(flujo.cfo?.pagos_gastos || 0)],
+    ["CFO", flujo.cfo?.total || 0],
+    ["CFI", flujo.cfi?.total || 0],
+    ["Aportes", flujo.cff?.aportes || 0],
+    ["Retiros", -(flujo.cff?.retiros || 0)],
+    ["CFF", flujo.cff?.total || 0],
+    ["ΔCaja", flujo.variacion?.delta_caja || 0],
+    ["Caja inicial", flujo.variacion?.caja_inicial || 0],
+    ["Caja final", flujo.variacion?.caja_final || 0]
+  ];
+
+  const csvBalance = [
+    ["Balance", ""],
+    ["Concepto", "Monto"],
+    ["Caja", balance.activos?.caja || 0],
+    ["Inventario", balance.activos?.inventario || 0],
+    ["CxC", balance.activos?.cxc || 0],
+    ["Equipo", balance.activos?.equipo || 0],
+    ["Total activos", balance.activos?.total || 0],
+    ["CxP", balance.pasivos?.cxp || 0],
+    ["Ingresos diferidos", balance.pasivos?.ingresos_diferidos || 0],
+    ["Total pasivos", balance.pasivos?.total || 0],
+    ["Capital", balance.patrimonio?.capital || 0],
+    ["Resultados acumulados", balance.patrimonio?.resultados_acumulados || 0],
+    ["Total patrimonio", balance.patrimonio?.total || 0],
+    ["Verificación cuadra", balance.verificacion?.cuadra ? "SÍ" : "NO"]
+  ];
+
+  descargarCSV(csvPL, `reporte_${ronda}_PL_${fecha}.csv`);
+  descargarCSV(csvFlujo, `reporte_${ronda}_FLUJO_${fecha}.csv`);
+  descargarCSV(csvBalance, `reporte_${ronda}_BALANCE_${fecha}.csv`);
+}
+
+
+function descargarCSV(filas, nombre) {
+
+  const contenido = filas.map(fila =>
+    fila.map(celda => {
+      const s = String(celda == null ? "" : celda);
+      if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }).join(",")
+  ).join("\n");
+
+  const blob = new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+function descargarReporteJSON() {
+
+  if (!reporteActual) {
+    alert("Primero calculá los reportes.");
+    return;
+  }
+
+  const ronda = reporteActual.id_ronda || rondaActiva;
+  const fecha = new Date().toISOString().slice(0, 10);
+
+  const json = JSON.stringify(reporteActual, null, 2);
+  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `reporte_${ronda}_${fecha}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+
+async function cargarHistorialReportes() {
+
+  try {
+    const response = await fetch(API_REPORTES_HISTORIAL, { cache: "no-store" });
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    let lista = [];
+    if (Array.isArray(data))            lista = data;
+    else if (Array.isArray(data.value)) lista = data.value;
+
+    snapshotsGuardados = lista;
+
+    const selector = document.getElementById("selectorReporteHistorico");
+    if (!selector) return;
+
+    const actual = selector.value;
+
+    selector.innerHTML = `<option value="">— Ronda activa —</option>`;
+
+    lista.forEach(s => {
+      const id = s.id_ronda || s.ronda || "";
+      const fecha = s.fecha_cierre || s.fecha || "";
+      if (!id) return;
+      selector.innerHTML +=
+        `<option value="${escapeHTML(id)}">Ronda ${escapeHTML(id)} · cerrada ${escapeHTML(fecha)}</option>`;
+    });
+
+    if (actual) selector.value = actual;
+
+  } catch (error) {
+    console.warn("No se pudo cargar el historial de reportes:", error);
+  }
+}
+
+
+function cambiarReporteHistorico(idRonda) {
+
+  if (!idRonda) {
+    reporteActual = null;
+    rondaReporteActiva = "";
+    renderReportes();
+    return;
+  }
+
+  const snap = snapshotsGuardados.find(s =>
+    String(s.id_ronda || s.ronda) === String(idRonda)
+  );
+
+  if (!snap) {
+    alert("No se encontró el snapshot de la ronda " + idRonda);
+    return;
+  }
+
+  let payload = null;
+  if (snap.snapshot_json) {
+    try {
+      payload = typeof snap.snapshot_json === "string"
+        ? JSON.parse(snap.snapshot_json)
+        : snap.snapshot_json;
+    } catch (e) {
+      console.warn("snapshot_json inválido", e);
+    }
+  } else {
+    payload = snap;
+  }
+
+  if (!payload) {
+    alert("El snapshot está vacío.");
+    return;
+  }
+
+  reporteActual = payload;
+  rondaReporteActiva = idRonda;
+
+  renderReportes();
+}
+
+
+function renderReporteDesdeSnapshot(snapshot) {
+  renderCuadrosReporte(snapshot);
+}
+
+
+/* =====================================================
 ELIMINAR RONDA ACTIVA
 ===================================================== */
 
@@ -3789,6 +4485,9 @@ async function eliminarRondaActiva() {
   gastosRonda = [];
   excedentesRonda = [];
 
+  reporteActual = null;
+  rondaReporteActiva = "";
+
   const preciosBodyEl = document.getElementById("preciosRondaBody");
   if (preciosBodyEl) preciosBodyEl.innerHTML = "";
   const preciosStatusEl = document.getElementById("preciosRondaStatus");
@@ -3818,6 +4517,8 @@ async function eliminarRondaActiva() {
     renderResumenFinancieroAmpliado();
   }
 
+  if (typeof renderReportes === "function") renderReportes();
+
   alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
 }
 
@@ -3840,7 +4541,54 @@ setTimeout(() => {
     cargarCompraFinalDeRonda(rondaActiva);
   }
   renderResumenFinancieroAmpliado();
+  cargarHistorialReportes();
 }, 1200);
+
+/* =====================================================
+NOTAS DE INTEGRACIÓN
+=====================================================
+Funciones existentes modificadas:
+- mostrarVista: se agregó el bloque que llama a renderReportes()
+  cuando el nombre es "reportes".
+- cambiarRondaActiva: se agregó al inicio el reset de reporteActual
+  y rondaReporteActiva, y al final la llamada a renderReportes().
+- crearNuevaRonda: se agregó el reset de reporteActual y rondaReporteActiva.
+- eliminarRondaActiva: se agregó el reset de reporteActual, rondaReporteActiva
+  y la llamada final a renderReportes().
+- actualizarTodo: se agregó al final la llamada a renderReportes() si la
+  vista de reportes está activa.
+- guardarConfiguracion: NO se modificó (reporteActual y snapshotsGuardados
+  no se persisten, son efímeros).
+- cargarConfiguracion: NO se modificó.
+
+Funciones nuevas creadas:
+- renderReportes
+- renderCuadrosReporte
+- calcularReportes
+- guardarSnapshotReporte
+- descargarReportePDF
+- descargarReporteCSV
+- descargarCSV
+- descargarReporteJSON
+- cargarHistorialReportes
+- cambiarReporteHistorico
+- renderReporteDesdeSnapshot
+
+APIs nuevas:
+- API_REPORTES
+- API_REPORTES_GUARDAR
+- API_REPORTES_HISTORIAL
+
+Variables nuevas:
+- reporteActual
+- snapshotsGuardados
+- rondaReporteActiva
+
+Webhooks nuevos a crear en n8n:
+- admin-reportes (GET)
+- admin-reportes-guardar (POST)
+- admin-reportes-historial (GET)
+===================================================== */
 
 </script>
 
