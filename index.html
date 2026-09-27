@@ -370,23 +370,232 @@ td { font-size: 14px; }
 
 .gift-row-input { min-width: 120px; }
 
+/* ═══════════════════════════════════════════════════════
+   LAYOUT NUEVO — NAVEGACIÓN EN 5 VISTAS
+   ═══════════════════════════════════════════════════════ */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  top: 18px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+.sidebar-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #999;
+  letter-spacing: .06em;
+  margin: 4px 8px 10px;
+}
+
+.nav-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: #333;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 4px;
+  border: 0;
+  cursor: pointer;
+}
+
+.nav-btn:hover { background: #f2f2f2; }
+
+.nav-btn.active {
+  background: #b71c1c;
+  color: #fff;
+}
+
+.main-col { min-width: 0; }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* Dashboard */
+.dash-hero {
+  background: linear-gradient(135deg, #b71c1c, #7f1010);
+  color: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 18px;
+}
+
+.dash-hero .label { font-size: 12px; opacity: .85; letter-spacing: .04em; text-transform: uppercase; }
+.dash-hero .big   { font-size: 38px; font-weight: bold; margin-top: 6px; line-height: 1; }
+.dash-hero .mid   { font-size: 22px; font-weight: bold; margin-top: 8px; }
+
+.dash-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dash-tile {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+
+.dash-tile .t-label { color: #777; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.dash-tile .t-value { font-size: 26px; font-weight: bold; margin-top: 6px; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: bold;
+  font-size: 13px;
+}
+.pill-pendiente { background: #fff3cd; color: #856404; }
+.pill-aceptado  { background: #d4edda; color: #155724; }
+.pill-rechazado { background: #f8d7da; color: #721c24; }
+
+.section-head {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+.section-sub {
+  margin: 0 0 16px;
+  color: #777;
+  font-size: 13px;
+}
+
+/* Secuencia del flujo de compra */
+.flow-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.flow-chip {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #444;
+}
+.flow-arrow { color: #b71c1c; font-weight: bold; }
+
+/* Resumen financiero ampliado */
+.fin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.fin-col {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 14px;
+}
+.fin-col h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #666;
+}
+.fin-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed #e5e5e5;
+  font-size: 14px;
+}
+.fin-row:last-child { border-bottom: 0; }
+.fin-row .val { font-weight: bold; }
+
+.fin-result {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.fin-result.good { background: #e8f5e9; border-left: 6px solid #2e7d32; }
+.fin-result.bad  { background: #f8d7da; border-left: 6px solid #c62828; }
+.fin-result .lbl { font-size: 14px; font-weight: bold; color: #444; }
+.fin-result .num { font-size: 32px; font-weight: bold; }
+.fin-result.good .num { color: #2e7d32; }
+.fin-result.bad  .num { color: #c62828; }
+
+/* Ancla para gastos / excedentes */
+.anchor-notice {
+  background: #fff8e1;
+  border-left: 5px solid #f9a825;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
 @media(max-width:1000px) {
   .cards        { grid-template-columns: repeat(2,1fr); }
   .summary-grid { grid-template-columns: repeat(2,1fr); }
   .budget-grid  { grid-template-columns: repeat(2,1fr); }
   .canasta-grid { grid-template-columns: 1fr; }
   .filters      { grid-template-columns: 1fr; }
+
+  .app-shell    { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 8px;
+  }
+  .sidebar-title { display: none; }
+  .nav-btn {
+    width: auto;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+  .dash-hero    { grid-template-columns: 1fr; }
+  .dash-row     { grid-template-columns: repeat(2,1fr); }
+  .fin-grid     { grid-template-columns: 1fr; }
 }
 
 @media(max-width:600px) {
   .cards,
   .summary-grid,
   .budget-grid,
-  .canasta-grid { grid-template-columns: 1fr; }
+  .canasta-grid,
+  .dash-row     { grid-template-columns: 1fr; }
 
   .container { padding: 10px; }
   header h1  { font-size: 22px; }
   th, td     { min-width: 100px; }
+  .dash-hero .big { font-size: 30px; }
+  .fin-result .num { font-size: 26px; }
 }
 
 </style>
@@ -404,294 +613,419 @@ td { font-size: 14px; }
 
 <div class="container">
 
-<!-- =====================================================
-BARRA DE RONDA ACTIVA
-====================================================== -->
-<div class="roundbar">
-  <label>Ronda activa:</label>
+<div class="app-shell">
 
-  <select id="rondaActiva" onchange="cambiarRondaActiva(this.value)">
-    <option value="">— Sin ronda —</option>
-  </select>
+  <!-- ══════════════════════════════════════════════════
+       SIDEBAR / TABS DE NAVEGACIÓN
+       ══════════════════════════════════════════════════ -->
+  <nav class="sidebar" id="appNav">
+    <div class="sidebar-title">Vistas</div>
+    <button class="nav-btn active" data-view="dashboard"     onclick="mostrarVista('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn"        data-view="pedidos"       onclick="mostrarVista('pedidos')">🧾 Pedidos</button>
+    <button class="nav-btn"        data-view="configuracion" onclick="mostrarVista('configuracion')">⚙️ Configuración</button>
+    <button class="nav-btn"        data-view="compra"        onclick="mostrarVista('compra')">🛒 Compra</button>
+    <button class="nav-btn"        data-view="cierre"        onclick="mostrarVista('cierre')">🔒 Cierre</button>
+  </nav>
 
-  <button class="btn-round-new" onclick="crearNuevaRonda()">
-    ＋ Nueva ronda
-  </button>
+  <div class="main-col">
 
-  <button class="btn-round-manual" onclick="toggleManualRonda()">
-    ✎ Manual
-  </button>
+    <!-- =====================================================
+    BARRA DE RONDA ACTIVA (siempre visible)
+    ====================================================== -->
+    <div class="roundbar">
+      <label>Ronda activa:</label>
 
-  <button class="btn-reject" onclick="eliminarRondaActiva()" title="Eliminar la ronda activa">
-    🗑️ Eliminar ronda
-  </button>
+      <select id="rondaActiva" onchange="cambiarRondaActiva(this.value)">
+        <option value="">— Sin ronda —</option>
+      </select>
 
-  <input
-    type="text"
-    id="rondaManualInput"
-    class="round-manual-input"
-    placeholder="R-YYYY-MM-DD"
-    onkeydown="if(event.key==='Enter') aplicarRondaManual()"
-  >
+      <button class="btn-round-new" onclick="crearNuevaRonda()">
+        ＋ Nueva ronda
+      </button>
 
-  <div class="spacer"></div>
+      <button class="btn-round-manual" onclick="toggleManualRonda()">
+        ✎ Manual
+      </button>
 
-  <span class="small-note" id="rondaActivaInfo">Sin ronda seleccionada</span>
-</div>
+      <button class="btn-reject" onclick="eliminarRondaActiva()" title="Eliminar la ronda activa">
+        🗑️ Eliminar ronda
+      </button>
 
-<!-- =====================================================
-CONEXIÓN
-====================================================== -->
-<div class="topbar">
-  <div id="connectionStatus">Conectando con n8n…</div>
-  <div class="actions">
-    <button class="btn-refresh" onclick="cargarPedidos()">↻ Actualizar</button>
-    <button class="btn-json" onclick="generarJSONCompra()"
-      title="Descarga un JSON con el estado completo actual de la compra">
-      ⇩ Generar JSON
-    </button>
-  </div>
-</div>
+      <input
+        type="text"
+        id="rondaManualInput"
+        class="round-manual-input"
+        placeholder="R-YYYY-MM-DD"
+        onkeydown="if(event.key==='Enter') aplicarRondaManual()"
+      >
 
-<!-- =====================================================
-RESUMEN
-====================================================== -->
-<div class="cards">
-  <div class="card"><div class="card-title">Pedidos</div><div class="card-value" id="totalPedidos">0</div></div>
-  <div class="card"><div class="card-title">Pendientes</div><div class="card-value" id="totalPendientes">0</div></div>
-  <div class="card"><div class="card-title">Aceptados</div><div class="card-value" id="totalAceptados">0</div></div>
-  <div class="card"><div class="card-title">Dinero comprometido</div><div class="card-value" id="dineroComprometido">S/ 0.00</div></div>
-</div>
+      <div class="spacer"></div>
 
-<!-- =====================================================
-PEDIDOS
-====================================================== -->
-<div class="section">
-  <h2>Pedidos</h2>
-
-  <div class="filters">
-    <input id="buscar" placeholder="Buscar cliente o celular..." oninput="renderPedidos()">
-    <select id="filtroEstado" onchange="renderPedidos()">
-      <option value="">Todos los estados</option>
-      <option value="pendiente">Pendiente</option>
-      <option value="Aceptado">Aceptado</option>
-      <option value="Rechazado">Rechazado</option>
-    </select>
-    <select id="filtroRonda" onchange="onFiltroRondaCambia()" style="display:none;"></select>
-  </div>
-
-  <div class="table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Celular</th>
-          <th>Canastas</th>
-          <th>Total</th>
-          <th>Estado</th>
-          <th>Ronda</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="pedidosBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- =====================================================
-MODELO DE CANASTAS
-====================================================== -->
-<div class="section">
-  <h2>Estructura de las canastas</h2>
-  <p class="section-description">
-    Las tres canastas participan en la misma compra colectiva.
-    No tienen listas de productos diferentes.
-    La diferencia está en la cantidad económica de participación.
-  </p>
-
-  <div class="canasta-grid">
-    <div class="canasta-box">
-      <h3>🌱 Semilla</h3>
-      <div class="canasta-price">S/ 15</div>
-      <div class="canasta-factor">Factor: <strong>1.00</strong></div>
+      <span class="small-note" id="rondaActivaInfo">Sin ronda seleccionada</span>
     </div>
-    <div class="canasta-box">
-      <h3>🧺 Básica</h3>
-      <div class="canasta-price">S/ 25</div>
-      <div class="canasta-factor">Factor: <strong>1.6667</strong></div>
+
+    <!-- =====================================================
+    BARRA DE CONEXIÓN (siempre visible)
+    ====================================================== -->
+    <div class="topbar">
+      <div id="connectionStatus">Conectando con n8n…</div>
+      <div class="actions">
+        <button class="btn-refresh" onclick="cargarPedidos()">↻ Actualizar</button>
+        <button class="btn-json" onclick="generarJSONCompra()"
+          title="Descarga un JSON con el estado completo actual de la compra">
+          ⇩ Generar JSON
+        </button>
+      </div>
     </div>
-    <div class="canasta-box">
-      <h3>👨‍👩‍👧‍👦 Familiar</h3>
-      <div class="canasta-price">S/ 35</div>
-      <div class="canasta-factor">Factor: <strong>2.3333</strong></div>
-    </div>
-  </div>
 
-  <div class="info-box">
-    <strong>Regla fundamental</strong><br><br>
-    Los 24 productos son el universo de productos que Misti puede utilizar.<br><br>
-    Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
-    Los productos esenciales tienen un mínimo garantizado para una Semilla.<br><br>
-    La Básica y Familiar no tienen mínimos independientes:
-    la máquina los calcula mediante sus factores económicos.<br><br>
-    Los demás productos pueden comprarse como variedad,
-    adicional o regalo, pero no forman parte del compromiso
-    mínimo de la canasta.
-  </div>
-</div>
+    <!-- ══════════════════════════════════════════════════
+         VISTA 1 — DASHBOARD
+         ══════════════════════════════════════════════════ -->
+    <section class="view active" id="view-dashboard">
 
-<!-- =====================================================
-CONSOLIDADO
-====================================================== -->
-<div class="section">
-  <h2>Consolidado de la ronda</h2>
+      <div class="dash-hero">
+        <div>
+          <div class="label">Dinero comprometido</div>
+          <div class="big" id="dineroComprometido">S/ 0.00</div>
+        </div>
+        <div>
+          <div class="label">Presupuesto alimentos · 65%</div>
+          <div class="mid" id="presupuestoAlimentos">S/ 0.00</div>
+        </div>
+        <div>
+          <div class="label">Operaciones · 35%</div>
+          <div class="mid" id="presupuestoOperaciones">S/ 0.00</div>
+        </div>
+      </div>
 
-  <div id="roundDescription">Selecciona una ronda.</div>
+      <div class="dash-row">
+        <div class="dash-tile">
+          <div class="t-label">Pedidos totales</div>
+          <div class="t-value" id="totalPedidos">0</div>
+        </div>
+        <div class="dash-tile">
+          <div class="t-label">Pendientes</div>
+          <div class="t-value" id="totalPendientes">0</div>
+        </div>
+        <div class="dash-tile">
+          <div class="t-label">Aceptados</div>
+          <div class="t-value" id="totalAceptados">0</div>
+        </div>
+        <div class="dash-tile">
+          <div class="t-label">Rechazados</div>
+          <div class="t-value" id="totalRechazados">0</div>
+        </div>
+      </div>
 
-  <div class="summary-grid">
-    <div class="summary-box">Familias aceptadas<strong id="familiasAceptadas">0</strong></div>
-    <div class="summary-box">Semillas<strong id="semillasAceptadas">0</strong></div>
-    <div class="summary-box">Básicas<strong id="basicasAceptadas">0</strong></div>
-    <div class="summary-box">Familiares<strong id="familiaresAceptadas">0</strong></div>
-    <div class="summary-box">Equivalentes Semilla<strong id="equivalenteSemilla">0.00</strong></div>
-  </div>
+      <div class="section">
+        <h2 class="section-head">Composición de la ronda</h2>
+        <p class="section-sub">Solo pedidos aceptados de la ronda activa.</p>
 
-  <div class="budget-grid">
-    <div class="budget-box">Dinero comprometido<strong id="presupuestoTotal">S/ 0.00</strong></div>
-    <div class="budget-box">Operaciones · 35%<strong id="presupuestoOperaciones">S/ 0.00</strong></div>
-    <div class="budget-box">Alimentos · 65%<strong id="presupuestoAlimentos">S/ 0.00</strong></div>
-    <div class="budget-box">Excedente / déficit<strong id="saldoPresupuesto">S/ 0.00</strong></div>
-  </div>
-</div>
+        <div id="roundDescription">Selecciona una ronda.</div>
 
-<!-- =====================================================
-PRECIOS DE LA RONDA ACTUAL
-====================================================== -->
-<div class="section">
-  <h2>📋 Precios de la ronda actual</h2>
+        <div class="summary-grid" style="margin-top:14px;">
+          <div class="summary-box">Familias aceptadas<strong id="familiasAceptadas">0</strong></div>
+          <div class="summary-box">Semillas<strong id="semillasAceptadas">0</strong></div>
+          <div class="summary-box">Básicas<strong id="basicasAceptadas">0</strong></div>
+          <div class="summary-box">Familiares<strong id="familiaresAceptadas">0</strong></div>
+          <div class="summary-box">Equivalentes Semilla<strong id="equivalenteSemilla">0.00</strong></div>
+        </div>
 
-  <p class="section-description">
-    Carga aquí los precios minorista y mayorista de los 10 productos base
-    de la ronda activa. Estos precios se usan automáticamente en el cálculo
-    de la compra.
-    <br><br>
-    <strong>Si registrás la misma ronda otra vez, se reemplazan los precios anteriores.</strong>
-  </p>
+        <div class="budget-grid">
+          <div class="budget-box">Dinero comprometido<strong id="presupuestoTotal">S/ 0.00</strong></div>
+          <div class="budget-box">Operaciones · 35%<strong id="presupuestoOperaciones2">S/ 0.00</strong></div>
+          <div class="budget-box">Alimentos · 65%<strong id="presupuestoAlimentos2">S/ 0.00</strong></div>
+          <div class="budget-box">Saldo (alimentos − compra)<strong id="saldoPresupuesto">S/ 0.00</strong></div>
+        </div>
+      </div>
 
-  <div id="preciosRondaHeader" class="info-box">
-    Sin ronda activa. Elegí o creá una ronda arriba.
-  </div>
+    </section>
 
-  <div class="table-scroll" id="preciosRondaWrapper" style="display:none;">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Producto</th>
-          <th>Unidad</th>
-          <th>Precio minorista (S/)</th>
-          <th>Precio mayorista (S/)</th>
-        </tr>
-      </thead>
-      <tbody id="preciosRondaBody"></tbody>
-    </table>
-  </div>
+    <!-- ══════════════════════════════════════════════════
+         VISTA 2 — PEDIDOS
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-pedidos">
 
-  <div class="actions" id="preciosRondaActions" style="margin-top:15px; display:none;">
-    <button class="btn-save-prices" onclick="registrarPreciosRonda()">
-      💾 Registrar precios de la ronda
-    </button>
-    <button class="btn-load-prices" onclick="cargarPreciosGuardados()">
-      ↻ Cargar precios guardados
-    </button>
-  </div>
+      <div class="section">
+        <h2 class="section-head">Pedidos</h2>
+        <p class="section-sub">Búsqueda, filtro por estado y acciones Aceptar / Rechazar / Detalle.</p>
 
-  <div id="preciosRondaStatus" class="small-note" style="margin-top:10px;"></div>
-</div>
+        <div class="filters">
+          <input id="buscar" placeholder="Buscar cliente o celular..." oninput="renderPedidos()">
+          <select id="filtroEstado" onchange="renderPedidos()">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="Aceptado">Aceptado</option>
+            <option value="Rechazado">Rechazado</option>
+          </select>
+          <select id="filtroRonda" onchange="onFiltroRondaCambia()" style="display:none;"></select>
+        </div>
 
-<!-- =====================================================
-CONFIGURACIÓN DE PRODUCTOS
-====================================================== -->
-<div class="section">
-  <h2>Universo de productos y esenciales</h2>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Celular</th>
+                <th>Canastas</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Ronda</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosBody"></tbody>
+          </table>
+        </div>
+      </div>
 
-  <p class="section-description">
-    Los 24 productos permanecen disponibles para la compra.
-    Aquí decides cuáles forman parte del compromiso esencial.
-    <br><br>
-    <strong>No necesitas definir mínimos para todos.</strong>
-    Marca solamente los productos que quieras garantizar
-    y coloca su mínimo para una Semilla.
-    <br><br>
-    <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
-    "Precios de la ronda actual".
-  </p>
+    </section>
 
-  <div class="info-box">
-    <strong>¿Qué significa "Esencial"?</strong><br><br>
-    Un producto esencial sí entra en el cálculo obligatorio de la ronda.<br><br>
-    Un producto no esencial permanece disponible,
-    pero no se promete automáticamente a las familias.<br><br>
-    Esto permite que la variedad cambie de una ronda a otra
-    sin aumentar el compromiso.
-  </div>
+    <!-- ══════════════════════════════════════════════════
+         VISTA 3 — CONFIGURACIÓN
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-configuracion">
 
-  <div class="table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th>Esencial</th>
-          <th>Producto</th>
-          <th>Unidad</th>
-          <th>Mínimo Semilla</th>
-          <th>Básica × 1.6667</th>
-          <th>Familiar × 2.3333</th>
-          <th>Precio mercado (ronda)</th>
-        </tr>
-      </thead>
-      <tbody id="productosBody"></tbody>
-    </table>
-  </div>
-</div>
+      <!-- Modelo de canastas -->
+      <div class="section">
+        <h2 class="section-head">Estructura de las canastas</h2>
+        <p class="section-description">
+          Las tres canastas participan en la misma compra colectiva.
+          No tienen listas de productos diferentes.
+          La diferencia está en la cantidad económica de participación.
+        </p>
 
-<!-- =====================================================
-ALGORITMO
-====================================================== -->
-<div class="section">
-  <h2>Calcular compra</h2>
+        <div class="canasta-grid">
+          <div class="canasta-box">
+            <h3>🌱 Semilla</h3>
+            <div class="canasta-price">S/ 15</div>
+            <div class="canasta-factor">Factor: <strong>1.00</strong></div>
+          </div>
+          <div class="canasta-box">
+            <h3>🧺 Básica</h3>
+            <div class="canasta-price">S/ 25</div>
+            <div class="canasta-factor">Factor: <strong>1.6667</strong></div>
+          </div>
+          <div class="canasta-box">
+            <h3>👨‍👩‍👧‍👦 Familiar</h3>
+            <div class="canasta-price">S/ 35</div>
+            <div class="canasta-factor">Factor: <strong>2.3333</strong></div>
+          </div>
+        </div>
 
-  <div class="formula-box">
-    Para cada producto esencial:<br><br>
-    Mínimo consolidado =
-    (Semillas × mínimo Semilla)
-    + (Básicas × mínimo Semilla × 1.6667)
-    + (Familiares × mínimo Semilla × 2.3333)
-    <br><br>
-    Compra mínima = redondear hacia arriba( mínimo consolidado )
-    <br><br>
-    Compra real = compra mínima + adicional decidido por administradora
-    <br><br>
-    Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
-  </div>
+        <div class="info-box">
+          <strong>Regla fundamental</strong><br><br>
+          Los 24 productos son el universo de productos que Misti puede utilizar.<br><br>
+          Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
+          Los productos esenciales tienen un mínimo garantizado para una Semilla.<br><br>
+          La Básica y Familiar no tienen mínimos independientes:
+          la máquina los calcula mediante sus factores económicos.<br><br>
+          Los demás productos pueden comprarse como variedad,
+          adicional o regalo, pero no forman parte del compromiso
+          mínimo de la canasta.
+        </div>
+      </div>
 
-  <div class="info-box">
-    <strong>El algoritmo primero protege lo esencial.</strong><br><br>
-    Después de cubrir los mínimos esenciales,
-    el dinero que quede disponible puede utilizarse
-    para variedad o regalo.<br><br>
-    Esa variedad no modifica el mínimo garantizado
-    y no crea una nueva obligación para las familias.<br><br>
-    <strong>Los cambios numéricos se actualizan automáticamente.</strong>
-  </div>
+      <!-- Precios de la ronda -->
+      <div class="section">
+        <h2 class="section-head">📋 Precios de la ronda actual</h2>
 
-  <button class="btn-calculate" onclick="calcularCompra()">
-    Calcular compra
-  </button>
+        <p class="section-description">
+          Carga aquí los precios minorista y mayorista de los 10 productos base
+          de la ronda activa. Estos precios se usan automáticamente en el cálculo
+          de la compra.
+          <br><br>
+          <strong>Si registrás la misma ronda otra vez, se reemplazan los precios anteriores.</strong>
+        </p>
 
-  <div id="resultadoCompra" style="margin-top:20px;">
-    Todavía no se ha calculado.
-  </div>
-</div>
+        <div id="preciosRondaHeader" class="info-box">
+          Sin ronda activa. Elegí o creá una ronda arriba.
+        </div>
+
+        <div class="table-scroll" id="preciosRondaWrapper" style="display:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Unidad</th>
+                <th>Precio minorista (S/)</th>
+                <th>Precio mayorista (S/)</th>
+              </tr>
+            </thead>
+            <tbody id="preciosRondaBody"></tbody>
+          </table>
+        </div>
+
+        <div class="actions" id="preciosRondaActions" style="margin-top:15px; display:none;">
+          <button class="btn-save-prices" onclick="registrarPreciosRonda()">
+            💾 Registrar precios de la ronda
+          </button>
+          <button class="btn-load-prices" onclick="cargarPreciosGuardados()">
+            ↻ Cargar precios guardados
+          </button>
+        </div>
+
+        <div id="preciosRondaStatus" class="small-note" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- Universo de productos y esenciales -->
+      <div class="section">
+        <h2 class="section-head">Universo de productos y esenciales</h2>
+
+        <p class="section-description">
+          Los 24 productos permanecen disponibles para la compra.
+          Aquí decides cuáles forman parte del compromiso esencial.
+          <br><br>
+          <strong>No necesitas definir mínimos para todos.</strong>
+          Marca solamente los productos que quieras garantizar
+          y coloca su mínimo para una Semilla.
+          <br><br>
+          <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
+          "Precios de la ronda actual".
+        </p>
+
+        <div class="info-box">
+          <strong>¿Qué significa "Esencial"?</strong><br><br>
+          Un producto esencial sí entra en el cálculo obligatorio de la ronda.<br><br>
+          Un producto no esencial permanece disponible,
+          pero no se promete automáticamente a las familias.<br><br>
+          Esto permite que la variedad cambie de una ronda a otra
+          sin aumentar el compromiso.
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Esencial</th>
+                <th>Producto</th>
+                <th>Unidad</th>
+                <th>Mínimo Semilla</th>
+                <th>Básica × 1.6667</th>
+                <th>Familiar × 2.3333</th>
+                <th>Precio mercado (ronda)</th>
+              </tr>
+            </thead>
+            <tbody id="productosBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         VISTA 4 — COMPRA
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-compra">
+
+      <div class="section">
+        <h2 class="section-head">Calcular compra</h2>
+        <p class="section-sub">Flujo: presupuesto → mínimo esencial → compra real → variedad → saldo.</p>
+
+        <div class="flow-strip">
+          <span class="flow-chip">PRESUPUESTO</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">MÍNIMO</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">COMPRA REAL</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">VARIEDAD</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">SALDO</span>
+        </div>
+
+        <div class="formula-box">
+          Para cada producto esencial:<br><br>
+          Mínimo consolidado =
+          (Semillas × mínimo Semilla)
+          + (Básicas × mínimo Semilla × 1.6667)
+          + (Familiares × mínimo Semilla × 2.3333)
+          <br><br>
+          Compra mínima = redondear hacia arriba( mínimo consolidado )
+          <br><br>
+          Compra real = compra mínima + adicional decidido por administradora
+          <br><br>
+          Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
+        </div>
+
+        <div class="info-box">
+          <strong>El algoritmo primero protege lo esencial.</strong><br><br>
+          Después de cubrir los mínimos esenciales,
+          el dinero que quede disponible puede utilizarse
+          para variedad o regalo.<br><br>
+          Esa variedad no modifica el mínimo garantizado
+          y no crea una nueva obligación para las familias.<br><br>
+          <strong>Los cambios numéricos se actualizan automáticamente.</strong>
+        </div>
+
+        <button class="btn-calculate" onclick="calcularCompra()">
+          Calcular compra
+        </button>
+
+        <div id="resultadoCompra" style="margin-top:20px;">
+          Todavía no se ha calculado.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
+         VISTA 5 — CIERRE
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-cierre">
+
+      <div class="section">
+        <h2 class="section-head">Resumen financiero ampliado</h2>
+        <p class="section-sub">
+          Resultado neto = saldo real − gastos operativos + ingresos por excedentes.
+        </p>
+
+        <div id="resumenFinancieroAmpliado">
+          <div class="small-note">Calculá la compra para ver el resumen financiero ampliado.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-head">Gastos y excedentes</h2>
+
+        <div class="anchor-notice">
+          Los formularios de <strong>gastos de la ronda</strong> y
+          <strong>excedentes de la ronda</strong> viven dentro de la vista
+          <em>Compra</em>, en la sección de resultados.
+          <br><br>
+          <button class="btn-detail" onclick="mostrarVista('compra'); setTimeout(()=>{ const el = document.getElementById('resultadoCompra'); if (el) el.scrollIntoView({behavior:'smooth'}); }, 50);">
+            Ir a la sección de gastos y excedentes →
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-head">Guardar / cargar compra final</h2>
+        <p class="section-sub">
+          Guarda en n8n (tabla compras_ronda) todos los items de la ronda:
+          esenciales + regalos + gastos + excedentes en un solo POST.
+        </p>
+
+        <div class="actions" style="gap:10px;flex-wrap:wrap;">
+          <button class="btn-accept" onclick="guardarCompraFinalEnN8N()">
+            💾 Guardar compra final en n8n
+          </button>
+          <button class="btn-refresh" onclick="cargarCompraFinalDeRonda(rondaActiva)">
+            ↻ Cargar compra final
+          </button>
+        </div>
+
+        <div id="resultadoGuardarCompraCierre" style="margin-top:10px;"></div>
+      </div>
+
+    </section>
+
+  </div><!-- /main-col -->
+
+</div><!-- /app-shell -->
+
+</div><!-- /container -->
 
 <!-- =====================================================
 MODAL DETALLE
@@ -707,7 +1041,7 @@ MODAL DETALLE
 </div>
 
 <!-- =====================================================
-MODAL CONFIRMAR PAGO (NUEVO)
+MODAL CONFIRMAR PAGO
 ====================================================== -->
 <div class="modal" id="modalPago">
   <div class="modal-content">
@@ -838,9 +1172,35 @@ let rondasConocidas = [];
 
 let rondasEliminadas = [];
 
-/* ═══ NUEVO: gastos y excedentes de la ronda activa ═══ */
+/* gastos y excedentes de la ronda activa */
 let gastosRonda = [];
 let excedentesRonda = [];
+
+/* cache del último mensaje de guardado (para sincronizar vistas) */
+let ultimoMensajeGuardado = "";
+
+
+/* =====================================================
+NAVEGACIÓN ENTRE VISTAS
+===================================================== */
+
+function mostrarVista(nombre) {
+  const vistas = document.querySelectorAll(".view");
+  vistas.forEach(v => v.classList.remove("active"));
+
+  const objetivo = document.getElementById("view-" + nombre);
+  if (objetivo) objetivo.classList.add("active");
+
+  const botones = document.querySelectorAll(".nav-btn");
+  botones.forEach(b => b.classList.remove("active"));
+
+  const btn = document.querySelector('.nav-btn[data-view="' + nombre + '"]');
+  if (btn) btn.classList.add("active");
+
+  if (nombre === "cierre") {
+    renderResumenFinancieroAmpliado();
+  }
+}
 
 
 /* =====================================================
@@ -880,7 +1240,6 @@ function guardarConfiguracion() {
 
       rondasEliminadas: [...rondasEliminadas],
 
-      /* ═══ NUEVO ═══ */
       gastosRonda: [...gastosRonda],
       excedentesRonda: [...excedentesRonda]
     };
@@ -946,7 +1305,6 @@ function cargarConfiguracion() {
       rondasEliminadas = datos.rondasEliminadas.map(String).filter(Boolean);
     }
 
-    /* ═══ NUEVO: restaurar gastos ═══ */
     if (Array.isArray(datos.gastosRonda)) {
       gastosRonda = datos.gastosRonda.map(g => ({
         fecha: g.fecha || "",
@@ -957,7 +1315,6 @@ function cargarConfiguracion() {
       }));
     }
 
-    /* ═══ NUEVO: restaurar excedentes ═══ */
     if (Array.isArray(datos.excedentesRonda)) {
       excedentesRonda = datos.excedentesRonda.map(e => ({
         fecha: e.fecha || "",
@@ -1346,7 +1703,6 @@ function refrescarSelectorRondas() {
 
 function cambiarRondaActiva(valor) {
 
-  /* ═══ NUEVO: limpiar gastos y excedentes al cambiar de ronda ═══ */
   gastosRonda = [];
   excedentesRonda = [];
 
@@ -1372,11 +1728,15 @@ function cambiarRondaActiva(valor) {
     aplicarPreciosRondaAProductos();
   }
 
-  /* ═══ NUEVO: re-render sub-secciones ═══ */
   if (typeof renderGastosRonda === "function") renderGastosRonda();
   if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
 
   actualizarTodo();
+
+  /* Refrescar el resumen financiero ampliado tras cambiar de ronda */
+  if (typeof renderResumenFinancieroAmpliado === "function") {
+    renderResumenFinancieroAmpliado();
+  }
 }
 
 
@@ -1435,7 +1795,6 @@ function crearNuevaRonda() {
   rondaActiva = nueva;
   preciosRonda = {};
 
-  /* ═══ NUEVO ═══ */
   gastosRonda = [];
   excedentesRonda = [];
 
@@ -1633,13 +1992,11 @@ async function cambiarEstado(id, estado) {
 
   if (!['Aceptado', 'Rechazado'].includes(estadoNormalizado)) return;
 
-  /* ═══ NUEVO: para Aceptado abrimos modal de pago ═══ */
   if (estadoNormalizado === 'Aceptado') {
     abrirModalPago(id);
     return;
   }
 
-  /* Rechazado: flujo directo como hoy */
   if (!confirm(`¿Marcar pedido como "Rechazado"?`)) return;
 
   const pedido = pedidos.find(p => String(p.id) === String(id));
@@ -1684,7 +2041,7 @@ async function cambiarEstado(id, estado) {
 
 
 /* =====================================================
-MODAL CONFIRMAR PAGO (NUEVO)
+MODAL CONFIRMAR PAGO
 ===================================================== */
 
 function abrirModalPago(id) {
@@ -1750,7 +2107,6 @@ async function confirmarAceptarPedido(id) {
     return;
   }
 
-  /* Convertir datetime-local a ISO */
   const fechaPagoISO = new Date(fechaPagoLocal).toISOString();
 
   const pedido = pedidos.find(p => String(p.id) === String(id));
@@ -1984,6 +2340,11 @@ function actualizarConsolidado() {
   document.getElementById("presupuestoOperaciones").textContent = soles(datos.operaciones);
   document.getElementById("presupuestoAlimentos").textContent = soles(datos.alimentos);
 
+  const pOp2 = document.getElementById("presupuestoOperaciones2");
+  const pAl2 = document.getElementById("presupuestoAlimentos2");
+  if (pOp2) pOp2.textContent = soles(datos.operaciones);
+  if (pAl2) pAl2.textContent = soles(datos.alimentos);
+
   document.getElementById("roundDescription").innerHTML = rondaActiva
     ? `Ronda: <strong>${escapeHTML(rondaActiva)}</strong> · Solo pedidos aceptados.`
     : `Selecciona una ronda específica antes de calcular la compra.`;
@@ -2150,6 +2511,9 @@ function recalcularCompraEnVivo() {
 
   renderResultadoCompra();
   actualizarDOMCompraEnVivo();
+
+  /* Refrescar resumen ampliado si estamos en Cierre */
+  renderResumenFinancieroAmpliado();
 }
 
 
@@ -2245,7 +2609,6 @@ function renderResultadoCompra() {
       <div id="resumenRegalos" style="margin-top:15px;"></div>
     </div>
 
-    <!-- ═══ NUEVO: GASTOS DE LA RONDA ═══ -->
     <div class="purchase-section">
       <h3>💸 Gastos de la ronda</h3>
       <p class="small-note">
@@ -2256,7 +2619,6 @@ function renderResultadoCompra() {
       <div id="totalGastosRonda" class="small-note" style="margin-top:10px;"></div>
     </div>
 
-    <!-- ═══ NUEVO: EXCEDENTES DE LA RONDA ═══ -->
     <div class="purchase-section">
       <h3>♻️ Excedentes de la ronda</h3>
       <p class="small-note">
@@ -2303,6 +2665,12 @@ function renderResultadoCompra() {
   renderRegalos();
   renderGastosRonda();
   renderExcedentesRonda();
+
+  /* Restaurar el último mensaje de guardado si había uno */
+  const resGuarda = document.getElementById("resultadoGuardarCompra");
+  if (resGuarda && ultimoMensajeGuardado) {
+    resGuarda.innerHTML = ultimoMensajeGuardado;
+  }
 }
 
 
@@ -2345,9 +2713,117 @@ function actualizarDOMCompraEnVivo() {
     saldo.classList.add(r.saldoReal >= 0 ? "balance-positive" : "balance-negative");
   }
 
-  document.getElementById("saldoPresupuesto").textContent = soles(r.saldoReal);
+  const saldoPres = document.getElementById("saldoPresupuesto");
+  if (saldoPres) saldoPres.textContent = soles(r.saldoReal);
 
   actualizarResumenRegalos();
+  renderResumenFinancieroAmpliado();
+}
+
+
+/* =====================================================
+RESUMEN FINANCIERO AMPLIADO — VISTA CIERRE
+Fórmula estricta: resultadoNeto = saldoReal − gastos + excedentes
+===================================================== */
+
+function renderResumenFinancieroAmpliado() {
+
+  const cont = document.getElementById("resumenFinancieroAmpliado");
+  if (!cont) return;
+
+  const r = window.ultimoResultadoCompra;
+
+  if (!r) {
+    cont.innerHTML =
+      `<div class="small-note">Calculá la compra para ver el resumen financiero ampliado.</div>`;
+    return;
+  }
+
+  const gastos = (typeof totalGastosRonda === "function")
+    ? totalGastosRonda() : 0;
+  const excedentes = (typeof totalExcedentesRonda === "function")
+    ? totalExcedentesRonda() : 0;
+
+  const ingresosTotales = r.datos.alimentos + excedentes;
+  const usosTotales     = r.costoEsencialesReal + r.regalosTotal + gastos;
+  const resultadoNeto   = r.saldoReal - gastos + excedentes;
+
+  const clase = resultadoNeto >= 0 ? "good" : "bad";
+
+  cont.innerHTML = `
+    <div class="fin-grid">
+
+      <div class="fin-col">
+        <h4>Ingresos / Recursos</h4>
+        <div class="fin-row">
+          <span>Dinero comprometido</span>
+          <span class="val">${soles(r.datos.dinero)}</span>
+        </div>
+        <div class="fin-row">
+          <span>Presupuesto alimentos · 65%</span>
+          <span class="val">${soles(r.datos.alimentos)}</span>
+        </div>
+        <div class="fin-row">
+          <span>Ingresos por excedentes</span>
+          <span class="val">${soles(excedentes)}</span>
+        </div>
+        <div class="fin-row">
+          <span><strong>Total recursos</strong></span>
+          <span class="val">${soles(ingresosTotales)}</span>
+        </div>
+      </div>
+
+      <div class="fin-col">
+        <h4>Usos</h4>
+        <div class="fin-row">
+          <span>Compra esencial real</span>
+          <span class="val">${soles(r.costoEsencialesReal)}</span>
+        </div>
+        <div class="fin-row">
+          <span>Variedad / regalos</span>
+          <span class="val">${soles(r.regalosTotal)}</span>
+        </div>
+        <div class="fin-row">
+          <span>Gastos operativos</span>
+          <span class="val">${soles(gastos)}</span>
+        </div>
+        <div class="fin-row">
+          <span><strong>Total usos</strong></span>
+          <span class="val">${soles(usosTotales)}</span>
+        </div>
+      </div>
+
+      <div class="fin-col">
+        <h4>Detalle del saldo</h4>
+        <div class="fin-row">
+          <span>Saldo real (alimentos − compra − regalos)</span>
+          <span class="val">${soles(r.saldoReal)}</span>
+        </div>
+        <div class="fin-row">
+          <span>− Gastos operativos</span>
+          <span class="val">${soles(-gastos)}</span>
+        </div>
+        <div class="fin-row">
+          <span>+ Ingresos por excedentes</span>
+          <span class="val">${soles(excedentes)}</span>
+        </div>
+        <div class="fin-row">
+          <span><strong>Resultado neto</strong></span>
+          <span class="val">${soles(resultadoNeto)}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="fin-result ${clase}">
+      <div class="lbl">Resultado neto de la ronda</div>
+      <div class="num">${soles(resultadoNeto)}</div>
+    </div>
+
+    <div class="small-note" style="margin-top:10px;">
+      Fórmula: <code>resultadoNeto = saldoReal − gastosOperativos + ingresosPorExcedentes</code>
+    </div>
+  `;
 }
 
 
@@ -2516,7 +2992,7 @@ function actualizarCompraDesdeRegalos() {
 
 
 /* =====================================================
-GASTOS DE LA RONDA (NUEVO)
+GASTOS DE LA RONDA
 ===================================================== */
 
 function totalGastosRonda() {
@@ -2536,6 +3012,7 @@ function renderGastosRonda() {
     container.innerHTML =
       `<div class="small-note">Todavía no has agregado gastos.</div>`;
     if (totalEl) totalEl.innerHTML = `<strong>Total gastos: ${soles(0)}</strong>`;
+    renderResumenFinancieroAmpliado();
     return;
   }
 
@@ -2611,6 +3088,8 @@ function renderGastosRonda() {
   if (totalEl) {
     totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
   }
+
+  renderResumenFinancieroAmpliado();
 }
 
 
@@ -2655,16 +3134,17 @@ function actualizarGastoRonda(index, campo, valor) {
 
   guardarConfiguracion();
 
-  /* Solo actualiza el total si existe el nodo */
   const totalEl = document.getElementById("totalGastosRonda");
   if (totalEl) {
     totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
   }
+
+  renderResumenFinancieroAmpliado();
 }
 
 
 /* =====================================================
-EXCEDENTES DE LA RONDA (NUEVO)
+EXCEDENTES DE LA RONDA
 ===================================================== */
 
 function totalExcedentesRonda() {
@@ -2682,6 +3162,7 @@ function renderExcedentesRonda() {
     container.innerHTML =
       `<div class="small-note">Todavía no has agregado excedentes.</div>`;
     if (totalEl) totalEl.innerHTML = `<strong>Total excedentes: ${soles(0)}</strong>`;
+    renderResumenFinancieroAmpliado();
     return;
   }
 
@@ -2723,6 +3204,8 @@ function renderExcedentesRonda() {
   if (totalEl) {
     totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
   }
+
+  renderResumenFinancieroAmpliado();
 }
 
 
@@ -2769,6 +3252,8 @@ function actualizarExcedenteRonda(index, campo, valor) {
   if (totalEl) {
     totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
   }
+
+  renderResumenFinancieroAmpliado();
 }
 
 
@@ -2784,6 +3269,9 @@ function actualizarResumen() {
   const aceptados = pedidos.filter(
     p => String(p.estado || "").toLowerCase() === "aceptado"
   );
+  const rechazados = pedidos.filter(
+    p => String(p.estado || "").toLowerCase() === "rechazado"
+  );
 
   const dinero = aceptados.reduce(
     (s,p) => s + Number(p.total_solicitado || 0), 0
@@ -2792,6 +3280,10 @@ function actualizarResumen() {
   document.getElementById("totalPedidos").textContent = pedidos.length;
   document.getElementById("totalPendientes").textContent = pendientes.length;
   document.getElementById("totalAceptados").textContent = aceptados.length;
+
+  const tRech = document.getElementById("totalRechazados");
+  if (tRech) tRech.textContent = rechazados.length;
+
   document.getElementById("dineroComprometido").textContent = soles(dinero);
 }
 
@@ -2808,7 +3300,6 @@ function actualizarTodo() {
   renderPedidos();
   actualizarConsolidado();
 
-  /* ═══ NUEVO: re-render sub-secciones ═══ */
   if (typeof renderGastosRonda === "function") renderGastosRonda();
   if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
 
@@ -2876,7 +3367,7 @@ function escapeHTML(valor) {
 
 
 /* =====================================================
-GUARDAR / CARGAR REGALOS EN N8N
+GUARDAR / CARGAR COMPRA EN N8N
 ===================================================== */
 
 let _guardandoRegalos = false;
@@ -2884,12 +3375,31 @@ let _timeoutGuardarRegalos = null;
 
 async function guardarCompraFinalEnN8N() {
 
-  /* ═══ FUNCIÓN REEMPLAZADA: ahora mete gastos y excedentes dentro de items[] ═══ */
+  /* ── Feedback cuando falta ronda o compra calculada ── */
+  if (!rondaActiva) {
+    const msg = `<div class="result-warning">⚠ Primero elegí o creá una ronda.</div>`;
+    const r1 = document.getElementById("resultadoGuardarCompra");
+    const r2 = document.getElementById("resultadoGuardarCompraCierre");
+    if (r1) r1.innerHTML = msg;
+    if (r2) r2.innerHTML = msg;
+    ultimoMensajeGuardado = msg;
+    alert("Primero elegí o creá una ronda.");
+    return;
+  }
 
-  if (!rondaActiva || !window.ultimoResultadoCompra) return;
+  if (!window.ultimoResultadoCompra) {
+    const msg = `<div class="result-warning">⚠ Primero calculá la compra en la vista <strong>Compra</strong>.</div>`;
+    const r1 = document.getElementById("resultadoGuardarCompra");
+    const r2 = document.getElementById("resultadoGuardarCompraCierre");
+    if (r1) r1.innerHTML = msg;
+    if (r2) r2.innerHTML = msg;
+    ultimoMensajeGuardado = msg;
+    alert("Primero calculá la compra.");
+    return;
+  }
 
   try {
-    /* 1) Borrar filas viejas (silencioso) */
+    /* 1) Borrar filas viejas de esta ronda (silencioso) */
     try {
       await fetch(API_COMPRAS_BORRAR, {
         method: "POST",
@@ -2928,8 +3438,7 @@ async function guardarCompraFinalEnN8N() {
         tipo: "regalo"
       }));
 
-    /* 4) Items gastos → dentro de items[] con tipo "gasto"
-          ⚠️ NO incluir fecha ni medio_pago: no existen en compras_ronda */
+    /* 4) Items gastos → tipo "gasto". Sin fecha ni medio_pago. */
     const itemsGastos = gastosRonda
       .filter(g => Number(g.monto) > 0)
       .map(g => ({
@@ -2942,8 +3451,7 @@ async function guardarCompraFinalEnN8N() {
         tipo: "gasto"
       }));
 
-    /* 5) Items excedentes → dentro de items[] con tipo "excedente"
-          ⚠️ NO incluir fecha ni medio_pago */
+    /* 5) Items excedentes → tipo "excedente". Sin fecha. */
     const itemsExcedentes = excedentesRonda
       .filter(e => Number(e.ingreso) > 0)
       .map(e => ({
@@ -2956,7 +3464,6 @@ async function guardarCompraFinalEnN8N() {
         tipo: "excedente"
       }));
 
-    /* 6) Un solo array items[] con los 4 tipos mezclados */
     const items = [
       ...itemsEsenciales,
       ...itemsRegalos,
@@ -2965,11 +3472,16 @@ async function guardarCompraFinalEnN8N() {
     ];
 
     if (items.length === 0) {
-      console.log("Sin items para guardar en", rondaActiva);
+      const msg = `<div class="result-warning">⚠ No hay items para guardar.</div>`;
+      const r1 = document.getElementById("resultadoGuardarCompra");
+      const r2 = document.getElementById("resultadoGuardarCompraCierre");
+      if (r1) r1.innerHTML = msg;
+      if (r2) r2.innerHTML = msg;
+      ultimoMensajeGuardado = msg;
       return;
     }
 
-    /* 7) POST con solo id_ronda + items (sin gastos ni excedentes separados) */
+    /* 6) POST único con items[] */
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2988,20 +3500,28 @@ async function guardarCompraFinalEnN8N() {
       itemsGastos.length, "gastos,",
       itemsExcedentes.length, "excedentes");
 
+    const msg = `<div class="result-good">
+      ✓ Guardados ${items.length} registro(s) en n8n: ${itemsEsenciales.length} esenciales ·
+      ${itemsRegalos.length} regalos · ${itemsGastos.length} gastos · ${itemsExcedentes.length} excedentes
+    </div>`;
+
+    ultimoMensajeGuardado = msg;
+
     const resultado = document.getElementById("resultadoGuardarCompra");
-    if (resultado) {
-      resultado.innerHTML = `<div class="result-good">
-        ✓ Guardados ${items.length} registro(s) en n8n: ${itemsEsenciales.length} esenciales ·
-        ${itemsRegalos.length} regalos · ${itemsGastos.length} gastos · ${itemsExcedentes.length} excedentes
-      </div>`;
-    }
+    const resultadoCierre = document.getElementById("resultadoGuardarCompraCierre");
+
+    if (resultado) resultado.innerHTML = msg;
+    if (resultadoCierre) resultadoCierre.innerHTML = msg;
 
   } catch (error) {
     console.error("Error guardando compra final:", error);
+    const msg = `<div class="result-error">✕ No se pudo guardar la compra final.</div>`;
+    ultimoMensajeGuardado = msg;
+
     const resultado = document.getElementById("resultadoGuardarCompra");
-    if (resultado) {
-      resultado.innerHTML = `<div class="result-error">✕ No se pudo guardar la compra final.</div>`;
-    }
+    const resultadoCierre = document.getElementById("resultadoGuardarCompraCierre");
+    if (resultado) resultado.innerHTML = msg;
+    if (resultadoCierre) resultadoCierre.innerHTML = msg;
   }
 }
 
@@ -3017,8 +3537,6 @@ function buscarIdProductoEsencial(nombre) {
 
 async function cargarCompraFinalDeRonda(ronda) {
 
-  /* ═══ FUNCIÓN REEMPLAZADA: lee items[] y separa por tipo (esencial, regalo, gasto, excedente) ═══ */
-
   if (!ronda) return;
 
   try {
@@ -3031,18 +3549,15 @@ async function cargarCompraFinalDeRonda(ronda) {
 
     const data = await response.json();
 
-    /* Soportar 3 formatos de respuesta */
     let lista = [];
-    if (Array.isArray(data))            lista = data;               // formato plano
-    else if (Array.isArray(data.items)) lista = data.items;         // formato nuevo
-    else if (Array.isArray(data.value)) lista = data.value;         // n8n envuelve
+    if (Array.isArray(data))            lista = data;
+    else if (Array.isArray(data.items)) lista = data.items;
+    else if (Array.isArray(data.value)) lista = data.value;
 
-    /* Filtrar filas válidas */
     const filas = lista.filter(f =>
       f && f.producto && Number(f.cantidad) > 0
     );
 
-    /* Separar por tipo (tolerante a mayúsculas) */
     const filasEsenciales = filas.filter(f =>
       String(f.tipo || "").toLowerCase() === "esencial"
     );
@@ -3057,7 +3572,6 @@ async function cargarCompraFinalDeRonda(ronda) {
       String(f.tipo || "").toLowerCase() === "excedente"
     );
 
-    /* Cargar adicionales desde filas esenciales */
     adicionales.fill(0);
     filasEsenciales.forEach(f => {
       const idx = productos.findIndex(p => p.nombre === f.producto);
@@ -3066,7 +3580,6 @@ async function cargarCompraFinalDeRonda(ronda) {
       }
     });
 
-    /* Cargar regalos */
     regalos = filasRegalos.map(item => ({
       producto: item.producto || "",
       cantidad: Number(item.cantidad) || 0,
@@ -3074,10 +3587,6 @@ async function cargarCompraFinalDeRonda(ronda) {
       precio: Number(item.precio_unitario) || 0
     }));
 
-    /* Cargar gastos
-       → el tipo de gasto se guarda en "unidad"
-       → fecha no se guarda en compras_ronda → cadena vacía
-       → medio_pago no se guarda → default "efectivo" */
     gastosRonda = filasGastos.map(g => ({
       fecha: "",
       tipo: g.unidad || "otro",
@@ -3086,8 +3595,6 @@ async function cargarCompraFinalDeRonda(ronda) {
       medio_pago: "efectivo"
     }));
 
-    /* Cargar excedentes
-       → fecha no se guarda en compras_ronda → cadena vacía */
     excedentesRonda = filasExcedentes.map(e => ({
       fecha: "",
       descripcion: e.producto || "",
@@ -3107,6 +3614,8 @@ async function cargarCompraFinalDeRonda(ronda) {
 
     if (typeof renderGastosRonda === "function") renderGastosRonda();
     if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
+
+    renderResumenFinancieroAmpliado();
 
     console.log("✓ Compra final cargada de", ronda, "-",
       filasEsenciales.length, "esenciales,",
@@ -3191,7 +3700,6 @@ async function eliminarRondaActiva() {
   adicionales.fill(0);
   compraCalculada = false;
 
-  /* ═══ NUEVO ═══ */
   gastosRonda = [];
   excedentesRonda = [];
 
@@ -3199,6 +3707,8 @@ async function eliminarRondaActiva() {
   if (preciosBodyEl) preciosBodyEl.innerHTML = "";
   const preciosStatusEl = document.getElementById("preciosRondaStatus");
   if (preciosStatusEl) preciosStatusEl.textContent = "";
+
+  ultimoMensajeGuardado = "";
 
   guardarConfiguracion();
   refrescarSelectorRondas();
@@ -3217,6 +3727,10 @@ async function eliminarRondaActiva() {
   if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
 
   actualizarTodo();
+
+  if (typeof renderResumenFinancieroAmpliado === "function") {
+    renderResumenFinancieroAmpliado();
+  }
 
   alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
 }
@@ -3239,6 +3753,7 @@ setTimeout(() => {
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
   }
+  renderResumenFinancieroAmpliado();
 }, 1200);
 
 </script>
@@ -3246,53 +3761,3 @@ setTimeout(() => {
 </body>
 
 </html>
-
-<!-- =====================================================
-RESUMEN DE CAMBIOS REALIZADOS
-======================================================
-
-1) FUNCIONES REEMPLAZADAS:
-   - guardarCompraFinalEnN8N()
-   - cargarCompraFinalDeRonda(ronda)
-
-2) QUÉ SE MODIFICÓ EN CADA UNA:
-
-   ► guardarCompraFinalEnN8N():
-     - Ya NO manda { id_ronda, items, gastos, excedentes } con campos separados.
-     - Ahora mete los gastos y excedentes DENTRO de items[] con tipo "gasto"
-       y "excedente" respectivamente.
-     - Los items de gasto NO incluyen "fecha" ni "medio_pago" (no existen
-       en compras_ronda). El tipo de gasto va en el campo "unidad".
-     - Los items de excedente NO incluyen "fecha" ni "medio_pago".
-     - El POST final es { id_ronda: rondaActiva, items: items }.
-     - El contador de registros guardados incluye los 4 tipos.
-
-   ► cargarCompraFinalDeRonda(ronda):
-     - Lee solo items[] (con soporte para 3 formatos: array plano,
-       data.items o data.value).
-     - Separa por tipo: "esencial", "regalo" (o vacío), "gasto", "excedente".
-     - Reconstruye adicionales, regalos, gastosRonda y excedentesRonda.
-     - En gastosRonda: fecha = "" (no se persiste), tipo = g.unidad || "otro",
-       medio_pago = "efectivo" (default, no se persiste).
-     - En excedentesRonda: fecha = "" (no se persiste).
-     - Llama a guardarConfiguracion(), recalcularCompraEnVivo(),
-       renderRegalos(), renderGastosRonda(), renderExcedentesRonda().
-
-3) QUÉ NO SE TOCÓ:
-   - Toda la estructura HTML, CSS, barra de ronda, selector y botones.
-   - cambiarEstado, abrirModalPago, confirmarAceptarPedido.
-   - renderGastosRonda, renderExcedentesRonda.
-   - guardarConfiguracion, cargarConfiguracion.
-   - renderResultadoCompra y todos los bloques de gastos/excedentes.
-   - El resto de funciones y variables existentes.
-
-4) CONFIRMACIÓN:
-   - El array items[] ahora contiene los 4 tipos mezclados:
-     esencial, regalo, gasto, excedente.
-   - n8n recibe { id_ronda, items } y usa la columna `tipo` para distinguir.
-   - Al cargar, la función lee items[] y separa por tipo para reconstruir
-     adicionales, regalos, gastosRonda y excedentesRonda.
-   - Se eliminaron `fecha` y `medio_pago` de los items de gasto.
-   - Se eliminó `fecha` de los items de excedente.
-
-===================================================== --></proposed_content>
