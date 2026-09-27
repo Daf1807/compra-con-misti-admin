@@ -405,7 +405,7 @@ td { font-size: 14px; }
 <div class="container">
 
 <!-- =====================================================
-BARRA DE RONDA ACTIVA (NUEVA)
+BARRA DE RONDA ACTIVA
 ====================================================== -->
 <div class="roundbar">
   <label>Ronda activa:</label>
@@ -477,7 +477,6 @@ PEDIDOS
       <option value="Aceptado">Aceptado</option>
       <option value="Rechazado">Rechazado</option>
     </select>
-    <!-- Este select ahora es solo espejo del de arriba; se mantiene por compatibilidad -->
     <select id="filtroRonda" onchange="onFiltroRondaCambia()" style="display:none;"></select>
   </div>
 
@@ -566,7 +565,7 @@ CONSOLIDADO
 </div>
 
 <!-- =====================================================
-PRECIOS DE LA RONDA ACTUAL (NUEVA SECCIÓN)
+PRECIOS DE LA RONDA ACTUAL
 ====================================================== -->
 <div class="section">
   <h2>📋 Precios de la ronda actual</h2>
@@ -695,7 +694,7 @@ ALGORITMO
 </div>
 
 <!-- =====================================================
-MODAL
+MODAL DETALLE
 ====================================================== -->
 <div class="modal" id="modalDetalle">
   <div class="modal-content">
@@ -704,6 +703,19 @@ MODAL
       <button class="close" onclick="cerrarModal()">×</button>
     </div>
     <div id="detalleContenido"></div>
+  </div>
+</div>
+
+<!-- =====================================================
+MODAL CONFIRMAR PAGO (NUEVO)
+====================================================== -->
+<div class="modal" id="modalPago">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Confirmar pago del pedido</h3>
+      <button class="close" onclick="cerrarModalPago()">×</button>
+    </div>
+    <div id="modalPagoContenido"></div>
   </div>
 </div>
 
@@ -737,11 +749,6 @@ const API_COMPRAS_BORRAR =
 const API_PRECIOS_BORRAR =
 "https://msi.tail124b59.ts.net/webhook/admin-precios-borrar";
 
-/* TODO: cuando exista el webhook de rondas, descomentar:
-const API_RONDAS =
-"https://msi.tail124b59.ts.net/webhook/admin-rondas";
-*/
-
 let pedidos = [];
 
 
@@ -763,7 +770,6 @@ const FACTOR_FAMILIAR = 35 / 15;
 
 /* =====================================================
 PRODUCTOS FIJOS DE PRECIOS DE MERCADO
-(los 10 que se cargan en la ronda)
 ===================================================== */
 
 const PRODUCTOS_PRECIOS = [
@@ -824,17 +830,17 @@ let regalos = [];
 
 let compraCalculada = false;
 
-/* Ronda activa global */
 let rondaActiva = "";
 
-/* Precios de la ronda activa: mapa por id_producto → {min, may} */
 let preciosRonda = {};
 
-/* Lista de rondas conocidas (por ahora solo pedidos + manual) */
 let rondasConocidas = [];
 
-  /* Rondas eliminadas por el usuario (no deben reaparecer aunque n8n las devuelva) */
-  let rondasEliminadas = [];
+let rondasEliminadas = [];
+
+/* ═══ NUEVO: gastos y excedentes de la ronda activa ═══ */
+let gastosRonda = [];
+let excedentesRonda = [];
 
 
 /* =====================================================
@@ -855,7 +861,6 @@ function guardarConfiguracion() {
         unidad: p.unidad,
         esencial: p.esencial,
         minimo: p.minimo
-        /* precio ya no se persiste: vive en preciosRonda */
       })),
 
       adicionales: [...adicionales],
@@ -873,7 +878,11 @@ function guardarConfiguracion() {
 
       rondasConocidas: [...rondasConocidas],
 
-      rondasEliminadas: [...rondasEliminadas]
+      rondasEliminadas: [...rondasEliminadas],
+
+      /* ═══ NUEVO ═══ */
+      gastosRonda: [...gastosRonda],
+      excedentesRonda: [...excedentesRonda]
     };
 
     localStorage.setItem(
@@ -896,7 +905,6 @@ function cargarConfiguracion() {
 
     const datos = JSON.parse(guardado);
 
-    /* -------- Productos -------- */
     if (Array.isArray(datos.productos)) {
       datos.productos.forEach((gp, index) => {
         if (!productos[index]) return;
@@ -905,7 +913,6 @@ function cargarConfiguracion() {
       });
     }
 
-    /* -------- Adicionales -------- */
     if (Array.isArray(datos.adicionales)) {
       datos.adicionales.forEach((valor, index) => {
         if (index < adicionales.length) {
@@ -914,7 +921,6 @@ function cargarConfiguracion() {
       });
     }
 
-    /* -------- Regalos -------- */
     if (Array.isArray(datos.regalos)) {
       regalos = datos.regalos.map(r => ({
         producto: r.producto || "",
@@ -924,24 +930,40 @@ function cargarConfiguracion() {
       }));
     }
 
-    /* -------- Ronda activa -------- */
     if (datos.ronda) {
       rondaActiva = String(datos.ronda);
     }
 
-    /* -------- Precios de ronda -------- */
     if (datos.preciosRonda && typeof datos.preciosRonda === "object") {
       preciosRonda = datos.preciosRonda;
     }
 
-    /* -------- Rondas conocidas -------- */
     if (Array.isArray(datos.rondasConocidas)) {
       rondasConocidas = datos.rondasConocidas.map(String).filter(Boolean);
     }
 
-    /* -------- Rondas eliminadas -------- */
     if (Array.isArray(datos.rondasEliminadas)) {
       rondasEliminadas = datos.rondasEliminadas.map(String).filter(Boolean);
+    }
+
+    /* ═══ NUEVO: restaurar gastos ═══ */
+    if (Array.isArray(datos.gastosRonda)) {
+      gastosRonda = datos.gastosRonda.map(g => ({
+        fecha: g.fecha || "",
+        tipo: g.tipo || "otro",
+        descripcion: g.descripcion || "",
+        monto: Number(g.monto) || 0,
+        medio_pago: g.medio_pago || "efectivo"
+      }));
+    }
+
+    /* ═══ NUEVO: restaurar excedentes ═══ */
+    if (Array.isArray(datos.excedentesRonda)) {
+      excedentesRonda = datos.excedentesRonda.map(e => ({
+        fecha: e.fecha || "",
+        descripcion: e.descripcion || "",
+        ingreso: Number(e.ingreso) || 0
+      }));
     }
 
   } catch(error) {
@@ -956,10 +978,8 @@ APLICAR PRECIOS DE RONDA A LOS PRODUCTOS DEL UNIVERSO
 
 function aplicarPreciosRondaAProductos() {
 
-  /* Reset */
   productos.forEach(p => { p.precio = 0; });
 
-  /* Mapear por nombre hacia los 10 productos fijos */
   PRODUCTOS_PRECIOS.forEach(pp => {
 
     const fila = preciosRonda[pp.id];
@@ -1086,7 +1106,7 @@ function renderPreciosRonda() {
       "Sin ronda activa. Elegí o creá una ronda arriba.";
     wrapper.style.display = "none";
     actions.style.display = "none";
-    if (body) body.innerHTML = "";   // ← NUEVO: limpia las filas viejas
+    if (body) body.innerHTML = "";
     return;
   }
 
@@ -1251,7 +1271,6 @@ async function cargarPreciosGuardados() {
     if (Array.isArray(data))             filas = data;
     else if (Array.isArray(data.value))  filas = data.value;
 
-    /* Reconstruir mapa */
     const nuevoMapa = {};
 
     filas.forEach(f => {
@@ -1294,13 +1313,11 @@ function refrescarSelectorRondas() {
 
   const selector = document.getElementById("rondaActiva");
 
-  /* Unir rondas de pedidos + la ronda activa + guardadas manuales */
   const setRondas = new Set(rondasConocidas);
 
   pedidos.forEach(p => { if (p.ronda_id) setRondas.add(p.ronda_id); });
   if (rondaActiva) setRondas.add(rondaActiva);
 
-  /* Quitar las rondas que el usuario eliminó explícitamente */
   rondasEliminadas.forEach(r => setRondas.delete(r));
 
   const lista = [...setRondas].sort();
@@ -1312,7 +1329,6 @@ function refrescarSelectorRondas() {
       `<option value="${escapeHTML(r)}" ${r === rondaActiva ? "selected" : ""}>${escapeHTML(r)}</option>`;
   });
 
-  /* Espejo en el select viejo de filtros (oculto) */
   const filtroRonda = document.getElementById("filtroRonda");
   if (filtroRonda) {
     filtroRonda.innerHTML = `<option value="">Todas las rondas</option>`;
@@ -1330,6 +1346,10 @@ function refrescarSelectorRondas() {
 
 function cambiarRondaActiva(valor) {
 
+  /* ═══ NUEVO: limpiar gastos y excedentes al cambiar de ronda ═══ */
+  gastosRonda = [];
+  excedentesRonda = [];
+
   rondaActiva = valor || "";
   guardarConfiguracion();
 
@@ -1345,14 +1365,16 @@ function cambiarRondaActiva(valor) {
     if (document.getElementById("regalosContainer")) renderRegalos();
   }
 
-  /* Si cambia la ronda, recargamos precios desde n8n automáticamente */
   if (rondaActiva) {
-    /* Carga silenciosa: no alerta si falla */
     cargarPreciosGuardadosSilencioso();
   } else {
     preciosRonda = {};
     aplicarPreciosRondaAProductos();
   }
+
+  /* ═══ NUEVO: re-render sub-secciones ═══ */
+  if (typeof renderGastosRonda === "function") renderGastosRonda();
+  if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
 
   actualizarTodo();
 }
@@ -1408,11 +1430,15 @@ function crearNuevaRonda() {
 
   rondasConocidas.push(nueva);
 
-  /* Si estaba marcada como eliminada, el usuario la está recreando */
   rondasEliminadas = rondasEliminadas.filter(r => r !== nueva);
 
   rondaActiva = nueva;
   preciosRonda = {};
+
+  /* ═══ NUEVO ═══ */
+  gastosRonda = [];
+  excedentesRonda = [];
+
   guardarConfiguracion();
 
   refrescarSelectorRondas();
@@ -1440,7 +1466,6 @@ function aplicarRondaManual() {
 
   rondasConocidas.push(valor);
 
-  /* Si estaba marcada como eliminada, el usuario la está recreando */
   rondasEliminadas = rondasEliminadas.filter(r => r !== valor);
 
   rondaActiva = valor;
@@ -1457,7 +1482,6 @@ function aplicarRondaManual() {
 
 
 function onFiltroRondaCambia() {
-  /* El select viejo ahora solo refleja; la fuente es rondaActiva */
   const v = document.getElementById("filtroRonda").value || "";
   if (v !== rondaActiva) {
     cambiarRondaActiva(v);
@@ -1496,14 +1520,12 @@ async function cargarPedidos() {
     refrescarSelectorRondas();
     actualizarTodo();
 
-    /* Si hay ronda activa, intentar traer sus precios */
     if (rondaActiva) cargarPreciosGuardadosSilencioso();
 
   } catch(error) {
 
     console.error(error);
     status.textContent = "✕ Error de conexión";
-    /* No bloqueamos la página: sigue funcionando con local */
     refrescarSelectorRondas();
     renderPreciosRonda();
     aplicarPreciosRondaAProductos();
@@ -1516,7 +1538,6 @@ RONDAS (legacy)
 ===================================================== */
 
 function cargarSelectorRondas() {
-  /* Ahora delegado a refrescarSelectorRondas */
   refrescarSelectorRondas();
 }
 
@@ -1529,7 +1550,7 @@ function obtenerFiltrados() {
 
   const texto  = document.getElementById("buscar").value.toLowerCase().trim();
   const estado = document.getElementById("filtroEstado").value;
-  const ronda  = rondaActiva; /* fuente única */
+  const ronda  = rondaActiva;
 
   return pedidos.filter(p => {
 
@@ -1603,7 +1624,7 @@ function renderPedidos() {
 
 
 /* =====================================================
-CAMBIAR ESTADO
+CAMBIAR ESTADO — MODIFICADO PARA MEDIO DE PAGO
 ===================================================== */
 
 async function cambiarEstado(id, estado) {
@@ -1612,7 +1633,14 @@ async function cambiarEstado(id, estado) {
 
   if (!['Aceptado', 'Rechazado'].includes(estadoNormalizado)) return;
 
-  if (!confirm(`¿Marcar pedido como "${estadoNormalizado}"?`)) return;
+  /* ═══ NUEVO: para Aceptado abrimos modal de pago ═══ */
+  if (estadoNormalizado === 'Aceptado') {
+    abrirModalPago(id);
+    return;
+  }
+
+  /* Rechazado: flujo directo como hoy */
+  if (!confirm(`¿Marcar pedido como "Rechazado"?`)) return;
 
   const pedido = pedidos.find(p => String(p.id) === String(id));
 
@@ -1649,6 +1677,120 @@ async function cambiarEstado(id, estado) {
     console.error(error);
     alert(
       'No se pudo actualizar el estado en n8n.\n' +
+      'Verifica que el webhook admin-estado esté activo.'
+    );
+  }
+}
+
+
+/* =====================================================
+MODAL CONFIRMAR PAGO (NUEVO)
+===================================================== */
+
+function abrirModalPago(id) {
+
+  const pedido = pedidos.find(p => String(p.id) === String(id));
+  if (!pedido) return;
+
+  const ahora = new Date();
+  const offset = ahora.getTimezoneOffset() * 60000;
+  const local = new Date(ahora.getTime() - offset)
+    .toISOString()
+    .slice(0, 16);
+
+  const cont = document.getElementById("modalPagoContenido");
+
+  cont.innerHTML = `
+    <div class="info-box" style="margin-top:0;">
+      <strong>Cliente:</strong> ${escapeHTML(pedido.cliente || "-")}<br>
+      <strong>Total solicitado:</strong> ${soles(Number(pedido.total_solicitado || 0))}<br>
+      <strong>Canastas:</strong>
+        B: ${Number(pedido.canasta_basica_cantidad || 0)}
+        · S: ${Number(pedido.canasta_semilla_cantidad || 0)}
+        · F: ${Number(pedido.canasta_familiar_cantidad || 0)}
+    </div>
+
+    <p class="bold" style="margin-bottom:6px;">Medio de pago *</p>
+    <select id="pagoMedio">
+      <option value="">— Elegir —</option>
+      <option value="yape">Yape</option>
+      <option value="efectivo">Efectivo</option>
+      <option value="otro">Otro</option>
+    </select>
+
+    <p class="bold" style="margin:14px 0 6px;">Fecha de pago *</p>
+    <input type="datetime-local" id="pagoFecha" value="${local}">
+
+    <div class="actions" style="margin-top:18px; justify-content:flex-end;">
+      <button class="btn-reject" onclick="cerrarModalPago()">Cancelar</button>
+      <button class="btn-accept" onclick="confirmarAceptarPedido(${id})">Confirmar</button>
+    </div>
+  `;
+
+  document.getElementById("modalPago").classList.add("active");
+}
+
+
+function cerrarModalPago() {
+  document.getElementById("modalPago").classList.remove("active");
+}
+
+
+async function confirmarAceptarPedido(id) {
+
+  const medio = document.getElementById("pagoMedio").value;
+  const fechaPagoLocal = document.getElementById("pagoFecha").value;
+
+  if (!medio) {
+    alert("Elegí un medio de pago.");
+    return;
+  }
+  if (!fechaPagoLocal) {
+    alert("Elegí la fecha de pago.");
+    return;
+  }
+
+  /* Convertir datetime-local a ISO */
+  const fechaPagoISO = new Date(fechaPagoLocal).toISOString();
+
+  const pedido = pedidos.find(p => String(p.id) === String(id));
+
+  try {
+
+    const payload = {
+      accion: 'cambiar_estado',
+      id: id,
+      estado: 'Aceptado',
+      fecha: new Date().toISOString(),
+      pedido: pedido || null,
+      medio_pago: medio,
+      fecha_pago: fechaPagoISO
+    };
+
+    const response = await fetch(API_ESTADO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+    pedidos = pedidos.map(p =>
+      String(p.id) === String(id)
+        ? { ...p, estado: 'Aceptado' }
+        : p
+    );
+
+    cerrarModalPago();
+    renderPedidos();
+    actualizarTodo();
+
+    alert(`Pedido aceptado correctamente.\nMedio: ${medio} · Pago: ${fechaPagoLocal}`);
+
+  } catch(error) {
+    console.error(error);
+    alert(
+      'No se pudo aceptar el pedido en n8n.\n' +
       'Verifica que el webhook admin-estado esté activo.'
     );
   }
@@ -1731,6 +1873,8 @@ function generarJSONCompra() {
       productos: productosSnapshot,
       adicionales: JSON.parse(JSON.stringify(adicionalesActuales)),
       regalos: JSON.parse(JSON.stringify(regalosActuales)),
+      gastos_ronda: JSON.parse(JSON.stringify(gastosRonda)),
+      excedentes_ronda: JSON.parse(JSON.stringify(excedentesRonda)),
       compra: resultadoCompra
         ? JSON.parse(JSON.stringify(resultadoCompra))
         : null,
@@ -2101,6 +2245,28 @@ function renderResultadoCompra() {
       <div id="resumenRegalos" style="margin-top:15px;"></div>
     </div>
 
+    <!-- ═══ NUEVO: GASTOS DE LA RONDA ═══ -->
+    <div class="purchase-section">
+      <h3>💸 Gastos de la ronda</h3>
+      <p class="small-note">
+        Gastos operativos de esta ronda. Se guardan junto con la compra final en n8n.
+      </p>
+      <button class="btn-add" onclick="agregarGastoRonda()">＋ Agregar gasto</button>
+      <div id="gastosRondaContainer" style="margin-top:15px;"></div>
+      <div id="totalGastosRonda" class="small-note" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- ═══ NUEVO: EXCEDENTES DE LA RONDA ═══ -->
+    <div class="purchase-section">
+      <h3>♻️ Excedentes de la ronda</h3>
+      <p class="small-note">
+        Ingresos por excedentes o mermas vendidas. Se guardan junto con la compra final en n8n.
+      </p>
+      <button class="btn-add" onclick="agregarExcedenteRonda()">＋ Agregar excedente</button>
+      <div id="excedentesRondaContainer" style="margin-top:15px;"></div>
+      <div id="totalExcedentesRonda" class="small-note" style="margin-top:10px;"></div>
+    </div>
+
     <div class="info-box" id="resumenCompraFinal">
       <strong>Resumen de la compra</strong>
       <br><br>
@@ -2118,7 +2284,7 @@ function renderResultadoCompra() {
     <div class="purchase-section" style="margin-top:20px;">
       <h3>Guardar compra final en n8n</h3>
       <p class="small-note">
-        Guarda TODA la compra de esta ronda (esenciales + regalos) en la tabla
+        Guarda TODA la compra de esta ronda (esenciales + regalos + gastos + excedentes) en la tabla
         compras_ronda. Reemplaza lo anterior de esta ronda.
       </p>
       <div class="actions" style="gap:10px;flex-wrap:wrap;">
@@ -2135,6 +2301,8 @@ function renderResultadoCompra() {
 
   document.getElementById("resultadoCompra").innerHTML = html;
   renderRegalos();
+  renderGastosRonda();
+  renderExcedentesRonda();
 }
 
 
@@ -2348,6 +2516,263 @@ function actualizarCompraDesdeRegalos() {
 
 
 /* =====================================================
+GASTOS DE LA RONDA (NUEVO)
+===================================================== */
+
+function totalGastosRonda() {
+  return gastosRonda.reduce((s, g) => s + (Number(g.monto) || 0), 0);
+}
+
+
+function renderGastosRonda() {
+
+  const container = document.getElementById("gastosRondaContainer");
+  const totalEl   = document.getElementById("totalGastosRonda");
+  if (!container) return;
+
+  const hoy = new Date().toISOString().slice(0, 10);
+
+  if (!gastosRonda.length) {
+    container.innerHTML =
+      `<div class="small-note">Todavía no has agregado gastos.</div>`;
+    if (totalEl) totalEl.innerHTML = `<strong>Total gastos: ${soles(0)}</strong>`;
+    return;
+  }
+
+  const tipos = [
+    { v: "transporte", l: "Transporte" },
+    { v: "empaque",    l: "Empaque" },
+    { v: "sueldo",     l: "Sueldo" },
+    { v: "otro",       l: "Otro" }
+  ];
+  const medios = [
+    { v: "yape",     l: "Yape" },
+    { v: "efectivo", l: "Efectivo" },
+    { v: "otro",     l: "Otro" }
+  ];
+
+  container.innerHTML = `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Monto (S/)</th>
+            <th>Medio de pago</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${gastosRonda.map((g, i) => `
+            <tr>
+              <td>
+                <input type="date"
+                  value="${escapeHTML(g.fecha || hoy)}"
+                  oninput="actualizarGastoRonda(${i}, 'fecha', this.value)">
+              </td>
+              <td>
+                <select onchange="actualizarGastoRonda(${i}, 'tipo', this.value)">
+                  ${tipos.map(t => `
+                    <option value="${t.v}" ${g.tipo === t.v ? "selected" : ""}>${t.l}</option>
+                  `).join("")}
+                </select>
+              </td>
+              <td>
+                <input type="text"
+                  value="${escapeHTML(g.descripcion || "")}"
+                  placeholder="Ej. Movilidad al mercado"
+                  oninput="actualizarGastoRonda(${i}, 'descripcion', this.value)">
+              </td>
+              <td>
+                <input type="number" min="0" step="0.01"
+                  value="${g.monto || ""}"
+                  placeholder="S/"
+                  oninput="actualizarGastoRonda(${i}, 'monto', this.value)">
+              </td>
+              <td>
+                <select onchange="actualizarGastoRonda(${i}, 'medio_pago', this.value)">
+                  ${medios.map(m => `
+                    <option value="${m.v}" ${g.medio_pago === m.v ? "selected" : ""}>${m.l}</option>
+                  `).join("")}
+                </select>
+              </td>
+              <td>
+                <button class="btn-delete" onclick="eliminarGastoRonda(${i})">×</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  if (totalEl) {
+    totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
+  }
+}
+
+
+function agregarGastoRonda() {
+
+  if (!rondaActiva) {
+    alert("Primero elegí o creá una ronda.");
+    return;
+  }
+
+  const hoy = new Date().toISOString().slice(0, 10);
+
+  gastosRonda.push({
+    fecha: hoy,
+    tipo: "transporte",
+    descripcion: "",
+    monto: 0,
+    medio_pago: "efectivo"
+  });
+
+  guardarConfiguracion();
+  renderGastosRonda();
+}
+
+
+function eliminarGastoRonda(index) {
+  gastosRonda.splice(index, 1);
+  guardarConfiguracion();
+  renderGastosRonda();
+}
+
+
+function actualizarGastoRonda(index, campo, valor) {
+
+  if (!gastosRonda[index]) return;
+
+  if (campo === "monto") {
+    gastosRonda[index][campo] = Number(valor) || 0;
+  } else {
+    gastosRonda[index][campo] = valor;
+  }
+
+  guardarConfiguracion();
+
+  /* Solo actualiza el total si existe el nodo */
+  const totalEl = document.getElementById("totalGastosRonda");
+  if (totalEl) {
+    totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
+  }
+}
+
+
+/* =====================================================
+EXCEDENTES DE LA RONDA (NUEVO)
+===================================================== */
+
+function totalExcedentesRonda() {
+  return excedentesRonda.reduce((s, e) => s + (Number(e.ingreso) || 0), 0);
+}
+
+
+function renderExcedentesRonda() {
+
+  const container = document.getElementById("excedentesRondaContainer");
+  const totalEl   = document.getElementById("totalExcedentesRonda");
+  if (!container) return;
+
+  if (!excedentesRonda.length) {
+    container.innerHTML =
+      `<div class="small-note">Todavía no has agregado excedentes.</div>`;
+    if (totalEl) totalEl.innerHTML = `<strong>Total excedentes: ${soles(0)}</strong>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Descripción</th>
+            <th>Ingreso (S/)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${excedentesRonda.map((e, i) => `
+            <tr>
+              <td>
+                <input type="text"
+                  value="${escapeHTML(e.descripcion || "")}"
+                  placeholder="Ej. Venta merma a restaurante"
+                  oninput="actualizarExcedenteRonda(${i}, 'descripcion', this.value)">
+              </td>
+              <td>
+                <input type="number" min="0" step="0.01"
+                  value="${e.ingreso || ""}"
+                  placeholder="S/"
+                  oninput="actualizarExcedenteRonda(${i}, 'ingreso', this.value)">
+              </td>
+              <td>
+                <button class="btn-delete" onclick="eliminarExcedenteRonda(${i})">×</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  if (totalEl) {
+    totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
+  }
+}
+
+
+function agregarExcedenteRonda() {
+
+  if (!rondaActiva) {
+    alert("Primero elegí o creá una ronda.");
+    return;
+  }
+
+  const hoy = new Date().toISOString().slice(0, 10);
+
+  excedentesRonda.push({
+    fecha: hoy,
+    descripcion: "",
+    ingreso: 0
+  });
+
+  guardarConfiguracion();
+  renderExcedentesRonda();
+}
+
+
+function eliminarExcedenteRonda(index) {
+  excedentesRonda.splice(index, 1);
+  guardarConfiguracion();
+  renderExcedentesRonda();
+}
+
+
+function actualizarExcedenteRonda(index, campo, valor) {
+
+  if (!excedentesRonda[index]) return;
+
+  if (campo === "ingreso") {
+    excedentesRonda[index][campo] = Number(valor) || 0;
+  } else {
+    excedentesRonda[index][campo] = valor;
+  }
+
+  guardarConfiguracion();
+
+  const totalEl = document.getElementById("totalExcedentesRonda");
+  if (totalEl) {
+    totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
+  }
+}
+
+
+/* =====================================================
 RESUMEN GENERAL
 ===================================================== */
 
@@ -2382,6 +2807,10 @@ function actualizarTodo() {
   actualizarResumen();
   renderPedidos();
   actualizarConsolidado();
+
+  /* ═══ NUEVO: re-render sub-secciones ═══ */
+  if (typeof renderGastosRonda === "function") renderGastosRonda();
+  if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
 
   if (compraCalculada) {
     calcularCompra();
@@ -2464,7 +2893,7 @@ async function guardarCompraFinalEnN8N() {
   }
 
   try {
-    // 1) Borrar filas viejas de esta ronda
+    /* 1) Borrar filas viejas */
     try {
       await fetch(API_COMPRAS_BORRAR, {
         method: "POST",
@@ -2475,7 +2904,7 @@ async function guardarCompraFinalEnN8N() {
       console.warn("No se pudieron borrar filas viejas:", e);
     }
 
-    // 2) Armar items: esenciales + regalos
+    /* 2) Items esenciales + regalos */
     const itemsEsenciales = r.resultadosEsenciales
       .filter(p => Number(p.compraFinal) > 0)
       .map(p => ({
@@ -2502,25 +2931,31 @@ async function guardarCompraFinalEnN8N() {
 
     const items = [...itemsEsenciales, ...itemsRegalos];
 
-    if (!items.length) {
-      console.log("Sin items para guardar en", rondaActiva);
-      return;
-    }
-
-    // 3) Insertar
+    /* 3) POST con payload ampliado */
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_ronda: rondaActiva, items: items })
+      body: JSON.stringify({
+        id_ronda: rondaActiva,
+        items: items,
+        gastos: [...gastosRonda],
+        excedentes: [...excedentesRonda]
+      })
     });
 
     if (!response.ok) throw new Error("HTTP " + response.status);
 
-    console.log("✓ Compra final guardada en n8n:", items.length, "items");
+    console.log("✓ Compra final guardada en n8n:",
+      items.length, "items,",
+      gastosRonda.length, "gastos,",
+      excedentesRonda.length, "excedentes");
 
     const resultado = document.getElementById("resultadoGuardarCompra");
     if (resultado) {
-      resultado.innerHTML = `<div class="result-good">✓ Guardados ${items.length} item(s) en n8n (${itemsEsenciales.length} esenciales + ${itemsRegalos.length} regalos)</div>`;
+      resultado.innerHTML = `<div class="result-good">
+        ✓ Guardados ${items.length} item(s), ${gastosRonda.length} gasto(s) y ${excedentesRonda.length} excedente(s) en n8n
+        (${itemsEsenciales.length} esenciales + ${itemsRegalos.length} regalos)
+      </div>`;
     }
 
   } catch (error) {
@@ -2555,10 +2990,24 @@ async function cargarCompraFinalDeRonda(ronda) {
     if (!response.ok) throw new Error("HTTP " + response.status);
 
     const data = await response.json();
-    const lista = Array.isArray(data) ? data : (data.value || []);
 
-    // Filtrar filas válidas
-    const filas = lista.filter(f =>
+    /* Soportar formato viejo (array plano) y nuevo (con items/gastos/excedentes) */
+    let filasItems = [];
+    let filasGastos = [];
+    let filasExcedentes = [];
+
+    if (Array.isArray(data)) {
+      /* Formato viejo: array plano de items */
+      filasItems = data;
+    } else if (data && typeof data === "object") {
+      const items = data.items || data.value || [];
+      filasItems = Array.isArray(items) ? items : [];
+      filasGastos = Array.isArray(data.gastos) ? data.gastos : [];
+      filasExcedentes = Array.isArray(data.excedentes) ? data.excedentes : [];
+    }
+
+    /* Filtrar items válidos */
+    const filas = filasItems.filter(f =>
       f && f.producto && Number(f.cantidad) > 0
     );
 
@@ -2570,7 +3019,7 @@ async function cargarCompraFinalDeRonda(ronda) {
       String(f.tipo || "").toLowerCase() === ""
     );
 
-    // Cargar compra final de esenciales en `adicionales`
+    /* Cargar adicionales */
     adicionales.fill(0);
     filasEsenciales.forEach(f => {
       const idx = productos.findIndex(p => p.nombre === f.producto);
@@ -2579,7 +3028,7 @@ async function cargarCompraFinalDeRonda(ronda) {
       }
     });
 
-    // Cargar regalos
+    /* Cargar regalos */
     regalos = filasRegalos.map(item => ({
       producto: item.producto || "",
       cantidad: Number(item.cantidad) || 0,
@@ -2587,9 +3036,24 @@ async function cargarCompraFinalDeRonda(ronda) {
       precio: Number(item.precio_unitario) || 0
     }));
 
+    /* Cargar gastos */
+    gastosRonda = filasGastos.map(g => ({
+      fecha: g.fecha || "",
+      tipo: g.tipo || "otro",
+      descripcion: g.descripcion || "",
+      monto: Number(g.monto) || 0,
+      medio_pago: g.medio_pago || "efectivo"
+    }));
+
+    /* Cargar excedentes */
+    excedentesRonda = filasExcedentes.map(e => ({
+      fecha: e.fecha || "",
+      descripcion: e.descripcion || "",
+      ingreso: Number(e.ingreso) || 0
+    }));
+
     guardarConfiguracion();
 
-    // Refrescar UI
     if (compraCalculada) {
       recalcularCompraEnVivo();
     }
@@ -2599,9 +3063,14 @@ async function cargarCompraFinalDeRonda(ronda) {
       actualizarCompraDesdeRegalos();
     }
 
+    if (typeof renderGastosRonda === "function") renderGastosRonda();
+    if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
+
     console.log("✓ Compra final cargada de", ronda, "-",
       filasEsenciales.length, "esenciales,",
-      filasRegalos.length, "regalos");
+      filasRegalos.length, "regalos,",
+      gastosRonda.length, "gastos,",
+      excedentesRonda.length, "excedentes");
 
   } catch (error) {
     console.error("Error cargando compra final:", error);
@@ -2618,7 +3087,7 @@ function autoGuardarRegalos() {
 
 
 /* =====================================================
-INICIO
+ELIMINAR RONDA ACTIVA
 ===================================================== */
 
 async function eliminarRondaActiva() {
@@ -2664,34 +3133,31 @@ async function eliminarRondaActiva() {
     }
   }
 
-  // Eliminar del array en memoria
   rondasConocidas = rondasConocidas.filter(r => r !== ronda);
 
-  // Recordar que esta ronda fue eliminada (para que no reaparezca desde pedidos/n8n)
   if (!rondasEliminadas.includes(ronda)) {
     rondasEliminadas.push(ronda);
   }
 
-  // Cancelar cualquier autoguardado pendiente hacia esta ronda
   clearTimeout(_timeoutGuardarRegalos);
 
-  // Elegir siguiente ronda (la primera disponible o vacío)
   const siguiente = rondasConocidas[0] || "";
   rondaActiva = siguiente;
 
-  // Limpiar estado local
   preciosRonda = {};
   regalos = [];
   adicionales.fill(0);
   compraCalculada = false;
 
-  // Limpiar la tabla de precios en el DOM inmediatamente
+  /* ═══ NUEVO ═══ */
+  gastosRonda = [];
+  excedentesRonda = [];
+
   const preciosBodyEl = document.getElementById("preciosRondaBody");
   if (preciosBodyEl) preciosBodyEl.innerHTML = "";
   const preciosStatusEl = document.getElementById("preciosRondaStatus");
   if (preciosStatusEl) preciosStatusEl.textContent = "";
 
-  // Persistir y refrescar
   guardarConfiguracion();
   refrescarSelectorRondas();
   renderPreciosRonda();
@@ -2705,10 +3171,18 @@ async function eliminarRondaActiva() {
     cargarPreciosGuardadosSilencioso();
   }
 
+  if (typeof renderGastosRonda === "function") renderGastosRonda();
+  if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
+
   actualizarTodo();
 
   alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
 }
+
+
+/* =====================================================
+INICIO
+===================================================== */
 
 cargarConfiguracion();
 
@@ -2724,14 +3198,6 @@ setTimeout(() => {
     cargarCompraFinalDeRonda(rondaActiva);
   }
 }, 1200);
-
-/* =====================================================
-NOTA: cuando exista admin-rondas, agregar aquí:
-  fetch(API_RONDAS).then(...).then(rondas => {
-    rondasConocidas = rondas;
-    refrescarSelectorRondas();
-  });
-===================================================== */
 
 </script>
 
