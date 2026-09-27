@@ -557,6 +557,30 @@ td { font-size: 14px; }
   margin-bottom: 16px;
 }
 
+/* Mini columnas del resumen de compra */
+.summary-mini-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.summary-mini-col h5 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #666;
+}
+.summary-mini-col .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+  border-bottom: 1px dashed #e5e5e5;
+}
+.summary-mini-col .row:last-child { border-bottom: 0; }
+.summary-mini-col .row .val { font-weight: bold; }
+
 @media(max-width:1000px) {
   .cards        { grid-template-columns: repeat(2,1fr); }
   .summary-grid { grid-template-columns: repeat(2,1fr); }
@@ -582,6 +606,7 @@ td { font-size: 14px; }
   .dash-hero    { grid-template-columns: 1fr; }
   .dash-row     { grid-template-columns: repeat(2,1fr); }
   .fin-grid     { grid-template-columns: 1fr; }
+  .summary-mini-cols { grid-template-columns: 1fr; }
 }
 
 @media(max-width:600px) {
@@ -1733,7 +1758,6 @@ function cambiarRondaActiva(valor) {
 
   actualizarTodo();
 
-  /* Refrescar el resumen financiero ampliado tras cambiar de ronda */
   if (typeof renderResumenFinancieroAmpliado === "function") {
     renderResumenFinancieroAmpliado();
   }
@@ -2512,7 +2536,6 @@ function recalcularCompraEnVivo() {
   renderResultadoCompra();
   actualizarDOMCompraEnVivo();
 
-  /* Refrescar resumen ampliado si estamos en Cierre */
   renderResumenFinancieroAmpliado();
 }
 
@@ -2632,13 +2655,50 @@ function renderResultadoCompra() {
     <div class="info-box" id="resumenCompraFinal">
       <strong>Resumen de la compra</strong>
       <br><br>
-      Presupuesto de alimentos: <strong id="resumenPresupuesto">${soles(r.datos.alimentos)}</strong><br>
-      Costo mínimo esencial:    <strong id="resumenCostoMinimo">${soles(r.costoMinimoTotal)}</strong><br>
-      Compra esencial real:     <strong id="resumenCostoEsencial">${soles(r.costoEsencialesReal)}</strong><br>
-      Regalos / variedad:       <strong id="resumenCostoRegalos">${soles(r.regalosTotal)}</strong>
+
+      <div class="summary-mini-cols">
+
+        <div class="summary-mini-col">
+          <h5>Ingresos / Recursos</h5>
+          <div class="row">
+            <span>Presupuesto de alimentos</span>
+            <span class="val" id="resumenPresupuesto">${soles(r.datos.alimentos)}</span>
+          </div>
+          <div class="row">
+            <span>Ingresos por excedentes</span>
+            <span class="val" id="resumenExcedentes">${soles(totalExcedentesRonda())}</span>
+          </div>
+        </div>
+
+        <div class="summary-mini-col">
+          <h5>Usos</h5>
+          <div class="row">
+            <span>Compra mínima esencial</span>
+            <span class="val" id="resumenCostoMinimo">${soles(r.costoMinimoTotal)}</span>
+          </div>
+          <div class="row">
+            <span>Compra esencial real</span>
+            <span class="val" id="resumenCostoEsencial">${soles(r.costoEsencialesReal)}</span>
+          </div>
+          <div class="row">
+            <span>Regalos / variedad</span>
+            <span class="val" id="resumenCostoRegalos">${soles(r.regalosTotal)}</span>
+          </div>
+          <div class="row">
+            <span>Gastos operativos</span>
+            <span class="val" id="resumenGastos">${soles(totalGastosRonda())}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <span class="purchase-total">Resultado neto:</span>
+      <strong id="resumenResultadoNeto" class="live-balance">${soles(r.saldoReal - totalGastosRonda() + totalExcedentesRonda())}</strong>
       <br><br>
-      <span class="purchase-total">Saldo disponible:</span>
-      <strong id="resumenSaldo" class="live-balance">${soles(r.saldoReal)}</strong>
+      <em class="small-note">
+        Resultado neto = saldo real − gastos + excedentes.<br>
+        Saldo real (sin gastos/excedentes): <span id="resumenSaldo">${soles(r.saldoReal)}</span>
+      </em>
     </div>
   `;
 
@@ -2666,7 +2726,6 @@ function renderResultadoCompra() {
   renderGastosRonda();
   renderExcedentesRonda();
 
-  /* Restaurar el último mensaje de guardado si había uno */
   const resGuarda = document.getElementById("resultadoGuardarCompra");
   if (resGuarda && ultimoMensajeGuardado) {
     resGuarda.innerHTML = ultimoMensajeGuardado;
@@ -2684,34 +2743,40 @@ function actualizarDOMCompraEnVivo() {
   if (!r) return;
 
   r.resultadosEsenciales.forEach(p => {
-    const m = document.getElementById(`minimo-${p.index}`);
-    const pr = document.getElementById(`precioResultado-${p.index}`);
     const co = document.getElementById(`costo-${p.index}`);
-
-    if (m)  m.textContent = formatearCantidad(p.compraMinima);
-    if (pr) pr.textContent = soles(p.precio);
     if (co) co.textContent = soles(p.costo);
   });
 
   const saldoMinimo = document.getElementById("resultadoSaldoMinimo");
   if (saldoMinimo) saldoMinimo.textContent = soles(r.saldoMinimo);
 
+  const gastosTot = (typeof totalGastosRonda === "function") ? totalGastosRonda() : 0;
+  const excedTot  = (typeof totalExcedentesRonda === "function") ? totalExcedentesRonda() : 0;
+  const resultadoNeto = r.saldoReal - gastosTot + excedTot;
+
   const presupuesto  = document.getElementById("resumenPresupuesto");
   const costoMinimo  = document.getElementById("resumenCostoMinimo");
   const costoEsencial = document.getElementById("resumenCostoEsencial");
   const costoRegalosEl = document.getElementById("resumenCostoRegalos");
+  const gastosEl     = document.getElementById("resumenGastos");
+  const excedentesEl = document.getElementById("resumenExcedentes");
+  const netoEl       = document.getElementById("resumenResultadoNeto");
   const saldo        = document.getElementById("resumenSaldo");
 
   if (presupuesto)   presupuesto.textContent   = soles(r.datos.alimentos);
   if (costoMinimo)   costoMinimo.textContent   = soles(r.costoMinimoTotal);
   if (costoEsencial) costoEsencial.textContent = soles(r.costoEsencialesReal);
   if (costoRegalosEl) costoRegalosEl.textContent = soles(r.regalosTotal);
+  if (gastosEl)      gastosEl.textContent      = soles(gastosTot);
+  if (excedentesEl)  excedentesEl.textContent  = soles(excedTot);
 
-  if (saldo) {
-    saldo.textContent = soles(r.saldoReal);
-    saldo.classList.remove("balance-positive","balance-negative");
-    saldo.classList.add(r.saldoReal >= 0 ? "balance-positive" : "balance-negative");
+  if (netoEl) {
+    netoEl.textContent = soles(resultadoNeto);
+    netoEl.classList.remove("balance-positive","balance-negative");
+    netoEl.classList.add(resultadoNeto >= 0 ? "balance-positive" : "balance-negative");
   }
+
+  if (saldo) saldo.textContent = soles(r.saldoReal);
 
   const saldoPres = document.getElementById("saldoPresupuesto");
   if (saldoPres) saldoPres.textContent = soles(r.saldoReal);
@@ -3139,6 +3204,20 @@ function actualizarGastoRonda(index, campo, valor) {
     totalEl.innerHTML = `<strong>Total gastos: ${soles(totalGastosRonda())}</strong>`;
   }
 
+  /* Refrescar los valores del resumen final si está visible */
+  const gastosEl = document.getElementById("resumenGastos");
+  if (gastosEl) gastosEl.textContent = soles(totalGastosRonda());
+
+  const netoEl = document.getElementById("resumenResultadoNeto");
+  if (netoEl && window.ultimoResultadoCompra) {
+    const neto = window.ultimoResultadoCompra.saldoReal
+      - totalGastosRonda()
+      + totalExcedentesRonda();
+    netoEl.textContent = soles(neto);
+    netoEl.classList.remove("balance-positive","balance-negative");
+    netoEl.classList.add(neto >= 0 ? "balance-positive" : "balance-negative");
+  }
+
   renderResumenFinancieroAmpliado();
 }
 
@@ -3251,6 +3330,20 @@ function actualizarExcedenteRonda(index, campo, valor) {
   const totalEl = document.getElementById("totalExcedentesRonda");
   if (totalEl) {
     totalEl.innerHTML = `<strong>Total excedentes: ${soles(totalExcedentesRonda())}</strong>`;
+  }
+
+  /* Refrescar los valores del resumen final si está visible */
+  const excedentesEl = document.getElementById("resumenExcedentes");
+  if (excedentesEl) excedentesEl.textContent = soles(totalExcedentesRonda());
+
+  const netoEl = document.getElementById("resumenResultadoNeto");
+  if (netoEl && window.ultimoResultadoCompra) {
+    const neto = window.ultimoResultadoCompra.saldoReal
+      - totalGastosRonda()
+      + totalExcedentesRonda();
+    netoEl.textContent = soles(neto);
+    netoEl.classList.remove("balance-positive","balance-negative");
+    netoEl.classList.add(neto >= 0 ? "balance-positive" : "balance-negative");
   }
 
   renderResumenFinancieroAmpliado();
@@ -3375,7 +3468,6 @@ let _timeoutGuardarRegalos = null;
 
 async function guardarCompraFinalEnN8N() {
 
-  /* ── Feedback cuando falta ronda o compra calculada ── */
   if (!rondaActiva) {
     const msg = `<div class="result-warning">⚠ Primero elegí o creá una ronda.</div>`;
     const r1 = document.getElementById("resultadoGuardarCompra");
@@ -3399,7 +3491,6 @@ async function guardarCompraFinalEnN8N() {
   }
 
   try {
-    /* 1) Borrar filas viejas de esta ronda (silencioso) */
     try {
       await fetch(API_COMPRAS_BORRAR, {
         method: "POST",
@@ -3412,7 +3503,6 @@ async function guardarCompraFinalEnN8N() {
 
     const r = window.ultimoResultadoCompra;
 
-    /* 2) Items esenciales */
     const itemsEsenciales = r.resultadosEsenciales
       .filter(p => Number(p.compraFinal) > 0)
       .map(p => ({
@@ -3425,7 +3515,6 @@ async function guardarCompraFinalEnN8N() {
         tipo: "esencial"
       }));
 
-    /* 3) Items regalos */
     const itemsRegalos = regalos
       .filter(rg => (rg.producto && rg.producto.trim()) || Number(rg.cantidad) > 0)
       .map(rg => ({
@@ -3438,7 +3527,6 @@ async function guardarCompraFinalEnN8N() {
         tipo: "regalo"
       }));
 
-    /* 4) Items gastos → tipo "gasto". Sin fecha ni medio_pago. */
     const itemsGastos = gastosRonda
       .filter(g => Number(g.monto) > 0)
       .map(g => ({
@@ -3451,7 +3539,6 @@ async function guardarCompraFinalEnN8N() {
         tipo: "gasto"
       }));
 
-    /* 5) Items excedentes → tipo "excedente". Sin fecha. */
     const itemsExcedentes = excedentesRonda
       .filter(e => Number(e.ingreso) > 0)
       .map(e => ({
@@ -3481,7 +3568,6 @@ async function guardarCompraFinalEnN8N() {
       return;
     }
 
-    /* 6) POST único con items[] */
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
