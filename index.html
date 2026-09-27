@@ -1202,10 +1202,9 @@ td { font-size: 14px; }
         <p class="section-sub">P&L · Flujo de Caja · Balance — calculados en n8n</p>
 
         <div class="anchor-notice">
-          Los reportes se calculan en n8n con los datos ya guardados en
-          <strong>pedidos_admin</strong>, <strong>compras_ronda</strong>,
-          <strong>gastos_ronda</strong> y <strong>ventas_excedente</strong>.
-          El HTML solo muestra el resultado.
+          Los reportes se calculan <strong>en el navegador</strong> con los datos
+          que ya tenés cargados en el HTML (pedidos, compras, gastos, excedentes).
+          No consulta a n8n.
         </div>
 
         <div class="reportes-header">
@@ -4119,48 +4118,128 @@ function renderCuadrosReporte(data) {
 }
 
 
-async function calcularReportes() {
+function calcularReportes() {
 
   if (!rondaActiva) {
     alert("Primero elegí una ronda.");
     return;
   }
 
-  const cont = document.getElementById("reportesContenido");
-  if (cont) {
-    cont.innerHTML = `<div class="small-note">Calculando reportes en n8n…</div>`;
+  if (!window.ultimoResultadoCompra) {
+    alert("Primero calculá la compra en la vista Compra.");
+    return;
   }
 
-  try {
-    const url = API_REPORTES + "?ronda=" + encodeURIComponent(rondaActiva);
-    const response = await fetch(url, { cache: "no-store" });
-    if (!response.ok) throw new Error("HTTP " + response.status);
+  const r = window.ultimoResultadoCompra;
+  const r2 = (v) => Math.round((Number(v) || 0) * 100) / 100;
 
-    const data = await response.json();
+  // --- Pedidos aceptados de la ronda activa ---
+  const aceptados = pedidos.filter(p =>
+    String(p.estado || '').toLowerCase() === 'aceptado' &&
+    String(p.ronda_id || '') === String(rondaActiva)
+  );
+  const canastas = aceptados.reduce((s, p) => s + Number(p.total_solicitado || 0), 0);
 
-    let payload = null;
-    if (Array.isArray(data) && data.length) payload = data[0];
-    else if (Array.isArray(data.value) && data.value.length) payload = data.value[0];
-    else if (data && typeof data === "object") payload = data;
+  // --- Excedentes ---
+  const ingresosExcedentes = excedentesRonda.reduce((s, e) => s + Number(e.ingreso || 0), 0);
 
-    if (!payload || !payload.pl) {
-      throw new Error("Respuesta sin datos de reporte");
+  // --- Compras (esenciales + regalos) ---
+  const comprasTotal = r.costoEsencialesReal + r.regalosTotal;
+
+  // --- Gastos por tipo ---
+  const gastosPorTipo = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
+  gastosRonda.forEach(g => {
+    const t = String(g.tipo || 'otro').toLowerCase();
+    const monto = Number(g.monto) || 0;
+    if (gastosPorTipo[t] !== undefined) gastosPorTipo[t] += monto;
+    else gastosPorTipo.otro += monto;
+  });
+  const gastosTotal = Object.values(gastosPorTipo).reduce((s, v) => s + v, 0);
+
+  // --- P&L ---
+  const totalIngresos = canastas + ingresosExcedentes;
+  const margenBruto = totalIngresos - comprasTotal;
+  const ebit = margenBruto - gastosTotal;
+  const impuestos = ebit > 0 ? r2(ebit * 0.015) : 0;
+  const utilidadNeta = r2(ebit - impuestos);
+
+  // --- Flujo de Caja ---
+  const cfo = canastas + ingresosExcedentes - comprasTotal - gastosTotal;
+  const cfi = 0;
+  const cff = 0;
+  const deltaCaja = cfo + cfi + cff;
+  const cajaInicial = 0;
+  const cajaFinal = cajaInicial + deltaCaja;
+
+  // --- Balance ---
+  const activosTotal = cajaFinal;
+  const pasivosTotal = 0;
+  const patrimonioTotal = activosTotal - pasivosTotal;
+  const cuadra = Math.abs(activosTotal - (pasivosTotal + patrimonioTotal)) < 0.01;
+
+  // --- Armar reporte ---
+  reporteActual = {
+    id_ronda: rondaActiva,
+    fecha_calculo: new Date().toISOString(),
+    pl: {
+      ingresos: {
+        canastas: r2(canastas),
+        excedentes: r2(ingresosExcedentes),
+        total: r2(totalIngresos)
+      },
+      cogs: { compras: r2(comprasTotal), total: r2(comprasTotal) },
+      margen_bruto: r2(margenBruto),
+      gastos: {
+        transporte: r2(gastosPorTipo.transporte),
+        empaque: r2(gastosPorTipo.empaque),
+        sueldo: r2(gastosPorTipo.sueldo),
+        otro: r2(gastosPorTipo.otro),
+        total: r2(gastosTotal)
+      },
+      ebit: r2(ebit),
+      impuestos: r2(impuestos),
+      utilidad_neta: r2(utilidadNeta)
+    },
+    flujo: {
+      cfo: {
+        cobros: r2(canastas),
+        excedentes: r2(ingresosExcedentes),
+        pagos_proveedor: r2(comprasTotal),
+        pagos_gastos: r2(gastosTotal),
+        total: r2(cfo)
+      },
+      cfi: { total: cfi },
+      cff: { aportes: 0, retiros: 0, total: cff },
+      variacion: {
+        delta_caja: r2(deltaCaja),
+        caja_inicial: cajaInicial,
+        caja_final: r2(cajaFinal)
+      }
+    },
+    balance: {
+      activos: {
+        caja: r2(cajaFinal),
+        inventario: 0,
+        cxc: 0,
+        equipo: 0,
+        total: r2(activosTotal)
+      },
+      pasivos: { cxp: 0, ingresos_diferidos: 0, total: pasivosTotal },
+      patrimonio: {
+        capital: 0,
+        resultados_acumulados: r2(patrimonioTotal),
+        total: r2(patrimonioTotal)
+      },
+      verificacion: {
+        activos: r2(activosTotal),
+        pasivos_patrimonio: r2(pasivosTotal + patrimonioTotal),
+        cuadra: cuadra
+      }
     }
+  };
 
-    reporteActual = payload;
-    rondaReporteActiva = rondaActiva;
-
-    renderReportes();
-
-  } catch (error) {
-    console.error("Error calculando reportes:", error);
-    if (cont) {
-      cont.innerHTML = `<div class="result-error">
-        ✕ No se pudieron calcular los reportes.<br>
-        Verificá que el webhook <code>admin-reportes</code> esté activo en n8n.
-      </div>`;
-    }
-  }
+  rondaReporteActiva = rondaActiva;
+  renderReportes();
 }
 
 
