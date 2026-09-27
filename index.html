@@ -2884,16 +2884,12 @@ let _timeoutGuardarRegalos = null;
 
 async function guardarCompraFinalEnN8N() {
 
-  if (!rondaActiva) return;
+  /* ═══ FUNCIÓN REEMPLAZADA: ahora mete gastos y excedentes dentro de items[] ═══ */
 
-  const r = window.ultimoResultadoCompra;
-  if (!r) {
-    console.warn("No hay compra calculada para guardar.");
-    return;
-  }
+  if (!rondaActiva || !window.ultimoResultadoCompra) return;
 
   try {
-    /* 1) Borrar filas viejas */
+    /* 1) Borrar filas viejas (silencioso) */
     try {
       await fetch(API_COMPRAS_BORRAR, {
         method: "POST",
@@ -2903,6 +2899,8 @@ async function guardarCompraFinalEnN8N() {
     } catch (e) {
       console.warn("No se pudieron borrar filas viejas:", e);
     }
+
+    const r = window.ultimoResultadoCompra;
 
     /* 2) Items esenciales */
     const itemsEsenciales = r.resultadosEsenciales
@@ -2930,7 +2928,8 @@ async function guardarCompraFinalEnN8N() {
         tipo: "regalo"
       }));
 
-    /* 4) Items gastos */
+    /* 4) Items gastos → dentro de items[] con tipo "gasto"
+          ⚠️ NO incluir fecha ni medio_pago: no existen en compras_ronda */
     const itemsGastos = gastosRonda
       .filter(g => Number(g.monto) > 0)
       .map(g => ({
@@ -2940,12 +2939,11 @@ async function guardarCompraFinalEnN8N() {
         cantidad: 1,
         precio_unitario: Number(g.monto) || 0,
         costo: Number(g.monto) || 0,
-        tipo: "gasto",
-        fecha: g.fecha || new Date().toISOString().slice(0,10),
-        medio_pago: g.medio_pago || "efectivo"
+        tipo: "gasto"
       }));
 
-    /* 5) Items excedentes */
+    /* 5) Items excedentes → dentro de items[] con tipo "excedente"
+          ⚠️ NO incluir fecha ni medio_pago */
     const itemsExcedentes = excedentesRonda
       .filter(e => Number(e.ingreso) > 0)
       .map(e => ({
@@ -2955,11 +2953,10 @@ async function guardarCompraFinalEnN8N() {
         cantidad: 1,
         precio_unitario: Number(e.ingreso) || 0,
         costo: Number(e.ingreso) || 0,
-        tipo: "excedente",
-        fecha: e.fecha || new Date().toISOString().slice(0,10)
+        tipo: "excedente"
       }));
 
-    /* 6) Un solo array items[] */
+    /* 6) Un solo array items[] con los 4 tipos mezclados */
     const items = [
       ...itemsEsenciales,
       ...itemsRegalos,
@@ -2972,7 +2969,7 @@ async function guardarCompraFinalEnN8N() {
       return;
     }
 
-    /* 7) POST con solo id_ronda + items */
+    /* 7) POST con solo id_ronda + items (sin gastos ni excedentes separados) */
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3020,6 +3017,8 @@ function buscarIdProductoEsencial(nombre) {
 
 async function cargarCompraFinalDeRonda(ronda) {
 
+  /* ═══ FUNCIÓN REEMPLAZADA: lee items[] y separa por tipo (esencial, regalo, gasto, excedente) ═══ */
+
   if (!ronda) return;
 
   try {
@@ -3034,7 +3033,7 @@ async function cargarCompraFinalDeRonda(ronda) {
 
     /* Soportar 3 formatos de respuesta */
     let lista = [];
-    if (Array.isArray(data))            lista = data;               // formato viejo plano
+    if (Array.isArray(data))            lista = data;               // formato plano
     else if (Array.isArray(data.items)) lista = data.items;         // formato nuevo
     else if (Array.isArray(data.value)) lista = data.value;         // n8n envuelve
 
@@ -3058,7 +3057,7 @@ async function cargarCompraFinalDeRonda(ronda) {
       String(f.tipo || "").toLowerCase() === "excedente"
     );
 
-    /* Cargar adicionales */
+    /* Cargar adicionales desde filas esenciales */
     adicionales.fill(0);
     filasEsenciales.forEach(f => {
       const idx = productos.findIndex(p => p.nombre === f.producto);
@@ -3075,18 +3074,22 @@ async function cargarCompraFinalDeRonda(ronda) {
       precio: Number(item.precio_unitario) || 0
     }));
 
-    /* Cargar gastos */
+    /* Cargar gastos
+       → el tipo de gasto se guarda en "unidad"
+       → fecha no se guarda en compras_ronda → cadena vacía
+       → medio_pago no se guarda → default "efectivo" */
     gastosRonda = filasGastos.map(g => ({
-      fecha: g.fecha ? String(g.fecha).slice(0,10) : "",
-      tipo: g.unidad || "otro",           // el tipo de gasto se guarda en "unidad"
+      fecha: "",
+      tipo: g.unidad || "otro",
       descripcion: g.producto || "",
       monto: Number(g.costo) || 0,
-      medio_pago: g.medio_pago || "efectivo"
+      medio_pago: "efectivo"
     }));
 
-    /* Cargar excedentes */
+    /* Cargar excedentes
+       → fecha no se guarda en compras_ronda → cadena vacía */
     excedentesRonda = filasExcedentes.map(e => ({
-      fecha: e.fecha ? String(e.fecha).slice(0,10) : "",
+      fecha: "",
       descripcion: e.producto || "",
       ingreso: Number(e.costo) || 0
     }));
@@ -3252,20 +3255,44 @@ RESUMEN DE CAMBIOS REALIZADOS
    - guardarCompraFinalEnN8N()
    - cargarCompraFinalDeRonda(ronda)
 
-2) QUÉ NO SE TOCÓ:
-   - Toda la estructura HTML, CSS, barra de ronda, selector, botones.
-   - Funciones cambiarEstado, abrirModalPago, confirmarAceptarPedido.
+2) QUÉ SE MODIFICÓ EN CADA UNA:
+
+   ► guardarCompraFinalEnN8N():
+     - Ya NO manda { id_ronda, items, gastos, excedentes } con campos separados.
+     - Ahora mete los gastos y excedentes DENTRO de items[] con tipo "gasto"
+       y "excedente" respectivamente.
+     - Los items de gasto NO incluyen "fecha" ni "medio_pago" (no existen
+       en compras_ronda). El tipo de gasto va en el campo "unidad".
+     - Los items de excedente NO incluyen "fecha" ni "medio_pago".
+     - El POST final es { id_ronda: rondaActiva, items: items }.
+     - El contador de registros guardados incluye los 4 tipos.
+
+   ► cargarCompraFinalDeRonda(ronda):
+     - Lee solo items[] (con soporte para 3 formatos: array plano,
+       data.items o data.value).
+     - Separa por tipo: "esencial", "regalo" (o vacío), "gasto", "excedente".
+     - Reconstruye adicionales, regalos, gastosRonda y excedentesRonda.
+     - En gastosRonda: fecha = "" (no se persiste), tipo = g.unidad || "otro",
+       medio_pago = "efectivo" (default, no se persiste).
+     - En excedentesRonda: fecha = "" (no se persiste).
+     - Llama a guardarConfiguracion(), recalcularCompraEnVivo(),
+       renderRegalos(), renderGastosRonda(), renderExcedentesRonda().
+
+3) QUÉ NO SE TOCÓ:
+   - Toda la estructura HTML, CSS, barra de ronda, selector y botones.
+   - cambiarEstado, abrirModalPago, confirmarAceptarPedido.
    - renderGastosRonda, renderExcedentesRonda.
    - guardarConfiguracion, cargarConfiguracion.
    - renderResultadoCompra y todos los bloques de gastos/excedentes.
    - El resto de funciones y variables existentes.
 
-3) CONFIRMACIÓN:
-   - El array items[] ahora contiene los 4 tipos:
+4) CONFIRMACIÓN:
+   - El array items[] ahora contiene los 4 tipos mezclados:
      esencial, regalo, gasto, excedente.
-   - Al guardar, n8n recibe { id_ronda, items } con todos los registros
-     mezclados en un solo array; la columna `tipo` los distingue.
+   - n8n recibe { id_ronda, items } y usa la columna `tipo` para distinguir.
    - Al cargar, la función lee items[] y separa por tipo para reconstruir
      adicionales, regalos, gastosRonda y excedentesRonda.
+   - Se eliminaron `fecha` y `medio_pago` de los items de gasto.
+   - Se eliminó `fecha` de los items de excedente.
 
-===================================================== -->
+===================================================== --></proposed_content>
