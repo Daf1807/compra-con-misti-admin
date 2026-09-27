@@ -2904,7 +2904,7 @@ async function guardarCompraFinalEnN8N() {
       console.warn("No se pudieron borrar filas viejas:", e);
     }
 
-    /* 2) Items esenciales + regalos */
+    /* 2) Items esenciales */
     const itemsEsenciales = r.resultadosEsenciales
       .filter(p => Number(p.compraFinal) > 0)
       .map(p => ({
@@ -2917,6 +2917,7 @@ async function guardarCompraFinalEnN8N() {
         tipo: "esencial"
       }));
 
+    /* 3) Items regalos */
     const itemsRegalos = regalos
       .filter(rg => (rg.producto && rg.producto.trim()) || Number(rg.cantidad) > 0)
       .map(rg => ({
@@ -2929,32 +2930,72 @@ async function guardarCompraFinalEnN8N() {
         tipo: "regalo"
       }));
 
-    const items = [...itemsEsenciales, ...itemsRegalos];
+    /* 4) Items gastos */
+    const itemsGastos = gastosRonda
+      .filter(g => Number(g.monto) > 0)
+      .map(g => ({
+        id_producto: null,
+        producto: g.descripcion || "Gasto",
+        unidad: g.tipo || "otro",
+        cantidad: 1,
+        precio_unitario: Number(g.monto) || 0,
+        costo: Number(g.monto) || 0,
+        tipo: "gasto",
+        fecha: g.fecha || new Date().toISOString().slice(0,10),
+        medio_pago: g.medio_pago || "efectivo"
+      }));
 
-    /* 3) POST con payload ampliado */
+    /* 5) Items excedentes */
+    const itemsExcedentes = excedentesRonda
+      .filter(e => Number(e.ingreso) > 0)
+      .map(e => ({
+        id_producto: null,
+        producto: e.descripcion || "Excedente",
+        unidad: "ingreso",
+        cantidad: 1,
+        precio_unitario: Number(e.ingreso) || 0,
+        costo: Number(e.ingreso) || 0,
+        tipo: "excedente",
+        fecha: e.fecha || new Date().toISOString().slice(0,10)
+      }));
+
+    /* 6) Un solo array items[] */
+    const items = [
+      ...itemsEsenciales,
+      ...itemsRegalos,
+      ...itemsGastos,
+      ...itemsExcedentes
+    ];
+
+    if (items.length === 0) {
+      console.log("Sin items para guardar en", rondaActiva);
+      return;
+    }
+
+    /* 7) POST con solo id_ronda + items */
     const response = await fetch(API_COMPRAS_GUARDAR, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id_ronda: rondaActiva,
-        items: items,
-        gastos: [...gastosRonda],
-        excedentes: [...excedentesRonda]
+        items: items
       })
     });
 
     if (!response.ok) throw new Error("HTTP " + response.status);
 
     console.log("✓ Compra final guardada en n8n:",
-      items.length, "items,",
-      gastosRonda.length, "gastos,",
-      excedentesRonda.length, "excedentes");
+      items.length, "registros:",
+      itemsEsenciales.length, "esenciales,",
+      itemsRegalos.length, "regalos,",
+      itemsGastos.length, "gastos,",
+      itemsExcedentes.length, "excedentes");
 
     const resultado = document.getElementById("resultadoGuardarCompra");
     if (resultado) {
       resultado.innerHTML = `<div class="result-good">
-        ✓ Guardados ${items.length} item(s), ${gastosRonda.length} gasto(s) y ${excedentesRonda.length} excedente(s) en n8n
-        (${itemsEsenciales.length} esenciales + ${itemsRegalos.length} regalos)
+        ✓ Guardados ${items.length} registro(s) en n8n: ${itemsEsenciales.length} esenciales ·
+        ${itemsRegalos.length} regalos · ${itemsGastos.length} gastos · ${itemsExcedentes.length} excedentes
       </div>`;
     }
 
@@ -2991,32 +3032,30 @@ async function cargarCompraFinalDeRonda(ronda) {
 
     const data = await response.json();
 
-    /* Soportar formato viejo (array plano) y nuevo (con items/gastos/excedentes) */
-    let filasItems = [];
-    let filasGastos = [];
-    let filasExcedentes = [];
+    /* Soportar 3 formatos de respuesta */
+    let lista = [];
+    if (Array.isArray(data))            lista = data;               // formato viejo plano
+    else if (Array.isArray(data.items)) lista = data.items;         // formato nuevo
+    else if (Array.isArray(data.value)) lista = data.value;         // n8n envuelve
 
-    if (Array.isArray(data)) {
-      /* Formato viejo: array plano de items */
-      filasItems = data;
-    } else if (data && typeof data === "object") {
-      const items = data.items || data.value || [];
-      filasItems = Array.isArray(items) ? items : [];
-      filasGastos = Array.isArray(data.gastos) ? data.gastos : [];
-      filasExcedentes = Array.isArray(data.excedentes) ? data.excedentes : [];
-    }
-
-    /* Filtrar items válidos */
-    const filas = filasItems.filter(f =>
+    /* Filtrar filas válidas */
+    const filas = lista.filter(f =>
       f && f.producto && Number(f.cantidad) > 0
     );
 
+    /* Separar por tipo (tolerante a mayúsculas) */
     const filasEsenciales = filas.filter(f =>
       String(f.tipo || "").toLowerCase() === "esencial"
     );
     const filasRegalos = filas.filter(f =>
       String(f.tipo || "").toLowerCase() === "regalo" ||
       String(f.tipo || "").toLowerCase() === ""
+    );
+    const filasGastos = filas.filter(f =>
+      String(f.tipo || "").toLowerCase() === "gasto"
+    );
+    const filasExcedentes = filas.filter(f =>
+      String(f.tipo || "").toLowerCase() === "excedente"
     );
 
     /* Cargar adicionales */
@@ -3038,18 +3077,18 @@ async function cargarCompraFinalDeRonda(ronda) {
 
     /* Cargar gastos */
     gastosRonda = filasGastos.map(g => ({
-      fecha: g.fecha || "",
-      tipo: g.tipo || "otro",
-      descripcion: g.descripcion || "",
-      monto: Number(g.monto) || 0,
+      fecha: g.fecha ? String(g.fecha).slice(0,10) : "",
+      tipo: g.unidad || "otro",           // el tipo de gasto se guarda en "unidad"
+      descripcion: g.producto || "",
+      monto: Number(g.costo) || 0,
       medio_pago: g.medio_pago || "efectivo"
     }));
 
     /* Cargar excedentes */
     excedentesRonda = filasExcedentes.map(e => ({
-      fecha: e.fecha || "",
-      descripcion: e.descripcion || "",
-      ingreso: Number(e.ingreso) || 0
+      fecha: e.fecha ? String(e.fecha).slice(0,10) : "",
+      descripcion: e.producto || "",
+      ingreso: Number(e.costo) || 0
     }));
 
     guardarConfiguracion();
@@ -3202,4 +3241,31 @@ setTimeout(() => {
 </script>
 
 </body>
+
 </html>
+
+<!-- =====================================================
+RESUMEN DE CAMBIOS REALIZADOS
+======================================================
+
+1) FUNCIONES REEMPLAZADAS:
+   - guardarCompraFinalEnN8N()
+   - cargarCompraFinalDeRonda(ronda)
+
+2) QUÉ NO SE TOCÓ:
+   - Toda la estructura HTML, CSS, barra de ronda, selector, botones.
+   - Funciones cambiarEstado, abrirModalPago, confirmarAceptarPedido.
+   - renderGastosRonda, renderExcedentesRonda.
+   - guardarConfiguracion, cargarConfiguracion.
+   - renderResultadoCompra y todos los bloques de gastos/excedentes.
+   - El resto de funciones y variables existentes.
+
+3) CONFIRMACIÓN:
+   - El array items[] ahora contiene los 4 tipos:
+     esencial, regalo, gasto, excedente.
+   - Al guardar, n8n recibe { id_ronda, items } con todos los registros
+     mezclados en un solo array; la columna `tipo` los distingue.
+   - Al cargar, la función lee items[] y separa por tipo para reconstruir
+     adicionales, regalos, gastosRonda y excedentesRonda.
+
+===================================================== -->
