@@ -859,7 +859,6 @@ td { font-size: 14px; }
           <div class="label">Dinero comprometido</div>
           <div class="big" id="dineroComprometido">S/ 0.00</div>
         </div>
-        <!-- CAMBIO 3: textos actualizados -->
         <div>
           <div class="label">Presupuesto alimentos</div>
           <div class="mid" id="presupuestoAlimentos">S/ 0.00</div>
@@ -868,7 +867,6 @@ td { font-size: 14px; }
           <div class="label">Cuota de coordinación</div>
           <div class="mid" id="presupuestoOperaciones">S/ 0.00</div>
         </div>
-        <!-- FIN CAMBIO 3 -->
       </div>
 
       <div class="dash-row">
@@ -904,14 +902,12 @@ td { font-size: 14px; }
           <div class="summary-box">Equivalentes Semilla<strong id="equivalenteSemilla">0.00</strong></div>
         </div>
 
-        <!-- CAMBIO 4: textos actualizados -->
         <div class="budget-grid">
           <div class="budget-box">Dinero comprometido<strong id="presupuestoTotal">S/ 0.00</strong></div>
           <div class="budget-box">Cuota de coordinación<strong id="presupuestoOperaciones2">S/ 0.00</strong></div>
           <div class="budget-box">Presupuesto alimentos<strong id="presupuestoAlimentos2">S/ 0.00</strong></div>
           <div class="budget-box">Saldo (alimentos − compra)<strong id="saldoPresupuesto">S/ 0.00</strong></div>
         </div>
-        <!-- FIN CAMBIO 4 -->
       </div>
 
     </section>
@@ -990,7 +986,7 @@ td { font-size: 14px; }
 
         <div class="info-box">
           <strong>Regla fundamental</strong><br><br>
-          Los 24 productos son el universo de productos que Misti puede utilizar.<br><br>
+          El universo de productos es todo lo que Misti puede utilizar.<br><br>
           Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
           Los productos esenciales tienen un mínimo garantizado para una Semilla.<br><br>
           La Básica y Familiar no tienen mínimos independientes:
@@ -1006,9 +1002,9 @@ td { font-size: 14px; }
         <h2 class="section-head">📋 Precios de la ronda actual</h2>
 
         <p class="section-description">
-          Carga aquí los precios minorista y mayorista de los 10 productos base
-          de la ronda activa. Estos precios se usan automáticamente en el cálculo
-          de la compra.
+          Carga aquí los precios minorista y mayorista de los productos
+          marcados como <strong>esenciales</strong> en el Universo de productos.
+          Estos precios se usan automáticamente en el cálculo de la compra.
           <br><br>
           <strong>Si registrás la misma ronda otra vez, se reemplazan los precios anteriores.</strong>
         </p>
@@ -1049,12 +1045,12 @@ td { font-size: 14px; }
         <h2 class="section-head">Universo de productos y esenciales</h2>
 
         <p class="section-description">
-          Los 24 productos permanecen disponibles para la compra.
+          Todos los productos del Mercado Mayorista de Santa Anita están disponibles.
           Aquí decides cuáles forman parte del compromiso esencial.
           <br><br>
-          <strong>No necesitas definir mínimos para todos.</strong>
-          Marca solamente los productos que quieras garantizar
-          y coloca su mínimo para una Semilla.
+          <strong>Al marcar un producto como esencial</strong>, se autocompletan sus
+          mínimos por canasta si está en la lista recomendada.
+          Si no, quedan en 0 y los editas a mano.
           <br><br>
           <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
           "Precios de la ronda actual".
@@ -1076,10 +1072,7 @@ td { font-size: 14px; }
                 <th>Esencial</th>
                 <th>Producto</th>
                 <th>Unidad</th>
-                <th>Mínimo Semilla</th>
-                <th>Básica × 1.50</th>
-                <th>Familiar × 2.25</th>
-                <th>Precio mercado (ronda)</th>
+                <th>Precio mercado</th>
               </tr>
             </thead>
             <tbody id="productosBody"></tbody>
@@ -1112,10 +1105,10 @@ td { font-size: 14px; }
 
         <div class="formula-box">
           Para cada producto esencial:<br><br>
-          Mínimo consolidado =
+          Entregado (mín.) =
           (Semillas × mínimo Semilla)
-          + (Básicas × mínimo Semilla × 1.50)
-          + (Familiares × mínimo Semilla × 2.25)
+          + (Básicas × mínimo Basica)
+          + (Familiares × mínimo Familiar)
           <br><br>
           Compra mínima = redondear hacia arriba( mínimo consolidado )
           <br><br>
@@ -1314,7 +1307,6 @@ let pedidos = [];
 CANASTAS
 ===================================================== */
 
-/* ===== CAMBIO 1: constantes nuevas, sin PORCENTAJE_* ===== */
 const CANASTA_SEMILLA  = 20;
 const CANASTA_BASICA   = 30;
 const CANASTA_FAMILIAR = 45;
@@ -1326,58 +1318,108 @@ const CUOTA_FAMILIAR   = 9;
 const FACTOR_SEMILLA  = 1;
 const FACTOR_BASICA   = 30 / 20;   // = 1.5
 const FACTOR_FAMILIAR = 45 / 20;   // = 2.25
-/* ===== FIN CAMBIO 1 ===== */
 
 
 /* =====================================================
-PRODUCTOS FIJOS DE PRECIOS DE MERCADO
+MINIMOS RECOMENDADOS POR CANASTA
 ===================================================== */
 
-const PRODUCTOS_PRECIOS = [
-  { id: 1,  nombre: "Papa amarilla", unidad: "kg" },
-  { id: 2,  nombre: "Papa blanca",   unidad: "kg" },
-  { id: 3,  nombre: "Cebolla",       unidad: "kg" },
-  { id: 4,  nombre: "Tomate",        unidad: "kg" },
-  { id: 5,  nombre: "Zanahoria",     unidad: "kg" },
-  { id: 6,  nombre: "Ajo",           unidad: "kg" },
-  { id: 7,  nombre: "Limón",         unidad: "kg" },
-  { id: 8,  nombre: "Choclo",        unidad: "unidad" },
-  { id: 9,  nombre: "Culantro",      unidad: "atado" },
-  { id: 10, nombre: "Zapallo",       unidad: "kg" }
-];
+const MINIMOS_RECOMENDADOS = {
+  "Papa blanca":     { semilla: 1.50, basica: 2.50, familiar: 4.00 },
+  "Papa amarilla":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
+  "Cebolla roja":    { semilla: 0.50, basica: 1.00, familiar: 1.50 },
+  "Zanahoria":       { semilla: 0.25, basica: 0.50, familiar: 0.75 },
+  "Camote amarillo": { semilla: 0.50, basica: 1.00, familiar: 1.50 },
+  "Zapallo macre":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
+  "Yuca amarilla":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
+  "Tomate":          { semilla: 0.25, basica: 0.50, familiar: 0.75 },
+  "Choclo":          { semilla: 1,    basica: 2,    familiar: 3    }
+};
 
 
 /* =====================================================
-UNIVERSO DE PRODUCTOS
+UNIVERSO DE PRODUCTOS — MERCADO SANTA ANITA
 ===================================================== */
 
 const productos = [
+  // TUBÉRCULOS Y RAÍCES
+  { nombre: "Papa blanca",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa amarilla",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa canchán",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa única",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa yungay",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa huayro",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa peruanita",     unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa color",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa negra andina",  unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa huamantanga",   unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Camote amarillo",    unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Camote morado",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Yuca amarilla",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Olluco largo",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
 
-  { nombre: "Papa amarilla",   unidad: "kg",     esencial: false, minimo: 0.50, precio: 0 },
-  { nombre: "Papa blanca",     unidad: "kg",     esencial: false, minimo: 0.50, precio: 0 },
-  { nombre: "Cebolla",         unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Tomate",          unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Zanahoria",       unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Ajo",             unidad: "kg",     esencial: false, minimo: 0.05, precio: 0 },
-  { nombre: "Ají amarillo",    unidad: "kg",     esencial: false, minimo: 0.10, precio: 0 },
-  { nombre: "Limón",           unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Calabacín",       unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Zapallo",         unidad: "kg",     esencial: false, minimo: 0.30, precio: 0 },
-  { nombre: "Choclo",          unidad: "unidad", esencial: false, minimo: 1,    precio: 0 },
-  { nombre: "Camote",          unidad: "kg",     esencial: false, minimo: 0.50, precio: 0 },
-  { nombre: "Palta",           unidad: "unidad", esencial: false, minimo: 1,    precio: 0 },
-  { nombre: "Perejil",         unidad: "atado",  esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Culantro",        unidad: "atado",  esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Cebolla china",   unidad: "atado",  esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Apio",            unidad: "atado",  esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Vainita",         unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Beterraga",       unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Alverja",         unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Garbanzo",        unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Frejol panamito", unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Frejol canario",  unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 },
-  { nombre: "Lentejas",        unidad: "kg",     esencial: false, minimo: 0.25, precio: 0 }
+  // VERDURAS DE HOJA
+  { nombre: "Lechuga americana",  unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Lechuga criolla",    unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Lechuga romana",     unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Espinaca",           unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Acelga",             unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Col china",          unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Col corazón",        unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Coliflor",           unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Brócoli",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Apio",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Perejil",            unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Culantro",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Hierba buena",       unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Huacatay",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Albahaca",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
 
+  // HORTALIZAS DE FRUTO
+  { nombre: "Tomate",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Cebolla roja",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Cebolla blanca",     unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Cebolla china",      unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Zanahoria",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Beterraga",          unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Nabo",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Rabanito",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Poro",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Pepinillo",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Berenjena",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Pimiento morrón",    unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Ají escabeche",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Ají amarillo",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Ají panca",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Ají rocoto",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Zapallo macre",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Zapallo italiano",   unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Zapallo loche",      unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Caigua",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+
+  // CHOCLOS Y GRANOS VERDES
+  { nombre: "Choclo",             unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Arveja verde",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Haba verde",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Vainita",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Pallar verde",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+
+  // TUBÉRCULOS ANDINOS
+  { nombre: "Alcachofa",          unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Espárrago",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Kion",               unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+
+  // FRUTAS
+  { nombre: "Manzana",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Naranja",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papaya",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Piña",               unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Plátano",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Maracuyá",           unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Limón",              unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+
+  // TUBÉRCULOS ADICIONALES
+  { nombre: "Ajo",                unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 }
 ];
 
 
@@ -1385,7 +1427,9 @@ const productos = [
 ESTADO GLOBAL
 ===================================================== */
 
-const adicionales = productos.map(() => 0);
+/* Los adicionales ya no se mapean por índice fijo:
+   se guardan por nombre de producto para sobrevivir a cambios del universo. */
+let adicionales = {};
 
 let regalos = [];
 
@@ -1443,7 +1487,7 @@ function mostrarVista(nombre) {
 PERSISTENCIA LOCAL
 ===================================================== */
 
-const STORAGE_KEY = "compra_con_misti_admin_v1";
+const STORAGE_KEY = "compra_con_misti_admin_v2";
 
 
 function guardarConfiguracion() {
@@ -1456,10 +1500,12 @@ function guardarConfiguracion() {
         nombre: p.nombre,
         unidad: p.unidad,
         esencial: p.esencial,
-        minimo: p.minimo
+        minimo: p.minimo,
+        minimoBasica: p.minimoBasica,
+        minimoFamiliar: p.minimoFamiliar
       })),
 
-      adicionales: [...adicionales],
+      adicionales: { ...adicionales },
 
       regalos: regalos.map(r => ({
         producto: r.producto,
@@ -1504,16 +1550,14 @@ function cargarConfiguracion() {
       datos.productos.forEach((gp, index) => {
         if (!productos[index]) return;
         productos[index].esencial = Boolean(gp.esencial);
-        productos[index].minimo   = Number(gp.minimo) || 0;
+        productos[index].minimo = Number(gp.minimo) || 0;
+        productos[index].minimoBasica = Number(gp.minimoBasica) || 0;
+        productos[index].minimoFamiliar = Number(gp.minimoFamiliar) || 0;
       });
     }
 
-    if (Array.isArray(datos.adicionales)) {
-      datos.adicionales.forEach((valor, index) => {
-        if (index < adicionales.length) {
-          adicionales[index] = Number(valor) || 0;
-        }
-      });
+    if (datos.adicionales && typeof datos.adicionales === "object") {
+      adicionales = { ...datos.adicionales };
     }
 
     if (Array.isArray(datos.regalos)) {
@@ -1573,16 +1617,18 @@ function aplicarPreciosRondaAProductos() {
 
   productos.forEach(p => { p.precio = 0; });
 
-  PRODUCTOS_PRECIOS.forEach(pp => {
+  Object.keys(preciosRonda).forEach(id => {
 
-    const fila = preciosRonda[pp.id];
+    const fila = preciosRonda[id];
     if (!fila) return;
 
     const mayorista = Number(fila.precio_mayorista) || 0;
     const minorista = Number(fila.precio_minorista) || 0;
     const precioFinal = mayorista > 0 ? mayorista : minorista;
 
-    const producto = productos.find(p => p.nombre === pp.nombre);
+    if (!fila.producto) return;
+
+    const producto = productos.find(p => p.nombre === fila.producto);
     if (producto) {
       producto.precio = precioFinal;
     }
@@ -1602,12 +1648,11 @@ function renderProductos() {
 
   body.innerHTML = productos.map((p, i) => {
 
-    const basica   = p.minimo * FACTOR_BASICA;
-    const familiar = p.minimo * FACTOR_FAMILIAR;
-
-    const precioHTML = p.precio > 0
+    const precioHTML = (p.esencial && p.precio > 0)
       ? `<strong>${soles(p.precio)}</strong>`
-      : `<span class="price-missing">SIN PRECIO</span>`;
+      : (p.esencial
+          ? `<span class="price-missing">SIN PRECIO</span>`
+          : `<span class="muted">—</span>`);
 
     return `
       <tr>
@@ -1625,29 +1670,6 @@ function renderProductos() {
             : `<span class="optional-badge">UNIVERSO</span>`}
         </td>
         <td>${escapeHTML(p.unidad)}</td>
-        <td>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value="${p.minimo}"
-            ${!p.esencial ? "disabled" : ""}
-            oninput="cambiarMinimo(${i}, this.value)"
-          >
-          ${!p.esencial
-            ? `<div class="small-note">Se activa al marcar como esencial.</div>`
-            : ""}
-        </td>
-        <td id="basica-${i}">
-          ${p.esencial
-            ? `<strong>${formatearCantidad(basica)}</strong>`
-            : `<span class="muted">—</span>`}
-        </td>
-        <td id="familiar-${i}">
-          ${p.esencial
-            ? `<strong>${formatearCantidad(familiar)}</strong>`
-            : `<span class="muted">—</span>`}
-        </td>
         <td id="precio-${i}">
           ${precioHTML}
         </td>
@@ -1658,26 +1680,53 @@ function renderProductos() {
 
 
 function cambiarEsencial(index, valor) {
-  productos[index].esencial = Boolean(valor);
+
+  const p = productos[index];
+  if (!p) return;
+
+  p.esencial = Boolean(valor);
+
+  if (p.esencial) {
+    /* Autocompletar mínimos recomendados si aplica */
+    const rec = MINIMOS_RECOMENDADOS[p.nombre];
+    if (rec) {
+      p.minimo = rec.semilla;
+      p.minimoBasica = rec.basica;
+      p.minimoFamiliar = rec.familiar;
+    } else if (!p.minimo && !p.minimoBasica && !p.minimoFamiliar) {
+      /* Si no está en la lista y no tenía nada, dejar en 0 */
+      p.minimo = 0;
+      p.minimoBasica = 0;
+      p.minimoFamiliar = 0;
+    }
+  }
+
   guardarConfiguracion();
+
+  /* Refrescar las 3 secciones conectadas */
   renderProductos();
-  if (compraCalculada) calcularCompra();
+  renderPreciosRonda();
+  aplicarPreciosRondaAProductos();
+
+  if (compraCalculada) recalcularCompraEnVivo();
 }
 
 
 function cambiarMinimo(index, valor) {
   productos[index].minimo = Number(valor) || 0;
   guardarConfiguracion();
+  if (compraCalculada) recalcularCompraEnVivo();
+}
 
-  const basica   = productos[index].minimo * FACTOR_BASICA;
-  const familiar = productos[index].minimo * FACTOR_FAMILIAR;
+function cambiarMinimoBasica(index, valor) {
+  productos[index].minimoBasica = Number(valor) || 0;
+  guardarConfiguracion();
+  if (compraCalculada) recalcularCompraEnVivo();
+}
 
-  const bEl = document.getElementById(`basica-${index}`);
-  const fEl = document.getElementById(`familiar-${index}`);
-
-  if (bEl) bEl.innerHTML = `<strong>${formatearCantidad(basica)}</strong>`;
-  if (fEl) fEl.innerHTML = `<strong>${formatearCantidad(familiar)}</strong>`;
-
+function cambiarMinimoFamiliar(index, valor) {
+  productos[index].minimoFamiliar = Number(valor) || 0;
+  guardarConfiguracion();
   if (compraCalculada) recalcularCompraEnVivo();
 }
 
@@ -1703,23 +1752,40 @@ function renderPreciosRonda() {
     return;
   }
 
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  if (!esenciales.length) {
+    header.style.display = "block";
+    header.innerHTML =
+      `<strong>Marca productos como esenciales en el Universo de productos.</strong>`;
+    wrapper.style.display = "none";
+    actions.style.display = "none";
+    if (body) body.innerHTML = "";
+    return;
+  }
+
   header.style.display = "block";
   header.innerHTML =
     `Ronda activa: <strong>${escapeHTML(rondaActiva)}</strong>. ` +
-    `Cargá precios minorista y mayorista para los 10 productos base.`;
+    `Cargá precios minorista y mayorista para los <strong>${esenciales.length}</strong> productos esenciales.`;
 
   wrapper.style.display = "block";
   actions.style.display = "flex";
 
-  body.innerHTML = PRODUCTOS_PRECIOS.map(pp => {
+  body.innerHTML = esenciales.map(p => {
 
-    const fila = preciosRonda[pp.id] || {};
+    /* Buscar fila existente por nombre de producto */
+    let fila = {};
+    Object.keys(preciosRonda).forEach(id => {
+      const f = preciosRonda[id];
+      if (f && f.producto === p.nombre) fila = f;
+    });
 
     return `
       <tr>
-        <td>${pp.id}</td>
-        <td><strong>${escapeHTML(pp.nombre)}</strong></td>
-        <td>${escapeHTML(pp.unidad)}</td>
+        <td>${escapeHTML(p.nombre)}</td>
+        <td><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td>${escapeHTML(p.unidad)}</td>
         <td>
           <input
             type="number"
@@ -1727,7 +1793,7 @@ function renderPreciosRonda() {
             step="0.01"
             value="${fila.precio_minorista || ""}"
             placeholder="S/"
-            oninput="actualizarPrecioRonda(${pp.id}, 'precio_minorista', this.value)"
+            oninput="actualizarPrecioRonda('${escapeHTML(p.nombre)}', '${escapeHTML(p.unidad)}', 'precio_minorista', this.value)"
           >
         </td>
         <td>
@@ -1737,7 +1803,7 @@ function renderPreciosRonda() {
             step="0.01"
             value="${fila.precio_mayorista || ""}"
             placeholder="S/"
-            oninput="actualizarPrecioRonda(${pp.id}, 'precio_mayorista', this.value)"
+            oninput="actualizarPrecioRonda('${escapeHTML(p.nombre)}', '${escapeHTML(p.unidad)}', 'precio_mayorista', this.value)"
           >
         </td>
       </tr>
@@ -1746,19 +1812,17 @@ function renderPreciosRonda() {
 }
 
 
-function actualizarPrecioRonda(idProducto, campo, valor) {
+function actualizarPrecioRonda(nombreProducto, unidad, campo, valor) {
 
-  if (!preciosRonda[idProducto]) {
-    preciosRonda[idProducto] = {};
+  /* Usamos el nombre como clave para sobrevivir al universo cambiante */
+  if (!preciosRonda[nombreProducto]) {
+    preciosRonda[nombreProducto] = {
+      producto: nombreProducto,
+      unidad: unidad
+    };
   }
 
-  preciosRonda[idProducto][campo] = Number(valor) || 0;
-
-  const pp = PRODUCTOS_PRECIOS.find(p => p.id === idProducto);
-  if (pp) {
-    preciosRonda[idProducto].producto = pp.nombre;
-    preciosRonda[idProducto].unidad   = pp.unidad;
-  }
+  preciosRonda[nombreProducto][campo] = Number(valor) || 0;
 
   guardarConfiguracion();
   aplicarPreciosRondaAProductos();
@@ -1780,14 +1844,21 @@ async function registrarPreciosRonda() {
     return;
   }
 
-  const precios = PRODUCTOS_PRECIOS.map(pp => {
+  const esenciales = productos.filter(p => p.esencial === true);
 
-    const fila = preciosRonda[pp.id] || {};
+  if (!esenciales.length) {
+    alert("Marca productos como esenciales primero.");
+    return;
+  }
+
+  const precios = esenciales.map(p => {
+
+    const fila = preciosRonda[p.nombre] || {};
 
     return {
-      id_producto: pp.id,
-      producto: pp.nombre,
-      unidad: pp.unidad,
+      id_producto: null,
+      producto: p.nombre,
+      unidad: p.unidad,
       precio_minorista: Number(fila.precio_minorista) || 0,
       precio_mayorista: Number(fila.precio_mayorista) || 0
     };
@@ -1867,10 +1938,10 @@ async function cargarPreciosGuardados() {
     const nuevoMapa = {};
 
     filas.forEach(f => {
-      const id = Number(f.id_producto);
-      if (!id) return;
-      nuevoMapa[id] = {
-        producto: f.producto,
+      const nombre = f.producto;
+      if (!nombre) return;
+      nuevoMapa[nombre] = {
+        producto: nombre,
         unidad: f.unidad,
         precio_minorista: Number(f.precio_minorista) || 0,
         precio_mayorista: Number(f.precio_mayorista) || 0
@@ -1956,7 +2027,7 @@ function cambiarRondaActiva(valor) {
     cargarCompraFinalDeRonda(rondaActiva);
   } else {
     regalos = [];
-    adicionales.fill(0);
+    adicionales = {};
     if (document.getElementById("regalosContainer")) renderRegalos();
   }
 
@@ -1998,10 +2069,10 @@ async function cargarPreciosGuardadosSilencioso() {
 
     const nuevoMapa = {};
     filas.forEach(f => {
-      const id = Number(f.id_producto);
-      if (!id) return;
-      nuevoMapa[id] = {
-        producto: f.producto,
+      const nombre = f.producto;
+      if (!nombre) return;
+      nuevoMapa[nombre] = {
+        producto: nombre,
         unidad: f.unidad,
         precio_minorista: Number(f.precio_minorista) || 0,
         precio_mayorista: Number(f.precio_mayorista) || 0
@@ -2435,7 +2506,7 @@ function generarJSONCompra() {
     const consolidado = calcularConsolidado(aceptados);
     const resultadoCompra = window.ultimoResultadoCompra || null;
 
-    const adicionalesActuales = [...adicionales];
+    const adicionalesActuales = { ...adicionales };
     const regalosActuales = [...regalos];
 
     const estados = pedidos.reduce((acc, p) => {
@@ -2449,11 +2520,13 @@ function generarJSONCompra() {
       unidad: p.unidad,
       esencial: !!p.esencial,
       minimo_semilla: Number(p.minimo || 0),
+      minimo_basica: Number(p.minimoBasica || 0),
+      minimo_familiar: Number(p.minimoFamiliar || 0),
       precio_actual: Number(p.precio || 0)
     }));
 
     const snapshot = {
-      version_snapshot: '1.0',
+      version_snapshot: '2.0',
       fecha_generacion: new Date().toISOString(),
       fecha_local: new Date().toLocaleString('es-PE'),
       ronda_actual: rondaActiva,
@@ -2535,7 +2608,6 @@ function obtenerAceptadosRonda() {
 CONSOLIDADO
 ===================================================== */
 
-/* ===== CAMBIO 2: función reemplazada por completo ===== */
 function calcularConsolidado(lista) {
 
   const semillas = lista.reduce(
@@ -2573,7 +2645,6 @@ function calcularConsolidado(lista) {
       familiares * FACTOR_FAMILIAR
   };
 }
-/* ===== FIN CAMBIO 2 ===== */
 
 
 function actualizarConsolidado() {
@@ -2624,13 +2695,13 @@ function obtenerResultadosEsenciales(datos) {
 
     if (!p.esencial) return null;
 
-    const minimoSemilla    = p.minimo * datos.semillas;
-    const minimoBasica     = p.minimo * FACTOR_BASICA * datos.basicas;
-    const minimoFamiliar   = p.minimo * FACTOR_FAMILIAR * datos.familiares;
+    const entregadoSemilla   = (Number(p.minimo) || 0) * datos.semillas;
+    const entregadoBasica    = (Number(p.minimoBasica) || 0) * datos.basicas;
+    const entregadoFamiliar  = (Number(p.minimoFamiliar) || 0) * datos.familiares;
+    const entregadoTotal     = entregadoSemilla + entregadoBasica + entregadoFamiliar;
 
-    const minimoConsolidado = minimoSemilla + minimoBasica + minimoFamiliar;
-    const compraMinima      = Math.ceil(minimoConsolidado);
-    const compraFinalManual = Number(adicionales[index]) || 0;
+    const compraMinima      = Math.ceil(entregadoTotal);
+    const compraFinalManual = Number(adicionales[p.nombre]) || 0;
     const compraFinal = compraFinalManual > 0 ? compraFinalManual : compraMinima;
 
     const costoMinimo = compraMinima * p.precio;
@@ -2641,10 +2712,14 @@ function obtenerResultadosEsenciales(datos) {
       nombre: p.nombre,
       unidad: p.unidad,
       precio: p.precio,
-      minimoSemilla,
-      minimoBasica,
-      minimoFamiliar,
-      minimoConsolidado,
+      minimoSemilla: Number(p.minimo) || 0,
+      minimoBasica: Number(p.minimoBasica) || 0,
+      minimoFamiliar: Number(p.minimoFamiliar) || 0,
+      entregadoSemilla,
+      entregadoBasica,
+      entregadoFamiliar,
+      entregadoTotal,
+      minimoConsolidado: entregadoTotal,
       compraMinima,
       compraFinal,
       costoMinimo,
@@ -2808,14 +2883,15 @@ function renderResultadoCompra() {
       <h3>Productos esenciales</h3>
       <p class="small-note">
         Estos son los productos que sí forman parte del compromiso mínimo.<br>
-        Puedes aumentar la compra manualmente. El cambio se refleja inmediatamente.
+        El campo <strong>Entregado (mín.)</strong> se calcula con los mínimos por canasta.<br>
+        Podés aumentar la compra final manualmente. El cambio se refleja inmediatamente.
       </p>
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
               <th>Producto</th>
-              <th>Mínimo (ref.)</th>
+              <th>Entregado (mín.)</th>
               <th>Compra final</th>
               <th>Precio</th>
               <th>Costo</th>
@@ -2829,14 +2905,15 @@ function renderResultadoCompra() {
                   <small>${escapeHTML(p.unidad)}</small>
                 </td>
                 <td>
-                  <span class="muted">${formatearCantidad(p.compraMinima)}</span>
+                  <span class="muted">${formatearCantidad(p.entregadoTotal)}</span><br>
+                  <small class="small-note">S: ${formatearCantidad(p.entregadoSemilla)} · B: ${formatearCantidad(p.entregadoBasica)} · F: ${formatearCantidad(p.entregadoFamiliar)}</small>
                 </td>
                 <td>
                   <input
                     type="number" min="0" step="0.01"
                     id="compraFinal-${p.index}"
                     value="${p.compraFinal || p.compraMinima}"
-                    oninput="cambiarCompraFinal(${p.index}, this.value)"
+                    oninput="cambiarCompraFinal('${escapeHTML(p.nombre)}', this.value)"
                   >
                 </td>
                 <td>${soles(p.precio)}</td>
@@ -3042,7 +3119,6 @@ function renderResumenFinancieroAmpliado() {
 
   const clase = resultadoNeto >= 0 ? "good" : "bad";
 
-  /* ===== CAMBIO 5: dos filas en el primer .fin-col ===== */
   cont.innerHTML = `
     <div class="fin-grid">
 
@@ -3069,7 +3145,6 @@ function renderResumenFinancieroAmpliado() {
           <span class="val">${soles(ingresosTotales)}</span>
         </div>
       </div>
-      <!-- ===== FIN CAMBIO 5 ===== -->
 
       <div class="fin-col">
         <h4>Usos</h4>
@@ -3129,8 +3204,8 @@ function renderResumenFinancieroAmpliado() {
 ADICIONALES
 ===================================================== */
 
-function cambiarCompraFinal(index, valor) {
-  adicionales[index] = Number(valor) || 0;
+function cambiarCompraFinal(nombreProducto, valor) {
+  adicionales[nombreProducto] = Number(valor) || 0;
   guardarConfiguracion();
   if (compraCalculada) recalcularCompraEnVivo();
   autoGuardarRegalos();
@@ -3742,7 +3817,7 @@ async function guardarCompraFinalEnN8N() {
     const itemsEsenciales = r.resultadosEsenciales
       .filter(p => Number(p.compraFinal) > 0)
       .map(p => ({
-        id_producto: buscarIdProductoEsencial(p.nombre),
+        id_producto: null,
         producto: p.nombre,
         unidad: p.unidad,
         cantidad: Number(p.compraFinal) || 0,
@@ -3848,15 +3923,6 @@ async function guardarCompraFinalEnN8N() {
 }
 
 
-function buscarIdProductoEsencial(nombre) {
-  if (typeof PRODUCTOS_PRECIOS === "undefined" || !Array.isArray(PRODUCTOS_PRECIOS)) {
-    return null;
-  }
-  const encontrado = PRODUCTOS_PRECIOS.find(pp => pp.nombre === nombre);
-  return encontrado ? encontrado.id : null;
-}
-
-
 async function cargarCompraFinalDeRonda(ronda) {
 
   if (!ronda) return;
@@ -3894,12 +3960,9 @@ async function cargarCompraFinalDeRonda(ronda) {
       String(f.tipo || "").toLowerCase() === "excedente"
     );
 
-    adicionales.fill(0);
+    adicionales = {};
     filasEsenciales.forEach(f => {
-      const idx = productos.findIndex(p => p.nombre === f.producto);
-      if (idx >= 0) {
-        adicionales[idx] = Number(f.cantidad) || 0;
-      }
+      adicionales[f.producto] = Number(f.cantidad) || 0;
     });
 
     regalos = filasRegalos.map(item => ({
@@ -3981,7 +4044,7 @@ function renderReportes() {
       `<div class="info-box">
         Presioná <strong>🔄 Calcular reportes</strong> para obtener el P&L,
         el Flujo de Caja y el Balance de la ronda
-        <strong>${escapeHTML(rondaActiva)}</strong> desde n8n.
+        <strong>${escapeHTML(rondaActiva)}</strong>.
       </div>`;
     return;
   }
@@ -4037,7 +4100,7 @@ function renderCuadrosReporte(data) {
     <div class="reporte-meta">
       <div><strong>Ronda:</strong> ${escapeHTML(data.id_ronda || rondaActiva)}</div>
       <div><strong>Fecha de cálculo:</strong> ${escapeHTML(data.fecha_calculo || "-")}</div>
-      <div><strong>Fuente:</strong> n8n · admin-reportes</div>
+      <div><strong>Fuente:</strong> Navegador</div>
     </div>
   `;
 
@@ -4155,20 +4218,16 @@ function calcularReportes() {
   const r = window.ultimoResultadoCompra;
   const r2 = (v) => Math.round((Number(v) || 0) * 100) / 100;
 
-  // --- Pedidos aceptados de la ronda activa ---
   const aceptados = pedidos.filter(p =>
     String(p.estado || '').toLowerCase() === 'aceptado' &&
     String(p.ronda_id || '') === String(rondaActiva)
   );
   const canastas = aceptados.reduce((s, p) => s + Number(p.total_solicitado || 0), 0);
 
-  // --- Excedentes ---
   const ingresosExcedentes = excedentesRonda.reduce((s, e) => s + Number(e.ingreso || 0), 0);
 
-  // --- Compras (esenciales + regalos) ---
   const comprasTotal = r.costoEsencialesReal + r.regalosTotal;
 
-  // --- Gastos por tipo ---
   const gastosPorTipo = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
   gastosRonda.forEach(g => {
     const t = String(g.tipo || 'otro').toLowerCase();
@@ -4178,14 +4237,12 @@ function calcularReportes() {
   });
   const gastosTotal = Object.values(gastosPorTipo).reduce((s, v) => s + v, 0);
 
-  // --- P&L ---
   const totalIngresos = canastas + ingresosExcedentes;
   const margenBruto = totalIngresos - comprasTotal;
   const ebit = margenBruto - gastosTotal;
   const impuestos = ebit > 0 ? r2(ebit * 0.015) : 0;
   const utilidadNeta = r2(ebit - impuestos);
 
-  // --- Flujo de Caja ---
   const cfo = canastas + ingresosExcedentes - comprasTotal - gastosTotal;
   const cfi = 0;
   const cff = 0;
@@ -4193,13 +4250,11 @@ function calcularReportes() {
   const cajaInicial = 0;
   const cajaFinal = cajaInicial + deltaCaja;
 
-  // --- Balance ---
   const activosTotal = cajaFinal;
   const pasivosTotal = 0;
   const patrimonioTotal = activosTotal - pasivosTotal;
   const cuadra = Math.abs(activosTotal - (pasivosTotal + patrimonioTotal)) < 0.01;
 
-  // --- Armar reporte ---
   reporteActual = {
     id_ronda: rondaActiva,
     fecha_calculo: new Date().toISOString(),
@@ -4580,7 +4635,7 @@ async function eliminarRondaActiva() {
 
   preciosRonda = {};
   regalos = [];
-  adicionales.fill(0);
+  adicionales = {};
   compraCalculada = false;
 
   gastosRonda = [];
