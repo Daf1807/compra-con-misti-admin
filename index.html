@@ -1,1228 +1,209 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Administración</title>
+CONTEXTO
+Tengo un HTML "Compra con Misti — Administración" que YA FUNCIONA.
+Está organizado en 6 vistas (Dashboard, Pedidos, Configuración, Compra,
+Cierre, Reportes). Tiene rondas, pedidos con modal de pago, gastos,
+excedentes, reportes locales y guardado en n8n.
 
-<style>
-/* [… CSS original sin cambios …] */
-</style>
-</head>
+PROBLEMA A CORREGIR
+En el HTML sigue apareciendo la regla vieja del 65/35 (Alimentos = 65%
+del dinero, Operaciones = 35%). Eso ya NO es parte del modelo.
 
-<body>
+El modelo nuevo es:
+  Cada canasta tiene un precio fijo y una cuota de coordinación fija:
 
-<header>
-  <div class="container">
-    <h1>Compra con Misti</h1>
-    <p>Administración · pedidos · rondas · compra colectiva</p>
-  </div>
-</header>
+    CANASTA SEMILLA  S/20  →  cuota S/5  →  alimentos S/15
+    CANASTA BÁSICA   S/30  →  cuota S/7  →  alimentos S/23
+    CANASTA FAMILIAR S/45  →  cuota S/9  →  alimentos S/36
 
-<div class="container">
-<div class="app-shell">
+  Presupuesto de alimentos = Σ (cantidad × (precio − cuota))
+  Cuota de coordinación    = Σ (cantidad × cuota)
 
-  <nav class="sidebar" id="appNav">
-    <!-- [… sidebar original sin cambios …] -->
-  </nav>
+TAREA
+Aplicar EXACTAMENTE estos 5 cambios. Nada más. No tocar ninguna otra
+parte del HTML.
 
-  <div class="main-col">
+═══════════════════════════════════════════════════════════════
+CAMBIO 1 — CONSTANTES JS
+═══════════════════════════════════════════════════════════════
+Buscar en el <script>:
 
-    <!-- [… roundbar original sin cambios …] -->
+  const CANASTA_SEMILLA = 15;
+  const CANASTA_BASICA  = 25;
+  const CANASTA_FAMILIAR = 35;
 
-    <!-- [… topbar original sin cambios …] -->
+  const PORCENTAJE_OPERACIONES = 0.35;
+  const PORCENTAJE_ALIMENTOS   = 0.65;
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 1 — DASHBOARD (sin cambios)
-         ══════════════════════════════════════════════════ -->
-    <section class="view active" id="view-dashboard">
-      <!-- [… dashboard original sin cambios …] -->
-    </section>
+  const FACTOR_SEMILLA  = 1;
+  const FACTOR_BASICA   = 25 / 15;
+  const FACTOR_FAMILIAR = 35 / 15;
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 2 — PEDIDOS (sin cambios)
-         ══════════════════════════════════════════════════ -->
-    <section class="view" id="view-pedidos">
-      <!-- [… pedidos original sin cambios …] -->
-    </section>
+Reemplazar por:
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 3 — CONFIGURACIÓN
-         ══════════════════════════════════════════════════ -->
-    <section class="view" id="view-configuracion">
+  const CANASTA_SEMILLA  = 20;
+  const CANASTA_BASICA   = 30;
+  const CANASTA_FAMILIAR = 45;
 
-      <!-- ===== AJUSTE 7: BLOQUE PROMESA COMERCIAL (nuevo, al inicio) ===== -->
-      <div class="section">
-        <h2 class="section-head">📢 Promesa comercial</h2>
-        <div class="info-box">
-          Por S/ 20 (Semilla), S/ 30 (Básica) o S/ 45 (Familiar)
-          recibís tu canasta de la semana: los alimentos que el mercado
-          te permita al precio mayorista. Lo que ves publicado es lo
-          que recibís. Si algo falla, te damos algo igual o mejor.
-          Y cuando el mercado está bueno, tu canasta engorda.
-        </div>
-      </div>
-      <!-- ===== FIN AJUSTE 7 ===== -->
+  const CUOTA_SEMILLA    = 5;
+  const CUOTA_BASICA     = 7;
+  const CUOTA_FAMILIAR   = 9;
 
-      <!-- Modelo de canastas -->
-      <div class="section">
-        <h2 class="section-head">Estructura de las canastas</h2>
-        <p class="section-description">
-          Las tres canastas participan en la misma compra colectiva.
-          No tienen listas de productos diferentes.
-          La diferencia está en la cantidad económica de participación.
-        </p>
+  const FACTOR_SEMILLA  = 1;
+  const FACTOR_BASICA   = 30 / 20;   // = 1.5
+  const FACTOR_FAMILIAR = 45 / 20;   // = 2.25
 
-        <!-- ===== AJUSTE 1: precios y factores actualizados ===== -->
-        <div class="canasta-grid">
-          <div class="canasta-box">
-            <h3>🌱 Semilla</h3>
-            <div class="canasta-price">S/ 20</div>
-            <div class="canasta-factor">Factor: <strong>1.00</strong></div>
-          </div>
-          <div class="canasta-box">
-            <h3>🧺 Básica</h3>
-            <div class="canasta-price">S/ 30</div>
-            <div class="canasta-factor">Factor: <strong>1.50</strong></div>
-          </div>
-          <div class="canasta-box">
-            <h3>👨‍👩‍👧‍👦 Familiar</h3>
-            <div class="canasta-price">S/ 45</div>
-            <div class="canasta-factor">Factor: <strong>2.25</strong></div>
-          </div>
-        </div>
-        <!-- ===== FIN AJUSTE 1 ===== -->
+Eliminar por completo las constantes PORCENTAJE_OPERACIONES y
+PORCENTAJE_ALIMENTOS.
 
-        <div class="info-box">
-          <!-- [… info-box original sin cambios …] -->
-        </div>
-      </div>
+═══════════════════════════════════════════════════════════════
+CAMBIO 2 — FUNCIÓN calcularConsolidado()
+═══════════════════════════════════════════════════════════════
+Buscar la función calcularConsolidado(lista) y reemplazar SU CUERPO
+por este:
 
-      <!-- Precios de la ronda (sin cambios) -->
-      <div class="section">
-        <!-- [… precios de ronda original sin cambios …] -->
-      </div>
+  function calcularConsolidado(lista) {
 
-      <!-- Universo de productos y esenciales -->
-      <div class="section">
-        <h2 class="section-head">Universo de productos y esenciales</h2>
-        <!-- [… section-description original sin cambios …] -->
-        <!-- [… info-box original sin cambios …] -->
+    const semillas = lista.reduce(
+      (t,p) => t + Number(p.canasta_semilla_cantidad || 0), 0
+    );
+    const basicas = lista.reduce(
+      (t,p) => t + Number(p.canasta_basica_cantidad || 0), 0
+    );
+    const familiares = lista.reduce(
+      (t,p) => t + Number(p.canasta_familiar_cantidad || 0), 0
+    );
 
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Esencial</th>
-                <th>Producto</th>
-                <th>Unidad</th>
-                <th>Mínimo Semilla</th>
-                <!-- ===== AJUSTE 1: encabezados actualizados ===== -->
-                <th>Básica × 1.50</th>
-                <th>Familiar × 2.25</th>
-                <!-- ===== FIN AJUSTE 1 ===== -->
-                <th>Precio mercado (ronda)</th>
-              </tr>
-            </thead>
-            <tbody id="productosBody"></tbody>
-          </table>
-        </div>
-      </div>
+    const dinero =
+      semillas   * CANASTA_SEMILLA +
+      basicas    * CANASTA_BASICA +
+      familiares * CANASTA_FAMILIAR;
 
-      <!-- ===== AJUSTE 2: NUEVA SECCIÓN COMPOSICIÓN PUBLICADA ===== -->
-      <div class="section">
-        <h2 class="section-head">📋 Composición publicada de la semana</h2>
-        <p class="section-description">
-          Esta es la composición que verá el cliente antes de pagar.
-          Se publica cada lunes.
-        </p>
+    const alimentos =
+      semillas   * (CANASTA_SEMILLA  - CUOTA_SEMILLA) +
+      basicas    * (CANASTA_BASICA   - CUOTA_BASICA) +
+      familiares * (CANASTA_FAMILIAR - CUOTA_FAMILIAR);
 
-        <div id="composicionRondaContainer">
-          <!-- renderComposicionRonda() inyecta aquí -->
-        </div>
+    const operaciones = dinero - alimentos;
 
-        <div class="actions" style="margin-top:15px; gap:10px; flex-wrap:wrap;">
-          <button class="btn-save-prices" onclick="guardarComposicionRonda()">
-            💾 Publicar composición
-          </button>
-          <button class="btn-load-prices" onclick="cargarComposicionRonda()">
-            ↻ Cargar composición guardada
-          </button>
-        </div>
-
-        <div id="composicionRondaStatus" class="small-note" style="margin-top:10px;"></div>
-      </div>
-      <!-- ===== FIN AJUSTE 2 ===== -->
-
-    </section>
-
-    <!-- ══════════════════════════════════════════════════
-         VISTA 4 — COMPRA
-         ══════════════════════════════════════════════════ -->
-    <section class="view" id="view-compra">
-      <!-- [… todo el contenido original sin cambios …] -->
-      <!-- El renderResultadoCompra() inyecta las nuevas sub-secciones -->
-    </section>
-
-    <!-- ══════════════════════════════════════════════════
-         VISTA 5 — CIERRE (sin cambios)
-         ══════════════════════════════════════════════════ -->
-    <section class="view" id="view-cierre">
-      <!-- [… cierre original sin cambios …] -->
-    </section>
-
-    <!-- ══════════════════════════════════════════════════
-         VISTA 6 — REPORTES (sin cambios en HTML)
-         ══════════════════════════════════════════════════ -->
-    <section class="view" id="view-reportes">
-      <!-- [… reportes original sin cambios …] -->
-    </section>
-
-  </div><!-- /main-col -->
-</div><!-- /app-shell -->
-</div><!-- /container -->
-
-<!-- [… modales originales sin cambios …] -->
-
-<script>
-
-/* =====================================================
-APIs (sin cambios)
-===================================================== */
-const API_PEDIDOS = "https://msi.tail124b59.ts.net/webhook/admin-pedidos";
-const API_ESTADO = "https://msi.tail124b59.ts.net/webhook/admin-estado";
-const API_PRECIOS_GUARDAR = "https://msi.tail124b59.ts.net/webhook/admin-precios-guardar";
-const API_PRECIOS_GET = "https://msi.tail124b59.ts.net/webhook/admin-precios";
-const API_COMPRAS_GUARDAR = "https://msi.tail124b59.ts.net/webhook/admin-compras-guardar";
-const API_COMPRAS_GET = "https://msi.tail124b59.ts.net/webhook/admin-compras";
-const API_COMPRAS_BORRAR = "https://msi.tail124b59.ts.net/webhook/admin-compras-borrar";
-const API_PRECIOS_BORRAR = "https://msi.tail124b59.ts.net/webhook/admin-precios-borrar";
-const API_REPORTES = "https://msi.tail124b59.ts.net/webhook/admin-reportes";
-const API_REPORTES_GUARDAR = "https://msi.tail124b59.ts.net/webhook/admin-reportes-guardar";
-const API_REPORTES_HISTORIAL = "https://msi.tail124b59.ts.net/webhook/admin-reportes-historial";
-
-let pedidos = [];
-
-/* =====================================================
-CANASTAS
-===================================================== */
-
-/* ===== AJUSTE 1: constantes actualizadas ===== */
-const CANASTA_SEMILLA = 20;
-const CANASTA_BASICA  = 30;
-const CANASTA_FAMILIAR = 45;
-
-const PORCENTAJE_OPERACIONES = 0.35;
-const PORCENTAJE_ALIMENTOS   = 0.65;
-
-const FACTOR_SEMILLA  = 1;
-const FACTOR_BASICA   = 30 / 20;   // = 1.5
-const FACTOR_FAMILIAR = 45 / 20;   // = 2.25
-/* ===== FIN AJUSTE 1 ===== */
-
-/* [… PRODUCTOS_PRECIOS, productos, etc. sin cambios …] */
-
-/* =====================================================
-ESTADO GLOBAL
-===================================================== */
-const adicionales = productos.map(() => 0);
-let regalos = [];
-let compraCalculada = false;
-let rondaActiva = "";
-let preciosRonda = {};
-let rondasConocidas = [];
-let rondasEliminadas = [];
-let gastosRonda = [];
-let excedentesRonda = [];
-let ultimoMensajeGuardado = "";
-let reporteActual = null;
-let snapshotsGuardados = [];
-let rondaReporteActiva = "";
-
-/* ===== AJUSTES 2 y 4: variables nuevas ===== */
-let composicionRonda = { semilla: "", basica: "", familiar: "" };
-let ventasExcedente = [];
-/* ===== FIN AJUSTES 2 y 4 ===== */
-
-/* =====================================================
-NAVEGACIÓN (sin cambios)
-===================================================== */
-function mostrarVista(nombre) { /* [… original …] */ }
-
-/* =====================================================
-PERSISTENCIA LOCAL
-===================================================== */
-const STORAGE_KEY = "compra_con_misti_admin_v1";
-
-function guardarConfiguracion() {
-  try {
-    const datos = {
-      productos: productos.map(p => ({
-        nombre: p.nombre,
-        unidad: p.unidad,
-        esencial: p.esencial,
-        minimo: p.minimo
-      })),
-      adicionales: [...adicionales],
-      regalos: regalos.map(r => ({
-        producto: r.producto,
-        cantidad: r.cantidad,
-        unidad: r.unidad,
-        precio: r.precio
-      })),
-      ronda: rondaActiva,
-      preciosRonda: preciosRonda,
-      rondasConocidas: [...rondasConocidas],
-      rondasEliminadas: [...rondasEliminadas],
-      gastosRonda: [...gastosRonda],
-      excedentesRonda: [...excedentesRonda],
-
-      /* ===== AJUSTES 2 y 4: persistencia nueva ===== */
-      composicionRonda: composicionRonda,
-      ventasExcedente: [...ventasExcedente]
-      /* ===== FIN AJUSTES 2 y 4 ===== */
+    return {
+      semillas,
+      basicas,
+      familiares,
+      dinero,
+      alimentos,
+      operaciones,
+      equivalentesSemilla:
+        semillas +
+        basicas * FACTOR_BASICA +
+        familiares * FACTOR_FAMILIAR
     };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
-  } catch(error) {
-    console.error("Error guardando configuración:", error);
-  }
-}
-
-function cargarConfiguracion() {
-  try {
-    const guardado = localStorage.getItem(STORAGE_KEY);
-    if (!guardado) return;
-    const datos = JSON.parse(guardado);
-
-    /* [… resto de restauraciones originales …] */
-
-    /* ===== AJUSTES 2 y 4: restauración nueva ===== */
-    if (datos.composicionRonda && typeof datos.composicionRonda === "object") {
-      composicionRonda = {
-        semilla:  String(datos.composicionRonda.semilla  || ""),
-        basica:   String(datos.composicionRonda.basica   || ""),
-        familiar: String(datos.composicionRonda.familiar || "")
-      };
-    }
-
-    if (Array.isArray(datos.ventasExcedente)) {
-      ventasExcedente = datos.ventasExcedente.map(v => ({
-        destino:  v.destino  || "Restaurante",
-        producto: v.producto || "",
-        cantidad: Number(v.cantidad) || 0,
-        precio:   Number(v.precio)   || 0
-      }));
-    }
-    /* ===== FIN AJUSTES 2 y 4 ===== */
-
-  } catch(error) {
-    console.error("Error cargando configuración:", error);
-  }
-}
-
-/* [… aplicarPreciosRondaAProductos, renderProductos, etc. sin cambios …] */
-
-/* =====================================================
-BARRA DE RONDA ACTIVA
-===================================================== */
-
-function cambiarRondaActiva(valor) {
-  gastosRonda = [];
-  excedentesRonda = [];
-
-  /* ===== AJUSTE 4: limpiar ventas de excedente al cambiar de ronda ===== */
-  ventasExcedente = [];
-  /* ===== FIN AJUSTE 4 ===== */
-
-  reporteActual = null;
-  rondaReporteActiva = "";
-
-  rondaActiva = valor || "";
-  guardarConfiguracion();
-  /* [… resto igual …] */
-}
-
-function crearNuevaRonda() {
-  /* [… código original …] */
-
-  gastosRonda = [];
-  excedentesRonda = [];
-
-  /* ===== AJUSTE 4: limpiar ventas al crear ronda nueva ===== */
-  ventasExcedente = [];
-  /* ===== FIN AJUSTE 4 ===== */
-
-  /* [… resto igual …] */
-}
-
-async function eliminarRondaActiva() {
-  /* [… código original hasta el reset …] */
-
-  gastosRonda = [];
-  excedentesRonda = [];
-
-  /* ===== AJUSTE 4: limpiar ventas al eliminar ronda ===== */
-  ventasExcedente = [];
-  /* ===== FIN AJUSTE 4 ===== */
-
-  /* [… resto igual …] */
-}
-
-/* =====================================================
-NUEVAS FUNCIONES — AJUSTE 2 (Composición publicada)
-===================================================== */
-
-function renderComposicionRonda() {
-  const cont = document.getElementById("composicionRondaContainer");
-  if (!cont) return;
-
-  cont.innerHTML = `
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Canasta</th>
-            <th>Precio</th>
-            <th>Lista de productos</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>🌱 Semilla</strong></td>
-            <td>S/ 20</td>
-            <td>
-              <textarea rows="4" style="width:100%;"
-                placeholder="Ej. Papa amarilla 1kg, Cebolla 0.5kg, ..."
-                oninput="composicionRonda.semilla = this.value; guardarConfiguracion();"
-              >${escapeHTML(composicionRonda.semilla || "")}</textarea>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>🧺 Básica</strong></td>
-            <td>S/ 30</td>
-            <td>
-              <textarea rows="4" style="width:100%;"
-                placeholder="Ej. Papa amarilla 1.5kg, Cebolla 0.75kg, ..."
-                oninput="composicionRonda.basica = this.value; guardarConfiguracion();"
-              >${escapeHTML(composicionRonda.basica || "")}</textarea>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>👨‍👩‍👧‍👦 Familiar</strong></td>
-            <td>S/ 45</td>
-            <td>
-              <textarea rows="4" style="width:100%;"
-                placeholder="Ej. Papa amarilla 2.25kg, Cebolla 1.125kg, ..."
-                oninput="composicionRonda.familiar = this.value; guardarConfiguracion();"
-              >${escapeHTML(composicionRonda.familiar || "")}</textarea>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-function guardarComposicionRonda() {
-  guardarConfiguracion();
-
-  const status = document.getElementById("composicionRondaStatus");
-  if (status) {
-    status.textContent =
-      "✓ Composición guardada localmente (ronda: " +
-      (rondaActiva || "sin ronda") + ").";
   }
 
-  /* POST opcional a webhook futuro — no rompe si no existe */
-  try {
-    if (typeof API_COMPOSICION_GUARDAR !== "undefined") {
-      fetch(API_COMPOSICION_GUARDAR, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_ronda: rondaActiva,
-          composicion: composicionRonda
-        })
-      }).catch(() => { /* silencioso */ });
-    }
-  } catch (_) { /* silencioso */ }
-}
-
-function cargarComposicionRonda() {
-  guardarConfiguracion(); /* asegura estado fresco */
-
-  /* Recarga desde localStorage por si otra pestaña la cambió */
-  try {
-    const guardado = localStorage.getItem(STORAGE_KEY);
-    if (guardado) {
-      const datos = JSON.parse(guardado);
-      if (datos.composicionRonda) {
-        composicionRonda = {
-          semilla:  String(datos.composicionRonda.semilla  || ""),
-          basica:   String(datos.composicionRonda.basica   || ""),
-          familiar: String(datos.composicionRonda.familiar || "")
-        };
-      }
-    }
-  } catch (_) { /* silencioso */ }
-
-  renderComposicionRonda();
-
-  const status = document.getElementById("composicionRondaStatus");
-  if (status) status.textContent = "↻ Composición cargada desde localStorage.";
-}
-
-/* =====================================================
-AJUSTE 3 — EXCEDENTE GENERADO
-===================================================== */
-
-function renderExcedenteGenerado() {
-  const r = window.ultimoResultadoCompra;
-  if (!r) return "";
-
-  const semillas   = Number(r.datos.semillas)   || 0;
-  const basicas    = Number(r.datos.basicas)    || 0;
-  const familiares = Number(r.datos.familiares) || 0;
-
-  let totalExcedente = 0;
-
-  const filas = r.resultadosEsenciales.map(p => {
-    const comprado = Number(p.compraFinal) || 0;
-
-    /* Entregado = Semillas × mínimo + Básicas × mínimo × 1.50 + Familiares × mínimo × 2.25 */
-    const minimoUnitario = (() => {
-      const prod = productos[p.index];
-      return prod ? Number(prod.minimo) || 0 : 0;
-    })();
-
-    const entregado =
-      semillas    * minimoUnitario +
-      basicas     * minimoUnitario * FACTOR_BASICA +
-      familiares  * minimoUnitario * FACTOR_FAMILIAR;
-
-    const sobro = comprado - entregado;
-    const valor = sobro * (Number(p.precio) || 0);
-
-    if (valor > 0) totalExcedente += valor;
-
-    return `
-      <tr>
-        <td><strong>${escapeHTML(p.nombre)}</strong> <small>(${escapeHTML(p.unidad)})</small></td>
-        <td>${formatearCantidad(comprado)}</td>
-        <td>${formatearCantidad(entregado)}</td>
-        <td>${formatearCantidad(sobro)}</td>
-        <td>${soles(valor)}</td>
-      </tr>
-    `;
-  }).join("");
-
-  return `
-    <div class="purchase-section">
-      <h3>📦 Excedente generado</h3>
-      <p class="small-note">
-        Diferencia entre lo comprado y lo entregado a las familias.
-        Este excedente ya fue pagado por los clientes.
-        Costo para vos: <strong>S/ 0</strong>.
-      </p>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Comprado</th>
-              <th>Entregado</th>
-              <th>Sobró</th>
-              <th>Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filas}
-            <tr>
-              <td colspan="4" style="text-align:right;"><strong>TOTAL EXCEDENTE</strong></td>
-              <td><strong>${soles(totalExcedente)}</strong></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="info-box" style="margin-top:10px;">
-        Este excedente ya fue pagado por los clientes.
-        Costo para vos: <strong>S/ 0</strong>.
-      </div>
-    </div>
-  `;
-}
-
-/* =====================================================
-AJUSTE 4 — VENTAS DE EXCEDENTE
-===================================================== */
-
-function totalVentasExcedente() {
-  return ventasExcedente.reduce(
-    (s, v) => s + (Number(v.cantidad) || 0) * (Number(v.precio) || 0),
-    0
-  );
-}
-
-function renderVentasExcedente() {
-  const cont = document.getElementById("ventasExcedenteContainer");
-  if (!cont) return;
-
-  const destinos = ["Restaurante", "Subasta", "Circulares", "Donación"];
-
-  const filas = ventasExcedente.map((v, i) => `
-    <tr>
-      <td>
-        <select onchange="actualizarVentaExcedente(${i}, 'destino', this.value)">
-          ${destinos.map(d => `
-            <option value="${d}" ${v.destino === d ? "selected" : ""}>${d}</option>
-          `).join("")}
-        </select>
-      </td>
-      <td>
-        <input type="text" value="${escapeHTML(v.producto || "")}"
-          placeholder="Producto"
-          oninput="actualizarVentaExcedente(${i}, 'producto', this.value)">
-      </td>
-      <td>
-        <input type="number" min="0" step="0.01" value="${v.cantidad || ""}"
-          oninput="actualizarVentaExcedente(${i}, 'cantidad', this.value)">
-      </td>
-      <td>
-        <input type="number" min="0" step="0.01" value="${v.precio || ""}"
-          placeholder="S/"
-          oninput="actualizarVentaExcedente(${i}, 'precio', this.value)">
-      </td>
-      <td>
-        <strong>${soles((Number(v.cantidad) || 0) * (Number(v.precio) || 0))}</strong>
-      </td>
-      <td>
-        <button class="btn-delete" onclick="eliminarVentaExcedente(${i})">×</button>
-      </td>
-    </tr>
-  `).join("");
-
-  cont.innerHTML = `
-    <div class="purchase-section">
-      <h3>💰 Ventas de excedente</h3>
-      <p class="small-note">
-        Registrá a quién le vendiste el excedente. Se guarda junto con la compra final en n8n.
-      </p>
-      <button class="btn-add" onclick="agregarVentaExcedente()">＋ Agregar venta</button>
-
-      <div class="table-scroll" style="margin-top:15px;">
-        <table>
-          <thead>
-            <tr>
-              <th>Destino</th>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th>Ingreso</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filas || `<tr><td colspan="6" style="text-align:center;" class="muted">Sin ventas registradas.</td></tr>`}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="small-note" style="margin-top:10px;">
-        <strong>Total excedente vendido: ${soles(totalVentasExcedente())}</strong>
-      </div>
-    </div>
-  `;
-}
-
-function agregarVentaExcedente() {
-  ventasExcedente.push({
-    destino:  "Restaurante",
-    producto: "",
-    cantidad: 0,
-    precio:   0
-  });
-  guardarConfiguracion();
-  renderVentasExcedente();
-}
-
-function eliminarVentaExcedente(index) {
-  if (index < 0 || index >= ventasExcedente.length) return;
-  ventasExcedente.splice(index, 1);
-  guardarConfiguracion();
-  renderVentasExcedente();
-}
-
-function actualizarVentaExcedente(index, campo, valor) {
-  if (!ventasExcedente[index]) return;
-
-  if (campo === "cantidad" || campo === "precio") {
-    ventasExcedente[index][campo] = Number(valor) || 0;
-  } else {
-    ventasExcedente[index][campo] = valor;
-  }
-
-  guardarConfiguracion();
-  renderVentasExcedente();
-}
-
-/* =====================================================
-RENDER RESULTADO COMPRA — INTEGRACIÓN AJUSTES 3 y 4
-===================================================== */
-
-function renderResultadoCompra() {
-  const r = window.ultimoResultadoCompra;
-  if (!r) return;
-
-  let html = "";
-  /* [… bloque result-good / result-error original …] */
-
-  /* [… tabla productos esenciales original …] */
-  /* [… variedad/regalos original …] */
-  /* [… gastos de la ronda original …] */
-  /* [… excedentes de la ronda original …] */
-
-  /* ===== AJUSTE 3: sub-sección Excedente generado (después de excedentes) ===== */
-  html += renderExcedenteGenerado();
-  /* ===== FIN AJUSTE 3 ===== */
-
-  /* ===== AJUSTE 4: contenedor Ventas de excedente ===== */
-  html += `<div id="ventasExcedenteContainer"></div>`;
-  /* ===== FIN AJUSTE 4 ===== */
-
-  /* [… resumen de la compra original …] */
-  /* [… guardar compra final original …] */
-
-  document.getElementById("resultadoCompra").innerHTML = html;
-  renderRegalos();
-  renderGastosRonda();
-  renderExcedentesRonda();
-
-  /* ===== AJUSTE 4: render ventas tras pintar el HTML ===== */
-  renderVentasExcedente();
-  /* ===== FIN AJUSTE 4 ===== */
-
-  const resGuarda = document.getElementById("resultadoGuardarCompra");
-  if (resGuarda && ultimoMensajeGuardado) {
-    resGuarda.innerHTML = ultimoMensajeGuardado;
-  }
-}
-
-/* =====================================================
-GUARDAR COMPRA FINAL EN N8N — AJUSTE 4
-===================================================== */
-
-async function guardarCompraFinalEnN8N() {
-  /* [… validaciones originales …] */
-  /* [… borrar filas viejas …] */
-
-  const r = window.ultimoResultadoCompra;
-
-  /* [… itemsEsenciales, itemsRegalos, itemsGastos, itemsExcedentes originales …] */
-
-  /* ===== AJUSTE 4: items de ventas de excedente ===== */
-  const itemsVentasExcedente = ventasExcedente
-    .filter(v => Number(v.cantidad) > 0 && Number(v.precio) > 0)
-    .map(v => ({
-      id_producto: null,
-      producto: v.producto || ("Excedente a " + v.destino),
-      unidad: v.destino || "otro",
-      cantidad: Number(v.cantidad) || 0,
-      precio_unitario: Number(v.precio) || 0,
-      costo: (Number(v.cantidad) || 0) * (Number(v.precio) || 0),
-      tipo: "venta_excedente"
-    }));
-  /* ===== FIN AJUSTE 4 ===== */
-
-  const items = [
-    ...itemsEsenciales,
-    ...itemsRegalos,
-    ...itemsGastos,
-    ...itemsExcedentes,
-    ...itemsVentasExcedente   /* ===== AJUSTE 4 ===== */
-  ];
-
-  /* [… resto igual: POST a n8n, mensajes, etc. …] */
-}
-
-/* =====================================================
-REPORTES — AJUSTES 5 y 6
-===================================================== */
-
-function calcularReportes() {
-  /* [… validaciones originales …] */
-
-  const r = window.ultimoResultadoCompra;
-  const r2 = (v) => Math.round((Number(v) || 0) * 100) / 100;
-
-  const aceptados = pedidos.filter(p =>
-    String(p.estado || '').toLowerCase() === 'aceptado' &&
-    String(p.ronda_id || '') === String(rondaActiva)
-  );
-  const canastas = aceptados.reduce((s, p) => s + Number(p.total_solicitado || 0), 0);
-
-  const ingresosExcedentes = excedentesRonda.reduce((s, e) => s + Number(e.ingreso || 0), 0);
-
-  /* ===== AJUSTE 5: ingresos por ventas de excedente ===== */
-  const ingresosVentasExcedente = ventasExcedente.reduce(
-    (s, v) => s + (Number(v.cantidad) || 0) * (Number(v.precio) || 0),
-    0
-  );
-  /* ===== FIN AJUSTE 5 ===== */
-
-  const comprasTotal = r.costoEsencialesReal + r.regalosTotal;
-
-  const gastosPorTipo = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
-  gastosRonda.forEach(g => {
-    const t = String(g.tipo || 'otro').toLowerCase();
-    const monto = Number(g.monto) || 0;
-    if (gastosPorTipo[t] !== undefined) gastosPorTipo[t] += monto;
-    else gastosPorTipo.otro += monto;
-  });
-  const gastosTotal = Object.values(gastosPorTipo).reduce((s, v) => s + v, 0);
-
-  /* ===== AJUSTE 5: total ingresos incluye ventas de excedente ===== */
-  const totalIngresos = canastas + ingresosExcedentes + ingresosVentasExcedente;
-  /* ===== FIN AJUSTE 5 ===== */
-
-  const margenBruto = totalIngresos - comprasTotal;
-  const ebit = margenBruto - gastosTotal;
-  const impuestos = ebit > 0 ? r2(ebit * 0.015) : 0;
-  const utilidadNeta = r2(ebit - impuestos);
-
-  /* ===== AJUSTE 5: CFO incluye ventas de excedente ===== */
-  const cfo = canastas + ingresosExcedentes + ingresosVentasExcedente
-            - comprasTotal - gastosTotal;
-  /* ===== FIN AJUSTE 5 ===== */
-
-  const cfi = 0;
-  const cff = 0;
-  const deltaCaja = cfo + cfi + cff;
-  const cajaInicial = 0;
-  const cajaFinal = cajaInicial + deltaCaja;
-
-  const activosTotal = cajaFinal;
-  const pasivosTotal = 0;
-  const patrimonioTotal = activosTotal - pasivosTotal;
-  const cuadra = Math.abs(activosTotal - (pasivosTotal + patrimonioTotal)) < 0.01;
-
-  reporteActual = {
-    id_ronda: rondaActiva,
-    fecha_calculo: new Date().toISOString(),
-    pl: {
-      ingresos: {
-        canastas: r2(canastas),
-        excedentes: r2(ingresosExcedentes),
-        /* ===== AJUSTE 5: nueva fila ===== */
-        ventas_excedente: r2(ingresosVentasExcedente),
-        /* ===== FIN AJUSTE 5 ===== */
-        total: r2(totalIngresos)
-      },
-      cogs: { compras: r2(comprasTotal), total: r2(comprasTotal) },
-      margen_bruto: r2(margenBruto),
-      gastos: {
-        transporte: r2(gastosPorTipo.transporte),
-        empaque: r2(gastosPorTipo.empaque),
-        sueldo: r2(gastosPorTipo.sueldo),
-        otro: r2(gastosPorTipo.otro),
-        total: r2(gastosTotal)
-      },
-      ebit: r2(ebit),
-      impuestos: r2(impuestos),
-      utilidad_neta: r2(utilidadNeta)
-    },
-    flujo: {
-      cfo: {
-        cobros: r2(canastas),
-        excedentes: r2(ingresosExcedentes),
-        ventas_excedente: r2(ingresosVentasExcedente), /* Ajuste 5 */
-        pagos_proveedor: r2(comprasTotal),
-        pagos_gastos: r2(gastosTotal),
-        total: r2(cfo)
-      },
-      cfi: { total: cfi },
-      cff: { aportes: 0, retiros: 0, total: cff },
-      variacion: {
-        delta_caja: r2(deltaCaja),
-        caja_inicial: cajaInicial,
-        caja_final: r2(cajaFinal)
-      }
-    },
-    balance: {
-      activos: {
-        caja: r2(cajaFinal),
-        inventario: 0,
-        cxc: 0,
-        equipo: 0,
-        total: r2(activosTotal)
-      },
-      pasivos: { cxp: 0, ingresos_diferidos: 0, total: pasivosTotal },
-      patrimonio: {
-        capital: 0,
-        resultados_acumulados: r2(patrimonioTotal),
-        total: r2(patrimonioTotal)
-      },
-      verificacion: {
-        activos: r2(activosTotal),
-        pasivos_patrimonio: r2(pasivosTotal + patrimonioTotal),
-        cuadra: cuadra
-      }
-    }
-  };
-
-  rondaReporteActiva = rondaActiva;
-  renderReportes();
-}
-
-/* =====================================================
-RENDER CUADROS REPORTE — AJUSTES 5 y 6
-===================================================== */
-
-function renderCuadrosReporte(data) {
-  const cont = document.getElementById("reportesContenido");
-  if (!cont || !data) return;
-
-  const pl = data.pl || {};
-  const flujo = data.flujo || {};
-  const balance = data.balance || {};
-
-  const ing = pl.ingresos || {};
-  const cogs = pl.cogs || {};
-  const gastos = pl.gastos || {};
-
-  const cfo = flujo.cfo || {};
-  const cfi = flujo.cfi || {};
-  const cff = flujo.cff || {};
-  const vari = flujo.variacion || {};
-
-  const act = balance.activos || {};
-  const pas = balance.pasivos || {};
-  const pat = balance.patrimonio || {};
-  const ver = balance.verificacion || {};
-
-  const utilidadNeta = Number(pl.utilidad_neta || 0);
-  const claseUtilidad = utilidadNeta >= 0 ? "good" : "bad";
-
-  const cajaFinal = Number(vari.caja_final || 0);
-  const claseCaja = cajaFinal >= 0 ? "good" : "bad";
-
-  const cuadra = Boolean(ver.cuadra);
-  const claseBalance = cuadra ? "good" : "bad";
-
-  const esSnapshot = rondaReporteActiva !== rondaActiva;
-
-  let html = "";
-
-  if (esSnapshot) {
-    html += `<div class="snapshot-aviso">
-      ⚠ Estás viendo un <strong>snapshot histórico</strong> de la ronda
-      <strong>${escapeHTML(data.id_ronda || "")}</strong>. No se recalcula.
-    </div>`;
-  }
-
-  html += `
-    <div class="reporte-meta">
-      <div><strong>Ronda:</strong> ${escapeHTML(data.id_ronda || rondaActiva)}</div>
-      <div><strong>Fecha de cálculo:</strong> ${escapeHTML(data.fecha_calculo || "-")}</div>
-      <div><strong>Fuente:</strong> n8n · admin-reportes</div>
-    </div>
-  `;
-
-  /* -------- CUADRO 1: P&L -------- */
-  let plFilas = "";
-
-  plFilas += `<tr><td class="titulo-seccion" colspan="2">INGRESOS</td></tr>`;
-  plFilas += `<tr><td class="concepto">Canastas aceptadas</td><td class="monto">${soles(ing.canastas)}</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar excedentes si es 0 ===== */
-  if (Number(ing.excedentes) !== 0) {
-    plFilas += `<tr><td class="concepto">Excedentes</td><td class="monto">${soles(ing.excedentes)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  /* ===== AJUSTE 5 + 6: fila ventas de excedente solo si > 0 ===== */
-  if (Number(ing.ventas_excedente) > 0) {
-    plFilas += `<tr><td class="concepto">Ventas de excedente</td><td class="monto">${soles(ing.ventas_excedente)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 5 + 6 ===== */
-
-  plFilas += `<tr><td class="concepto subtotal">TOTAL INGRESOS</td><td class="monto subtotal">${soles(ing.total)}</td></tr>`;
-
-  plFilas += `<tr><td class="titulo-seccion" colspan="2">COGS</td></tr>`;
-  plFilas += `<tr><td class="concepto">Compra a proveedor</td><td class="monto">(${soles(cogs.compras)})</td></tr>`;
-  plFilas += `<tr><td class="concepto subtotal">MARGEN BRUTO</td><td class="monto subtotal">${soles(pl.margen_bruto)}</td></tr>`;
-
-  plFilas += `<tr><td class="titulo-seccion" colspan="2">GASTOS OPERATIVOS</td></tr>`;
-  plFilas += `<tr><td class="concepto">Transporte</td><td class="monto">(${soles(gastos.transporte)})</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar filas de gastos en 0 ===== */
-  if (Number(gastos.empaque) !== 0) {
-    plFilas += `<tr><td class="concepto">Empaque</td><td class="monto">(${soles(gastos.empaque)})</td></tr>`;
-  }
-  if (Number(gastos.sueldo) !== 0) {
-    plFilas += `<tr><td class="concepto">Sueldo</td><td class="monto">(${soles(gastos.sueldo)})</td></tr>`;
-  }
-  if (Number(gastos.otro) !== 0) {
-    plFilas += `<tr><td class="concepto">Otro</td><td class="monto">(${soles(gastos.otro)})</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  plFilas += `<tr><td class="concepto subtotal">TOTAL GASTOS</td><td class="monto subtotal">(${soles(gastos.total)})</td></tr>`;
-  plFilas += `<tr><td class="titulo-seccion" colspan="2">RESULTADO</td></tr>`;
-  plFilas += `<tr><td class="concepto">EBIT</td><td class="monto">${soles(pl.ebit)}</td></tr>`;
-  plFilas += `<tr><td class="concepto">Impuestos (1.5% MYPE)</td><td class="monto">(${soles(pl.impuestos)})</td></tr>`;
-
-  html += `
-    <div class="reporte-cuadro">
-      <h3>📈 Estado de Resultados (P&L)</h3>
-      <table class="reporte-tabla">${plFilas}</table>
-      <div class="fin-result ${claseUtilidad} reporte-final">
-        <div class="lbl">UTILIDAD NETA</div>
-        <div class="num">${soles(utilidadNeta)}</div>
-      </div>
-    </div>
-  `;
-
-  /* -------- CUADRO 2: FLUJO DE CAJA -------- */
-  let flujoFilas = "";
-
-  flujoFilas += `<tr><td class="titulo-seccion" colspan="2">FLUJO OPERATIVO</td></tr>`;
-  flujoFilas += `<tr><td class="concepto">+ Cobros clientes</td><td class="monto">${soles(cfo.cobros)}</td></tr>`;
-  flujoFilas += `<tr><td class="concepto">+ Excedentes</td><td class="monto">${soles(cfo.excedentes)}</td></tr>`;
-
-  if (Number(cfo.ventas_excedente) > 0) {
-    flujoFilas += `<tr><td class="concepto">+ Ventas de excedente</td><td class="monto">${soles(cfo.ventas_excedente)}</td></tr>`;
-  }
-
-  flujoFilas += `<tr><td class="concepto">− Pagos proveedor</td><td class="monto">(${soles(cfo.pagos_proveedor)})</td></tr>`;
-  flujoFilas += `<tr><td class="concepto">− Pagos gastos</td><td class="monto">(${soles(cfo.pagos_gastos)})</td></tr>`;
-  flujoFilas += `<tr><td class="concepto subtotal">CFO</td><td class="monto subtotal">${soles(cfo.total)}</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar FLUJO INVERSIÓN si cfi.total === 0 ===== */
-  if (Number(cfi.total) !== 0) {
-    flujoFilas += `<tr><td class="titulo-seccion" colspan="2">FLUJO INVERSIÓN</td></tr>`;
-    flujoFilas += `<tr><td class="concepto">CFI</td><td class="monto">${soles(cfi.total)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  /* ===== AJUSTE 6: ocultar FLUJO FINANCIAMIENTO si cff.total === 0 ===== */
-  if (Number(cff.total) !== 0) {
-    flujoFilas += `<tr><td class="titulo-seccion" colspan="2">FLUJO FINANCIAMIENTO</td></tr>`;
-    flujoFilas += `<tr><td class="concepto">Aportes Misti</td><td class="monto">${soles(cff.aportes)}</td></tr>`;
-    flujoFilas += `<tr><td class="concepto">Retiros Misti</td><td class="monto">(${soles(cff.retiros)})</td></tr>`;
-    flujoFilas += `<tr><td class="concepto subtotal">CFF</td><td class="monto subtotal">${soles(cff.total)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  flujoFilas += `<tr><td class="titulo-seccion" colspan="2">VARIACIÓN</td></tr>`;
-  flujoFilas += `<tr><td class="concepto">ΔCaja</td><td class="monto">${soles(vari.delta_caja)}</td></tr>`;
-  flujoFilas += `<tr><td class="concepto">Caja inicial</td><td class="monto">${soles(vari.caja_inicial)}</td></tr>`;
-
-  html += `
-    <div class="reporte-cuadro">
-      <h3>💵 Flujo de Caja</h3>
-      <table class="reporte-tabla">${flujoFilas}</table>
-      <div class="fin-result ${claseCaja} reporte-final">
-        <div class="lbl">CAJA FINAL</div>
-        <div class="num">${soles(cajaFinal)}</div>
-      </div>
-    </div>
-  `;
-
-  /* -------- CUADRO 3: BALANCE -------- */
-  let balanceFilas = "";
-
-  balanceFilas += `<tr><td class="titulo-seccion" colspan="2">ACTIVOS</td></tr>`;
-  balanceFilas += `<tr><td class="concepto">Caja</td><td class="monto">${soles(act.caja)}</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar filas de activos en 0 ===== */
-  if (Number(act.inventario) !== 0) {
-    balanceFilas += `<tr><td class="concepto">Inventario</td><td class="monto">${soles(act.inventario)}</td></tr>`;
-  }
-  if (Number(act.cxc) !== 0) {
-    balanceFilas += `<tr><td class="concepto">CxC</td><td class="monto">${soles(act.cxc)}</td></tr>`;
-  }
-  if (Number(act.equipo) !== 0) {
-    balanceFilas += `<tr><td class="concepto">Equipo</td><td class="monto">${soles(act.equipo)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  balanceFilas += `<tr><td class="concepto subtotal">TOTAL ACTIVOS</td><td class="monto subtotal">${soles(act.total)}</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar sección PASIVOS si total === 0 ===== */
-  if (Number(pas.total) !== 0) {
-    balanceFilas += `<tr><td class="titulo-seccion" colspan="2">PASIVOS</td></tr>`;
-    balanceFilas += `<tr><td class="concepto">CxP</td><td class="monto">${soles(pas.cxp)}</td></tr>`;
-    balanceFilas += `<tr><td class="concepto">Ingresos diferidos</td><td class="monto">${soles(pas.ingresos_diferidos)}</td></tr>`;
-    balanceFilas += `<tr><td class="concepto subtotal">TOTAL PASIVOS</td><td class="monto subtotal">${soles(pas.total)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  balanceFilas += `<tr><td class="titulo-seccion" colspan="2">PATRIMONIO</td></tr>`;
-
-  /* ===== AJUSTE 6: ocultar capital si es 0 ===== */
-  if (Number(pat.capital) !== 0) {
-    balanceFilas += `<tr><td class="concepto">Capital</td><td class="monto">${soles(pat.capital)}</td></tr>`;
-  }
-  /* ===== FIN AJUSTE 6 ===== */
-
-  balanceFilas += `<tr><td class="concepto">Resultados acumulados</td><td class="monto">${soles(pat.resultados_acumulados)}</td></tr>`;
-  balanceFilas += `<tr><td class="concepto subtotal">TOTAL PATRIMONIO</td><td class="monto subtotal">${soles(pat.total)}</td></tr>`;
-
-  html += `
-    <div class="reporte-cuadro">
-      <h3>⚖️ Balance General</h3>
-      <table class="reporte-tabla">${balanceFilas}</table>
-      <div class="fin-result ${claseBalance} reporte-final">
-        <div class="lbl">ACTIVOS = PASIVOS + PATRIMONIO</div>
-        <div class="num">${cuadra ? "✓" : "✗"}</div>
-      </div>
-    </div>
-  `;
-
-  cont.innerHTML = html;
-}
-
-/* =====================================================
-ACTUALIZAR TODO — AJUSTE 4 (integración ventas)
-===================================================== */
-
-function actualizarTodo() {
-  guardarConfiguracion();
-
-  actualizarResumen();
-  renderPedidos();
-  actualizarConsolidado();
-
-  if (typeof renderGastosRonda === "function") renderGastosRonda();
-  if (typeof renderExcedentesRonda === "function") renderExcedentesRonda();
-
-  if (compraCalculada) {
-    calcularCompra();
-  }
-
-  if (document.getElementById("view-reportes") &&
-      document.getElementById("view-reportes").classList.contains("active")) {
-    renderReportes();
-  }
-
-  /* ===== AJUSTE 4: refrescar ventas de excedente ===== */
-  if (typeof renderVentasExcedente === "function") {
-    const contVentas = document.getElementById("ventasExcedenteContainer");
-    if (contVentas) renderVentasExcedente();
-  }
-  /* ===== FIN AJUSTE 4 ===== */
-
-  /* ===== AJUSTE 2: refrescar composición ===== */
-  if (typeof renderComposicionRonda === "function") {
-    const contComp = document.getElementById("composicionRondaContainer");
-    if (contComp) renderComposicionRonda();
-  }
-  /* ===== FIN AJUSTE 2 ===== */
-}
-
-/* =====================================================
-INICIO
-===================================================== */
-
-cargarConfiguracion();
-
-refrescarSelectorRondas();
-renderPreciosRonda();
-aplicarPreciosRondaAProductos();
-renderProductos();
-
-/* ===== AJUSTE 2: renderizar composición al inicio ===== */
-renderComposicionRonda();
-/* ===== FIN AJUSTE 2 ===== */
-
-cargarPedidos();
-
-setTimeout(() => {
-  if (rondaActiva) {
-    cargarCompraFinalDeRonda(rondaActiva);
-  }
-  renderResumenFinancieroAmpliado();
-  cargarHistorialReportes();
-
-  /* ===== AJUSTE 2: refrescar composición tras cargar configuración ===== */
-  renderComposicionRonda();
-  /* ===== FIN AJUSTE 2 ===== */
-}, 1200);
-
-/* =====================================================
-NOTAS DE INTEGRACIÓN — 7 AJUSTES APLICADOS
-=====================================================
-
-CONSTANTES CAMBIADAS (AJUSTE 1):
-- CANASTA_SEMILLA: 15 → 20
-- CANASTA_BASICA:  25 → 30
-- CANASTA_FAMILIAR: 35 → 45
-- FACTOR_BASICA:   25/15 → 30/20 (1.50)
-- FACTOR_FAMILIAR: 35/15 → 45/20 (2.25)
-- Textos en "Estructura de las canastas": S/ 20, S/ 30, S/ 45
-- Encabezados tabla: "Básica × 1.50" y "Familiar × 2.25"
-
-SECCIONES NUEVAS AGREGADAS:
-- AJUSTE 2: "📋 Composición publicada de la semana" en Configuración
-- AJUSTE 7: "📢 Promesa comercial" al inicio de Configuración
-- AJUSTE 3: "📦 Excedente generado" dentro de renderResultadoCompra()
-- AJUSTE 4: "💰 Ventas de excedente" dentro de renderResultadoCompra()
-
-FUNCIONES NUEVAS CREADAS:
-- renderComposicionRonda()
-- guardarComposicionRonda()
-- cargarComposicionRonda()
-- renderExcedenteGenerado()
-- renderVentasExcedente()
-- agregarVentaExcedente()
-- eliminarVentaExcedente(index)
-- actualizarVentaExcedente(index, campo, valor)
-- totalVentasExcedente()
-
-VARIABLES NUEVAS:
-- let composicionRonda = { semilla: "", basica: "", familiar: "" };
-- let ventasExcedente = [];
-
-PERSISTENCIA:
-- guardarConfiguracion() incluye composicionRonda y ventasExcedente
-- cargarConfiguracion() los restaura
-- cambiarRondaActiva(), crearNuevaRonda(), eliminarRondaActiva()
-  limpian ventasExcedente = []
-
-INTEGRACIÓN CON actualizarTodo():
-- Refresca renderVentasExcedente() si existe el contenedor
-- Refresca renderComposicionRonda() si existe el contenedor
-
-AJUSTE 5 — Reportes:
-- calcularReportes() incluye ingresosVentasExcedente
-- P&L muestra fila "Ventas de excedente" solo si > 0
-- CFO incluye ventas de excedente
-
-AJUSTE 6 — Ocultar filas en 0:
-- P&L: empaque, sueldo, otro, excedentes (si === 0)
-- Flujo: FLUJO INVERSIÓN si cfi.total === 0
-- Flujo: FLUJO FINANCIAMIENTO si cff.total === 0
-- Balance: inventario, cxc, equipo, pasivos, capital (si === 0)
-
-CONFIRMACIONES:
-✓ Rondas (selector, crear, eliminar, cambiar): SIN CAMBIOS
-✓ Pedidos (aceptar, rechazar, detalle, modal pago): SIN CAMBIOS
-✓ Precios de ronda: SIN CAMBIOS
-✓ Compras (calcular, guardar, cargar): SIN CAMBIOS
-✓ Gastos de ronda: SIN CAMBIOS
-✓ Excedentes de ronda: SIN CAMBIOS
-✓ Reportes snapshot (guardar/cargar/historial): SIN CAMBIOS
-✓ Navegación por vistas: SIN CAMBIOS
-✓ Bloque @media print: SIGUE FUNCIONANDO
-✓ No se agregó CSS nuevo (se reutilizaron .section, .info-box,
-  .table-scroll, .btn-add, .btn-delete, .small-note, .result-*, etc.)
-✓ No se metieron fórmulas de viabilidad, bandas, coaseguros,
-  fondos de reserva ni promedios móviles
-✓ No se cambiaron nombres de variables ni funciones existentes
-===================================================== */
-
-</script>
-
-</body>
-</html>
+No tocar nada más de la función.
+
+═══════════════════════════════════════════════════════════════
+CAMBIO 3 — VISTA DASHBOARD (HTML)
+═══════════════════════════════════════════════════════════════
+En la vista "view-dashboard", dentro del bloque .dash-hero, buscar:
+
+  <div>
+    <div class="label">Presupuesto alimentos · 65%</div>
+    <div class="mid" id="presupuestoAlimentos">S/ 0.00</div>
+  </div>
+  <div>
+    <div class="label">Operaciones · 35%</div>
+    <div class="mid" id="presupuestoOperaciones">S/ 0.00</div>
+  </div>
+
+Reemplazar por:
+
+  <div>
+    <div class="label">Presupuesto alimentos</div>
+    <div class="mid" id="presupuestoAlimentos">S/ 0.00</div>
+  </div>
+  <div>
+    <div class="label">Cuota de coordinación</div>
+    <div class="mid" id="presupuestoOperaciones">S/ 0.00</div>
+  </div>
+
+Los IDs siguen siendo los mismos. Solo cambia el texto visible.
+
+═══════════════════════════════════════════════════════════════
+CAMBIO 4 — VISTA DASHBOARD (bloque .budget-grid)
+═══════════════════════════════════════════════════════════════
+En la misma vista, buscar el bloque .budget-grid:
+
+  <div class="budget-grid">
+    <div class="budget-box">Dinero comprometido<strong id="presupuestoTotal">S/ 0.00</strong></div>
+    <div class="budget-box">Operaciones · 35%<strong id="presupuestoOperaciones2">S/ 0.00</strong></div>
+    <div class="budget-box">Alimentos · 65%<strong id="presupuestoAlimentos2">S/ 0.00</strong></div>
+    <div class="budget-box">Saldo (alimentos − compra)<strong id="saldoPresupuesto">S/ 0.00</strong></div>
+  </div>
+
+Reemplazar por:
+
+  <div class="budget-grid">
+    <div class="budget-box">Dinero comprometido<strong id="presupuestoTotal">S/ 0.00</strong></div>
+    <div class="budget-box">Cuota de coordinación<strong id="presupuestoOperaciones2">S/ 0.00</strong></div>
+    <div class="budget-box">Presupuesto alimentos<strong id="presupuestoAlimentos2">S/ 0.00</strong></div>
+    <div class="budget-box">Saldo (alimentos − compra)<strong id="saldoPresupuesto">S/ 0.00</strong></div>
+  </div>
+
+═══════════════════════════════════════════════════════════════
+CAMBIO 5 — VISTA CIERRE (renderResumenFinancieroAmpliado)
+═══════════════════════════════════════════════════════════════
+Dentro de la función renderResumenFinancieroAmpliado(), en el primer
+.fin-col (Ingresos / Recursos), buscar:
+
+  <div class="fin-row">
+    <span>Presupuesto alimentos · 65%</span>
+    <span class="val">${soles(r.datos.alimentos)}</span>
+  </div>
+
+Reemplazar por DOS filas:
+
+  <div class="fin-row">
+    <span>Presupuesto alimentos</span>
+    <span class="val">${soles(r.datos.alimentos)}</span>
+  </div>
+  <div class="fin-row">
+    <span>Cuota de coordinación</span>
+    <span class="val">${soles(r.datos.operaciones)}</span>
+  </div>
+
+═══════════════════════════════════════════════════════════════
+LO QUE NO SE DEBE HACER
+═══════════════════════════════════════════════════════════════
+- NO tocar la lógica de rondas.
+- NO tocar la lógica de pedidos ni el modal de pago.
+- NO tocar la lógica de precios de ronda.
+- NO tocar la lógica de compras.
+- NO tocar la lógica de gastos ni de excedentes.
+- NO tocar los reportes (P&L, Flujo, Balance).
+- NO tocar el guardado en n8n.
+- NO tocar el CSS.
+- NO agregar secciones nuevas.
+- NO renombrar IDs de elementos HTML (presupuestoAlimentos,
+  presupuestoOperaciones, presupuestoAlimentos2, presupuestoOperaciones2
+  deben quedar iguales).
+- NO cambiar ninguna otra función.
+- NO meter fórmulas de viabilidad, bandas, coaseguros ni fondos.
+
+═══════════════════════════════════════════════════════════════
+VERIFICACIÓN FINAL
+═══════════════════════════════════════════════════════════════
+Al terminar, confirmar:
+
+1. En el HTML no queda NINGUNA aparición de "65%" ni "35%"
+   (ni en textos, ni en constantes, ni en comentarios).
+2. Las constantes nuevas existen:
+   CANASTA_SEMILLA=20, CANASTA_BASICA=30, CANASTA_FAMILIAR=45,
+   CUOTA_SEMILLA=5, CUOTA_BASICA=7, CUOTA_FAMILIAR=9.
+3. calcularConsolidado() calcula alimentos y operaciones con las
+   cuotas, no con porcentajes.
+4. Los textos de la vista Dashboard dicen "Presupuesto alimentos"
+   y "Cuota de coordinación" (sin 65 ni 35).
+5. La vista Cierre muestra las dos filas nuevas.
+
+ENTREGABLE
+Devolver el HTML completo modificado.
