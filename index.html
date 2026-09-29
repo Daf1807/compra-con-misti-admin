@@ -694,6 +694,8 @@ td { font-size: 14px; }
   font-weight: bold;
 }
 
+.fila-alerta { background: #f8d7da; }
+
 @media(max-width:1000px) {
   .cards        { grid-template-columns: repeat(2,1fr); }
   .summary-grid { grid-template-columns: repeat(2,1fr); }
@@ -1142,7 +1144,7 @@ td { font-size: 14px; }
       <div class="section">
         <h2 class="section-head">Calcular compra</h2>
         <p class="section-sub">
-          Flujo: presupuesto → distribución % → kg → compra real → variedad → saldo.
+          Flujo: presupuesto → distribución % → kg → compra real → variedad → saldo → empaquetamiento.
         </p>
 
         <div class="flow-strip">
@@ -1157,6 +1159,8 @@ td { font-size: 14px; }
           <span class="flow-chip">VARIEDAD</span>
           <span class="flow-arrow">→</span>
           <span class="flow-chip">SALDO</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">EMPAQUETAMIENTO</span>
         </div>
 
         <div class="formula-box">
@@ -1168,6 +1172,9 @@ td { font-size: 14px; }
           Compra real = kg calculados, o la cantidad editada a mano
           <br><br>
           Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
+          <br><br>
+          Kg por canasta = compra final / equivalentes Semilla × factor de la canasta
+          (Semilla 1.00 · Básica 1.50 · Familiar 2.25)
         </div>
 
         <div class="info-box">
@@ -3643,6 +3650,212 @@ function restablecerTodasCompras() {
 
 
 /* =====================================================
+EMPAQUETAMIENTO — NUEVA SECCIÓN
+===================================================== */
+
+function htmlEmpaquetamiento(r) {
+
+  const datos = r.datos;
+
+  const semillas = Number(datos.semillas) || 0;
+  const basicas  = Number(datos.basicas)  || 0;
+  const familiares = Number(datos.familiares) || 0;
+
+  const totalCanastas = semillas + basicas + familiares;
+
+  const equivalentesSemilla = Number(datos.equivalentesSemilla) || 0;
+
+  const resultados = r.resultadosEsenciales.filter(
+    p => Number(p.compraFinal) > 0
+  );
+
+  let html = `
+    <div class="purchase-section" id="seccionEmpaquetamiento">
+      <h3>📦 Empaquetamiento</h3>
+      <p class="small-note">
+        Reparto de los kg comprados entre las canastas de la ronda,
+        proporcional al aporte económico de cada tipo de canasta.
+      </p>
+  `;
+
+  /* ---------- a) Resumen de canastas ---------- */
+  html += `
+      <div class="summary-grid" style="margin-top:14px;">
+        <div class="summary-box">
+          Canastas totales
+          <strong>${totalCanastas}</strong>
+        </div>
+        <div class="summary-box">
+          Semilla
+          <strong>${semillas}</strong>
+        </div>
+        <div class="summary-box">
+          Básica
+          <strong>${basicas}</strong>
+        </div>
+        <div class="summary-box">
+          Familiar
+          <strong>${familiares}</strong>
+        </div>
+        <div class="summary-box">
+          Equivalentes Semilla
+          <strong>${redondear2(equivalentesSemilla).toFixed(2)}</strong>
+        </div>
+      </div>
+  `;
+
+  /* ---------- Si no hay equivalentes, aviso y salir ---------- */
+  if (equivalentesSemilla <= 0) {
+    html += `
+      <div class="result-warning" style="margin-top:14px;">
+        No hay canastas aceptadas en la ronda.
+      </div>
+    </div>`;
+    return html;
+  }
+
+  if (!resultados.length) {
+    html += `
+      <div class="result-warning" style="margin-top:14px;">
+        No hay productos esenciales con compra final mayor a cero.
+      </div>
+    </div>`;
+    return html;
+  }
+
+  /* ---------- b) Tabla "Qué lleva cada canasta" ---------- */
+  let filasReparto = "";
+  let totalSemilla = 0;
+  let totalBasica = 0;
+  let totalFamiliar = 0;
+
+  resultados.forEach(p => {
+
+    const compraFinal = Number(p.compraFinal) || 0;
+    const kgPorEquivalente = compraFinal / equivalentesSemilla;
+
+    const kgSemilla  = kgPorEquivalente * FACTOR_SEMILLA;
+    const kgBasica   = kgPorEquivalente * FACTOR_BASICA;
+    const kgFamiliar = kgPorEquivalente * FACTOR_FAMILIAR;
+
+    totalSemilla  += kgSemilla;
+    totalBasica   += kgBasica;
+    totalFamiliar += kgFamiliar;
+
+    filasReparto += `
+      <tr>
+        <td><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td>${redondear2(compraFinal).toFixed(2)}</td>
+        <td>${redondear2(kgSemilla).toFixed(2)}</td>
+        <td>${redondear2(kgBasica).toFixed(2)}</td>
+        <td>${redondear2(kgFamiliar).toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  filasReparto += `
+    <tr style="background:#fafafa; font-weight:bold;">
+      <td>TOTAL</td>
+      <td>—</td>
+      <td>${redondear2(totalSemilla).toFixed(2)}</td>
+      <td>${redondear2(totalBasica).toFixed(2)}</td>
+      <td>${redondear2(totalFamiliar).toFixed(2)}</td>
+    </tr>
+  `;
+
+  html += `
+      <div class="table-scroll" style="margin-top:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Compra final (kg)</th>
+              <th>Semilla (kg c/u)</th>
+              <th>Básica (kg c/u)</th>
+              <th>Familiar (kg c/u)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasReparto}
+          </tbody>
+        </table>
+      </div>
+  `;
+
+  /* ---------- c) Tabla de verificación ---------- */
+  let filasVerif = "";
+  let alerta = false;
+
+  resultados.forEach(p => {
+
+    const compraFinal = Number(p.compraFinal) || 0;
+    const kgPorEquivalente = compraFinal / equivalentesSemilla;
+
+    const kgSemilla  = kgPorEquivalente * FACTOR_SEMILLA;
+    const kgBasica   = kgPorEquivalente * FACTOR_BASICA;
+    const kgFamiliar = kgPorEquivalente * FACTOR_FAMILIAR;
+
+    const repartido = kgSemilla * semillas +
+                      kgBasica * basicas +
+                      kgFamiliar * familiares;
+
+    const diferencia = redondear2(compraFinal - repartido);
+
+    const claseAlerta = Math.abs(diferencia) > 0.01 ? ' class="fila-alerta"' : '';
+    if (Math.abs(diferencia) > 0.01) alerta = true;
+
+    filasVerif += `
+      <tr${claseAlerta}>
+        <td>${escapeHTML(p.nombre)}</td>
+        <td>${redondear2(compraFinal).toFixed(2)}</td>
+        <td>${redondear2(repartido).toFixed(2)}</td>
+        <td>${diferencia.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  html += `
+      <div class="table-scroll" style="margin-top:16px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Comprado (kg)</th>
+              <th>Repartido (kg)</th>
+              <th>Diferencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasVerif}
+          </tbody>
+        </table>
+      </div>
+  `;
+
+  /* ---------- d) Nota pequeña ---------- */
+  html += `
+      <div class="small-note" style="margin-top:12px;">
+        Cada canasta recibe kg proporcionales a lo que aportó:
+        Básica = 1.5 × Semilla, Familiar = 2.25 × Semilla.
+        Los kg salen de la Compra final, así que si editas una cantidad,
+        el empaquetamiento se actualiza.
+      </div>
+  `;
+
+  /* ---------- e) Botón de imprimir (opcional) ---------- */
+  html += `
+      <div class="actions" style="margin-top:12px;">
+        <button class="btn-detail" onclick="window.print()">🖨 Imprimir hoja de empaque</button>
+      </div>
+  `;
+
+  html += `</div>`;
+
+  return html;
+}
+
+
+/* =====================================================
 RENDER RESULTADO
 ===================================================== */
 
@@ -3752,13 +3965,15 @@ function renderResultadoCompra() {
     </div>
   `;
 
+  /* EMPAQUETAMIENTO */
+  html += htmlEmpaquetamiento(r);
+
   /* Guardar compra final */
   html += `
     <div class="purchase-section" style="margin-top:20px;">
       <h3>Guardar compra final en n8n</h3>
       <p class="small-note">
-        Guarda TODA la compra de esta ronda (esenciales + regalos + gastos + excedentes) en la tabla
-        compras_ronda. Reemplaza lo anterior de esta ronda.
+        Guarda TODA la compra de esta ronda (esenciales + regalos + gastos + excedentes) en la tabla        compras_ronda. Reemplaza lo anterior de esta ronda.
       </p>
       <div class="actions" style="gap:10px;flex-wrap:wrap;">
         <button class="btn-accept" onclick="guardarCompraFinalEnN8N()">
