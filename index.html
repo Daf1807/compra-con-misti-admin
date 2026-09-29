@@ -662,6 +662,38 @@ td { font-size: 14px; }
   margin-bottom: 14px;
 }
 
+/* ═══════════════════════════════════════════════════════
+   DISTRIBUCIÓN DEL PRESUPUESTO
+   ═══════════════════════════════════════════════════════ */
+
+.sem {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+}
+.sem-verde    { background: #d4edda; color: #155724; }
+.sem-amarillo { background: #fff3cd; color: #856404; }
+.sem-rojo     { background: #f8d7da; color: #721c24; }
+
+.dist-suma {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.dist-suma.verde    { background: #d4edda; color: #155724; }
+.dist-suma.amarillo { background: #fff3cd; color: #856404; }
+.dist-suma.rojo     { background: #f8d7da; color: #721c24; }
+
+.pct-input {
+  width: 70px;
+  text-align: right;
+  font-weight: bold;
+}
+
 @media(max-width:1000px) {
   .cards        { grid-template-columns: repeat(2,1fr); }
   .summary-grid { grid-template-columns: repeat(2,1fr); }
@@ -988,12 +1020,14 @@ td { font-size: 14px; }
           <strong>Regla fundamental</strong><br><br>
           El universo de productos es todo lo que Misti puede utilizar.<br><br>
           Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
-          Los productos esenciales tienen un mínimo garantizado para una Semilla.<br><br>
-          La Básica y Familiar no tienen mínimos independientes:
-          la máquina los calcula mediante sus factores económicos.<br><br>
+          Los productos esenciales se reparten el presupuesto de alimentos mediante
+          una <strong>distribución porcentual</strong> definida por Misti.
+          El sistema calcula el monto asignado a cada producto y, con el precio de
+          mercado, la cantidad en kg.<br><br>
+          La Básica y la Familiar no tienen listas propias: su aporte al presupuesto de alimentos se calcula
+          con sus montos (S/23 y S/36).<br><br>
           Los demás productos pueden comprarse como variedad,
-          adicional o regalo, pero no forman parte del compromiso
-          mínimo de la canasta.
+          adicional o regalo, pero no forman parte de la distribución esencial de la canasta.
         </div>
       </div>
 
@@ -1040,6 +1074,24 @@ td { font-size: 14px; }
         <div id="preciosRondaStatus" class="small-note" style="margin-top:10px;"></div>
       </div>
 
+      <!-- ══════════════════════════════════════════════════
+           NUEVA SECCIÓN: DISTRIBUCIÓN DEL PRESUPUESTO
+           ══════════════════════════════════════════════════ -->
+      <div class="section" id="seccionDistribucion">
+        <h2 class="section-head">📊 Distribución del presupuesto</h2>
+
+        <p class="section-description">
+          Define qué porcentaje del presupuesto de alimentos se asigna a cada
+          producto esencial. El sistema calcula el monto y la cantidad en kg
+          usando el precio de la ronda actual.
+          <br><br>
+          Los porcentajes deben sumar <strong>100%</strong>.
+          Si no suman, el sistema avisa con color.
+        </p>
+
+        <div id="distribucionContenido"></div>
+      </div>
+
       <!-- Universo de productos y esenciales -->
       <div class="section">
         <h2 class="section-head">Universo de productos y esenciales</h2>
@@ -1048,9 +1100,9 @@ td { font-size: 14px; }
           Todos los productos del Mercado Mayorista de Santa Anita están disponibles.
           Aquí decides cuáles forman parte del compromiso esencial.
           <br><br>
-          <strong>Al marcar un producto como esencial</strong>, se autocompletan sus
-          mínimos por canasta si está en la lista recomendada.
-          Si no, quedan en 0 y los editas a mano.
+          <strong>Al marcar un producto como esencial</strong>, se le asigna
+          automáticamente su porcentaje sugerido en la distribución del presupuesto
+          si es que cabe. Si no, queda en 0% y lo editas a mano.
           <br><br>
           <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
           "Precios de la ronda actual".
@@ -1089,12 +1141,16 @@ td { font-size: 14px; }
 
       <div class="section">
         <h2 class="section-head">Calcular compra</h2>
-        <p class="section-sub">Flujo: presupuesto → mínimo esencial → compra real → variedad → saldo.</p>
+        <p class="section-sub">
+          Flujo: presupuesto → distribución % → kg → compra real → variedad → saldo.
+        </p>
 
         <div class="flow-strip">
           <span class="flow-chip">PRESUPUESTO</span>
           <span class="flow-arrow">→</span>
-          <span class="flow-chip">MÍNIMO</span>
+          <span class="flow-chip">DISTRIBUCIÓN %</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-chip">KG</span>
           <span class="flow-arrow">→</span>
           <span class="flow-chip">COMPRA REAL</span>
           <span class="flow-arrow">→</span>
@@ -1105,24 +1161,21 @@ td { font-size: 14px; }
 
         <div class="formula-box">
           Para cada producto esencial:<br><br>
-          Entregado (mín.) =
-          (Semillas × mínimo Semilla)
-          + (Básicas × mínimo Basica)
-          + (Familiares × mínimo Familiar)
+          Monto asignado = presupuesto de alimentos × % / 100
           <br><br>
-          Compra mínima = redondear hacia arriba( mínimo consolidado )
+          Kg calculado = monto / precio (2 decimales)
           <br><br>
-          Compra real = compra mínima + adicional decidido por administradora
+          Compra real = kg calculados, o la cantidad editada a mano
           <br><br>
           Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
         </div>
 
         <div class="info-box">
           <strong>El algoritmo primero protege lo esencial.</strong><br><br>
-          Después de cubrir los mínimos esenciales,
+          Después de cubrir la distribución porcentual del presupuesto,
           el dinero que quede disponible puede utilizarse
           para variedad o regalo.<br><br>
-          Esa variedad no modifica el mínimo garantizado
+          Esa variedad no modifica la distribución esencial
           y no crea una nueva obligación para las familias.<br><br>
           <strong>Los cambios numéricos se actualizan automáticamente.</strong>
         </div>
@@ -1321,19 +1374,19 @@ const FACTOR_FAMILIAR = 45 / 20;   // = 2.25
 
 
 /* =====================================================
-MINIMOS RECOMENDADOS POR CANASTA
+NUEVA CONSTANTE: DISTRIBUCIÓN DEFAULT
 ===================================================== */
 
-const MINIMOS_RECOMENDADOS = {
-  "Papa blanca":     { semilla: 1.50, basica: 2.50, familiar: 4.00 },
-  "Papa amarilla":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
-  "Cebolla roja":    { semilla: 0.50, basica: 1.00, familiar: 1.50 },
-  "Zanahoria":       { semilla: 0.25, basica: 0.50, familiar: 0.75 },
-  "Camote amarillo": { semilla: 0.50, basica: 1.00, familiar: 1.50 },
-  "Zapallo macre":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
-  "Yuca amarilla":   { semilla: 0.25, basica: 0.50, familiar: 0.75 },
-  "Tomate":          { semilla: 0.25, basica: 0.50, familiar: 0.75 },
-  "Choclo":          { semilla: 1,    basica: 2,    familiar: 3    }
+const DISTRIBUCION_DEFAULT = {
+  "Papa canchán": 25,
+  "Papa amarilla": 8,
+  "Cebolla roja": 12,
+  "Zanahoria": 8,
+  "Camote amarillo": 10,
+  "Zapallo macre": 8,
+  "Yuca amarilla": 8,
+  "Tomate": 8,
+  "Choclo": 13
 };
 
 
@@ -1343,83 +1396,83 @@ UNIVERSO DE PRODUCTOS — MERCADO SANTA ANITA
 
 const productos = [
   // TUBÉRCULOS Y RAÍCES
-  { nombre: "Papa blanca",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa amarilla",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa canchán",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa única",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa yungay",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa huayro",        unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa peruanita",     unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa color",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa negra andina",  unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papa huamantanga",   unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Camote amarillo",    unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Camote morado",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Yuca amarilla",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Olluco largo",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Papa blanca",        unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa amarilla",      unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa canchán",       unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa única",         unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa yungay",        unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa huayro",        unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa peruanita",     unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa color",         unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa negra andina",  unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papa huamantanga",   unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Camote amarillo",    unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Camote morado",      unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Yuca amarilla",      unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Olluco largo",       unidad: "kg",     esencial: false, precio: 0 },
 
   // VERDURAS DE HOJA
-  { nombre: "Lechuga americana",  unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Lechuga criolla",    unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Lechuga romana",     unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Espinaca",           unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Acelga",             unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Col china",          unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Col corazón",        unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Coliflor",           unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Brócoli",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Apio",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Perejil",            unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Culantro",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Hierba buena",       unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Huacatay",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Albahaca",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Lechuga americana",  unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Lechuga criolla",    unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Lechuga romana",     unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Espinaca",           unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Acelga",             unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Col china",          unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Col corazón",        unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Coliflor",           unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Brócoli",            unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Apio",               unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Perejil",            unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Culantro",           unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Hierba buena",       unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Huacatay",           unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Albahaca",           unidad: "atado",  esencial: false, precio: 0 },
 
   // HORTALIZAS DE FRUTO
-  { nombre: "Tomate",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Cebolla roja",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Cebolla blanca",     unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Cebolla china",      unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Zanahoria",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Beterraga",          unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Nabo",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Rabanito",           unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Poro",               unidad: "atado",  esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Pepinillo",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Berenjena",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Pimiento morrón",    unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Ají escabeche",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Ají amarillo",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Ají panca",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Ají rocoto",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Zapallo macre",      unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Zapallo italiano",   unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Zapallo loche",      unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Caigua",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Tomate",             unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Cebolla roja",       unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Cebolla blanca",     unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Cebolla china",      unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Zanahoria",          unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Beterraga",          unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Nabo",               unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Rabanito",           unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Poro",               unidad: "atado",  esencial: false, precio: 0 },
+  { nombre: "Pepinillo",          unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Berenjena",          unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Pimiento morrón",    unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Ají escabeche",      unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Ají amarillo",       unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Ají panca",          unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Ají rocoto",         unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Zapallo macre",      unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Zapallo italiano",   unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Zapallo loche",      unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Caigua",             unidad: "kg",     esencial: false, precio: 0 },
 
   // CHOCLOS Y GRANOS VERDES
-  { nombre: "Choclo",             unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Arveja verde",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Haba verde",         unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Vainita",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Pallar verde",       unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Choclo",             unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Arveja verde",       unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Haba verde",         unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Vainita",            unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Pallar verde",       unidad: "kg",     esencial: false, precio: 0 },
 
   // TUBÉRCULOS ANDINOS
-  { nombre: "Alcachofa",          unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Espárrago",          unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Kion",               unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Alcachofa",          unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Espárrago",          unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Kion",               unidad: "kg",     esencial: false, precio: 0 },
 
   // FRUTAS
-  { nombre: "Manzana",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Naranja",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Papaya",             unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Piña",               unidad: "unidad", esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Plátano",            unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Maracuyá",           unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
-  { nombre: "Limón",              unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 },
+  { nombre: "Manzana",            unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Naranja",            unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Papaya",             unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Piña",               unidad: "unidad", esencial: false, precio: 0 },
+  { nombre: "Plátano",            unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Maracuyá",           unidad: "kg",     esencial: false, precio: 0 },
+  { nombre: "Limón",              unidad: "kg",     esencial: false, precio: 0 },
 
   // TUBÉRCULOS ADICIONALES
-  { nombre: "Ajo",                unidad: "kg",     esencial: false, minimo: 0, minimoBasica: 0, minimoFamiliar: 0, precio: 0 }
+  { nombre: "Ajo",                unidad: "kg",     esencial: false, precio: 0 }
 ];
 
 
@@ -1454,6 +1507,20 @@ let ultimoMensajeGuardado = "";
 let reporteActual = null;
 let snapshotsGuardados = [];
 let rondaReporteActiva = "";
+
+
+/* =====================================================
+NUEVO ESTADO DE DISTRIBUCIÓN
+===================================================== */
+
+let distribucion = {};        // { nombreProducto: porcentaje }
+let preciosReferencia = {};   // { nombreProducto: precio al momento de fijar la referencia }
+
+/* Clave de persistencia POR RONDA */
+const STORAGE_DIST_KEY = "compra_con_misti_dist_v1";
+
+/* Ronda actual cargada en distribución (para detectar cambios) */
+let _distRonda = "";
 
 
 /* =====================================================
@@ -1499,10 +1566,7 @@ function guardarConfiguracion() {
       productos: productos.map(p => ({
         nombre: p.nombre,
         unidad: p.unidad,
-        esencial: p.esencial,
-        minimo: p.minimo,
-        minimoBasica: p.minimoBasica,
-        minimoFamiliar: p.minimoFamiliar
+        esencial: p.esencial
       })),
 
       adicionales: { ...adicionales },
@@ -1547,12 +1611,10 @@ function cargarConfiguracion() {
     const datos = JSON.parse(guardado);
 
     if (Array.isArray(datos.productos)) {
-      datos.productos.forEach((gp, index) => {
-        if (!productos[index]) return;
-        productos[index].esencial = Boolean(gp.esencial);
-        productos[index].minimo = Number(gp.minimo) || 0;
-        productos[index].minimoBasica = Number(gp.minimoBasica) || 0;
-        productos[index].minimoFamiliar = Number(gp.minimoFamiliar) || 0;
+      datos.productos.forEach((gp) => {
+        const p = productos.find(prod => prod.nombre === gp.nombre);
+        if (!p) return;
+        p.esencial = Boolean(gp.esencial);
       });
     }
 
@@ -1610,6 +1672,523 @@ function cargarConfiguracion() {
 
 
 /* =====================================================
+PERSISTENCIA DE DISTRIBUCIÓN POR RONDA
+===================================================== */
+
+function guardarDistribucion() {
+
+  try {
+
+    let guardado = {};
+
+    const raw = localStorage.getItem(STORAGE_DIST_KEY);
+
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") guardado = parsed;
+      } catch(_) { guardado = {}; }
+    }
+
+    const id = rondaActiva || "__sin_ronda__";
+
+    guardado[id] = {
+      pct: { ...distribucion },
+      ref: { ...preciosReferencia }
+    };
+
+    localStorage.setItem(STORAGE_DIST_KEY, JSON.stringify(guardado));
+
+  } catch(error) {
+    console.error("Error guardando distribución:", error);
+  }
+}
+
+
+function cargarDistribucionDeRonda() {
+
+  distribucion = {};
+  preciosReferencia = {};
+
+  const id = rondaActiva || "__sin_ronda__";
+
+  try {
+
+    const raw = localStorage.getItem(STORAGE_DIST_KEY);
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return;
+
+    const entry = parsed[id];
+    if (!entry) return;
+
+    if (entry.pct && typeof entry.pct === "object") {
+      distribucion = { ...entry.pct };
+    }
+
+    if (entry.ref && typeof entry.ref === "object") {
+      preciosReferencia = { ...entry.ref };
+    }
+
+  } catch(error) {
+    console.error("Error cargando distribución:", error);
+  }
+}
+
+
+function asegurarDistribucion() {
+
+  const esenciales = productos.filter(p => p.esencial === true);
+  const nombres = esenciales.map(p => p.nombre);
+
+  /* Eliminar de distribución lo que ya no es esencial */
+  Object.keys(distribucion).forEach(nombre => {
+    if (!nombres.includes(nombre)) {
+      delete distribucion[nombre];
+      delete preciosReferencia[nombre];
+    }
+  });
+
+  /* Asignar % default a los esenciales nuevos solo si la suma no supera 100 */
+  esenciales.forEach(p => {
+
+    if (distribucion[p.nombre] === undefined) {
+
+      const sugerido = Number(DISTRIBUCION_DEFAULT[p.nombre] || 0);
+      const sumaActual = sumaDistribucion();
+
+      if (sumaActual + sugerido <= 100.0001) {
+        distribucion[p.nombre] = sugerido;
+      } else {
+        distribucion[p.nombre] = 0;
+      }
+    }
+  });
+}
+
+
+/* =====================================================
+FUNCIONES NUEVAS DE DISTRIBUCIÓN
+===================================================== */
+
+function redondear2(v) {
+  return Math.round((Number(v) || 0) * 100) / 100;
+}
+
+
+function sumaDistribucion() {
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  return esenciales.reduce((s, p) => {
+    return s + (Number(distribucion[p.nombre]) || 0);
+  }, 0);
+}
+
+
+function normalizarA(nombres, objetivo) {
+
+  const lista = nombres.filter(n => distribucion[n] !== undefined);
+
+  if (!lista.length) return;
+
+  const sumaActual = lista.reduce(
+    (s, n) => s + (Number(distribucion[n]) || 0), 0
+  );
+
+  if (sumaActual === 0) {
+    /* Repartir en partes iguales */
+    const parte = objetivo / lista.length;
+    lista.forEach(n => { distribucion[n] = redondear2(parte); });
+  } else {
+    lista.forEach(n => {
+      distribucion[n] = redondear2(
+        (Number(distribucion[n]) || 0) * objetivo / sumaActual
+      );
+    });
+  }
+
+  /* Absorber residuo de redondeo en el producto de mayor % */
+  const sumaFinal = lista.reduce(
+    (s, n) => s + (Number(distribucion[n]) || 0), 0
+  );
+
+  const residuo = redondear2(objetivo - sumaFinal);
+
+  if (Math.abs(residuo) > 0.0001) {
+
+    let mayor = lista[0];
+
+    lista.forEach(n => {
+      if ((Number(distribucion[n]) || 0) > (Number(distribucion[mayor]) || 0)) {
+        mayor = n;
+      }
+    });
+
+    distribucion[mayor] = redondear2(
+      (Number(distribucion[mayor]) || 0) + residuo
+    );
+  }
+}
+
+
+function calcularSemaforo(costo, presupuesto, tolerancia) {
+
+  const tol = Number(tolerancia) || 0;
+
+  if (presupuesto <= 0 && costo <= 0) return "verde";
+
+  if (costo <= presupuesto + tol) return "verde";
+
+  const ratio = presupuesto > 0 ? costo / presupuesto : 999;
+
+  if (ratio <= 1.10) return "amarillo";
+
+  return "rojo";
+}
+
+
+function htmlSemaforo(estado) {
+
+  const clases = {
+    verde: "sem-verde",
+    amarillo: "sem-amarillo",
+    rojo: "sem-rojo"
+  };
+
+  const labels = {
+    verde: "✓ OK",
+    amarillo: "⚠ +10%",
+    rojo: "✕ Exceso"
+  };
+
+  const clase = clases[estado] || "sem-verde";
+  const label = labels[estado] || "OK";
+
+  return `<span class="sem ${clase}">${label}</span>`;
+}
+
+
+/* =====================================================
+RENDER DE LA SECCIÓN DISTRIBUCIÓN
+===================================================== */
+
+function renderDistribucion() {
+
+  const cont = document.getElementById("distribucionContenido");
+  if (!cont) return;
+
+  /* Detectar cambio de ronda y recargar distribución */
+  const idRonda = rondaActiva || "__sin_ronda__";
+
+  if (_distRonda !== idRonda) {
+    _distRonda = idRonda;
+    cargarDistribucionDeRonda();
+  }
+
+  asegurarDistribucion();
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  if (!rondaActiva) {
+    cont.innerHTML =
+      `<div class="info-box">Sin ronda activa. Elegí o creá una ronda arriba para definir la distribución.</div>`;
+    return;
+  }
+
+  if (!esenciales.length) {
+    cont.innerHTML =
+      `<div class="info-box">Marca productos como esenciales en el Universo de productos para poder distribuirlos.</div>`;
+    return;
+  }
+
+  const aceptados = obtenerAceptadosRonda();
+  const consolidado = calcularConsolidado(aceptados);
+  const presupuestoAlimentos = Number(consolidado.alimentos) || 0;
+
+  const suma = sumaDistribucion();
+
+  let claseSuma = "verde";
+  let textoSuma = `Suma: ${redondear2(suma)}% ✓`;
+
+  if (Math.abs(suma - 100) > 0.01) {
+    if (suma < 100) {
+      claseSuma = "amarillo";
+      textoSuma = `Suma: ${redondear2(suma)}% · falta ${redondear2(100 - suma)}%`;
+    } else {
+      claseSuma = "rojo";
+      textoSuma = `Suma: ${redondear2(suma)}% · sobra ${redondear2(suma - 100)}%`;
+    }
+  }
+
+  let avisoPresupuesto = "";
+  if (!aceptados.length) {
+    avisoPresupuesto =
+      `<div class="result-warning">No hay pedidos aceptados en la ronda. Los montos se muestran en S/ 0.00.</div>`;
+  }
+
+  let filas = "";
+  let totalMonto = 0;
+
+  esenciales.forEach(p => {
+
+    const pct = Number(distribucion[p.nombre]) || 0;
+
+    const monto = presupuestoAlimentos > 0
+      ? presupuestoAlimentos * pct / 100
+      : 0;
+
+    const kg = (p.precio > 0 && monto > 0)
+      ? monto / p.precio
+      : 0;
+
+    totalMonto += monto;
+
+    filas += `
+      <tr>
+        <td><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td>${p.precio > 0 ? soles(p.precio) : `<span class="price-missing">SIN PRECIO</span>`}</td>
+        <td>kg</td>
+        <td>
+          <input
+            class="pct-input"
+            type="number"
+            min="0"
+            step="0.01"
+            value="${pct}"
+            data-producto="${escapeHTML(p.nombre)}"
+            oninput="cambiarPorcentaje('${escapeHTML(p.nombre)}', this.value)"
+          >
+        </td>
+        <td id="dist-monto-${escapeHTML(p.nombre)}">${soles(monto)}</td>
+        <td id="dist-kg-${escapeHTML(p.nombre)}">${kg.toFixed(2)} kg</td>
+      </tr>
+    `;
+  });
+
+  filas += `
+    <tr style="background:#fafafa; font-weight:bold;">
+      <td>TOTAL</td>
+      <td>—</td>
+      <td>—</td>
+      <td>${redondear2(suma)}%</td>
+      <td>${soles(totalMonto)}</td>
+      <td>—</td>
+    </tr>
+  `;
+
+  cont.innerHTML = `
+    ${avisoPresupuesto}
+
+    <div style="margin-bottom:10px;">
+      <span class="dist-suma ${claseSuma}">${textoSuma}</span>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Unidad</th>
+            <th>%</th>
+            <th>Monto</th>
+            <th>Kg</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filas}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="actions" style="margin-top:15px; gap:10px; flex-wrap:wrap;">
+      <button class="btn-detail" onclick="fijarPreciosReferencia()">
+        📌 Fijar precios de referencia
+      </button>
+      <button class="btn-calculate" onclick="rebalancearDistribucion()">
+        ⚖ Rebalancear distribución
+      </button>
+    </div>
+
+    <div class="small-note" style="margin-top:10px;">
+      Si un producto sube de precio, su % baja para no gastar de más en él. El resto se reparte
+      proporcionalmente hasta sumar 100%. Los precios de referencia se fijan con el botón 📌 o al editar un %.
+    </div>
+  `;
+}
+
+
+function actualizarCalculosDistribucion() {
+
+  const cont = document.getElementById("distribucionContenido");
+  if (!cont) return;
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  const aceptados = obtenerAceptadosRonda();
+  const consolidado = calcularConsolidado(aceptados);
+  const presupuestoAlimentos = Number(consolidado.alimentos) || 0;
+
+  let totalMonto = 0;
+
+  esenciales.forEach(p => {
+
+    const pct = Number(distribucion[p.nombre]) || 0;
+
+    const monto = presupuestoAlimentos > 0
+      ? presupuestoAlimentos * pct / 100
+      : 0;
+
+    const kg = (p.precio > 0 && monto > 0)
+      ? monto / p.precio
+      : 0;
+
+    totalMonto += monto;
+
+    const elMonto = document.getElementById(`dist-monto-${p.nombre}`);
+    const elKg = document.getElementById(`dist-kg-${p.nombre}`);
+
+    if (elMonto) elMonto.textContent = soles(monto);
+    if (elKg)    elKg.textContent = kg.toFixed(2) + " kg";
+  });
+
+  /* Actualizar indicador de suma */
+  const suma = sumaDistribucion();
+
+  const semEl = cont.querySelector(".dist-suma");
+
+  if (semEl) {
+    semEl.classList.remove("verde", "amarillo", "rojo");
+
+    if (Math.abs(suma - 100) <= 0.01) {
+      semEl.classList.add("verde");
+      semEl.textContent = `Suma: ${redondear2(suma)}% ✓`;
+    } else if (suma < 100) {
+      semEl.classList.add("amarillo");
+      semEl.textContent = `Suma: ${redondear2(suma)}% · falta ${redondear2(100 - suma)}%`;
+    } else {
+      semEl.classList.add("rojo");
+      semEl.textContent = `Suma: ${redondear2(suma)}% · sobra ${redondear2(suma - 100)}%`;
+    }
+  }
+
+  /* Actualizar fila TOTAL */
+  const filaTotal = cont.querySelector("tbody tr:last-child");
+  if (filaTotal) {
+    const celdas = filaTotal.querySelectorAll("td");
+    if (celdas[3]) celdas[3].textContent = redondear2(suma) + "%";
+    if (celdas[4]) celdas[4].textContent = soles(totalMonto);
+  }
+}
+
+
+function cambiarPorcentaje(nombre, valor) {
+
+  let num = Number(valor);
+  if (isNaN(num) || num < 0) num = 0;
+
+  distribucion[nombre] = redondear2(num);
+
+  /* Descartar cantidad editada de ese producto */
+  delete adicionales[nombre];
+
+  /* Fijar precio de referencia faltante */
+  if (preciosReferencia[nombre] === undefined) {
+    const p = productos.find(prod => prod.nombre === nombre);
+    if (p && p.precio > 0) preciosReferencia[nombre] = Number(p.precio);
+  }
+
+  guardarDistribucion();
+  guardarConfiguracion();
+
+  actualizarCalculosDistribucion();
+
+  if (compraCalculada) recalcularCompraEnVivo();
+}
+
+
+function fijarPreciosReferencia() {
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  if (!esenciales.length) {
+    alert("No hay productos esenciales para fijar referencia.");
+    return;
+  }
+
+  preciosReferencia = {};
+
+  esenciales.forEach(p => {
+    if (p.precio > 0) preciosReferencia[p.nombre] = Number(p.precio);
+  });
+
+  guardarDistribucion();
+
+  alert("Precios de referencia fijados para " + Object.keys(preciosReferencia).length + " producto(s).");
+}
+
+
+function rebalancearDistribucion() {
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  if (!esenciales.length) {
+    alert("No hay productos esenciales.");
+    return;
+  }
+
+  const conRef = esenciales.filter(p =>
+    preciosReferencia[p.nombre] > 0 && p.precio > 0
+  );
+
+  if (!conRef.length) {
+    alert("No hay precios de referencia. Fijalos primero con el botón 📌.");
+    return;
+  }
+
+  if (!confirm("¿Rebalancear la distribución usando los precios de referencia?")) return;
+
+  /* Ajustar % de los que tienen referencia */
+  conRef.forEach(p => {
+
+    const pctActual = Number(distribucion[p.nombre]) || 0;
+    const ref = Number(preciosReferencia[p.nombre]) || 0;
+    const actual = Number(p.precio) || 0;
+
+    if (ref > 0 && actual > 0) {
+      distribucion[p.nombre] = redondear2(
+        pctActual * ref / actual
+      );
+    }
+  });
+
+  /* Normalizar a 100 */
+  const nombres = esenciales.map(p => p.nombre);
+
+  normalizarA(nombres, 100);
+
+  /* Descartar todas las cantidades editadas */
+  esenciales.forEach(p => { delete adicionales[p.nombre]; });
+
+  /* Actualizar referencia al precio actual */
+  esenciales.forEach(p => {
+    if (p.precio > 0) preciosReferencia[p.nombre] = Number(p.precio);
+  });
+
+  guardarDistribucion();
+  guardarConfiguracion();
+
+  renderDistribucion();
+
+  if (compraCalculada) recalcularCompraEnVivo();
+
+  actualizarTodo();
+}
+
+
+/* =====================================================
 APLICAR PRECIOS DE RONDA A LOS PRODUCTOS DEL UNIVERSO
 ===================================================== */
 
@@ -1635,6 +2214,7 @@ function aplicarPreciosRondaAProductos() {
   });
 
   renderProductos();
+  renderDistribucion();
 }
 
 
@@ -1684,49 +2264,57 @@ function cambiarEsencial(index, valor) {
   const p = productos[index];
   if (!p) return;
 
-  p.esencial = Boolean(valor);
+  const eraEsencial = !!p.esencial;
+  const seraEsencial = Boolean(valor);
 
-  if (p.esencial) {
-    /* Autocompletar mínimos recomendados si aplica */
-    const rec = MINIMOS_RECOMENDADOS[p.nombre];
-    if (rec) {
-      p.minimo = rec.semilla;
-      p.minimoBasica = rec.basica;
-      p.minimoFamiliar = rec.familiar;
-    } else if (!p.minimo && !p.minimoBasica && !p.minimoFamiliar) {
-      /* Si no está en la lista y no tenía nada, dejar en 0 */
-      p.minimo = 0;
-      p.minimoBasica = 0;
-      p.minimoFamiliar = 0;
+  if (eraEsencial && !seraEsencial) {
+
+    /* DESMARCAR: redistribuir su % entre los restantes */
+    const totalAntes = sumaDistribucion();
+
+    const pctLiberado = Number(distribucion[p.nombre]) || 0;
+
+    delete distribucion[p.nombre];
+    delete preciosReferencia[p.nombre];
+
+    p.esencial = false;
+
+    /* Reasignar el % liberado proporcionalmente entre los esenciales restantes */
+    const restantes = productos.filter(prod => prod.esencial === true);
+
+    if (restantes.length && pctLiberado > 0 && totalAntes > 0) {
+
+      const nombresRestantes = restantes.map(prod => prod.nombre);
+
+      /* Escalar para que sumen el total previo (no 100) */
+      normalizarA(nombresRestantes, totalAntes);
+
+    } else if (restantes.length && totalAntes > 0) {
+      /* Si el liberado era 0, igualmente normalizar al total previo */
+      const nombresRestantes = restantes.map(prod => prod.nombre);
+      normalizarA(nombresRestantes, totalAntes);
     }
+
+  } else if (!eraEsencial && seraEsencial) {
+
+    /* MARCAR: asignar % sugerido si cabe */
+    p.esencial = true;
+
+    asegurarDistribucion();
+
+  } else {
+    p.esencial = seraEsencial;
   }
 
+  asegurarDistribucion();
+
+  guardarDistribucion();
   guardarConfiguracion();
 
-  /* Refrescar las 3 secciones conectadas */
   renderProductos();
   renderPreciosRonda();
   aplicarPreciosRondaAProductos();
 
-  if (compraCalculada) recalcularCompraEnVivo();
-}
-
-
-function cambiarMinimo(index, valor) {
-  productos[index].minimo = Number(valor) || 0;
-  guardarConfiguracion();
-  if (compraCalculada) recalcularCompraEnVivo();
-}
-
-function cambiarMinimoBasica(index, valor) {
-  productos[index].minimoBasica = Number(valor) || 0;
-  guardarConfiguracion();
-  if (compraCalculada) recalcularCompraEnVivo();
-}
-
-function cambiarMinimoFamiliar(index, valor) {
-  productos[index].minimoFamiliar = Number(valor) || 0;
-  guardarConfiguracion();
   if (compraCalculada) recalcularCompraEnVivo();
 }
 
@@ -2017,10 +2605,17 @@ function cambiarRondaActiva(valor) {
   rondaReporteActiva = "";
 
   rondaActiva = valor || "";
+
+  /* Recargar distribución de la nueva ronda */
+  _distRonda = "";
+  cargarDistribucionDeRonda();
+  asegurarDistribucion();
+
   guardarConfiguracion();
 
   renderPreciosRonda();
   aplicarPreciosRondaAProductos();
+  renderDistribucion();
   refrescarSelectorRondas();
 
   if (rondaActiva) {
@@ -2112,11 +2707,17 @@ function crearNuevaRonda() {
   reporteActual = null;
   rondaReporteActiva = "";
 
+  /* Cargar distribución de la nueva ronda (vacía) */
+  _distRonda = "";
+  cargarDistribucionDeRonda();
+  asegurarDistribucion();
+
   guardarConfiguracion();
 
   refrescarSelectorRondas();
   renderPreciosRonda();
   aplicarPreciosRondaAProductos();
+  renderDistribucion();
   actualizarTodo();
 
   alert("Ronda creada: " + nueva + "\nCargá ahora los precios del mercado.");
@@ -2142,6 +2743,12 @@ function aplicarRondaManual() {
   rondasEliminadas = rondasEliminadas.filter(r => r !== valor);
 
   rondaActiva = valor;
+
+  /* Cargar distribución de la ronda manual */
+  _distRonda = "";
+  cargarDistribucionDeRonda();
+  asegurarDistribucion();
+
   guardarConfiguracion();
 
   input.value = "";
@@ -2150,6 +2757,7 @@ function aplicarRondaManual() {
   refrescarSelectorRondas();
   renderPreciosRonda();
   aplicarPreciosRondaAProductos();
+  renderDistribucion();
   actualizarTodo();
 }
 
@@ -2519,9 +3127,6 @@ function generarJSONCompra() {
       nombre: p.nombre,
       unidad: p.unidad,
       esencial: !!p.esencial,
-      minimo_semilla: Number(p.minimo || 0),
-      minimo_basica: Number(p.minimoBasica || 0),
-      minimo_familiar: Number(p.minimoFamiliar || 0),
       precio_actual: Number(p.precio || 0)
     }));
 
@@ -2531,6 +3136,10 @@ function generarJSONCompra() {
       fecha_local: new Date().toLocaleString('es-PE'),
       ronda_actual: rondaActiva,
       precios_ronda: preciosRonda,
+      distribucion: {
+        pct: { ...distribucion },
+        precios_referencia: { ...preciosReferencia }
+      },
       pedidos: {
         total: pedidos.length,
         pendientes: estados.pendiente,
@@ -2671,6 +3280,9 @@ function actualizarConsolidado() {
   document.getElementById("roundDescription").innerHTML = rondaActiva
     ? `Ronda: <strong>${escapeHTML(rondaActiva)}</strong> · Solo pedidos aceptados.`
     : `Selecciona una ronda específica antes de calcular la compra.`;
+
+  /* Refrescar cálculos de la distribución */
+  actualizarCalculosDistribucion();
 }
 
 
@@ -2689,41 +3301,54 @@ function costoRegalos() {
 }
 
 
+/* =====================================================
+NUEVO CÁLCULO DE RESULTADOS ESENCIALES POR DISTRIBUCIÓN
+===================================================== */
+
 function obtenerResultadosEsenciales(datos) {
+
+  const presupuestoAlimentos = Number(datos.alimentos) || 0;
 
   return productos.map((p, index) => {
 
     if (!p.esencial) return null;
 
-    const entregadoSemilla   = (Number(p.minimo) || 0) * datos.semillas;
-    const entregadoBasica    = (Number(p.minimoBasica) || 0) * datos.basicas;
-    const entregadoFamiliar  = (Number(p.minimoFamiliar) || 0) * datos.familiares;
-    const entregadoTotal     = entregadoSemilla + entregadoBasica + entregadoFamiliar;
+    const pct = Number(distribucion[p.nombre]) || 0;
 
-    const compraMinima      = Math.ceil(entregadoTotal);
-    const compraFinalManual = Number(adicionales[p.nombre]) || 0;
-    const compraFinal = compraFinalManual > 0 ? compraFinalManual : compraMinima;
+    const montoAsignado = presupuestoAlimentos * pct / 100;
 
-    const costoMinimo = compraMinima * p.precio;
-    const costo       = compraFinal * p.precio;
+    const kgCalculado = p.precio > 0
+      ? montoAsignado / p.precio
+      : 0;
+
+    const compraMinima = redondear2(kgCalculado);
+
+    const manualGuardado = Number(adicionales[p.nombre]) || 0;
+
+    const esManual = manualGuardado > 0 &&
+      Math.abs(manualGuardado - compraMinima) > 0.01;
+
+    const compraFinal = esManual ? manualGuardado : compraMinima;
+
+    const costoMinimo = redondear2(compraMinima * p.precio);
+    const costo       = redondear2(compraFinal * p.precio);
+
+    const semaforo = calcularSemaforo(costo, montoAsignado, 0.05);
 
     return {
       index,
       nombre: p.nombre,
-      unidad: p.unidad,
+      unidad: "kg",
       precio: p.precio,
-      minimoSemilla: Number(p.minimo) || 0,
-      minimoBasica: Number(p.minimoBasica) || 0,
-      minimoFamiliar: Number(p.minimoFamiliar) || 0,
-      entregadoSemilla,
-      entregadoBasica,
-      entregadoFamiliar,
-      entregadoTotal,
-      minimoConsolidado: entregadoTotal,
+      pct,
+      montoAsignado,
+      kgCalculado,
       compraMinima,
       compraFinal,
       costoMinimo,
-      costo
+      costo,
+      esManual,
+      semaforo
     };
 
   }).filter(Boolean);
@@ -2844,6 +3469,180 @@ function recalcularCompraEnVivo() {
 
 
 /* =====================================================
+NUEVAS FUNCIONES HTML PARA TABLA Y BANNER
+===================================================== */
+
+function htmlBannerDistribucion(r) {
+
+  const suma = sumaDistribucion();
+
+  if (Math.abs(suma - 100) > 0.01) {
+    return `
+      <div class="result-warning">
+        <strong>⚠ La distribución no suma 100%.</strong>
+        <br><br>
+        Suma actual: <strong>${redondear2(suma)}%</strong>.
+        ${suma < 100
+          ? `Falta ${redondear2(100 - suma)}%.`
+          : `Sobra ${redondear2(suma - 100)}%.`}
+        <br><br>
+        Andá a <strong>Configuración → Distribución del presupuesto</strong> para corregirla.
+      </div>
+    `;
+  }
+
+  const presupuesto = Number(r.datos.alimentos) || 0;
+  const costo = Number(r.costoEsencialesReal) || 0;
+  const saldo = presupuesto - costo;
+
+  const estado = calcularSemaforo(costo, presupuesto, 0.05);
+
+  let clase, label;
+
+  if (estado === "verde") {
+    clase = "result-good";
+    label = "✓ La compra esencial entra en el presupuesto.";
+  } else if (estado === "amarillo") {
+    clase = "result-warning";
+    label = "⚠ La compra esencial supera levemente el presupuesto (hasta 10%).";
+  } else {
+    clase = "result-error";
+    label = "✕ La compra esencial supera el presupuesto en más de 10%.";
+  }
+
+  return `
+    <div class="${clase}">
+      <strong>${label}</strong>
+      <br><br>
+      Presupuesto de alimentos: <strong>${soles(presupuesto)}</strong><br>
+      Costo esencial calculado: <strong>${soles(costo)}</strong><br>
+      Saldo: <strong>${soles(saldo)}</strong>
+    </div>
+  `;
+}
+
+
+function htmlTablaEsenciales(r) {
+
+  let filas = "";
+
+  let totalPct = 0;
+  let totalPresupuesto = 0;
+  let totalKgCalculado = 0;
+  let totalKgFinal = 0;
+  let totalCosto = 0;
+
+  r.resultadosEsenciales.forEach(p => {
+
+    totalPct += p.pct;
+    totalPresupuesto += p.montoAsignado;
+    totalKgCalculado += p.kgCalculado;
+    totalKgFinal += p.compraFinal;
+    totalCosto += p.costo;
+
+    const botonReset = p.esManual
+      ? `<button class="btn-detail" style="padding:4px 8px; font-size:12px;" onclick="restablecerCompraFinal('${escapeHTML(p.nombre)}')" title="Restablecer al valor calculado">↺</button>`
+      : "";
+
+    filas += `
+      <tr>
+        <td>
+          <strong>${escapeHTML(p.nombre)}</strong><br>
+          <small class="small-note">${escapeHTML(p.unidad)}</small>
+        </td>
+        <td>${redondear2(p.pct)}%</td>
+        <td>${soles(p.montoAsignado)}</td>
+        <td>${p.kgCalculado.toFixed(2)} kg</td>
+        <td>
+          <input
+            type="number" min="0" step="0.01"
+            id="compraFinal-${p.index}"
+            value="${p.compraFinal}"
+            onchange="cambiarCompraFinal('${escapeHTML(p.nombre)}', this.value)"
+          >
+          ${botonReset}
+        </td>
+        <td>${soles(p.precio)}</td>
+        <td id="costo-${p.index}">${soles(p.costo)}</td>
+        <td>${htmlSemaforo(p.semaforo)}</td>
+      </tr>
+    `;
+  });
+
+  filas += `
+    <tr style="background:#fafafa; font-weight:bold;">
+      <td>TOTAL</td>
+      <td>${redondear2(totalPct)}%</td>
+      <td>${soles(totalPresupuesto)}</td>
+      <td>${totalKgCalculado.toFixed(2)} kg</td>
+      <td>${totalKgFinal.toFixed(2)} kg</td>
+      <td>—</td>
+      <td>${soles(totalCosto)}</td>
+      <td>${htmlSemaforo(calcularSemaforo(totalCosto, totalPresupuesto, 0.05))}</td>
+    </tr>
+  `;
+
+  return `
+    <div class="purchase-section">
+      <h3>Productos esenciales</h3>
+      <p class="small-note">
+        Estos son los productos que sí forman parte del compromiso esencial.<br>
+        El <strong>presupuesto</strong> de cada producto se calcula con la distribución porcentual.<br>
+        Los <strong>kg calculados</strong> salen de dividir el monto por el precio.<br>
+        Podés editar la <strong>compra final</strong> en kg. Si lo hacés, aparece un botón ↺
+        para restablecer el valor calculado.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>%</th>
+              <th>Presupuesto</th>
+              <th>Kg calculado</th>
+              <th>Compra final (kg)</th>
+              <th>Precio/kg</th>
+              <th>Costo</th>
+              <th>Semáforo</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filas}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="actions" style="margin-top:15px; gap:10px; flex-wrap:wrap;">
+        <button class="btn-detail" onclick="restablecerTodasCompras()">↺ Restablecer todo a lo calculado</button>
+      </div>
+    </div>
+  `;
+}
+
+
+function restablecerCompraFinal(nombre) {
+  delete adicionales[nombre];
+  guardarConfiguracion();
+  if (compraCalculada) recalcularCompraEnVivo();
+  autoGuardarRegalos();
+}
+
+
+function restablecerTodasCompras() {
+
+  const esenciales = productos.filter(p => p.esencial === true);
+
+  esenciales.forEach(p => { delete adicionales[p.nombre]; });
+
+  guardarConfiguracion();
+
+  if (compraCalculada) recalcularCompraEnVivo();
+
+  autoGuardarRegalos();
+}
+
+
+/* =====================================================
 RENDER RESULTADO
 ===================================================== */
 
@@ -2854,81 +3653,18 @@ function renderResultadoCompra() {
 
   let html = "";
 
-  if (r.saldoMinimo < 0) {
-    html += `
-      <div class="result-error">
-        <strong>⚠ No alcanza para cumplir los mínimos esenciales.</strong>
-        <br><br>
-        Presupuesto de alimentos: <strong>${soles(r.datos.alimentos)}</strong><br>
-        Costo mínimo esencial:    <strong>${soles(r.costoMinimoTotal)}</strong>
-        <br><br>
-        Déficit: <strong>${soles(Math.abs(r.saldoMinimo))}</strong>
-        <br><br>
-        La máquina no reduce automáticamente los mínimos.
-      </div>`;
-  } else {
-    html += `
-      <div class="result-good">
-        <strong>✓ Los mínimos esenciales pueden cumplirse.</strong>
-        <br><br>
-        Presupuesto de alimentos: <strong>${soles(r.datos.alimentos)}</strong><br>
-        Costo mínimo esencial:    <strong>${soles(r.costoMinimoTotal)}</strong><br>
-        Saldo antes de adicionales:
-        <strong id="resultadoSaldoMinimo">${soles(r.saldoMinimo)}</strong>
-      </div>`;
-  }
+  /* Banner de distribución */
+  html += htmlBannerDistribucion(r);
 
+  /* Tabla de esenciales */
+  html += htmlTablaEsenciales(r);
+
+  /* Variedad / regalos */
   html += `
-    <div class="purchase-section">
-      <h3>Productos esenciales</h3>
-      <p class="small-note">
-        Estos son los productos que sí forman parte del compromiso mínimo.<br>
-        El campo <strong>Entregado (mín.)</strong> se calcula con los mínimos por canasta.<br>
-        Podés aumentar la compra final manualmente. El cambio se refleja inmediatamente.
-      </p>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Entregado (mín.)</th>
-              <th>Compra final</th>
-              <th>Precio</th>
-              <th>Costo</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${r.resultadosEsenciales.map(p => `
-              <tr>
-                <td>
-                  <strong>${escapeHTML(p.nombre)}</strong><br>
-                  <small>${escapeHTML(p.unidad)}</small>
-                </td>
-                <td>
-                  <span class="muted">${formatearCantidad(p.entregadoTotal)}</span><br>
-                  <small class="small-note">S: ${formatearCantidad(p.entregadoSemilla)} · B: ${formatearCantidad(p.entregadoBasica)} · F: ${formatearCantidad(p.entregadoFamiliar)}</small>
-                </td>
-                <td>
-                  <input
-                    type="number" min="0" step="0.01"
-                    id="compraFinal-${p.index}"
-                    value="${p.compraFinal || p.compraMinima}"
-                    oninput="cambiarCompraFinal('${escapeHTML(p.nombre)}', this.value)"
-                  >
-                </td>
-                <td>${soles(p.precio)}</td>
-                <td id="costo-${p.index}">${soles(p.costo)}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
     <div class="purchase-section">
       <h3>Variedad / regalos</h3>
       <p class="small-note">
-        Estas compras son opcionales. No forman parte del mínimo garantizado.<br>
+        Estas compras son opcionales. No forman parte de la distribución esencial.<br>
         Ejemplo: <strong>Caja de fruta · 1 caja · S/ 40</strong>
       </p>
       <button class="btn-add" onclick="agregarRegalo()">＋ Agregar compra</button>
@@ -2936,7 +3672,10 @@ function renderResultadoCompra() {
       <div id="regalosContainer" style="margin-top:15px;"></div>
       <div id="resumenRegalos" style="margin-top:15px;"></div>
     </div>
+  `;
 
+  /* Gastos */
+  html += `
     <div class="purchase-section">
       <h3>💸 Gastos de la ronda</h3>
       <p class="small-note">
@@ -2946,7 +3685,10 @@ function renderResultadoCompra() {
       <div id="gastosRondaContainer" style="margin-top:15px;"></div>
       <div id="totalGastosRonda" class="small-note" style="margin-top:10px;"></div>
     </div>
+  `;
 
+  /* Excedentes */
+  html += `
     <div class="purchase-section">
       <h3>♻️ Excedentes de la ronda</h3>
       <p class="small-note">
@@ -2956,7 +3698,10 @@ function renderResultadoCompra() {
       <div id="excedentesRondaContainer" style="margin-top:15px;"></div>
       <div id="totalExcedentesRonda" class="small-note" style="margin-top:10px;"></div>
     </div>
+  `;
 
+  /* Resumen de la compra */
+  html += `
     <div class="info-box" id="resumenCompraFinal">
       <strong>Resumen de la compra</strong>
       <br><br>
@@ -2978,7 +3723,7 @@ function renderResultadoCompra() {
         <div class="summary-mini-col">
           <h5>Usos</h5>
           <div class="row">
-            <span>Compra mínima esencial</span>
+            <span>Compra esencial calculada</span>
             <span class="val" id="resumenCostoMinimo">${soles(r.costoMinimoTotal)}</span>
           </div>
           <div class="row">
@@ -3007,6 +3752,7 @@ function renderResultadoCompra() {
     </div>
   `;
 
+  /* Guardar compra final */
   html += `
     <div class="purchase-section" style="margin-top:20px;">
       <h3>Guardar compra final en n8n</h3>
@@ -3051,9 +3797,6 @@ function actualizarDOMCompraEnVivo() {
     const co = document.getElementById(`costo-${p.index}`);
     if (co) co.textContent = soles(p.costo);
   });
-
-  const saldoMinimo = document.getElementById("resultadoSaldoMinimo");
-  if (saldoMinimo) saldoMinimo.textContent = soles(r.saldoMinimo);
 
   const gastosTot = (typeof totalGastosRonda === "function") ? totalGastosRonda() : 0;
   const excedTot  = (typeof totalExcedentesRonda === "function") ? totalExcedentesRonda() : 0;
@@ -4622,6 +5365,20 @@ async function eliminarRondaActiva() {
     }
   }
 
+  /* Borrar también la entrada de distribución de la ronda eliminada */
+  try {
+    const raw = localStorage.getItem(STORAGE_DIST_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        delete parsed[ronda];
+        localStorage.setItem(STORAGE_DIST_KEY, JSON.stringify(parsed));
+      }
+    }
+  } catch (e) {
+    console.warn("No se pudo borrar la distribución de la ronda:", e);
+  }
+
   rondasConocidas = rondasConocidas.filter(r => r !== ronda);
 
   if (!rondasEliminadas.includes(ronda)) {
@@ -4644,6 +5401,11 @@ async function eliminarRondaActiva() {
   reporteActual = null;
   rondaReporteActiva = "";
 
+  /* Recargar distribución de la nueva ronda */
+  _distRonda = "";
+  cargarDistribucionDeRonda();
+  asegurarDistribucion();
+
   const preciosBodyEl = document.getElementById("preciosRondaBody");
   if (preciosBodyEl) preciosBodyEl.innerHTML = "";
   const preciosStatusEl = document.getElementById("preciosRondaStatus");
@@ -4655,6 +5417,7 @@ async function eliminarRondaActiva() {
   refrescarSelectorRondas();
   renderPreciosRonda();
   aplicarPreciosRondaAProductos();
+  renderDistribucion();
 
   const resultado = document.getElementById("resultadoCompra");
   if (resultado) resultado.innerHTML = "Todavía no se ha calculado.";
@@ -4685,10 +5448,15 @@ INICIO
 
 cargarConfiguracion();
 
+/* Cargar distribución de la ronda activa (si hay) */
+cargarDistribucionDeRonda();
+asegurarDistribucion();
+
 refrescarSelectorRondas();
 renderPreciosRonda();
 aplicarPreciosRondaAProductos();
 renderProductos();
+renderDistribucion();
 
 cargarPedidos();
 
