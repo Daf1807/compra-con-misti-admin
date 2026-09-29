@@ -1032,9 +1032,6 @@ tbody tr:hover { background: #F4FBF6; }
   .fin-result.good { background: #e8f5e9 !important; }
   .fin-result.bad  { background: #f8d7da !important; }
 
-  /* ═══════════════════════════════════════════════════════
-     NUEVO — Impresión de hoja de empaque (TAREA 3, OPCIÓN A)
-     ═══════════════════════════════════════════════════════ */
   body.print-empaque #view-compra   { display: block !important; }
   body.print-empaque #view-reportes { display: none !important; }
   body.print-empaque .roundbar,
@@ -1054,7 +1051,7 @@ tbody tr:hover { background: #F4FBF6; }
 }
 
 /* ═══════════════════════════════════════════════════════
-   NUEVO — VISTA ENTREGAS (solo estilos agregados)
+   VISTA ENTREGAS
    ═══════════════════════════════════════════════════════ */
 
 .entregas-fila-pedido {
@@ -1178,9 +1175,6 @@ tbody tr:hover { background: #F4FBF6; }
 
 <div class="app-shell">
 
-  <!-- ══════════════════════════════════════════════════
-       SIDEBAR / TABS DE NAVEGACIÓN
-       ══════════════════════════════════════════════════ -->
   <nav class="sidebar" id="appNav">
     <div class="sidebar-title">Vistas</div>
     <button class="nav-btn active" data-view="dashboard"     onclick="mostrarVista('dashboard')">📊 Dashboard</button>
@@ -1194,9 +1188,6 @@ tbody tr:hover { background: #F4FBF6; }
 
   <div class="main-col">
 
-    <!-- =====================================================
-    BARRA DE RONDA ACTIVA (siempre visible)
-    ====================================================== -->
     <div class="roundbar">
       <label>Ronda activa:</label>
 
@@ -1229,9 +1220,6 @@ tbody tr:hover { background: #F4FBF6; }
       <span class="small-note" id="rondaActivaInfo">Sin ronda seleccionada</span>
     </div>
 
-    <!-- =====================================================
-    BARRA DE CONEXIÓN (siempre visible)
-    ====================================================== -->
     <div class="topbar">
       <div id="connectionStatus">Conectando con n8n…</div>
       <div class="actions">
@@ -1243,9 +1231,6 @@ tbody tr:hover { background: #F4FBF6; }
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 1 — DASHBOARD
-         ══════════════════════════════════════════════════ -->
     <section class="view active" id="view-dashboard">
 
       <div class="dash-hero">
@@ -1306,9 +1291,6 @@ tbody tr:hover { background: #F4FBF6; }
 
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 2 — PEDIDOS
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-pedidos">
 
       <div class="section">
@@ -1346,12 +1328,8 @@ tbody tr:hover { background: #F4FBF6; }
 
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 3 — CONFIGURACIÓN
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-configuracion">
 
-      <!-- Modelo de canastas -->
       <div class="section">
         <h2 class="section-head">Estructura de las canastas</h2>
         <p class="section-description">
@@ -1393,7 +1371,6 @@ tbody tr:hover { background: #F4FBF6; }
         </div>
       </div>
 
-      <!-- Precios de la ronda -->
       <div class="section">
         <h2 class="section-head">📋 Precios de la ronda actual</h2>
 
@@ -1436,9 +1413,6 @@ tbody tr:hover { background: #F4FBF6; }
         <div id="preciosRondaStatus" class="small-note" style="margin-top:10px;"></div>
       </div>
 
-      <!-- ══════════════════════════════════════════════════
-           NUEVA SECCIÓN: DISTRIBUCIÓN DEL PRESUPUESTO
-           ══════════════════════════════════════════════════ -->
       <div class="section" id="seccionDistribucion">
         <h2 class="section-head">📊 Distribución del presupuesto</h2>
 
@@ -1454,7 +1428,6 @@ tbody tr:hover { background: #F4FBF6; }
         <div id="distribucionContenido"></div>
       </div>
 
-      <!-- Universo de productos y esenciales -->
       <div class="section">
         <h2 class="section-head">Universo de productos y esenciales</h2>
 
@@ -1496,9 +1469,6 @@ tbody tr:hover { background: #F4FBF6; }
 
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 4 — COMPRA
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-compra">
 
       <div class="section">
@@ -1558,9 +1528,6 @@ tbody tr:hover { background: #F4FBF6; }
 
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA NUEVA — ENTREGAS
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-entregas">
       <div class="section">
         <h2 class="section-head">📦 Entregas de la ronda</h2>
@@ -1594,9 +1561,6 @@ tbody tr:hover { background: #F4FBF6; }
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 5 — CIERRE
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-cierre">
 
       <div class="section">
@@ -1645,9 +1609,6 @@ tbody tr:hover { background: #F4FBF6; }
 
     </section>
 
-    <!-- ══════════════════════════════════════════════════
-         VISTA 6 — REPORTES
-         ══════════════════════════════════════════════════ -->
     <section class="view" id="view-reportes">
 
       <div class="section">
@@ -1690,9 +1651,6 @@ tbody tr:hover { background: #F4FBF6; }
 
 </div><!-- /container -->
 
-<!-- =====================================================
-MODAL DETALLE
-====================================================== -->
 <div class="modal" id="modalDetalle">
   <div class="modal-content">
     <div class="modal-header">
@@ -1703,9 +1661,6 @@ MODAL DETALLE
   </div>
 </div>
 
-<!-- =====================================================
-MODAL CONFIRMAR PAGO
-====================================================== -->
 <div class="modal" id="modalPago">
   <div class="modal-content">
     <div class="modal-header">
@@ -1746,7 +1701,6 @@ const API_COMPRAS_BORRAR =
 const API_PRECIOS_BORRAR =
 "https://msi.tail124b59.ts.net/webhook/admin-precios-borrar";
 
-/* APIs NUEVAS — Reportes */
 const API_REPORTES =
 "https://msi.tail124b59.ts.net/webhook/admin-reportes";
 
@@ -1756,7 +1710,6 @@ const API_REPORTES_GUARDAR =
 const API_REPORTES_HISTORIAL =
 "https://msi.tail124b59.ts.net/webhook/admin-reportes-historial";
 
-/* APIs NUEVAS — Entregas */
 const API_ENTREGAS_GUARDAR =
 "https://msi.tail124b59.ts.net/webhook/admin-entregas-guardar";
 
@@ -1764,6 +1717,112 @@ const API_ENTREGAS_GET =
 "https://msi.tail124b59.ts.net/webhook/admin-entregas";
 
 let pedidos = [];
+
+
+/* =====================================================
+FIX ENTREGAS — helpers de normalización de respuestas n8n
+===================================================== */
+
+/**
+ * Normaliza la respuesta de n8n a un array.
+ * Cubre: array plano, {value}, {items}, {body}, {data}, {json}, {result},
+ * body como string JSON, y objeto único.
+ */
+function normalizarListaN8N(data) {
+  if (data == null) return [];
+  if (Array.isArray(data)) return data;
+
+  for (const k of ["value", "items", "body", "data", "json", "result"]) {
+    if (Array.isArray(data[k])) return data[k];
+    if (typeof data[k] === "string") {
+      try {
+        const parsed = JSON.parse(data[k]);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && Array.isArray(parsed.value)) return parsed.value;
+      } catch (_) { /* ignorar */ }
+    }
+  }
+
+  if (typeof data === "object") return [data];
+  return [];
+}
+
+/**
+ * fetch que devuelve SIEMPRE un array, manejando:
+ *  - "No item to return was found" → []  (n8n lo devuelve con 200/404)
+ *  - Content-Type no JSON           → intenta parsear / devuelve []
+ */
+async function fetchListaN8N(url, opciones = {}) {
+  const response = await fetch(url, { cache: "no-store", ...opciones });
+
+  if (!response.ok) {
+    const txt = await response.text().catch(() => "");
+    if (/No item to return was found/i.test(txt)) return [];
+    throw new Error("HTTP " + response.status);
+  }
+
+  const ct = response.headers.get("content-type") || "";
+
+  if (!ct.includes("application/json")) {
+    const txt = await response.text();
+    if (/No item to return was found/i.test(txt)) return [];
+    try { return normalizarListaN8N(JSON.parse(txt)); }
+    catch { return []; }
+  }
+
+  const data = await response.json();
+  return normalizarListaN8N(data);
+}
+
+
+/* =====================================================
+FIX ENTREGAS — clave canónica y lookup robusto
+===================================================== */
+
+/** Clave canónica de un pedido para entregasRonda (para usar en el POST). */
+function claveEntregaPedido(p) {
+  if (!p) return null;
+  if (p.pedido_firestore_id) return "fs:" + String(p.pedido_firestore_id);
+  if (p.id != null) return "id:" + String(p.id);
+
+  const cli = String(p.cliente || "").trim().toLowerCase();
+  const cel = String(p.celular || "").trim();
+  const ron = String(p.ronda_id || rondaActiva).trim();
+  if (cli || cel) return "ccr:" + cli + "|" + cel + "|" + ron;
+  return null;
+}
+
+/**
+ * Devuelve la entrega del pedido buscando por:
+ *   fs:<firestore_id> → id:<id> → ccr:<cliente|celular|ronda>
+ */
+function obtenerEntregaDePedido(p) {
+  if (!p) return null;
+
+  const candidatos = [];
+
+  if (p.pedido_firestore_id) candidatos.push("fs:" + String(p.pedido_firestore_id));
+  if (p.id != null) candidatos.push("id:" + String(p.id));
+
+  const cli = String(p.cliente || "").trim().toLowerCase();
+  const cel = String(p.celular || "").trim();
+  const ron = String(p.ronda_id || rondaActiva).trim();
+  if (cli || cel) candidatos.push("ccr:" + cli + "|" + cel + "|" + ron);
+
+  for (const c of candidatos) {
+    if (entregasRonda[c]) return entregasRonda[c];
+  }
+  return null;
+}
+
+function vistaEntregasActiva() {
+  const v = document.getElementById("view-entregas");
+  return v && v.classList.contains("active");
+}
+
+function marcarEntregasCambiadas() {
+  if (vistaEntregasActiva()) renderEntregas();
+}
 
 
 /* =====================================================
@@ -1779,13 +1838,9 @@ const CUOTA_BASICA     = 7;
 const CUOTA_FAMILIAR   = 9;
 
 const FACTOR_SEMILLA  = 1;
-const FACTOR_BASICA   = 30 / 20;   // = 1.5
-const FACTOR_FAMILIAR = 45 / 20;   // = 2.25
+const FACTOR_BASICA   = 30 / 20;
+const FACTOR_FAMILIAR = 45 / 20;
 
-
-/* =====================================================
-NUEVA CONSTANTE: DISTRIBUCIÓN DEFAULT
-===================================================== */
 
 const DISTRIBUCION_DEFAULT = {
   "Papa canchán": 25,
@@ -1800,12 +1855,7 @@ const DISTRIBUCION_DEFAULT = {
 };
 
 
-/* =====================================================
-UNIVERSO DE PRODUCTOS — MERCADO SANTA ANITA
-===================================================== */
-
 const productos = [
-  // TUBÉRCULOS Y RAÍCES
   { nombre: "Papa blanca",        unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Papa amarilla",      unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Papa canchán",       unidad: "kg",     esencial: false, precio: 0 },
@@ -1820,8 +1870,6 @@ const productos = [
   { nombre: "Camote morado",      unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Yuca amarilla",      unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Olluco largo",       unidad: "kg",     esencial: false, precio: 0 },
-
-  // VERDURAS DE HOJA
   { nombre: "Lechuga americana",  unidad: "unidad", esencial: false, precio: 0 },
   { nombre: "Lechuga criolla",    unidad: "unidad", esencial: false, precio: 0 },
   { nombre: "Lechuga romana",     unidad: "unidad", esencial: false, precio: 0 },
@@ -1837,8 +1885,6 @@ const productos = [
   { nombre: "Hierba buena",       unidad: "atado",  esencial: false, precio: 0 },
   { nombre: "Huacatay",           unidad: "atado",  esencial: false, precio: 0 },
   { nombre: "Albahaca",           unidad: "atado",  esencial: false, precio: 0 },
-
-  // HORTALIZAS DE FRUTO
   { nombre: "Tomate",             unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Cebolla roja",       unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Cebolla blanca",     unidad: "kg",     esencial: false, precio: 0 },
@@ -1859,20 +1905,14 @@ const productos = [
   { nombre: "Zapallo italiano",   unidad: "unidad", esencial: false, precio: 0 },
   { nombre: "Zapallo loche",      unidad: "unidad", esencial: false, precio: 0 },
   { nombre: "Caigua",             unidad: "kg",     esencial: false, precio: 0 },
-
-  // CHOCLOS Y GRANOS VERDES
   { nombre: "Choclo",             unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Arveja verde",       unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Haba verde",         unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Vainita",            unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Pallar verde",       unidad: "kg",     esencial: false, precio: 0 },
-
-  // TUBÉRCULOS ANDINOS
   { nombre: "Alcachofa",          unidad: "unidad", esencial: false, precio: 0 },
   { nombre: "Espárrago",          unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Kion",               unidad: "kg",     esencial: false, precio: 0 },
-
-  // FRUTAS
   { nombre: "Manzana",            unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Naranja",            unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Papaya",             unidad: "kg",     esencial: false, precio: 0 },
@@ -1880,8 +1920,6 @@ const productos = [
   { nombre: "Plátano",            unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Maracuyá",           unidad: "kg",     esencial: false, precio: 0 },
   { nombre: "Limón",              unidad: "kg",     esencial: false, precio: 0 },
-
-  // TUBÉRCULOS ADICIONALES
   { nombre: "Ajo",                unidad: "kg",     esencial: false, precio: 0 }
 ];
 
@@ -1890,50 +1928,31 @@ const productos = [
 ESTADO GLOBAL
 ===================================================== */
 
-/* Los adicionales ya no se mapean por índice fijo:
-   se guardan por nombre de producto para sobrevivir a cambios del universo. */
 let adicionales = {};
-
 let regalos = [];
-
 let compraCalculada = false;
-
 let rondaActiva = "";
-
 let preciosRonda = {};
-
 let rondasConocidas = [];
-
 let rondasEliminadas = [];
 
-/* gastos y excedentes de la ronda activa */
 let gastosRonda = [];
 let excedentesRonda = [];
 
-/* NUEVO — entregas de la ronda activa
-   { [pedido_firestore_id]: {basica, semilla, familiar, guardado} } */
+/* entregas: { "fs:<firestore_id>|id:<id>|ccr:<...>": {basica, semilla, familiar, guardado} } */
 let entregasRonda = {};
 
-/* cache del último mensaje de guardado (para sincronizar vistas) */
 let ultimoMensajeGuardado = "";
 
-/* reportes */
 let reporteActual = null;
 let snapshotsGuardados = [];
 let rondaReporteActiva = "";
 
+let distribucion = {};
+let preciosReferencia = {};
 
-/* =====================================================
-NUEVO ESTADO DE DISTRIBUCIÓN
-===================================================== */
-
-let distribucion = {};        // { nombreProducto: porcentaje }
-let preciosReferencia = {};   // { nombreProducto: precio al momento de fijar la referencia }
-
-/* Clave de persistencia POR RONDA */
 const STORAGE_DIST_KEY = "compra_con_misti_dist_v1";
 
-/* Ronda actual cargada en distribución (para detectar cambios) */
 let _distRonda = "";
 
 
@@ -1962,7 +1981,6 @@ function mostrarVista(nombre) {
     renderReportes();
   }
 
-  /* NUEVO — al abrir Entregas, renderizar la vista */
   if (nombre === "entregas") {
     renderEntregas();
   }
@@ -2008,7 +2026,6 @@ function guardarConfiguracion() {
       gastosRonda: [...gastosRonda],
       excedentesRonda: [...excedentesRonda],
 
-      /* NUEVO — entregas: mapa { pedido_firestore_id: {basica, semilla, familiar, guardado} } */
       entregasRonda: { ...entregasRonda }
     };
 
@@ -2087,7 +2104,6 @@ function cargarConfiguracion() {
       }));
     }
 
-    /* NUEVO — cargar entregas: mapa { pedido_firestore_id: {basica, semilla, familiar, guardado} } */
     if (datos.entregasRonda && typeof datos.entregasRonda === "object" && !Array.isArray(datos.entregasRonda)) {
       entregasRonda = { ...datos.entregasRonda };
     } else {
@@ -2171,7 +2187,6 @@ function asegurarDistribucion() {
   const esenciales = productos.filter(p => p.esencial === true);
   const nombres = esenciales.map(p => p.nombre);
 
-  /* Eliminar de distribución lo que ya no es esencial */
   Object.keys(distribucion).forEach(nombre => {
     if (!nombres.includes(nombre)) {
       delete distribucion[nombre];
@@ -2179,7 +2194,6 @@ function asegurarDistribucion() {
     }
   });
 
-  /* Asignar % default a los esenciales nuevos solo si la suma no supera 100 */
   esenciales.forEach(p => {
 
     if (distribucion[p.nombre] === undefined) {
@@ -2196,10 +2210,6 @@ function asegurarDistribucion() {
   });
 }
 
-
-/* =====================================================
-FUNCIONES NUEVAS DE DISTRIBUCIÓN
-===================================================== */
 
 function redondear2(v) {
   return Math.round((Number(v) || 0) * 100) / 100;
@@ -2227,7 +2237,6 @@ function normalizarA(nombres, objetivo) {
   );
 
   if (sumaActual === 0) {
-    /* Repartir en partes iguales */
     const parte = objetivo / lista.length;
     lista.forEach(n => { distribucion[n] = redondear2(parte); });
   } else {
@@ -2238,7 +2247,6 @@ function normalizarA(nombres, objetivo) {
     });
   }
 
-  /* Absorber residuo de redondeo en el producto de mayor % */
   const sumaFinal = lista.reduce(
     (s, n) => s + (Number(distribucion[n]) || 0), 0
   );
@@ -2308,7 +2316,6 @@ function renderDistribucion() {
   const cont = document.getElementById("distribucionContenido");
   if (!cont) return;
 
-  /* Detectar cambio de ronda y recargar distribución */
   const idRonda = rondaActiva || "__sin_ronda__";
 
   if (_distRonda !== idRonda) {
@@ -2483,7 +2490,6 @@ function actualizarCalculosDistribucion() {
     if (elKg)    elKg.textContent = kg.toFixed(2) + " kg";
   });
 
-  /* Actualizar indicador de suma */
   const suma = sumaDistribucion();
 
   const semEl = cont.querySelector(".dist-suma");
@@ -2503,7 +2509,6 @@ function actualizarCalculosDistribucion() {
     }
   }
 
-  /* Actualizar fila TOTAL */
   const filaTotal = cont.querySelector("tbody tr:last-child");
   if (filaTotal) {
     const celdas = filaTotal.querySelectorAll("td");
@@ -2520,10 +2525,8 @@ function cambiarPorcentaje(nombre, valor) {
 
   distribucion[nombre] = redondear2(num);
 
-  /* Descartar cantidad editada de ese producto */
   delete adicionales[nombre];
 
-  /* Fijar precio de referencia faltante */
   if (preciosReferencia[nombre] === undefined) {
     const p = productos.find(prod => prod.nombre === nombre);
     if (p && p.precio > 0) preciosReferencia[nombre] = Number(p.precio);
@@ -2579,7 +2582,6 @@ function rebalancearDistribucion() {
 
   if (!confirm("¿Rebalancear la distribución usando los precios de referencia?")) return;
 
-  /* Ajustar % de los que tienen referencia */
   conRef.forEach(p => {
 
     const pctActual = Number(distribucion[p.nombre]) || 0;
@@ -2593,15 +2595,12 @@ function rebalancearDistribucion() {
     }
   });
 
-  /* Normalizar a 100 */
   const nombres = esenciales.map(p => p.nombre);
 
   normalizarA(nombres, 100);
 
-  /* Descartar todas las cantidades editadas */
   esenciales.forEach(p => { delete adicionales[p.nombre]; });
 
-  /* Actualizar referencia al precio actual */
   esenciales.forEach(p => {
     if (p.precio > 0) preciosReferencia[p.nombre] = Number(p.precio);
   });
@@ -2698,7 +2697,6 @@ function cambiarEsencial(index, valor) {
 
   if (eraEsencial && !seraEsencial) {
 
-    /* DESMARCAR: redistribuir su % entre los restantes */
     const totalAntes = sumaDistribucion();
 
     const pctLiberado = Number(distribucion[p.nombre]) || 0;
@@ -2708,25 +2706,21 @@ function cambiarEsencial(index, valor) {
 
     p.esencial = false;
 
-    /* Reasignar el % liberado proporcionalmente entre los esenciales restantes */
     const restantes = productos.filter(prod => prod.esencial === true);
 
     if (restantes.length && pctLiberado > 0 && totalAntes > 0) {
 
       const nombresRestantes = restantes.map(prod => prod.nombre);
 
-      /* Escalar para que sumen el total previo (no 100) */
       normalizarA(nombresRestantes, totalAntes);
 
     } else if (restantes.length && totalAntes > 0) {
-      /* Si el liberado era 0, igualmente normalizar al total previo */
       const nombresRestantes = restantes.map(prod => prod.nombre);
       normalizarA(nombresRestantes, totalAntes);
     }
 
   } else if (!eraEsencial && seraEsencial) {
 
-    /* MARCAR: asignar % sugerido si cabe */
     p.esencial = true;
 
     asegurarDistribucion();
@@ -2791,7 +2785,6 @@ function renderPreciosRonda() {
 
   body.innerHTML = esenciales.map(p => {
 
-    /* Buscar fila existente por nombre de producto */
     let fila = {};
     Object.keys(preciosRonda).forEach(id => {
       const f = preciosRonda[id];
@@ -2831,7 +2824,6 @@ function renderPreciosRonda() {
 
 function actualizarPrecioRonda(nombreProducto, unidad, campo, valor) {
 
-  /* Usamos el nombre como clave para sobrevivir al universo cambiante */
   if (!preciosRonda[nombreProducto]) {
     preciosRonda[nombreProducto] = {
       producto: nombreProducto,
@@ -2940,17 +2932,7 @@ async function cargarPreciosGuardados() {
       "?ronda=" +
       encodeURIComponent(rondaActiva);
 
-    const response = await fetch(url, { cache: "no-store" });
-
-    if (!response.ok) {
-      throw new Error("HTTP " + response.status);
-    }
-
-    const data = await response.json();
-
-    let filas = [];
-    if (Array.isArray(data))             filas = data;
-    else if (Array.isArray(data.value))  filas = data.value;
+    const filas = await fetchListaN8N(url);
 
     const nuevoMapa = {};
 
@@ -3029,7 +3011,6 @@ function cambiarRondaActiva(valor) {
 
   gastosRonda = [];
   excedentesRonda = [];
-  /* NUEVO — resetear entregas al cambiar de ronda */
   entregasRonda = {};
 
   reporteActual = null;
@@ -3037,7 +3018,6 @@ function cambiarRondaActiva(valor) {
 
   rondaActiva = valor || "";
 
-  /* Recargar distribución de la nueva ronda */
   _distRonda = "";
   cargarDistribucionDeRonda();
   asegurarDistribucion();
@@ -3051,7 +3031,6 @@ function cambiarRondaActiva(valor) {
 
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
-    /* NUEVO — cargar entregas de la ronda */
     cargarEntregasDeRonda(rondaActiva);
   } else {
     regalos = [];
@@ -3077,11 +3056,7 @@ function cambiarRondaActiva(valor) {
 
   if (typeof renderReportes === "function") renderReportes();
 
-  /* NUEVO — si la vista activa es Entregas, refrescarla */
-  if (document.getElementById("view-entregas") &&
-      document.getElementById("view-entregas").classList.contains("active")) {
-    renderEntregas();
-  }
+  marcarEntregasCambiadas();
 }
 
 
@@ -3091,13 +3066,7 @@ async function cargarPreciosGuardadosSilencioso() {
 
   try {
     const url = API_PRECIOS_GET + "?ronda=" + encodeURIComponent(rondaActiva);
-    const response = await fetch(url, { cache: "no-store" });
-    if (!response.ok) return;
-
-    const data = await response.json();
-    let filas = [];
-    if (Array.isArray(data))            filas = data;
-    else if (Array.isArray(data.value)) filas = data.value;
+    const filas = await fetchListaN8N(url);
 
     if (!filas.length) return;
 
@@ -3142,13 +3111,11 @@ function crearNuevaRonda() {
 
   gastosRonda = [];
   excedentesRonda = [];
-  /* NUEVO — resetear entregas */
   entregasRonda = {};
 
   reporteActual = null;
   rondaReporteActiva = "";
 
-  /* Cargar distribución de la nueva ronda (vacía) */
   _distRonda = "";
   cargarDistribucionDeRonda();
   asegurarDistribucion();
@@ -3185,7 +3152,6 @@ function aplicarRondaManual() {
 
   rondaActiva = valor;
 
-  /* Cargar distribución de la ronda manual */
   _distRonda = "";
   cargarDistribucionDeRonda();
   asegurarDistribucion();
@@ -3212,7 +3178,7 @@ function onFiltroRondaCambia() {
 
 
 /* =====================================================
-CARGAR PEDIDOS
+CARGAR PEDIDOS  (FIX: usa fetchListaN8N)
 ===================================================== */
 
 async function cargarPedidos() {
@@ -3222,17 +3188,9 @@ async function cargarPedidos() {
 
   try {
 
-    const response = await fetch(API_PEDIDOS, { cache: "no-store" });
+    const filas = await fetchListaN8N(API_PEDIDOS);
 
-    if (!response.ok) throw new Error("HTTP " + response.status);
-
-    const data = await response.json();
-
-    if (Array.isArray(data))            pedidos = data;
-    else if (Array.isArray(data.value)) pedidos = data.value;
-    else                                pedidos = [];
-
-    pedidos = pedidos.map(p => ({
+    pedidos = filas.map(p => ({
       ...p,
       estado: normalizarEstado(p.estado)
     }));
@@ -3346,7 +3304,7 @@ function renderPedidos() {
 
 
 /* =====================================================
-CAMBIAR ESTADO — MODIFICADO PARA MEDIO DE PAGO
+CAMBIAR ESTADO
 ===================================================== */
 
 async function cambiarEstado(id, estado) {
@@ -3723,7 +3681,6 @@ function actualizarConsolidado() {
     ? `Ronda: <strong>${escapeHTML(rondaActiva)}</strong> · Solo pedidos aceptados.`
     : `Selecciona una ronda específica antes de calcular la compra.`;
 
-  /* Refrescar cálculos de la distribución */
   actualizarCalculosDistribucion();
 }
 
@@ -3744,7 +3701,7 @@ function costoRegalos() {
 
 
 /* =====================================================
-NUEVO CÁLCULO DE RESULTADOS ESENCIALES POR DISTRIBUCIÓN
+RESULTADOS ESENCIALES
 ===================================================== */
 
 function obtenerResultadosEsenciales(datos) {
@@ -3911,7 +3868,7 @@ function recalcularCompraEnVivo() {
 
 
 /* =====================================================
-NUEVAS FUNCIONES HTML PARA TABLA Y BANNER
+HTML BANNER Y TABLA
 ===================================================== */
 
 function htmlBannerDistribucion(r) {
@@ -4085,7 +4042,7 @@ function restablecerTodasCompras() {
 
 
 /* =====================================================
-EMPAQUETAMIENTO — NUEVA SECCIÓN
+EMPAQUETAMIENTO
 ===================================================== */
 
 function htmlEmpaquetamiento(r) {
@@ -4113,7 +4070,6 @@ function htmlEmpaquetamiento(r) {
       </p>
   `;
 
-  /* ---------- a) Resumen de canastas ---------- */
   html += `
       <div class="summary-grid" style="margin-top:14px;">
         <div class="summary-box">
@@ -4139,7 +4095,6 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- Si no hay equivalentes, aviso y salir ---------- */
   if (equivalentesSemilla <= 0) {
     html += `
       <div class="result-warning" style="margin-top:14px;">
@@ -4158,7 +4113,6 @@ function htmlEmpaquetamiento(r) {
     return html;
   }
 
-  /* ---------- b) Tabla "Qué lleva cada canasta" ---------- */
   let filasReparto = "";
   let totalSemilla = 0;
   let totalBasica = 0;
@@ -4217,7 +4171,6 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- NUEVO (TAREA 2): Peso objetivo por canasta ---------- */
   html += `
       <div class="summary-grid" style="margin-top:14px;">
         <div class="summary-box">
@@ -4239,7 +4192,6 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- d) Nota pequeña ---------- */
   html += `
       <div class="small-note" style="margin-top:12px;">
         Cada canasta recibe kg proporcionales a lo que aportó:
@@ -4249,7 +4201,6 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- e) Botón de imprimir (TAREA 3, OPCIÓN A) ---------- */
   html += `
       <div class="actions" style="margin-top:12px;">
         <button class="btn-detail" onclick="imprimirHojaEmpaque()">🖨 Imprimir hoja de empaque</button>
@@ -4262,14 +4213,9 @@ function htmlEmpaquetamiento(r) {
 }
 
 
-/* =====================================================
-TAREA 3 — Imprimir hoja de empaque (OPCIÓN A)
-===================================================== */
-
 function imprimirHojaEmpaque() {
   document.body.classList.add('print-empaque');
   window.print();
-  /* setTimeout para que el navegador termine de disparar el diálogo antes de limpiar */
   setTimeout(() => {
     document.body.classList.remove('print-empaque');
   }, 300);
@@ -4287,13 +4233,9 @@ function renderResultadoCompra() {
 
   let html = "";
 
-  /* Banner de distribución */
   html += htmlBannerDistribucion(r);
-
-  /* Tabla de esenciales */
   html += htmlTablaEsenciales(r);
 
-  /* Variedad / regalos */
   html += `
     <div class="purchase-section">
       <h3>Variedad / regalos</h3>
@@ -4308,7 +4250,6 @@ function renderResultadoCompra() {
     </div>
   `;
 
-  /* Gastos */
   html += `
     <div class="purchase-section">
       <h3>💸 Gastos de la ronda</h3>
@@ -4321,7 +4262,6 @@ function renderResultadoCompra() {
     </div>
   `;
 
-  /* Excedentes */
   html += `
     <div class="purchase-section">
       <h3>♻️ Excedentes de la ronda</h3>
@@ -4334,7 +4274,6 @@ function renderResultadoCompra() {
     </div>
   `;
 
-  /* Resumen de la compra */
   html += `
     <div class="info-box" id="resumenCompraFinal">
       <strong>Resumen de la compra</strong>
@@ -4390,10 +4329,8 @@ function renderResultadoCompra() {
     </div>
   `;
 
-  /* EMPAQUETAMIENTO */
   html += htmlEmpaquetamiento(r);
 
-  /* Guardar compra final */
   html += `
     <div class="purchase-section" style="margin-top:20px;">
       <h3>Guardar compra final en n8n</h3>
@@ -4424,10 +4361,6 @@ function renderResultadoCompra() {
 }
 
 
-/* =====================================================
-ACTUALIZAR DOM EN VIVO
-===================================================== */
-
 function actualizarDOMCompraEnVivo() {
 
   const r = window.ultimoResultadoCompra;
@@ -4440,7 +4373,6 @@ function actualizarDOMCompraEnVivo() {
 
   const gastosTot = (typeof totalGastosRonda === "function") ? totalGastosRonda() : 0;
   const excedTot  = (typeof totalExcedentesRonda === "function") ? totalExcedentesRonda() : 0;
-  /* FIX — ahora sí suma la cuota de coordinación */
   const resultadoNeto = r.saldoReal + r.datos.operaciones - gastosTot + excedTot;
 
   const presupuesto  = document.getElementById("resumenPresupuesto");
@@ -4478,7 +4410,7 @@ function actualizarDOMCompraEnVivo() {
 
 
 /* =====================================================
-RESUMEN FINANCIERO AMPLIADO — VISTA CIERRE
+RESUMEN FINANCIERO AMPLIADO
 ===================================================== */
 
 function renderResumenFinancieroAmpliado() {
@@ -4501,10 +4433,8 @@ function renderResumenFinancieroAmpliado() {
 
   const cuotaCoordinacion = Number(r.datos.operaciones) || 0;
 
-  /* FIX — la cuota de coordinación ahora entra en los recursos */
   const ingresosTotales = r.datos.alimentos + cuotaCoordinacion + excedentes;
   const usosTotales     = r.costoEsencialesReal + r.regalosTotal + gastos;
-  /* FIX — fórmula correcta del neto */
   const resultadoNeto   = r.saldoReal + cuotaCoordinacion - gastos + excedentes;
 
   const clase = resultadoNeto >= 0 ? "good" : "bad";
@@ -4911,7 +4841,6 @@ function actualizarGastoRonda(index, campo, valor) {
 
   const netoEl = document.getElementById("resumenResultadoNeto");
   if (netoEl && window.ultimoResultadoCompra) {
-    /* FIX — ahora suma la cuota de coordinación */
     const neto = window.ultimoResultadoCompra.saldoReal
       + window.ultimoResultadoCompra.datos.operaciones
       - totalGastosRonda()
@@ -5040,7 +4969,6 @@ function actualizarExcedenteRonda(index, campo, valor) {
 
   const netoEl = document.getElementById("resumenResultadoNeto");
   if (netoEl && window.ultimoResultadoCompra) {
-    /* FIX — ahora suma la cuota de coordinación */
     const neto = window.ultimoResultadoCompra.saldoReal
       + window.ultimoResultadoCompra.datos.operaciones
       - totalGastosRonda()
@@ -5109,9 +5037,7 @@ function actualizarTodo() {
     renderReportes();
   }
 
-  /* NUEVO — refrescar Entregas si está activa */
-  if (document.getElementById("view-entregas") &&
-      document.getElementById("view-entregas").classList.contains("active")) {
+  if (vistaEntregasActiva()) {
     renderEntregas();
   }
 }
@@ -5332,19 +5258,8 @@ async function cargarCompraFinalDeRonda(ronda) {
   if (!ronda) return;
 
   try {
-    const response = await fetch(
-      API_COMPRAS_GET + "?ronda=" + encodeURIComponent(ronda),
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) throw new Error("HTTP " + response.status);
-
-    const data = await response.json();
-
-    let lista = [];
-    if (Array.isArray(data))            lista = data;
-    else if (Array.isArray(data.items)) lista = data.items;
-    else if (Array.isArray(data.value)) lista = data.value;
+    const url = API_COMPRAS_GET + "?ronda=" + encodeURIComponent(ronda);
+    const lista = await fetchListaN8N(url);
 
     const filas = lista.filter(f =>
       f && f.producto && Number(f.cantidad) > 0
@@ -5427,7 +5342,7 @@ function autoGuardarRegalos() {
 
 
 /* =====================================================
-REPORTES — NUEVA VISTA
+REPORTES
 ===================================================== */
 
 function renderReportes() {
@@ -5508,8 +5423,6 @@ function renderCuadrosReporte(data) {
     </div>
   `;
 
-  /* -------- CUADRO 1: P&L -------- */
-  /* TAREA 1 — campos nuevos con fallback a 0 para snapshots viejos */
   const ingAlimentos    = (ing.alimentos    !== undefined) ? Number(ing.alimentos)    : 0;
   const ingCoordinacion = (ing.coordinacion !== undefined) ? Number(ing.coordinacion) : 0;
   const margenAlimentos    = (pl.margen_alimentos    !== undefined) ? Number(pl.margen_alimentos)    : 0;
@@ -5550,7 +5463,6 @@ function renderCuadrosReporte(data) {
     </div>
   `;
 
-  /* -------- CUADRO 2: FLUJO DE CAJA -------- */
   html += `
     <div class="reporte-cuadro">
       <h3>💵 Flujo de Caja</h3>
@@ -5582,7 +5494,6 @@ function renderCuadrosReporte(data) {
     </div>
   `;
 
-  /* -------- CUADRO 3: BALANCE -------- */
   html += `
     <div class="reporte-cuadro">
       <h3>⚖️ Balance General</h3>
@@ -5636,15 +5547,12 @@ function calcularReportes() {
     String(p.ronda_id || '') === String(rondaActiva)
   );
 
-  /* TAREA 1 — Canastas cobradas a precio completo */
   const canastasPrecioCompleto = aceptados.reduce(
     (s, p) => s + Number(p.total_solicitado || 0), 0
   );
 
-  /* TAREA 1 — Cuota de coordinación (lo que cubre gastos operativos) */
   const cuotaCoordinacion = Number(r.datos.operaciones) || 0;
 
-  /* TAREA 1 — Ingresos de alimentos = precio completo - cuota de coordinación */
   const ingresosAlimentos = canastasPrecioCompleto - cuotaCoordinacion;
 
   const ingresosExcedentes = excedentesRonda.reduce(
@@ -5662,11 +5570,9 @@ function calcularReportes() {
   });
   const gastosTotal = Object.values(gastosPorTipo).reduce((s, v) => s + v, 0);
 
-  /* TAREA 1 — Márgenes separados (solo presentación) */
   const margenAlimentos    = ingresosAlimentos - comprasTotal;
   const margenCoordinacion = cuotaCoordinacion - gastosTotal;
 
-  /* Totales clásicos (NO cambian de significado) */
   const totalIngresos = canastasPrecioCompleto + ingresosExcedentes;
   const margenBruto   = totalIngresos - comprasTotal;
   const ebit          = margenBruto - gastosTotal;
@@ -5690,16 +5596,14 @@ function calcularReportes() {
     fecha_calculo: new Date().toISOString(),
     pl: {
       ingresos: {
-        /* Campos viejos — NO tocar su significado */
         canastas:  r2(canastasPrecioCompleto),
         excedentes: r2(ingresosExcedentes),
         total:     r2(totalIngresos),
-        /* Campos nuevos (solo presentación) */
         alimentos:    r2(ingresosAlimentos),
         coordinacion: r2(cuotaCoordinacion)
       },
       cogs: { compras: r2(comprasTotal), total: r2(comprasTotal) },
-      margen_bruto: r2(margenBruto),   /* NO cambia de significado */
+      margen_bruto: r2(margenBruto),
       gastos: {
         transporte: r2(gastosPorTipo.transporte),
         empaque:    r2(gastosPorTipo.empaque),
@@ -5710,7 +5614,6 @@ function calcularReportes() {
       ebit: r2(ebit),
       impuestos: r2(impuestos),
       utilidad_neta: r2(utilidadNeta),
-      /* Márgenes separados (solo presentación) */
       margen_alimentos:    r2(margenAlimentos),
       margen_coordinacion: r2(margenCoordinacion)
     },
@@ -5930,14 +5833,7 @@ function descargarReporteJSON() {
 async function cargarHistorialReportes() {
 
   try {
-    const response = await fetch(API_REPORTES_HISTORIAL, { cache: "no-store" });
-    if (!response.ok) return;
-
-    const data = await response.json();
-
-    let lista = [];
-    if (Array.isArray(data))            lista = data;
-    else if (Array.isArray(data.value)) lista = data.value;
+    const lista = await fetchListaN8N(API_REPORTES_HISTORIAL);
 
     snapshotsGuardados = lista;
 
@@ -6013,7 +5909,7 @@ function renderReporteDesdeSnapshot(snapshot) {
 
 
 /* =====================================================
-NUEVO — VISTA ENTREGAS: RENDER + GUARDAR + CARGAR
+FIX ENTREGAS — VISTA ENTREGAS
 ===================================================== */
 
 function renderEntregas() {
@@ -6035,7 +5931,6 @@ function renderEntregas() {
     return;
   }
 
-  /* Actualizar texto de aviso para quitar menciones a S/ y costo */
   const notice = document.getElementById("entregasNotice");
   if (notice) {
     notice.innerHTML = `
@@ -6060,14 +5955,15 @@ function renderEntregas() {
 
   aceptados.forEach(p => {
 
-    const pedidoId = p.pedido_firestore_id || p.id;
+    /* FIX ENTREGAS: usar clave canónica + lookup con cascada */
+    const claveGuardado = claveEntregaPedido(p);
+    const entrega = obtenerEntregaDePedido(p);
+
     const s = Number(p.canasta_semilla_cantidad || 0);
     const b = Number(p.canasta_basica_cantidad || 0);
     const f = Number(p.canasta_familiar_cantidad || 0);
     const totalCanastas = s + b + f;
 
-    /* Determinar si este pedido tiene algún peso guardado */
-    const entrega = entregasRonda[pedidoId];
     const tienePesos = entrega && (
       (Number(entrega.basica)   > 0) ||
       (Number(entrega.semilla)  > 0) ||
@@ -6075,6 +5971,10 @@ function renderEntregas() {
     );
     const estadoClase = tienePesos ? "guardado" : "falta";
     const estadoTexto = tienePesos ? "guardado" : "falta";
+
+    /* data-pedido guarda la clave canónica para el POST posterior.
+       Si no hay clave (ni fs, ni id, ni cliente), deshabilitamos guardado. */
+    const puedeGuardar = !!claveGuardado;
 
     filas += `
       <tr class="entregas-fila-pedido">
@@ -6102,16 +6002,13 @@ function renderEntregas() {
             min="0"
             placeholder="kg"
             value="${entrega && entrega.semilla != null ? entrega.semilla : ""}"
-            ${s === 0 ? "disabled" : ""}
-            data-pedido="${escapeHTML(String(pedidoId))}"
+            ${(s === 0 || !puedeGuardar) ? "disabled" : ""}
+            data-clave="${escapeHTML(claveGuardado || "")}"
             data-tipo="semilla"
-            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'semilla', this.value)"
+            oninput="actualizarEntrega('${escapeHTML(claveGuardado || "")}', 'semilla', this.value)"
           >
         </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td></td><td></td><td></td><td></td>
       </tr>
       <tr class="entregas-canasta-fila">
         <td>
@@ -6127,16 +6024,13 @@ function renderEntregas() {
             min="0"
             placeholder="kg"
             value="${entrega && entrega.basica != null ? entrega.basica : ""}"
-            ${b === 0 ? "disabled" : ""}
-            data-pedido="${escapeHTML(String(pedidoId))}"
+            ${(b === 0 || !puedeGuardar) ? "disabled" : ""}
+            data-clave="${escapeHTML(claveGuardado || "")}"
             data-tipo="basica"
-            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'basica', this.value)"
+            oninput="actualizarEntrega('${escapeHTML(claveGuardado || "")}', 'basica', this.value)"
           >
         </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td></td><td></td><td></td><td></td>
       </tr>
       <tr class="entregas-canasta-fila">
         <td>
@@ -6152,21 +6046,17 @@ function renderEntregas() {
             min="0"
             placeholder="kg"
             value="${entrega && entrega.familiar != null ? entrega.familiar : ""}"
-            ${f === 0 ? "disabled" : ""}
-            data-pedido="${escapeHTML(String(pedidoId))}"
+            ${(f === 0 || !puedeGuardar) ? "disabled" : ""}
+            data-clave="${escapeHTML(claveGuardado || "")}"
             data-tipo="familiar"
-            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'familiar', this.value)"
+            oninput="actualizarEntrega('${escapeHTML(claveGuardado || "")}', 'familiar', this.value)"
           >
         </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td></td><td></td><td></td><td></td>
       </tr>
     `;
   });
 
-  /* ---- Totales ---- */
   const kgEntregados = Object.values(entregasRonda).reduce((s, e) => {
     return s + (Number(e.basica) || 0) + (Number(e.semilla) || 0) + (Number(e.familiar) || 0);
   }, 0);
@@ -6176,7 +6066,6 @@ function renderEntregas() {
   const claseInv = inventarioRestante >= 0 ? "positivo" : "negativo";
   const labelInv = inventarioRestante >= 0 ? "Inventario restante (kg)" : "Faltante real (kg)";
 
-  /* Aviso si no hay compra calculada */
   const avisoCompra = !tieneCompra
     ? `<div class="result-warning" style="margin-bottom:14px;">
         Calculá la compra en la vista <strong>Compra</strong> para ver el inventario restante.
@@ -6235,35 +6124,36 @@ function renderEntregas() {
 }
 
 
-function actualizarEntrega(pedidoId, tipoCanasta, valor) {
+function actualizarEntrega(clavePedido, tipoCanasta, valor) {
+
+  if (!clavePedido) return;
 
   const num = Number(valor);
   const mapa = { basica: "basica", semilla: "semilla", familiar: "familiar" };
   const campo = mapa[tipoCanasta];
   if (!campo) return;
 
-  if (!entregasRonda[pedidoId]) {
-    entregasRonda[pedidoId] = { basica: null, semilla: null, familiar: null, guardado: false };
+  if (!entregasRonda[clavePedido]) {
+    entregasRonda[clavePedido] = { basica: null, semilla: null, familiar: null, guardado: false };
   }
 
   if (valor === "" || isNaN(num)) {
-    entregasRonda[pedidoId][campo] = null;
+    entregasRonda[clavePedido][campo] = null;
   } else {
-    entregasRonda[pedidoId][campo] = num;
+    entregasRonda[clavePedido][campo] = num;
   }
 
   guardarConfiguracion();
-  /* Re-render para actualizar totales e indicador de estado */
-  renderEntregas();
+  marcarEntregasCambiadas();
 }
 
 
-function limpiarEntrega(pedidoId, tipoCanasta) {
-  if (entregasRonda[pedidoId]) {
+function limpiarEntrega(clavePedido, tipoCanasta) {
+  if (entregasRonda[clavePedido]) {
     const campo = tipoCanasta === "basica" ? "basica" : tipoCanasta === "semilla" ? "semilla" : "familiar";
-    entregasRonda[pedidoId][campo] = null;
+    entregasRonda[clavePedido][campo] = null;
     guardarConfiguracion();
-    renderEntregas();
+    marcarEntregasCambiadas();
   }
 }
 
@@ -6278,8 +6168,7 @@ async function guardarEntregasEnN8N() {
     return;
   }
 
-  /* Recorrer solo pedidos con al menos un peso cargado */
-  const pedidosConPeso = Object.entries(entregasRonda).filter(([id, e]) => {
+  const pedidosConPeso = Object.entries(entregasRonda).filter(([clave, e]) => {
     return (Number(e.basica) > 0 || Number(e.semilla) > 0 || Number(e.familiar) > 0);
   });
 
@@ -6291,12 +6180,20 @@ async function guardarEntregasEnN8N() {
   msgOk(`<div class="result-info">Guardando…</div>`);
 
   try {
-    const promesas = pedidosConPeso.map(([pedidoId, e]) => {
+    const promesas = pedidosConPeso.map(([clave, e]) => {
+
+      /* Extraer el pedido_id real para el POST a n8n.
+         Preferencia: fs:<firestore_id>  →  id:<id>  →  ccr:<...>  */
+      let pedidoIdParaN8N = clave;
+      if (clave.startsWith("fs:")) pedidoIdParaN8N = clave.slice(3);
+      else if (clave.startsWith("id:")) pedidoIdParaN8N = clave.slice(3);
+      /* si es ccr: no podemos mandar firestore_id; mandamos la clave para que n8n loguee */
+
       return fetch(API_ENTREGAS_GUARDAR, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          pedido_id: pedidoId,
+          pedido_id: pedidoIdParaN8N,
           peso_final_basica: Number(e.basica) > 0 ? Number(e.basica) : null,
           peso_final_semilla: Number(e.semilla) > 0 ? Number(e.semilla) : null,
           peso_final_familiar: Number(e.familiar) > 0 ? Number(e.familiar) : null
@@ -6304,13 +6201,11 @@ async function guardarEntregasEnN8N() {
       }).then(async (response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json().catch(() => ({}));
-        console.log("✓ Entrega guardada:", pedidoId, data);
-        return { pedidoId, ok: true };
+        console.log("✓ Entrega guardada:", clave, data);
+        return { clave, ok: true };
       }).catch(error => {
-        const pedido = pedidos.find(p => String(p.pedido_firestore_id || p.id) === String(pedidoId));
-        const cliente = pedido ? pedido.cliente : pedidoId;
-        console.error("✕ Error en pedido " + cliente + ":", error);
-        return { pedidoId, ok: false, error: error.message, cliente };
+        console.error("✕ Error en clave " + clave + ":", error);
+        return { clave, ok: false, error: error.message };
       });
     });
 
@@ -6320,21 +6215,20 @@ async function guardarEntregasEnN8N() {
 
     if (fallos.length) {
       msgOk(`<div class="result-error">
-        ❌ Error en pedido <strong>${escapeHTML(fallos[0].cliente || fallos[0].pedidoId)}</strong>: ${escapeHTML(fallos[0].error)}<br>
+        ❌ Error en ${fallos.length} pedido(s).<br>
         ${exitos.length > 0 ? `✅ ${exitos.length} pedido(s) guardado(s).` : ""}
       </div>`);
     } else {
-      /* Marcar como guardados los que se enviaron */
-      pedidosConPeso.forEach(([pedidoId]) => {
-        if (entregasRonda[pedidoId]) {
-          entregasRonda[pedidoId].guardado = true;
+      pedidosConPeso.forEach(([clave]) => {
+        if (entregasRonda[clave]) {
+          entregasRonda[clave].guardado = true;
         }
       });
       guardarConfiguracion();
       msgOk(`<div class="result-good">✅ ${exitos.length} pedido(s) guardados</div>`);
     }
 
-    renderEntregas();
+    marcarEntregasCambiadas();
 
   } catch (error) {
     console.error("Error guardando entregas:", error);
@@ -6350,53 +6244,46 @@ async function cargarEntregasDeRonda(ronda) {
   if (!ronda) return;
 
   try {
-    const response = await fetch(
-      API_ENTREGAS_GET + "?ronda=" + encodeURIComponent(ronda),
-      { cache: "no-store" }
-    );
-
-    if (!response.ok) throw new Error("HTTP " + response.status);
-
-    const data = await response.json();
-
-    let lista = [];
-    if (Array.isArray(data))            lista = data;
-    else if (Array.isArray(data.value)) lista = data.value;
+    const url = API_ENTREGAS_GET + "?ronda=" + encodeURIComponent(ronda);
+    const lista = await fetchListaN8N(url);
 
     if (!lista.length) {
       entregasRonda = {};
       guardarConfiguracion();
-      if (document.getElementById("view-entregas") &&
-          document.getElementById("view-entregas").classList.contains("active")) {
-        renderEntregas();
-      }
+      marcarEntregasCambiadas();
       return;
     }
 
     const nuevoMapa = {};
 
     lista.forEach(fila => {
-      const pedidoId = fila.pedido_firestore_id || fila.pedido_id;
-      if (!pedidoId) return;
-
-      nuevoMapa[pedidoId] = {
+      const pesos = {
         basica:   fila.peso_final_basica   !== null && fila.peso_final_basica   !== undefined ? Number(fila.peso_final_basica)   : null,
         semilla:  fila.peso_final_semilla  !== null && fila.peso_final_semilla  !== undefined ? Number(fila.peso_final_semilla)  : null,
         familiar: fila.peso_final_familiar !== null && fila.peso_final_familiar !== undefined ? Number(fila.peso_final_familiar) : null,
         guardado: true
       };
+
+      /* FIX ENTREGAS: guardar bajo TODAS las claves posibles */
+      if (fila.pedido_firestore_id) {
+        nuevoMapa["fs:" + String(fila.pedido_firestore_id)] = pesos;
+      }
+      if (fila.pedido_id != null) {
+        nuevoMapa["id:" + String(fila.pedido_id)] = pesos;
+      }
+      if (fila.cliente) {
+        const cli = String(fila.cliente).trim().toLowerCase();
+        const cel = String(fila.celular || "").trim();
+        const ron = String(fila.ronda_id || ronda).trim();
+        nuevoMapa["ccr:" + cli + "|" + cel + "|" + ron] = pesos;
+      }
     });
 
     entregasRonda = nuevoMapa;
     guardarConfiguracion();
-
-    if (document.getElementById("view-entregas") &&
-        document.getElementById("view-entregas").classList.contains("active")) {
-      renderEntregas();
-    }
+    marcarEntregasCambiadas();
 
   } catch (error) {
-    /* Silencioso: si el webhook no tiene filas, tratar como lista vacía */
     if (String(error.message).includes("No item to return was found")) {
       entregasRonda = {};
       guardarConfiguracion();
@@ -6454,7 +6341,6 @@ async function eliminarRondaActiva() {
     }
   }
 
-  /* Borrar también la entrada de distribución de la ronda eliminada */
   try {
     const raw = localStorage.getItem(STORAGE_DIST_KEY);
     if (raw) {
@@ -6486,13 +6372,11 @@ async function eliminarRondaActiva() {
 
   gastosRonda = [];
   excedentesRonda = [];
-  /* NUEVO — limpiar entregas */
   entregasRonda = {};
 
   reporteActual = null;
   rondaReporteActiva = "";
 
-  /* Recargar distribución de la nueva ronda */
   _distRonda = "";
   cargarDistribucionDeRonda();
   asegurarDistribucion();
@@ -6516,7 +6400,6 @@ async function eliminarRondaActiva() {
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
     cargarPreciosGuardadosSilencioso();
-    /* NUEVO — cargar entregas de la ronda siguiente */
     cargarEntregasDeRonda(rondaActiva);
   }
 
@@ -6531,11 +6414,7 @@ async function eliminarRondaActiva() {
 
   if (typeof renderReportes === "function") renderReportes();
 
-  /* NUEVO — refrescar Entregas si está activa */
-  if (document.getElementById("view-entregas") &&
-      document.getElementById("view-entregas").classList.contains("active")) {
-    renderEntregas();
-  }
+  marcarEntregasCambiadas();
 
   alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
 }
@@ -6547,7 +6426,6 @@ INICIO
 
 cargarConfiguracion();
 
-/* Cargar distribución de la ronda activa (si hay) */
 cargarDistribucionDeRonda();
 asegurarDistribucion();
 
@@ -6562,8 +6440,9 @@ cargarPedidos();
 setTimeout(() => {
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
-    /* NUEVO — cargar entregas guardadas de la ronda activa */
-    cargarEntregasDeRonda(rondaActiva);
+    cargarEntregasDeRonda(rondaActiva).then(() => {
+      if (vistaEntregasActiva()) renderEntregas();
+    });
   }
   renderResumenFinancieroAmpliado();
   cargarHistorialReportes();
