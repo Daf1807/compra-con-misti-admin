@@ -1158,11 +1158,87 @@ tbody tr:hover { background: #F4FBF6; }
 .entregas-dif-alto  { color: var(--naranja); font-weight: 700; }
 .entregas-dif-bajo  { color: var(--coral); font-weight: 700; }
 
+/* ═══════════════════════════════════════════════════════
+   MODO CONGELADO
+   ═══════════════════════════════════════════════════════ */
+
+#bannerCongelado {
+  display: none;
+  background: linear-gradient(135deg, #FFC107, #FFD54F);
+  color: #5D4037;
+  padding: 12px 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: var(--sombra-md);
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+#bannerCongelado.activo {
+  display: flex;
+}
+
+#bannerCongelado button {
+  background: #5D4037;
+  color: #FFD54F;
+  padding: 8px 18px;
+  min-height: 36px;
+  font-size: 13px;
+  box-shadow: 0 3px 0 #3E2723;
+}
+
+#bannerCongelado button:hover {
+  background: #4E342E;
+  transform: translateY(-1px);
+}
+
+#bannerCongelado button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #3E2723;
+}
+
+.btn-congelar {
+  background: linear-gradient(180deg, #90CAF9, #42A5F5);
+  box-shadow: 0 4px 0 #1E88E5, var(--sombra-sm);
+}
+
+.btn-congelar:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: none !important;
+}
+
+.btn-descongelar {
+  background: linear-gradient(180deg, #EF5350, #E53935);
+  box-shadow: 0 4px 0 #C62828, var(--sombra-sm);
+}
+
+/* Ocultar botones de ronda en modo congelado */
+body.modo-congelado .btn-round-new,
+body.modo-congelado .btn-round-manual,
+body.modo-congelado .btn-reject,
+body.modo-congelado .round-manual-input {
+  display: none !important;
+}
+
 </style>
 
 </head>
 
 <body>
+
+<!-- CONGELAR: banner de modo congelado -->
+<div id="bannerCongelado">
+  <span id="bannerCongeladoTexto">🧊 MODO CONGELADO</span>
+  <button class="btn-descongelar" onclick="descongelarRonda()">🔥 Descongelar</button>
+</div>
 
 <header>
   <div class="container">
@@ -1224,6 +1300,11 @@ tbody tr:hover { background: #F4FBF6; }
       <div id="connectionStatus">Conectando con n8n…</div>
       <div class="actions">
         <button class="btn-refresh" onclick="cargarPedidos()">↻ Actualizar</button>
+        <!-- CONGELAR: botón congelar ronda -->
+        <button class="btn-congelar" id="btnCongelarRonda" onclick="congelarRonda()" disabled
+          title="Guarda una foto del estado actual para trabajar sin conexión">
+          🧊 Congelar ronda
+        </button>
         <button class="btn-json" onclick="generarJSONCompra()"
           title="Descarga un JSON con el estado completo actual de la compra">
           ⇩ Generar JSON
@@ -1437,7 +1518,7 @@ tbody tr:hover { background: #F4FBF6; }
           <br><br>
           <strong>Al marcar un producto como esencial</strong>, se le asigna
           automáticamente su porcentaje sugerido en la distribución del presupuesto
-          si es que cabe. Si no, queda en 0% y lo editas a mano.
+          si es que cabe. Si no, queda en 0% y lo editás a mano.
           <br><br>
           <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
           "Precios de la ronda actual".
@@ -1955,6 +2036,179 @@ const STORAGE_DIST_KEY = "compra_con_misti_dist_v1";
 
 let _distRonda = "";
 
+/* CONGELAR: clave de localStorage para la foto */
+const STORAGE_CONGELADO_KEY = "compra_con_misti_congelado_v1";
+/* CONGELAR: bandera de modo congelado */
+let modoCongelado = false;
+
+
+/* =====================================================
+CONGELAR: funciones principales
+===================================================== */
+
+function congelarRonda() {
+  if (!rondaActiva) {
+    alert("Primero elegí o creá una ronda.");
+    return;
+  }
+
+  // Si hay fetch en curso, esperar un poco para no dejarlo colgado
+  const btn = document.getElementById("btnCongelarRonda");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "🧊 Congelando…";
+  }
+
+  setTimeout(() => {
+    try {
+      const foto = {
+        rondaActiva: rondaActiva,
+        pedidos: pedidos.filter(p =>
+          String(p.estado || "").toLowerCase() === "aceptado" &&
+          p.ronda_id === rondaActiva
+        ),
+        preciosRonda: JSON.parse(JSON.stringify(preciosRonda)),
+        distribucion: JSON.parse(JSON.stringify(distribucion)),
+        preciosReferencia: JSON.parse(JSON.stringify(preciosReferencia)),
+        adicionales: JSON.parse(JSON.stringify(adicionales)),
+        regalos: JSON.parse(JSON.stringify(regalos)),
+        gastosRonda: JSON.parse(JSON.stringify(gastosRonda)),
+        excedentesRonda: JSON.parse(JSON.stringify(excedentesRonda)),
+        fechaCongelado: new Date().toISOString()
+      };
+
+      localStorage.setItem(STORAGE_CONGELADO_KEY, JSON.stringify(foto));
+
+      if (btn) {
+        btn.textContent = "🧊 Congelado ✓";
+        setTimeout(() => {
+          btn.textContent = "🧊 Congelar ronda";
+        }, 1500);
+      }
+
+      alert("✅ Ronda " + rondaActiva + " congelada.\nAhora podés apagar n8n y seguir trabajando offline.");
+
+    } catch (error) {
+      console.error("Error al congelar:", error);
+      alert("❌ No se pudo congelar la ronda. Revisá la consola.");
+      if (btn) {
+        btn.textContent = "🧊 Congelar ronda";
+      }
+    } finally {
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = !rondaActiva;
+        }
+      }, 100);
+    }
+  }, 300);
+}
+
+
+function descongelarRonda() {
+  if (!confirm("¿Descongelar la ronda? Se borrará la foto local y se volverá al modo normal (necesitás n8n encendido).")) return;
+
+  localStorage.removeItem(STORAGE_CONGELADO_KEY);
+  modoCongelado = false;
+  document.body.classList.remove("modo-congelado");
+
+  const banner = document.getElementById("bannerCongelado");
+  if (banner) banner.classList.remove("activo");
+
+  // Recargar la página para volver al modo normal
+  location.reload();
+}
+
+
+function cargarFotoCongelada() {
+  try {
+    const raw = localStorage.getItem(STORAGE_CONGELADO_KEY);
+    if (!raw) return false;
+
+    const foto = JSON.parse(raw);
+    if (!foto || !foto.rondaActiva) return false;
+
+    // Restaurar variables globales
+    rondaActiva = foto.rondaActiva || "";
+
+    if (Array.isArray(foto.pedidos)) {
+      pedidos = foto.pedidos.map(p => ({
+        ...p,
+        estado: normalizarEstado(p.estado || "Aceptado")
+      }));
+    } else {
+      pedidos = [];
+    }
+
+    preciosRonda = foto.preciosRonda || {};
+    distribucion = foto.distribucion || {};
+    preciosReferencia = foto.preciosReferencia || {};
+    adicionales = foto.adicionales || {};
+    regalos = foto.regalos || [];
+    gastosRonda = foto.gastosRonda || [];
+    excedentesRonda = foto.excedentesRonda || [];
+
+    // Asegurar que la ronda congelada esté en rondasConocidas
+    if (!rondasConocidas.includes(rondaActiva)) {
+      rondasConocidas.push(rondaActiva);
+    }
+
+    modoCongelado = true;
+    document.body.classList.add("modo-congelado");
+
+    // Mostrar banner
+    const banner = document.getElementById("bannerCongelado");
+    const bannerTexto = document.getElementById("bannerCongeladoTexto");
+    if (banner && bannerTexto) {
+      const fecha = foto.fechaCongelado
+        ? new Date(foto.fechaCongelado).toLocaleString("es-PE")
+        : "fecha desconocida";
+      bannerTexto.textContent = "🧊 MODO CONGELADO — " + rondaActiva + " — " + fecha;
+      banner.classList.add("activo");
+    }
+
+    // Deshabilitar botón congelar
+    const btnCongelar = document.getElementById("btnCongelarRonda");
+    if (btnCongelar) btnCongelar.disabled = true;
+
+    // Ocultar botones de ronda via CSS (body.modo-congelado)
+
+    return true;
+
+  } catch (error) {
+    console.error("Error cargando foto congelada:", error);
+    localStorage.removeItem(STORAGE_CONGELADO_KEY);
+    return false;
+  }
+}
+
+
+function actualizarFotoCongelada() {
+  if (!modoCongelado || !rondaActiva) return;
+
+  try {
+    const foto = {
+      rondaActiva: rondaActiva,
+      pedidos: pedidos.filter(p =>
+        String(p.estado || "").toLowerCase() === "aceptado" &&
+        p.ronda_id === rondaActiva
+      ),
+      preciosRonda: JSON.parse(JSON.stringify(preciosRonda)),
+      distribucion: JSON.parse(JSON.stringify(distribucion)),
+      preciosReferencia: JSON.parse(JSON.stringify(preciosReferencia)),
+      adicionales: JSON.parse(JSON.stringify(adicionales)),
+      regalos: JSON.parse(JSON.stringify(regalos)),
+      gastosRonda: JSON.parse(JSON.stringify(gastosRonda)),
+      excedentesRonda: JSON.parse(JSON.stringify(excedentesRonda)),
+      fechaCongelado: new Date().toISOString()
+    };
+
+    localStorage.setItem(STORAGE_CONGELADO_KEY, JSON.stringify(foto));
+  } catch (error) {
+    console.error("Error actualizando foto congelada:", error);
+  }
+}
+
 
 /* =====================================================
 NAVEGACIÓN ENTRE VISTAS
@@ -2033,6 +2287,11 @@ function guardarConfiguracion() {
       STORAGE_KEY,
       JSON.stringify(datos)
     );
+
+    // CONGELAR: si estamos en modo congelado, actualizar la foto
+    if (modoCongelado) {
+      actualizarFotoCongelada();
+    }
 
   } catch(error) {
     console.error("Error guardando configuración:", error);
@@ -3004,6 +3263,12 @@ function refrescarSelectorRondas() {
 
   document.getElementById("rondaActivaInfo").textContent =
     rondaActiva ? ("Ronda activa: " + rondaActiva) : "Sin ronda seleccionada";
+
+  // CONGELAR: habilitar botón congelar solo si hay ronda activa
+  const btnCongelar = document.getElementById("btnCongelarRonda");
+  if (btnCongelar) {
+    btnCongelar.disabled = !rondaActiva;
+  }
 }
 
 
@@ -3063,6 +3328,8 @@ function cambiarRondaActiva(valor) {
 async function cargarPreciosGuardadosSilencioso() {
 
   if (!rondaActiva) return;
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) return;
 
   try {
     const url = API_PRECIOS_GET + "?ronda=" + encodeURIComponent(rondaActiva);
@@ -3094,6 +3361,12 @@ async function cargarPreciosGuardadosSilencioso() {
 
 
 function crearNuevaRonda() {
+
+  // CONGELAR: no permitir crear rondas en modo congelado
+  if (modoCongelado) {
+    alert("No se pueden crear rondas en modo congelado.\nDescongelá primero.");
+    return;
+  }
 
   const hoy = new Date();
   const yyyy = hoy.getFullYear();
@@ -3134,6 +3407,9 @@ function crearNuevaRonda() {
 
 function toggleManualRonda() {
 
+  // CONGELAR: no permitir en modo congelado
+  if (modoCongelado) return;
+
   const input = document.getElementById("rondaManualInput");
   input.classList.toggle("active");
   if (input.classList.contains("active")) input.focus();
@@ -3141,6 +3417,9 @@ function toggleManualRonda() {
 
 
 function aplicarRondaManual() {
+
+  // CONGELAR: no permitir en modo congelado
+  if (modoCongelado) return;
 
   const input = document.getElementById("rondaManualInput");
   const valor = (input.value || "").trim();
@@ -3182,6 +3461,13 @@ CARGAR PEDIDOS  (FIX: usa fetchListaN8N)
 ===================================================== */
 
 async function cargarPedidos() {
+
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) {
+    const status = document.getElementById("connectionStatus");
+    if (status) status.textContent = "🧊 Modo congelado — sin conexión a n8n";
+    return;
+  }
 
   const status = document.getElementById("connectionStatus");
   status.textContent = "Conectando con n8n…";
@@ -3309,6 +3595,12 @@ CAMBIAR ESTADO
 
 async function cambiarEstado(id, estado) {
 
+  // CONGELAR: no permitir cambiar estado en modo congelado
+  if (modoCongelado) {
+    alert("No se puede cambiar el estado de pedidos en modo congelado.\nDescongelá primero.");
+    return;
+  }
+
   const estadoNormalizado = normalizarEstado(estado);
 
   if (!['Aceptado', 'Rechazado'].includes(estadoNormalizado)) return;
@@ -3366,6 +3658,12 @@ MODAL CONFIRMAR PAGO
 ===================================================== */
 
 function abrirModalPago(id) {
+
+  // CONGELAR: no permitir aceptar pagos en modo congelado
+  if (modoCongelado) {
+    alert("No se puede aceptar pedidos en modo congelado.\nDescongelá primero.");
+    return;
+  }
 
   const pedido = pedidos.find(p => String(p.id) === String(id));
   if (!pedido) return;
@@ -3534,6 +3832,7 @@ function generarJSONCompra() {
       fecha_generacion: new Date().toISOString(),
       fecha_local: new Date().toLocaleString('es-PE'),
       ronda_actual: rondaActiva,
+      modo_congelado: modoCongelado,
       precios_ronda: preciosRonda,
       distribucion: {
         pct: { ...distribucion },
@@ -5109,6 +5408,17 @@ let _timeoutGuardarRegalos = null;
 
 async function guardarCompraFinalEnN8N() {
 
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) {
+    const msg = `<div class="result-warning">🧊 Modo congelado: no se guarda en n8n.</div>`;
+    const r1 = document.getElementById("resultadoGuardarCompra");
+    const r2 = document.getElementById("resultadoGuardarCompraCierre");
+    if (r1) r1.innerHTML = msg;
+    if (r2) r2.innerHTML = msg;
+    ultimoMensajeGuardado = msg;
+    return;
+  }
+
   if (!rondaActiva) {
     const msg = `<div class="result-warning">⚠ Primero elegí o creá una ronda.</div>`;
     const r1 = document.getElementById("resultadoGuardarCompra");
@@ -5256,6 +5566,8 @@ async function guardarCompraFinalEnN8N() {
 async function cargarCompraFinalDeRonda(ronda) {
 
   if (!ronda) return;
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) return;
 
   try {
     const url = API_COMPRAS_GET + "?ronda=" + encodeURIComponent(ronda);
@@ -5336,7 +5648,7 @@ async function cargarCompraFinalDeRonda(ronda) {
 function autoGuardarRegalos() {
   clearTimeout(_timeoutGuardarRegalos);
   _timeoutGuardarRegalos = setTimeout(() => {
-    if (rondaActiva) guardarCompraFinalEnN8N();
+    if (rondaActiva && !modoCongelado) guardarCompraFinalEnN8N();
   }, 900);
 }
 
@@ -5662,6 +5974,12 @@ function calcularReportes() {
 
 async function guardarSnapshotReporte() {
 
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) {
+    alert("No se pueden guardar snapshots en modo congelado.");
+    return;
+  }
+
   if (!reporteActual) {
     alert("Primero calculá los reportes.");
     return;
@@ -5831,6 +6149,9 @@ function descargarReporteJSON() {
 
 
 async function cargarHistorialReportes() {
+
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) return;
 
   try {
     const lista = await fetchListaN8N(API_REPORTES_HISTORIAL);
@@ -6160,6 +6481,13 @@ function limpiarEntrega(clavePedido, tipoCanasta) {
 
 async function guardarEntregasEnN8N() {
 
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) {
+    const cont = document.getElementById("resultadoGuardarEntregas");
+    if (cont) cont.innerHTML = `<div class="result-warning">🧊 Modo congelado: no se guarda en n8n.</div>`;
+    return;
+  }
+
   const cont = document.getElementById("resultadoGuardarEntregas");
   const msgOk = (html) => { if (cont) cont.innerHTML = html; };
 
@@ -6242,6 +6570,8 @@ async function guardarEntregasEnN8N() {
 async function cargarEntregasDeRonda(ronda) {
 
   if (!ronda) return;
+  // CONGELAR: no llamar a n8n en modo congelado
+  if (modoCongelado) return;
 
   try {
     const url = API_ENTREGAS_GET + "?ronda=" + encodeURIComponent(ronda);
@@ -6299,6 +6629,12 @@ ELIMINAR RONDA ACTIVA
 ===================================================== */
 
 async function eliminarRondaActiva() {
+
+  // CONGELAR: no permitir eliminar rondas en modo congelado
+  if (modoCongelado) {
+    alert("No se pueden eliminar rondas en modo congelado.\nDescongelá primero.");
+    return;
+  }
 
   if (!rondaActiva) {
     alert("No hay ronda activa para eliminar.");
@@ -6424,29 +6760,61 @@ async function eliminarRondaActiva() {
 INICIO
 ===================================================== */
 
-cargarConfiguracion();
+/* CONGELAR: verificar si hay foto congelada al iniciar */
+const hayFotoCongelada = cargarFotoCongelada();
 
-cargarDistribucionDeRonda();
-asegurarDistribucion();
+if (hayFotoCongelada) {
+  // Modo congelado: cargar solo desde la foto, sin llamar a n8n
+  // Mostrar vista Compra por defecto
+  mostrarVista("compra");
 
-refrescarSelectorRondas();
-renderPreciosRonda();
-aplicarPreciosRondaAProductos();
-renderProductos();
-renderDistribucion();
+  // Inicializar UI con los datos de la foto
+  asegurarDistribucion();
+  refrescarSelectorRondas();
+  renderPreciosRonda();
+  aplicarPreciosRondaAProductos();
+  renderProductos();
+  renderDistribucion();
 
-cargarPedidos();
+  // Actualizar todo con los datos locales
+  actualizarTodo();
 
-setTimeout(() => {
-  if (rondaActiva) {
-    cargarCompraFinalDeRonda(rondaActiva);
-    cargarEntregasDeRonda(rondaActiva).then(() => {
-      if (vistaEntregasActiva()) renderEntregas();
-    });
+  // Calcular compra automáticamente si es posible
+  if (rondaActiva && obtenerAceptadosRonda().length) {
+    calcularCompra();
   }
+
+  // Renderizar resumen financiero
   renderResumenFinancieroAmpliado();
-  cargarHistorialReportes();
-}, 1200);
+
+  console.log("🧊 Modo congelado activo — ronda:", rondaActiva);
+
+} else {
+  // Modo normal: cargar configuración y llamar a n8n
+  cargarConfiguracion();
+
+  cargarDistribucionDeRonda();
+  asegurarDistribucion();
+
+  refrescarSelectorRondas();
+  renderPreciosRonda();
+  aplicarPreciosRondaAProductos();
+  renderProductos();
+  renderDistribucion();
+
+  cargarPedidos();
+
+  setTimeout(() => {
+    if (rondaActiva) {
+      cargarCompraFinalDeRonda(rondaActiva);
+      cargarEntregasDeRonda(rondaActiva).then(() => {
+        if (vistaEntregasActiva()) renderEntregas();
+      });
+    }
+    renderResumenFinancieroAmpliado();
+    cargarHistorialReportes();
+  }, 1200);
+}
 
 </script>
 
