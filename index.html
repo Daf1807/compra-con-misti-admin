@@ -1203,6 +1203,11 @@ tbody tr:hover { background: #F4FBF6; }
   box-shadow: 0 1px 0 #3E2723;
 }
 
+#bannerCongelado button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
 .btn-congelar {
   background: linear-gradient(180deg, #90CAF9, #42A5F5);
   box-shadow: 0 4px 0 #1E88E5, var(--sombra-sm);
@@ -1220,6 +1225,18 @@ tbody tr:hover { background: #F4FBF6; }
   box-shadow: 0 4px 0 #C62828, var(--sombra-sm);
 }
 
+#bannerCongelado .btn-descongelar {
+  background: #5D4037;
+  color: #FFD54F;
+  box-shadow: 0 3px 0 #3E2723;
+}
+
+#bannerCongeladoAviso {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+}
+
 /* Ocultar botones de ronda en modo congelado */
 body.modo-congelado .btn-round-new,
 body.modo-congelado .btn-round-manual,
@@ -1228,16 +1245,89 @@ body.modo-congelado .round-manual-input {
   display: none !important;
 }
 
+/* CONGELAR: details colapsables */
+details > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--verde);
+  padding: 10px 0;
+  list-style: none;
+  user-select: none;
+  display: inline-block;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  margin-right: 4px;
+  transition: transform .15s ease;
+}
+details[open] > summary::before { content: "▾ "; }
+details > summary:hover { color: var(--verde-2); }
+details > summary + * { margin-top: 8px; }
+
+/* CONGELAR: mobile cards */
+@media (max-width: 700px) {
+  table.mobile-cards,
+  table.mobile-cards tbody,
+  table.mobile-cards tr,
+  table.mobile-cards td {
+    display: block;
+    width: 100%;
+  }
+  table.mobile-cards thead { display: none; }
+  table.mobile-cards tr {
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-sm);
+    margin-bottom: 14px;
+    padding: 14px;
+    box-shadow: var(--sombra-sm);
+  }
+  table.mobile-cards td {
+    border: 0;
+    padding: 8px 0;
+    font-size: 15px;
+  }
+  table.mobile-cards td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--texto-2);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  table.mobile-cards td:empty { display: none; }
+  table.mobile-cards input,
+  table.mobile-cards select,
+  table.mobile-cards button {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  table.mobile-cards td[data-label="Producto"],
+  table.mobile-cards td[data-label="Canasta"] {
+    font-size: 17px;
+    font-weight: 800;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--borde);
+    margin-bottom: 8px;
+  }
+}
+
 </style>
 
 </head>
 
 <body>
 
-<!-- CONGELAR: banner de modo congelado -->
+<!-- CONGELAR: banner de modo congelado con botón de sincronización -->
 <div id="bannerCongelado">
   <span id="bannerCongeladoTexto">🧊 MODO CONGELADO</span>
+  <button class="btn-congelar" id="btnSyncAhora" onclick="sincronizarAhora()">☁️ Sincronizar ahora</button>
   <button class="btn-descongelar" onclick="descongelarRonda()">🔥 Descongelar</button>
+  <span id="bannerCongeladoAviso"></span>
 </div>
 
 <header>
@@ -1300,7 +1390,6 @@ body.modo-congelado .round-manual-input {
       <div id="connectionStatus">Conectando con n8n…</div>
       <div class="actions">
         <button class="btn-refresh" onclick="cargarPedidos()">↻ Actualizar</button>
-        <!-- CONGELAR: botón congelar ronda -->
         <button class="btn-congelar" id="btnCongelarRonda" onclick="congelarRonda()" disabled
           title="Guarda una foto del estado actual para trabajar sin conexión">
           🧊 Congelar ronda
@@ -1413,11 +1502,15 @@ body.modo-congelado .round-manual-input {
 
       <div class="section">
         <h2 class="section-head">Estructura de las canastas</h2>
-        <p class="section-description">
-          Las tres canastas participan en la misma compra colectiva.
-          No tienen listas de productos diferentes.
-          La diferencia está en la cantidad económica de participación.
-        </p>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Más info</summary>
+          <p class="section-description">
+            Las tres canastas participan en la misma compra colectiva.
+            No tienen listas de productos diferentes.
+            La diferencia está en la cantidad económica de participación.
+          </p>
+        </details>
 
         <div class="canasta-grid">
           <div class="canasta-box">
@@ -1437,38 +1530,48 @@ body.modo-congelado .round-manual-input {
           </div>
         </div>
 
-        <div class="info-box">
-          <strong>Regla fundamental</strong><br><br>
-          El universo de productos es todo lo que Misti puede utilizar.<br><br>
-          Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
-          Los productos esenciales se reparten el presupuesto de alimentos mediante
-          una <strong>distribución porcentual</strong> definida por Misti.
-          El sistema calcula el monto asignado a cada producto y, con el precio de
-          mercado, la cantidad en kg.<br><br>
-          La Básica y la Familiar no tienen listas propias: su aporte al presupuesto de alimentos se calcula
-          con sus montos (S/23 y S/36).<br><br>
-          Los demás productos pueden comprarse como variedad,
-          adicional o regalo, pero no forman parte de la distribución esencial de la canasta.
-        </div>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Regla fundamental</summary>
+          <div class="info-box">
+            <strong>Regla fundamental</strong><br><br>
+            El universo de productos es todo lo que Misti puede utilizar.<br><br>
+            Solo una cantidad pequeña de ellos se define como <strong>esencial</strong>.<br><br>
+            Los productos esenciales se reparten el presupuesto de alimentos mediante
+            una <strong>distribución porcentual</strong> definida por Misti.
+            El sistema calcula el monto asignado a cada producto y, con el precio de
+            mercado, la cantidad en kg.<br><br>
+            La Básica y la Familiar no tienen listas propias: su aporte al presupuesto de alimentos se calcula
+            con sus montos (S/23 y S/36).<br><br>
+            Los demás productos pueden comprarse como variedad,
+            adicional o regalo, pero no forman parte de la distribución esencial de la canasta.
+          </div>
+        </details>
       </div>
 
       <div class="section">
         <h2 class="section-head">📋 Precios de la ronda actual</h2>
 
-        <p class="section-description">
-          Carga aquí los precios minorista y mayorista de los productos
-          marcados como <strong>esenciales</strong> en el Universo de productos.
-          Estos precios se usan automáticamente en el cálculo de la compra.
-          <br><br>
-          <strong>Si registrás la misma ronda otra vez, se reemplazan los precios anteriores.</strong>
-        </p>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Más info</summary>
+          <p class="section-description">
+            Carga aquí los precios minorista y mayorista de los productos
+            marcados como <strong>esenciales</strong> en el Universo de productos.
+            Estos precios se usan automáticamente en el cálculo de la compra.
+            <br><br>
+            <strong>Si registrás la misma ronda otra vez, se reemplazan los precios anteriores.</strong>
+          </p>
+        </details>
 
         <div id="preciosRondaHeader" class="info-box">
           Sin ronda activa. Elegí o creá una ronda arriba.
         </div>
 
         <div class="table-scroll" id="preciosRondaWrapper" style="display:none;">
-          <table>
+          <!-- CONGELAR: buscador de precios -->
+          <input id="buscadorPrecios" placeholder="🔍 Buscar producto..." oninput="filtrarPrecios(this.value)" style="margin-bottom:12px;">
+          <table class="mobile-cards">
             <thead>
               <tr>
                 <th>#</th>
@@ -1497,14 +1600,18 @@ body.modo-congelado .round-manual-input {
       <div class="section" id="seccionDistribucion">
         <h2 class="section-head">📊 Distribución del presupuesto</h2>
 
-        <p class="section-description">
-          Define qué porcentaje del presupuesto de alimentos se asigna a cada
-          producto esencial. El sistema calcula el monto y la cantidad en kg
-          usando el precio de la ronda actual.
-          <br><br>
-          Los porcentajes deben sumar <strong>100%</strong>.
-          Si no suman, el sistema avisa con color.
-        </p>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Más info</summary>
+          <p class="section-description">
+            Define qué porcentaje del presupuesto de alimentos se asigna a cada
+            producto esencial. El sistema calcula el monto y la cantidad en kg
+            usando el precio de la ronda actual.
+            <br><br>
+            Los porcentajes deben sumar <strong>100%</strong>.
+            Si no suman, el sistema avisa con color.
+          </p>
+        </details>
 
         <div id="distribucionContenido"></div>
       </div>
@@ -1512,29 +1619,40 @@ body.modo-congelado .round-manual-input {
       <div class="section">
         <h2 class="section-head">Universo de productos y esenciales</h2>
 
-        <p class="section-description">
-          Todos los productos del Mercado Mayorista de Santa Anita están disponibles.
-          Aquí decides cuáles forman parte del compromiso esencial.
-          <br><br>
-          <strong>Al marcar un producto como esencial</strong>, se le asigna
-          automáticamente su porcentaje sugerido en la distribución del presupuesto
-          si es que cabe. Si no, queda en 0% y lo editás a mano.
-          <br><br>
-          <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
-          "Precios de la ronda actual".
-        </p>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Más info</summary>
+          <p class="section-description">
+            Todos los productos del Mercado Mayorista de Santa Anita están disponibles.
+            Aquí decides cuáles forman parte del compromiso esencial.
+            <br><br>
+            <strong>Al marcar un producto como esencial</strong>, se le asigna
+            automáticamente su porcentaje sugerido en la distribución del presupuesto
+            si es que cabe. Si no, queda en 0% y lo editás a mano.
+            <br><br>
+            <strong>Los precios ya no se escriben acá:</strong> vienen de la sección
+            "Precios de la ronda actual".
+          </p>
+        </details>
 
-        <div class="info-box">
-          <strong>¿Qué significa "Esencial"?</strong><br><br>
-          Un producto esencial sí entra en el cálculo obligatorio de la ronda.<br><br>
-          Un producto no esencial permanece disponible,
-          pero no se promete automáticamente a las familias.<br><br>
-          Esto permite que la variedad cambie de una ronda a otra
-          sin aumentar el compromiso.
-        </div>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ ¿Qué significa Esencial?</summary>
+          <div class="info-box">
+            <strong>¿Qué significa "Esencial"?</strong><br><br>
+            Un producto esencial sí entra en el cálculo obligatorio de la ronda.<br><br>
+            Un producto no esencial permanece disponible,
+            pero no se promete automáticamente a las familias.<br><br>
+            Esto permite que la variedad cambie de una ronda a otra
+            sin aumentar el compromiso.
+          </div>
+        </details>
+
+        <!-- CONGELAR: buscador de productos -->
+        <input id="buscadorProductos" placeholder="🔍 Buscar producto..." oninput="filtrarProductos(this.value)" style="margin-bottom:12px;">
 
         <div class="table-scroll">
-          <table>
+          <table class="mobile-cards">
             <thead>
               <tr>
                 <th>Esencial</th>
@@ -1574,29 +1692,37 @@ body.modo-congelado .round-manual-input {
           <span class="flow-chip">EMPAQUETAMIENTO</span>
         </div>
 
-        <div class="formula-box">
-          Para cada producto esencial:<br><br>
-          Monto asignado = presupuesto de alimentos × % / 100
-          <br><br>
-          Kg calculado = monto / precio (2 decimales)
-          <br><br>
-          Compra real = kg calculados, o la cantidad editada a mano
-          <br><br>
-          Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
-          <br><br>
-          Kg por canasta = compra final / equivalentes Semilla × factor de la canasta
-          (Semilla 1.00 · Básica 1.50 · Familiar 2.25)
-        </div>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Ver fórmulas</summary>
+          <div class="formula-box">
+            Para cada producto esencial:<br><br>
+            Monto asignado = presupuesto de alimentos × % / 100
+            <br><br>
+            Kg calculado = monto / precio (2 decimales)
+            <br><br>
+            Compra real = kg calculados, o la cantidad editada a mano
+            <br><br>
+            Saldo = presupuesto de alimentos − costo de compra real − regalos / variedad
+            <br><br>
+            Kg por canasta = compra final / equivalentes Semilla × factor de la canasta
+            (Semilla 1.00 · Básica 1.50 · Familiar 2.25)
+          </div>
+        </details>
 
-        <div class="info-box">
-          <strong>El algoritmo primero protege lo esencial.</strong><br><br>
-          Después de cubrir la distribución porcentual del presupuesto,
-          el dinero que quede disponible puede utilizarse
-          para variedad o regalo.<br><br>
-          Esa variedad no modifica la distribución esencial
-          y no crea una nueva obligación para las familias.<br><br>
-          <strong>Los cambios numéricos se actualizan automáticamente.</strong>
-        </div>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Cómo funciona el cálculo</summary>
+          <div class="info-box">
+            <strong>El algoritmo primero protege lo esencial.</strong><br><br>
+            Después de cubrir la distribución porcentual del presupuesto,
+            el dinero que quede disponible puede utilizarse
+            para variedad o regalo.<br><br>
+            Esa variedad no modifica la distribución esencial
+            y no crea una nueva obligación para las familias.<br><br>
+            <strong>Los cambios numéricos se actualizan automáticamente.</strong>
+          </div>
+        </details>
 
         <button class="btn-calculate" onclick="calcularCompra()">
           Calcular compra
@@ -1620,9 +1746,6 @@ body.modo-congelado .round-manual-input {
         <div class="anchor-notice" id="entregasNotice">
           Ingresá el <strong>peso final en kg</strong> de cada tipo de canasta entregada.
           Se guarda como registro de lo entregado en la ronda.
-          <br><br>
-          Los kg que no se entregaron quedan en <strong>inventario</strong>.
-          No se pierden: se usan en la próxima ronda o se venden como excedente.
         </div>
 
         <div id="entregasContenido">
@@ -1658,15 +1781,19 @@ body.modo-congelado .round-manual-input {
       <div class="section">
         <h2 class="section-head">Gastos y excedentes</h2>
 
-        <div class="anchor-notice">
-          Los formularios de <strong>gastos de la ronda</strong> y
-          <strong>excedentes de la ronda</strong> viven dentro de la vista
-          <em>Compra</em>, en la sección de resultados.
-          <br><br>
-          <button class="btn-detail" onclick="mostrarVista('compra'); setTimeout(()=>{ const el = document.getElementById('resultadoCompra'); if (el) el.scrollIntoView({behavior:'smooth'}); }, 50);">
-            Ir a la sección de gastos y excedentes →
-          </button>
-        </div>
+        <!-- CONGELAR: details colapsable -->
+        <details>
+          <summary>ℹ️ Dónde están los gastos</summary>
+          <div class="anchor-notice">
+            Los formularios de <strong>gastos de la ronda</strong> y
+            <strong>excedentes de la ronda</strong> viven dentro de la vista
+            <em>Compra</em>, en la sección de resultados.
+            <br><br>
+            <button class="btn-detail" onclick="mostrarVista('compra'); setTimeout(()=>{ const el = document.getElementById('resultadoCompra'); if (el) el.scrollIntoView({behavior:'smooth'}); }, 50);">
+              Ir a la sección de gastos y excedentes →
+            </button>
+          </div>
+        </details>
       </div>
 
       <div class="section">
@@ -1752,6 +1879,25 @@ body.modo-congelado .round-manual-input {
   </div>
 </div>
 
+<!-- CONGELAR: modal de descongelar con 3 opciones -->
+<div class="modal" id="modalDescongelar">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>¿Descongelar la ronda?</h3>
+      <button class="close" onclick="cerrarModalDescongelar()">×</button>
+    </div>
+    <div id="modalDescongelarContenido">
+      <p>Elegí cómo querés salir del modo congelado:</p>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+        <button class="btn-accept" id="btnSyncDescongelar" onclick="ejecutarSincronizarYDescongelar()" style="min-height:44px;">☁️ Sincronizar y descongelar</button>
+        <button class="btn-reject" onclick="ejecutarDescartarYDescongelar()" style="min-height:44px;">🗑️ Descartar cambios y descongelar</button>
+        <button class="btn-detail" onclick="cerrarModalDescongelar()" style="min-height:44px;">Cancelar</button>
+      </div>
+      <div id="modalDescongelarAviso" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 
 /* =====================================================
@@ -1804,11 +1950,6 @@ let pedidos = [];
 FIX ENTREGAS — helpers de normalización de respuestas n8n
 ===================================================== */
 
-/**
- * Normaliza la respuesta de n8n a un array.
- * Cubre: array plano, {value}, {items}, {body}, {data}, {json}, {result},
- * body como string JSON, y objeto único.
- */
 function normalizarListaN8N(data) {
   if (data == null) return [];
   if (Array.isArray(data)) return data;
@@ -1828,11 +1969,6 @@ function normalizarListaN8N(data) {
   return [];
 }
 
-/**
- * fetch que devuelve SIEMPRE un array, manejando:
- *  - "No item to return was found" → []  (n8n lo devuelve con 200/404)
- *  - Content-Type no JSON           → intenta parsear / devuelve []
- */
 async function fetchListaN8N(url, opciones = {}) {
   const response = await fetch(url, { cache: "no-store", ...opciones });
 
@@ -1860,7 +1996,6 @@ async function fetchListaN8N(url, opciones = {}) {
 FIX ENTREGAS — clave canónica y lookup robusto
 ===================================================== */
 
-/** Clave canónica de un pedido para entregasRonda (para usar en el POST). */
 function claveEntregaPedido(p) {
   if (!p) return null;
   if (p.pedido_firestore_id) return "fs:" + String(p.pedido_firestore_id);
@@ -1873,10 +2008,6 @@ function claveEntregaPedido(p) {
   return null;
 }
 
-/**
- * Devuelve la entrega del pedido buscando por:
- *   fs:<firestore_id> → id:<id> → ccr:<cliente|celular|ronda>
- */
 function obtenerEntregaDePedido(p) {
   if (!p) return null;
 
@@ -1903,6 +2034,33 @@ function vistaEntregasActiva() {
 
 function marcarEntregasCambiadas() {
   if (vistaEntregasActiva()) renderEntregas();
+}
+
+
+/* =====================================================
+CONGELAR: normalizar texto (sin tildes, minúsculas)
+===================================================== */
+
+// CONGELAR: helper para buscadores
+function normalizar(str) {
+  return String(str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+// CONGELAR: filtros de buscadores
+let _filtroProductos = "";
+let _filtroPrecios = "";
+
+function filtrarProductos(v) {
+  _filtroProductos = v || "";
+  renderProductos();
+}
+
+function filtrarPrecios(v) {
+  _filtroPrecios = v || "";
+  renderPreciosRonda();
 }
 
 
@@ -1934,6 +2092,12 @@ const DISTRIBUCION_DEFAULT = {
   "Tomate": 8,
   "Choclo": 13
 };
+
+// CONGELAR: esenciales por defecto
+const ESENCIALES_DEFAULT = [
+  "Papa amarilla", "Papa canchán", "Camote amarillo", "Yuca amarilla",
+  "Tomate", "Cebolla roja", "Zanahoria", "Zapallo macre", "Choclo"
+];
 
 
 const productos = [
@@ -2020,7 +2184,6 @@ let rondasEliminadas = [];
 let gastosRonda = [];
 let excedentesRonda = [];
 
-/* entregas: { "fs:<firestore_id>|id:<id>|ccr:<...>": {basica, semilla, familiar, guardado} } */
 let entregasRonda = {};
 
 let ultimoMensajeGuardado = "";
@@ -2036,9 +2199,7 @@ const STORAGE_DIST_KEY = "compra_con_misti_dist_v1";
 
 let _distRonda = "";
 
-/* CONGELAR: clave de localStorage para la foto */
 const STORAGE_CONGELADO_KEY = "compra_con_misti_congelado_v1";
-/* CONGELAR: bandera de modo congelado */
 let modoCongelado = false;
 
 
@@ -2052,7 +2213,6 @@ function congelarRonda() {
     return;
   }
 
-  // Si hay fetch en curso, esperar un poco para no dejarlo colgado
   const btn = document.getElementById("btnCongelarRonda");
   if (btn) {
     btn.disabled = true;
@@ -2061,12 +2221,18 @@ function congelarRonda() {
 
   setTimeout(() => {
     try {
+      // CONGELAR: incluir productos + entregasRonda en la foto
       const foto = {
         rondaActiva: rondaActiva,
         pedidos: pedidos.filter(p =>
           String(p.estado || "").toLowerCase() === "aceptado" &&
           p.ronda_id === rondaActiva
         ),
+        productos: productos.map(p => ({
+          nombre: p.nombre,
+          unidad: p.unidad,
+          esencial: !!p.esencial
+        })),
         preciosRonda: JSON.parse(JSON.stringify(preciosRonda)),
         distribucion: JSON.parse(JSON.stringify(distribucion)),
         preciosReferencia: JSON.parse(JSON.stringify(preciosReferencia)),
@@ -2074,6 +2240,7 @@ function congelarRonda() {
         regalos: JSON.parse(JSON.stringify(regalos)),
         gastosRonda: JSON.parse(JSON.stringify(gastosRonda)),
         excedentesRonda: JSON.parse(JSON.stringify(excedentesRonda)),
+        entregasRonda: JSON.parse(JSON.stringify(entregasRonda)),
         fechaCongelado: new Date().toISOString()
       };
 
@@ -2105,21 +2272,265 @@ function congelarRonda() {
 }
 
 
+// CONGELAR: descongelar ahora abre un modal
 function descongelarRonda() {
-  if (!confirm("¿Descongelar la ronda? Se borrará la foto local y se volverá al modo normal (necesitás n8n encendido).")) return;
+  const modal = document.getElementById("modalDescongelar");
+  if (!modal) {
+    // Fallback: comportamiento anterior
+    if (!confirm("¿Descongelar la ronda? Se borrará la foto local.")) return;
+    localStorage.removeItem(STORAGE_CONGELADO_KEY);
+    modoCongelado = false;
+    location.reload();
+    return;
+  }
+  const aviso = document.getElementById("modalDescongelarAviso");
+  if (aviso) aviso.innerHTML = "";
+  const btn = document.getElementById("btnSyncDescongelar");
+  if (btn) { btn.disabled = false; btn.textContent = "☁️ Sincronizar y descongelar"; }
+  modal.classList.add("active");
+}
 
+// CONGELAR: cerrar modal de descongelar
+function cerrarModalDescongelar() {
+  const modal = document.getElementById("modalDescongelar");
+  if (modal) modal.classList.remove("active");
+}
+
+// CONGELAR: sincronizar cambios con n8n sin bloquear por modo congelado
+async function sincronizarCambiosConN8N() {
+  if (!rondaActiva) {
+    return { ok: false, endpoint: "ronda", mensaje: "Sin ronda activa." };
+  }
+
+  // (a) PRECIOS
+  try {
+    const esenciales = productos.filter(p => p.esencial === true);
+    const precios = esenciales.map(p => {
+      const fila = preciosRonda[p.nombre] || {};
+      return {
+        id_producto: null,
+        producto: p.nombre,
+        unidad: p.unidad,
+        precio_minorista: Number(fila.precio_minorista) || 0,
+        precio_mayorista: Number(fila.precio_mayorista) || 0
+      };
+    });
+
+    const rPrecios = await fetch(API_PRECIOS_GUARDAR, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_ronda: rondaActiva, precios: precios })
+    });
+    if (!rPrecios.ok) {
+      return { ok: false, endpoint: "admin-precios-guardar", mensaje: "HTTP " + rPrecios.status };
+    }
+  } catch (e) {
+    return { ok: false, endpoint: "admin-precios-guardar", mensaje: e.message };
+  }
+
+  // (b) y (c) COMPRA FINAL
+  let mensajeCompra = "";
+  const r = window.ultimoResultadoCompra;
+
+  if (!r) {
+    mensajeCompra = "⚠ No había compra calculada, no se subió compra final.";
+  } else {
+    const itemsEsenciales = r.resultadosEsenciales
+      .filter(p => Number(p.compraFinal) > 0)
+      .map(p => ({
+        id_producto: null,
+        producto: p.nombre,
+        unidad: p.unidad,
+        cantidad: Number(p.compraFinal) || 0,
+        precio_unitario: Number(p.precio) || 0,
+        costo: (Number(p.compraFinal) || 0) * (Number(p.precio) || 0),
+        tipo: "esencial"
+      }));
+
+    const itemsRegalos = regalos
+      .filter(rg => (rg.producto && rg.producto.trim()) || Number(rg.cantidad) > 0)
+      .map(rg => ({
+        id_producto: null,
+        producto: rg.producto || "Regalo",
+        unidad: rg.unidad || "unidad",
+        cantidad: Number(rg.cantidad) || 0,
+        precio_unitario: Number(rg.precio) || 0,
+        costo: (Number(rg.cantidad) || 0) * (Number(rg.precio) || 0),
+        tipo: "regalo"
+      }));
+
+    const itemsGastos = gastosRonda
+      .filter(g => Number(g.monto) > 0)
+      .map(g => ({
+        id_producto: null,
+        producto: g.descripcion || "Gasto",
+        unidad: g.tipo || "otro",
+        cantidad: 1,
+        precio_unitario: Number(g.monto) || 0,
+        costo: Number(g.monto) || 0,
+        tipo: "gasto"
+      }));
+
+    const itemsExcedentes = excedentesRonda
+      .filter(e => Number(e.ingreso) > 0)
+      .map(e => ({
+        id_producto: null,
+        producto: e.descripcion || "Excedente",
+        unidad: "ingreso",
+        cantidad: 1,
+        precio_unitario: Number(e.ingreso) || 0,
+        costo: Number(e.ingreso) || 0,
+        tipo: "excedente"
+      }));
+
+    const items = [
+      ...itemsEsenciales,
+      ...itemsRegalos,
+      ...itemsGastos,
+      ...itemsExcedentes
+    ];
+
+    if (items.length === 0) {
+      mensajeCompra = "⚠ No había items para guardar.";
+    } else {
+      // (b) Borrado previo
+      try {
+        const rBorrar = await fetch(API_COMPRAS_BORRAR, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_ronda: rondaActiva })
+        });
+        if (!rBorrar.ok) {
+          return { ok: false, endpoint: "admin-compras-borrar", mensaje: "HTTP " + rBorrar.status };
+        }
+      } catch (e) {
+        return { ok: false, endpoint: "admin-compras-borrar", mensaje: e.message };
+      }
+
+      // (c) Guardar compra final
+      try {
+        const rGuardar = await fetch(API_COMPRAS_GUARDAR, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_ronda: rondaActiva, items: items })
+        });
+        if (!rGuardar.ok) {
+          return { ok: false, endpoint: "admin-compras-guardar", mensaje: "HTTP " + rGuardar.status };
+        }
+      } catch (e) {
+        return { ok: false, endpoint: "admin-compras-guardar", mensaje: e.message };
+      }
+    }
+  }
+
+  // (d) ENTREGAS
+  let pedidosSinID = 0;
+  const promesas = [];
+
+  Object.entries(entregasRonda).forEach(([clave, e]) => {
+    const tienePeso = (Number(e.basica) > 0 || Number(e.semilla) > 0 || Number(e.familiar) > 0);
+    if (!tienePeso) return;
+
+    let pedidoIdParaN8N = clave;
+    if (clave.startsWith("fs:")) pedidoIdParaN8N = clave.slice(3);
+    else if (clave.startsWith("id:")) pedidoIdParaN8N = clave.slice(3);
+    else if (clave.startsWith("ccr:")) {
+      pedidosSinID++;
+      return;
+    }
+
+    promesas.push(
+      fetch(API_ENTREGAS_GUARDAR, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pedido_id: pedidoIdParaN8N,
+          peso_final_basica: Number(e.basica) > 0 ? Number(e.basica) : null,
+          peso_final_semilla: Number(e.semilla) > 0 ? Number(e.semilla) : null,
+          peso_final_familiar: Number(e.familiar) > 0 ? Number(e.familiar) : null
+        })
+      }).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return { ok: true };
+      }).catch(err => {
+        return { ok: false, error: err.message };
+      })
+    );
+  });
+
+  if (promesas.length > 0) {
+    const resultados = await Promise.all(promesas);
+    const fallo = resultados.find(x => !x.ok);
+    if (fallo) {
+      return { ok: false, endpoint: "admin-entregas-guardar", mensaje: fallo.error };
+    }
+  }
+
+  return { ok: true, mensajeCompra: mensajeCompra, pedidosSinID: pedidosSinID };
+}
+
+// CONGELAR: sincronizar y descongelar desde el modal
+async function ejecutarSincronizarYDescongelar() {
+  const btn = document.getElementById("btnSyncDescongelar");
+  const aviso = document.getElementById("modalDescongelarAviso");
+
+  if (btn) { btn.disabled = true; btn.textContent = "☁️ Sincronizando…"; }
+  if (aviso) aviso.innerHTML = "";
+
+  const res = await sincronizarCambiosConN8N();
+
+  if (res.ok) {
+    localStorage.removeItem(STORAGE_CONGELADO_KEY);
+    modoCongelado = false;
+    document.body.classList.remove("modo-congelado");
+    location.reload();
+    return;
+  }
+
+  if (aviso) {
+    aviso.innerHTML = `<div class="result-error">✕ Falló: ${escapeHTML(res.endpoint)}. No se borró nada. La foto local sigue intacta, reintentá cuando quieras.</div>`;
+  }
+  if (btn) { btn.disabled = false; btn.textContent = "☁️ Sincronizar y descongelar"; }
+}
+
+// CONGELAR: descartar cambios y descongelar
+function ejecutarDescartarYDescongelar() {
+  if (!confirm("¿Descartar los cambios hechos en modo congelado? No se pueden recuperar.")) return;
   localStorage.removeItem(STORAGE_CONGELADO_KEY);
   modoCongelado = false;
   document.body.classList.remove("modo-congelado");
-
-  const banner = document.getElementById("bannerCongelado");
-  if (banner) banner.classList.remove("activo");
-
-  // Recargar la página para volver al modo normal
   location.reload();
 }
 
+// CONGELAR: sincronizar desde el banner
+async function sincronizarAhora() {
+  const btn = document.getElementById("btnSyncAhora");
+  const aviso = document.getElementById("bannerCongeladoAviso");
 
+  if (btn) { btn.disabled = true; btn.textContent = "☁️ Sincronizando…"; }
+  if (aviso) aviso.innerHTML = "";
+
+  const res = await sincronizarCambiosConN8N();
+
+  if (btn) { btn.disabled = false; btn.textContent = "☁️ Sincronizar ahora"; }
+
+  if (res.ok) {
+    if (aviso) {
+      let msg = "✓ Sincronizado con n8n";
+      if (res.mensajeCompra) msg += " · " + res.mensajeCompra;
+      if (res.pedidosSinID) msg += " · ⚠ " + res.pedidosSinID + " pedido(s) sin ID no se subieron.";
+      aviso.innerHTML = `<span style="color: var(--verde); font-weight: 800;">${escapeHTML(msg)}</span>`;
+      setTimeout(() => { if (aviso) aviso.innerHTML = ""; }, 4000);
+    }
+  } else {
+    if (aviso) {
+      aviso.innerHTML = `<span style="color: #C93A3F; font-weight: 800;">✕ Falló: ${escapeHTML(res.endpoint)}</span>`;
+    }
+  }
+}
+
+
+// CONGELAR: cargar foto congelada — BUG A: restaurar productos y entregasRonda
 function cargarFotoCongelada() {
   try {
     const raw = localStorage.getItem(STORAGE_CONGELADO_KEY);
@@ -2128,7 +2539,6 @@ function cargarFotoCongelada() {
     const foto = JSON.parse(raw);
     if (!foto || !foto.rondaActiva) return false;
 
-    // Restaurar variables globales
     rondaActiva = foto.rondaActiva || "";
 
     if (Array.isArray(foto.pedidos)) {
@@ -2140,6 +2550,16 @@ function cargarFotoCongelada() {
       pedidos = [];
     }
 
+    // CONGELAR: restaurar productos (esenciales marcados)
+    if (Array.isArray(foto.productos) && foto.productos.length > 0) {
+      foto.productos.forEach(gp => {
+        const p = productos.find(prod => prod.nombre === gp.nombre);
+        if (!p) return;
+        p.esencial = Boolean(gp.esencial);
+        if (gp.unidad) p.unidad = gp.unidad;
+      });
+    }
+
     preciosRonda = foto.preciosRonda || {};
     distribucion = foto.distribucion || {};
     preciosReferencia = foto.preciosReferencia || {};
@@ -2148,15 +2568,23 @@ function cargarFotoCongelada() {
     gastosRonda = foto.gastosRonda || [];
     excedentesRonda = foto.excedentesRonda || [];
 
-    // Asegurar que la ronda congelada esté en rondasConocidas
+    // CONGELAR: restaurar entregas
+    if (foto.entregasRonda && typeof foto.entregasRonda === "object" && !Array.isArray(foto.entregasRonda)) {
+      entregasRonda = { ...foto.entregasRonda };
+    } else {
+      entregasRonda = {};
+    }
+
     if (!rondasConocidas.includes(rondaActiva)) {
       rondasConocidas.push(rondaActiva);
     }
 
+    // CONGELAR: si la foto no trae esenciales, aplicar defaults
+    aplicarEsencialesPorDefectoSiHaceFalta();
+
     modoCongelado = true;
     document.body.classList.add("modo-congelado");
 
-    // Mostrar banner
     const banner = document.getElementById("bannerCongelado");
     const bannerTexto = document.getElementById("bannerCongeladoTexto");
     if (banner && bannerTexto) {
@@ -2167,11 +2595,8 @@ function cargarFotoCongelada() {
       banner.classList.add("activo");
     }
 
-    // Deshabilitar botón congelar
     const btnCongelar = document.getElementById("btnCongelarRonda");
     if (btnCongelar) btnCongelar.disabled = true;
-
-    // Ocultar botones de ronda via CSS (body.modo-congelado)
 
     return true;
 
@@ -2183,6 +2608,7 @@ function cargarFotoCongelada() {
 }
 
 
+// CONGELAR: actualizar foto — BUG A: incluir productos y entregasRonda
 function actualizarFotoCongelada() {
   if (!modoCongelado || !rondaActiva) return;
 
@@ -2193,6 +2619,11 @@ function actualizarFotoCongelada() {
         String(p.estado || "").toLowerCase() === "aceptado" &&
         p.ronda_id === rondaActiva
       ),
+      productos: productos.map(p => ({
+        nombre: p.nombre,
+        unidad: p.unidad,
+        esencial: !!p.esencial
+      })),
       preciosRonda: JSON.parse(JSON.stringify(preciosRonda)),
       distribucion: JSON.parse(JSON.stringify(distribucion)),
       preciosReferencia: JSON.parse(JSON.stringify(preciosReferencia)),
@@ -2200,6 +2631,7 @@ function actualizarFotoCongelada() {
       regalos: JSON.parse(JSON.stringify(regalos)),
       gastosRonda: JSON.parse(JSON.stringify(gastosRonda)),
       excedentesRonda: JSON.parse(JSON.stringify(excedentesRonda)),
+      entregasRonda: JSON.parse(JSON.stringify(entregasRonda)),
       fechaCongelado: new Date().toISOString()
     };
 
@@ -2207,6 +2639,18 @@ function actualizarFotoCongelada() {
   } catch (error) {
     console.error("Error actualizando foto congelada:", error);
   }
+}
+
+
+// CONGELAR: aplicar 9 esenciales por defecto si ninguno está marcado
+function aplicarEsencialesPorDefectoSiHaceFalta() {
+  const hayAlguno = productos.some(p => p.esencial === true);
+  if (hayAlguno) return;
+
+  ESENCIALES_DEFAULT.forEach(nombre => {
+    const p = productos.find(prod => prod.nombre === nombre);
+    if (p) p.esencial = true;
+  });
 }
 
 
@@ -2288,7 +2732,6 @@ function guardarConfiguracion() {
       JSON.stringify(datos)
     );
 
-    // CONGELAR: si estamos en modo congelado, actualizar la foto
     if (modoCongelado) {
       actualizarFotoCongelada();
     }
@@ -2642,13 +3085,14 @@ function renderDistribucion() {
 
     filas += `
       <tr>
-        <td><strong>${escapeHTML(p.nombre)}</strong></td>
-        <td>${p.precio > 0 ? soles(p.precio) : `<span class="price-missing">SIN PRECIO</span>`}</td>
-        <td>kg</td>
-        <td>
+        <td data-label="Producto"><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td data-label="Precio">${p.precio > 0 ? soles(p.precio) : `<span class="price-missing">SIN PRECIO</span>`}</td>
+        <td data-label="Unidad">kg</td>
+        <td data-label="%">
           <input
             class="pct-input"
             type="number"
+            inputmode="decimal"
             min="0"
             step="0.01"
             value="${pct}"
@@ -2656,20 +3100,20 @@ function renderDistribucion() {
             oninput="cambiarPorcentaje('${escapeHTML(p.nombre)}', this.value)"
           >
         </td>
-        <td id="dist-monto-${escapeHTML(p.nombre)}">${soles(monto)}</td>
-        <td id="dist-kg-${escapeHTML(p.nombre)}">${kg.toFixed(2)} kg</td>
+        <td data-label="Monto" id="dist-monto-${escapeHTML(p.nombre)}">${soles(monto)}</td>
+        <td data-label="Kg" id="dist-kg-${escapeHTML(p.nombre)}">${kg.toFixed(2)} kg</td>
       </tr>
     `;
   });
 
   filas += `
     <tr style="background:#fafafa; font-weight:bold;">
-      <td>TOTAL</td>
-      <td>—</td>
-      <td>—</td>
-      <td>${redondear2(suma)}%</td>
-      <td>${soles(totalMonto)}</td>
-      <td>—</td>
+      <td data-label="Producto">TOTAL</td>
+      <td data-label="Precio">—</td>
+      <td data-label="Unidad">—</td>
+      <td data-label="%">${redondear2(suma)}%</td>
+      <td data-label="Monto">${soles(totalMonto)}</td>
+      <td data-label="Kg">—</td>
     </tr>
   `;
 
@@ -2681,7 +3125,7 @@ function renderDistribucion() {
     </div>
 
     <div class="table-scroll">
-      <table>
+      <table class="mobile-cards">
         <thead>
           <tr>
             <th>Producto</th>
@@ -2909,40 +3353,80 @@ function aplicarPreciosRondaAProductos() {
 TABLA DE PRODUCTOS
 ===================================================== */
 
+// CONGELAR: helper de fila para reutilizar
+function renderProductoFila(p, i) {
+  const precioHTML = (p.esencial && p.precio > 0)
+    ? `<strong>${soles(p.precio)}</strong>`
+    : (p.esencial
+        ? `<span class="price-missing">SIN PRECIO</span>`
+        : `<span class="muted">—</span>`);
+
+  return `
+    <tr>
+      <td data-label="Esencial">
+        <input
+          type="checkbox"
+          ${p.esencial ? "checked" : ""}
+          onchange="cambiarEsencial(${i}, this.checked)"
+        >
+      </td>
+      <td data-label="Producto">
+        <strong>${escapeHTML(p.nombre)}</strong><br>
+        ${p.esencial
+          ? `<span class="essential-badge">ESENCIAL</span>`
+          : `<span class="optional-badge">UNIVERSO</span>`}
+      </td>
+      <td data-label="Unidad">${escapeHTML(p.unidad)}</td>
+      <td data-label="Precio" id="precio-${i}">
+        ${precioHTML}
+      </td>
+    </tr>
+  `;
+}
+
+// CONGELAR: renderProductos con filtro y agrupación esenciales/universo
 function renderProductos() {
 
   const body = document.getElementById("productosBody");
+  if (!body) return;
 
-  body.innerHTML = productos.map((p, i) => {
+  const filtroNorm = normalizar(_filtroProductos);
 
-    const precioHTML = (p.esencial && p.precio > 0)
-      ? `<strong>${soles(p.precio)}</strong>`
-      : (p.esencial
-          ? `<span class="price-missing">SIN PRECIO</span>`
-          : `<span class="muted">—</span>`);
+  // CONGELAR: si hay filtro, mostramos plano sin separadores
+  if (filtroNorm) {
+    const filas = [];
+    productos.forEach((p, i) => {
+      if (!normalizar(p.nombre).includes(filtroNorm)) return;
+      filas.push(renderProductoFila(p, i));
+    });
+    body.innerHTML = filas.length
+      ? filas.join("")
+      : `<tr><td colspan="4" class="small-note" style="text-align:center;">Sin resultados.</td></tr>`;
+    return;
+  }
 
-    return `
-      <tr>
-        <td>
-          <input
-            type="checkbox"
-            ${p.esencial ? "checked" : ""}
-            onchange="cambiarEsencial(${i}, this.checked)"
-          >
-        </td>
-        <td>
-          <strong>${escapeHTML(p.nombre)}</strong><br>
-          ${p.esencial
-            ? `<span class="essential-badge">ESENCIAL</span>`
-            : `<span class="optional-badge">UNIVERSO</span>`}
-        </td>
-        <td>${escapeHTML(p.unidad)}</td>
-        <td id="precio-${i}">
-          ${precioHTML}
-        </td>
-      </tr>
-    `;
-  }).join("");
+  const esencialesFilas = [];
+  const universoFilas = [];
+
+  productos.forEach((p, i) => {
+    const html = renderProductoFila(p, i);
+    if (p.esencial) esencialesFilas.push(html);
+    else universoFilas.push(html);
+  });
+
+  let html = "";
+
+  html += `<tr><td colspan="4"><h4 style="margin:8px 0 10px;color:var(--verde);">🌱 Esenciales</h4></td></tr>`;
+  html += esencialesFilas.length
+    ? esencialesFilas.join("")
+    : `<tr><td colspan="4" class="small-note">Ninguno marcado.</td></tr>`;
+
+  html += `<tr><td colspan="4"><h4 style="margin:18px 0 10px;color:var(--texto-2);">📦 Universo</h4></td></tr>`;
+  html += universoFilas.length
+    ? universoFilas.join("")
+    : `<tr><td colspan="4" class="small-note">—</td></tr>`;
+
+  body.innerHTML = html;
 }
 
 
@@ -3042,7 +3526,13 @@ function renderPreciosRonda() {
   wrapper.style.display = "block";
   actions.style.display = "flex";
 
-  body.innerHTML = esenciales.map(p => {
+  // CONGELAR: filtro de buscador
+  const filtroNorm = normalizar(_filtroPrecios);
+  const visibles = filtroNorm
+    ? esenciales.filter(p => normalizar(p.nombre).includes(filtroNorm))
+    : esenciales;
+
+  body.innerHTML = visibles.map(p => {
 
     let fila = {};
     Object.keys(preciosRonda).forEach(id => {
@@ -3052,12 +3542,13 @@ function renderPreciosRonda() {
 
     return `
       <tr>
-        <td>${escapeHTML(p.nombre)}</td>
-        <td><strong>${escapeHTML(p.nombre)}</strong></td>
-        <td>${escapeHTML(p.unidad)}</td>
-        <td>
+        <td data-label="#">${escapeHTML(p.nombre)}</td>
+        <td data-label="Producto"><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td data-label="Unidad">${escapeHTML(p.unidad)}</td>
+        <td data-label="Precio minorista">
           <input
             type="number"
+            inputmode="decimal"
             min="0"
             step="0.01"
             value="${fila.precio_minorista || ""}"
@@ -3065,9 +3556,10 @@ function renderPreciosRonda() {
             oninput="actualizarPrecioRonda('${escapeHTML(p.nombre)}', '${escapeHTML(p.unidad)}', 'precio_minorista', this.value)"
           >
         </td>
-        <td>
+        <td data-label="Precio mayorista">
           <input
             type="number"
+            inputmode="decimal"
             min="0"
             step="0.01"
             value="${fila.precio_mayorista || ""}"
@@ -3264,7 +3756,6 @@ function refrescarSelectorRondas() {
   document.getElementById("rondaActivaInfo").textContent =
     rondaActiva ? ("Ronda activa: " + rondaActiva) : "Sin ronda seleccionada";
 
-  // CONGELAR: habilitar botón congelar solo si hay ronda activa
   const btnCongelar = document.getElementById("btnCongelarRonda");
   if (btnCongelar) {
     btnCongelar.disabled = !rondaActiva;
@@ -3328,7 +3819,6 @@ function cambiarRondaActiva(valor) {
 async function cargarPreciosGuardadosSilencioso() {
 
   if (!rondaActiva) return;
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) return;
 
   try {
@@ -3362,7 +3852,6 @@ async function cargarPreciosGuardadosSilencioso() {
 
 function crearNuevaRonda() {
 
-  // CONGELAR: no permitir crear rondas en modo congelado
   if (modoCongelado) {
     alert("No se pueden crear rondas en modo congelado.\nDescongelá primero.");
     return;
@@ -3407,7 +3896,6 @@ function crearNuevaRonda() {
 
 function toggleManualRonda() {
 
-  // CONGELAR: no permitir en modo congelado
   if (modoCongelado) return;
 
   const input = document.getElementById("rondaManualInput");
@@ -3418,7 +3906,6 @@ function toggleManualRonda() {
 
 function aplicarRondaManual() {
 
-  // CONGELAR: no permitir en modo congelado
   if (modoCongelado) return;
 
   const input = document.getElementById("rondaManualInput");
@@ -3457,12 +3944,11 @@ function onFiltroRondaCambia() {
 
 
 /* =====================================================
-CARGAR PEDIDOS  (FIX: usa fetchListaN8N)
+CARGAR PEDIDOS
 ===================================================== */
 
 async function cargarPedidos() {
 
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) {
     const status = document.getElementById("connectionStatus");
     if (status) status.textContent = "🧊 Modo congelado — sin conexión a n8n";
@@ -3595,7 +4081,6 @@ CAMBIAR ESTADO
 
 async function cambiarEstado(id, estado) {
 
-  // CONGELAR: no permitir cambiar estado en modo congelado
   if (modoCongelado) {
     alert("No se puede cambiar el estado de pedidos en modo congelado.\nDescongelá primero.");
     return;
@@ -3659,7 +4144,6 @@ MODAL CONFIRMAR PAGO
 
 function abrirModalPago(id) {
 
-  // CONGELAR: no permitir aceptar pagos en modo congelado
   if (modoCongelado) {
     alert("No se puede aceptar pedidos en modo congelado.\nDescongelá primero.");
     return;
@@ -4244,39 +4728,39 @@ function htmlTablaEsenciales(r) {
 
     filas += `
       <tr>
-        <td>
+        <td data-label="Producto">
           <strong>${escapeHTML(p.nombre)}</strong><br>
           <small class="small-note">${escapeHTML(p.unidad)}</small>
         </td>
-        <td>${redondear2(p.pct)}%</td>
-        <td>${soles(p.montoAsignado)}</td>
-        <td>${p.kgCalculado.toFixed(2)} kg</td>
-        <td>
+        <td data-label="%">${redondear2(p.pct)}%</td>
+        <td data-label="Presupuesto">${soles(p.montoAsignado)}</td>
+        <td data-label="Kg calculado">${p.kgCalculado.toFixed(2)} kg</td>
+        <td data-label="Compra final (kg)">
           <input
-            type="number" min="0" step="0.01"
+            type="number" inputmode="decimal" min="0" step="0.01"
             id="compraFinal-${p.index}"
             value="${p.compraFinal}"
             onchange="cambiarCompraFinal('${escapeHTML(p.nombre)}', this.value)"
           >
           ${botonReset}
         </td>
-        <td>${soles(p.precio)}</td>
-        <td id="costo-${p.index}">${soles(p.costo)}</td>
-        <td>${htmlSemaforo(p.semaforo)}</td>
+        <td data-label="Precio/kg">${soles(p.precio)}</td>
+        <td data-label="Costo" id="costo-${p.index}">${soles(p.costo)}</td>
+        <td data-label="Semáforo">${htmlSemaforo(p.semaforo)}</td>
       </tr>
     `;
   });
 
   filas += `
     <tr style="background:#fafafa; font-weight:bold;">
-      <td>TOTAL</td>
-      <td>${redondear2(totalPct)}%</td>
-      <td>${soles(totalPresupuesto)}</td>
-      <td>${totalKgCalculado.toFixed(2)} kg</td>
-      <td>${totalKgFinal.toFixed(2)} kg</td>
-      <td>—</td>
-      <td>${soles(totalCosto)}</td>
-      <td>${htmlSemaforo(calcularSemaforo(totalCosto, totalPresupuesto, 0.05))}</td>
+      <td data-label="Producto">TOTAL</td>
+      <td data-label="%">${redondear2(totalPct)}%</td>
+      <td data-label="Presupuesto">${soles(totalPresupuesto)}</td>
+      <td data-label="Kg calculado">${totalKgCalculado.toFixed(2)} kg</td>
+      <td data-label="Compra final (kg)">${totalKgFinal.toFixed(2)} kg</td>
+      <td data-label="Precio/kg">—</td>
+      <td data-label="Costo">${soles(totalCosto)}</td>
+      <td data-label="Semáforo">${htmlSemaforo(calcularSemaforo(totalCosto, totalPresupuesto, 0.05))}</td>
     </tr>
   `;
 
@@ -4291,7 +4775,7 @@ function htmlTablaEsenciales(r) {
         para restablecer el valor calculado.
       </p>
       <div class="table-scroll">
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Producto</th>
@@ -4432,28 +4916,28 @@ function htmlEmpaquetamiento(r) {
 
     filasReparto += `
       <tr>
-        <td><strong>${escapeHTML(p.nombre)}</strong></td>
-        <td>${redondear2(compraFinal).toFixed(2)}</td>
-        <td>${redondear2(kgSemilla).toFixed(2)}</td>
-        <td>${redondear2(kgBasica).toFixed(2)}</td>
-        <td>${redondear2(kgFamiliar).toFixed(2)}</td>
+        <td data-label="Producto"><strong>${escapeHTML(p.nombre)}</strong></td>
+        <td data-label="Compra final (kg)">${redondear2(compraFinal).toFixed(2)}</td>
+        <td data-label="Semilla (kg c/u)">${redondear2(kgSemilla).toFixed(2)}</td>
+        <td data-label="Básica (kg c/u)">${redondear2(kgBasica).toFixed(2)}</td>
+        <td data-label="Familiar (kg c/u)">${redondear2(kgFamiliar).toFixed(2)}</td>
       </tr>
     `;
   });
 
   filasReparto += `
     <tr style="background:#fafafa; font-weight:bold;">
-      <td>TOTAL</td>
-      <td>—</td>
-      <td>${redondear2(totalSemilla).toFixed(2)}</td>
-      <td>${redondear2(totalBasica).toFixed(2)}</td>
-      <td>${redondear2(totalFamiliar).toFixed(2)}</td>
+      <td data-label="Producto">TOTAL</td>
+      <td data-label="Compra final (kg)">—</td>
+      <td data-label="Semilla (kg c/u)">${redondear2(totalSemilla).toFixed(2)}</td>
+      <td data-label="Básica (kg c/u)">${redondear2(totalBasica).toFixed(2)}</td>
+      <td data-label="Familiar (kg c/u)">${redondear2(totalFamiliar).toFixed(2)}</td>
     </tr>
   `;
 
   html += `
       <div class="table-scroll" style="margin-top:16px;">
-        <table>
+        <table class="mobile-cards">
           <thead>
             <tr>
               <th>Producto</th>
@@ -4883,7 +5367,7 @@ function renderRegalos() {
                   oninput="cambiarRegalo(${i}, 'producto', this.value)">
               </td>
               <td>
-                <input type="number" min="0" step="0.01" value="${r.cantidad}"
+                <input type="number" inputmode="decimal" min="0" step="0.01" value="${r.cantidad}"
                   oninput="cambiarRegalo(${i}, 'cantidad', this.value)">
               </td>
               <td>
@@ -4892,7 +5376,7 @@ function renderRegalos() {
                   oninput="cambiarRegalo(${i}, 'unidad', this.value)">
               </td>
               <td>
-                <input type="number" min="0" step="0.01" value="${r.precio || ""}"
+                <input type="number" inputmode="decimal" min="0" step="0.01" value="${r.precio || ""}"
                   placeholder="S/"
                   oninput="cambiarRegalo(${i}, 'precio', this.value)">
               </td>
@@ -5026,7 +5510,7 @@ function renderGastosRonda() {
 
   container.innerHTML = `
     <div class="table-scroll">
-      <table>
+      <table class="mobile-cards">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -5040,31 +5524,31 @@ function renderGastosRonda() {
         <tbody>
           ${gastosRonda.map((g, i) => `
             <tr>
-              <td>
+              <td data-label="Fecha">
                 <input type="date"
                   value="${escapeHTML(g.fecha || hoy)}"
                   oninput="actualizarGastoRonda(${i}, 'fecha', this.value)">
               </td>
-              <td>
+              <td data-label="Tipo">
                 <select onchange="actualizarGastoRonda(${i}, 'tipo', this.value)">
                   ${tipos.map(t => `
                     <option value="${t.v}" ${g.tipo === t.v ? "selected" : ""}>${t.l}</option>
                   `).join("")}
                 </select>
               </td>
-              <td>
+              <td data-label="Descripción">
                 <input type="text"
                   value="${escapeHTML(g.descripcion || "")}"
                   placeholder="Ej. Movilidad al mercado"
                   oninput="actualizarGastoRonda(${i}, 'descripcion', this.value)">
               </td>
-              <td>
-                <input type="number" min="0" step="0.01"
+              <td data-label="Monto (S/)">
+                <input type="number" inputmode="decimal" min="0" step="0.01"
                   value="${g.monto || ""}"
                   placeholder="S/"
                   oninput="actualizarGastoRonda(${i}, 'monto', this.value)">
               </td>
-              <td>
+              <td data-label="Medio de pago">
                 <select onchange="actualizarGastoRonda(${i}, 'medio_pago', this.value)">
                   ${medios.map(m => `
                     <option value="${m.v}" ${g.medio_pago === m.v ? "selected" : ""}>${m.l}</option>
@@ -5178,7 +5662,7 @@ function renderExcedentesRonda() {
 
   container.innerHTML = `
     <div class="table-scroll">
-      <table>
+      <table class="mobile-cards">
         <thead>
           <tr>
             <th>Descripción</th>
@@ -5189,14 +5673,14 @@ function renderExcedentesRonda() {
         <tbody>
           ${excedentesRonda.map((e, i) => `
             <tr>
-              <td>
+              <td data-label="Descripción">
                 <input type="text"
                   value="${escapeHTML(e.descripcion || "")}"
                   placeholder="Ej. Venta merma a restaurante"
                   oninput="actualizarExcedenteRonda(${i}, 'descripcion', this.value)">
               </td>
-              <td>
-                <input type="number" min="0" step="0.01"
+              <td data-label="Ingreso (S/)">
+                <input type="number" inputmode="decimal" min="0" step="0.01"
                   value="${e.ingreso || ""}"
                   placeholder="S/"
                   oninput="actualizarExcedenteRonda(${i}, 'ingreso', this.value)">
@@ -5408,7 +5892,6 @@ let _timeoutGuardarRegalos = null;
 
 async function guardarCompraFinalEnN8N() {
 
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) {
     const msg = `<div class="result-warning">🧊 Modo congelado: no se guarda en n8n.</div>`;
     const r1 = document.getElementById("resultadoGuardarCompra");
@@ -5566,7 +6049,6 @@ async function guardarCompraFinalEnN8N() {
 async function cargarCompraFinalDeRonda(ronda) {
 
   if (!ronda) return;
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) return;
 
   try {
@@ -5974,7 +6456,6 @@ function calcularReportes() {
 
 async function guardarSnapshotReporte() {
 
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) {
     alert("No se pueden guardar snapshots en modo congelado.");
     return;
@@ -6150,7 +6631,6 @@ function descargarReporteJSON() {
 
 async function cargarHistorialReportes() {
 
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) return;
 
   try {
@@ -6230,7 +6710,7 @@ function renderReporteDesdeSnapshot(snapshot) {
 
 
 /* =====================================================
-FIX ENTREGAS — VISTA ENTREGAS
+FIX ENTREGAS — VISTA ENTREGAS (con BUG B corregido)
 ===================================================== */
 
 function renderEntregas() {
@@ -6252,14 +6732,12 @@ function renderEntregas() {
     return;
   }
 
+  // CONGELAR: BUG B — la sección estática #entregasNotice ya no repite inventario
   const notice = document.getElementById("entregasNotice");
   if (notice) {
     notice.innerHTML = `
       Ingresá el <strong>peso final en kg</strong> de cada pedido aceptado: básica, semilla y familiar.
       Se guarda solo el registro de lo entregado.
-      <br><br>
-      Los kg que no se entregaron quedan en <strong>inventario</strong>.
-      No se pierden: se usan en la próxima ronda o se venden como excedente.
     `;
   }
 
@@ -6276,7 +6754,6 @@ function renderEntregas() {
 
   aceptados.forEach(p => {
 
-    /* FIX ENTREGAS: usar clave canónica + lookup con cascada */
     const claveGuardado = claveEntregaPedido(p);
     const entrega = obtenerEntregaDePedido(p);
 
@@ -6293,8 +6770,6 @@ function renderEntregas() {
     const estadoClase = tienePesos ? "guardado" : "falta";
     const estadoTexto = tienePesos ? "guardado" : "falta";
 
-    /* data-pedido guarda la clave canónica para el POST posterior.
-       Si no hay clave (ni fs, ni id, ni cliente), deshabilitamos guardado. */
     const puedeGuardar = !!claveGuardado;
 
     filas += `
@@ -6310,15 +6785,16 @@ function renderEntregas() {
         </td>
       </tr>
       <tr class="entregas-canasta-fila">
-        <td>
+        <td data-label="Canasta">
           <span class="tipo-canasta tipo-semilla">
             Semilla (${s})
           </span>
         </td>
-        <td>
+        <td data-label="Peso final (kg)">
           <input
             class="entregas-input-peso"
             type="number"
+            inputmode="decimal"
             step="0.1"
             min="0"
             placeholder="kg"
@@ -6332,15 +6808,16 @@ function renderEntregas() {
         <td></td><td></td><td></td><td></td>
       </tr>
       <tr class="entregas-canasta-fila">
-        <td>
+        <td data-label="Canasta">
           <span class="tipo-canasta tipo-basica">
             Básica (${b})
           </span>
         </td>
-        <td>
+        <td data-label="Peso final (kg)">
           <input
             class="entregas-input-peso"
             type="number"
+            inputmode="decimal"
             step="0.1"
             min="0"
             placeholder="kg"
@@ -6354,15 +6831,16 @@ function renderEntregas() {
         <td></td><td></td><td></td><td></td>
       </tr>
       <tr class="entregas-canasta-fila">
-        <td>
+        <td data-label="Canasta">
           <span class="tipo-canasta tipo-familiar">
             Familiar (${f})
           </span>
         </td>
-        <td>
+        <td data-label="Peso final (kg)">
           <input
             class="entregas-input-peso"
             type="number"
+            inputmode="decimal"
             step="0.1"
             min="0"
             placeholder="kg"
@@ -6424,7 +6902,7 @@ function renderEntregas() {
   cont.innerHTML = `
     ${avisoCompra}
     <div class="table-scroll">
-      <table>
+      <table class="mobile-cards">
         <thead>
           <tr>
             <th>Canasta</th>
@@ -6481,7 +6959,6 @@ function limpiarEntrega(clavePedido, tipoCanasta) {
 
 async function guardarEntregasEnN8N() {
 
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) {
     const cont = document.getElementById("resultadoGuardarEntregas");
     if (cont) cont.innerHTML = `<div class="result-warning">🧊 Modo congelado: no se guarda en n8n.</div>`;
@@ -6510,12 +6987,9 @@ async function guardarEntregasEnN8N() {
   try {
     const promesas = pedidosConPeso.map(([clave, e]) => {
 
-      /* Extraer el pedido_id real para el POST a n8n.
-         Preferencia: fs:<firestore_id>  →  id:<id>  →  ccr:<...>  */
       let pedidoIdParaN8N = clave;
       if (clave.startsWith("fs:")) pedidoIdParaN8N = clave.slice(3);
       else if (clave.startsWith("id:")) pedidoIdParaN8N = clave.slice(3);
-      /* si es ccr: no podemos mandar firestore_id; mandamos la clave para que n8n loguee */
 
       return fetch(API_ENTREGAS_GUARDAR, {
         method: "POST",
@@ -6570,7 +7044,6 @@ async function guardarEntregasEnN8N() {
 async function cargarEntregasDeRonda(ronda) {
 
   if (!ronda) return;
-  // CONGELAR: no llamar a n8n en modo congelado
   if (modoCongelado) return;
 
   try {
@@ -6594,7 +7067,6 @@ async function cargarEntregasDeRonda(ronda) {
         guardado: true
       };
 
-      /* FIX ENTREGAS: guardar bajo TODAS las claves posibles */
       if (fila.pedido_firestore_id) {
         nuevoMapa["fs:" + String(fila.pedido_firestore_id)] = pesos;
       }
@@ -6630,7 +7102,6 @@ ELIMINAR RONDA ACTIVA
 
 async function eliminarRondaActiva() {
 
-  // CONGELAR: no permitir eliminar rondas en modo congelado
   if (modoCongelado) {
     alert("No se pueden eliminar rondas en modo congelado.\nDescongelá primero.");
     return;
@@ -6760,15 +7231,12 @@ async function eliminarRondaActiva() {
 INICIO
 ===================================================== */
 
-/* CONGELAR: verificar si hay foto congelada al iniciar */
 const hayFotoCongelada = cargarFotoCongelada();
 
 if (hayFotoCongelada) {
   // Modo congelado: cargar solo desde la foto, sin llamar a n8n
-  // Mostrar vista Compra por defecto
   mostrarVista("compra");
 
-  // Inicializar UI con los datos de la foto
   asegurarDistribucion();
   refrescarSelectorRondas();
   renderPreciosRonda();
@@ -6776,15 +7244,12 @@ if (hayFotoCongelada) {
   renderProductos();
   renderDistribucion();
 
-  // Actualizar todo con los datos locales
   actualizarTodo();
 
-  // Calcular compra automáticamente si es posible
   if (rondaActiva && obtenerAceptadosRonda().length) {
     calcularCompra();
   }
 
-  // Renderizar resumen financiero
   renderResumenFinancieroAmpliado();
 
   console.log("🧊 Modo congelado activo — ronda:", rondaActiva);
@@ -6792,6 +7257,9 @@ if (hayFotoCongelada) {
 } else {
   // Modo normal: cargar configuración y llamar a n8n
   cargarConfiguracion();
+
+  // CONGELAR: aplicar 9 esenciales por defecto si ninguno está marcado
+  aplicarEsencialesPorDefectoSiHaceFalta();
 
   cargarDistribucionDeRonda();
   asegurarDistribucion();
