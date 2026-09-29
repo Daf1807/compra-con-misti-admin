@@ -800,6 +800,26 @@ td { font-size: 14px; }
   .fin-result { page-break-inside: avoid; }
   .fin-result.good { background: #e8f5e9 !important; }
   .fin-result.bad  { background: #f8d7da !important; }
+
+  /* ═══════════════════════════════════════════════════════
+     NUEVO — Impresión de hoja de empaque (TAREA 3, OPCIÓN A)
+     ═══════════════════════════════════════════════════════ */
+  body.print-empaque #view-compra   { display: block !important; }
+  body.print-empaque #view-reportes { display: none !important; }
+  body.print-empaque .roundbar,
+  body.print-empaque .topbar,
+  body.print-empaque .sidebar,
+  body.print-empaque .btn-detail    { display: none !important; }
+
+  body.print-empaque #view-compra > .section > h2,
+  body.print-empaque #view-compra > .section > p,
+  body.print-empaque #view-compra .flow-strip,
+  body.print-empaque #view-compra .formula-box,
+  body.print-empaque #view-compra .info-box,
+  body.print-empaque #view-compra .btn-calculate,
+  body.print-empaque #view-compra .purchase-section:not(#seccionEmpaquetamiento) {
+    display: none !important;
+  }
 }
 
 </style>
@@ -3782,6 +3802,28 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
+  /* ---------- NUEVO (TAREA 2): Peso objetivo por canasta ---------- */
+  html += `
+      <div class="summary-grid" style="margin-top:14px;">
+        <div class="summary-box">
+          Peso objetivo · Semilla
+          <strong>${redondear2(totalSemilla).toFixed(2)} kg</strong>
+        </div>
+        <div class="summary-box">
+          Peso objetivo · Básica
+          <strong>${redondear2(totalBasica).toFixed(2)} kg</strong>
+        </div>
+        <div class="summary-box">
+          Peso objetivo · Familiar
+          <strong>${redondear2(totalFamiliar).toFixed(2)} kg</strong>
+        </div>
+      </div>
+      <div class="small-note" style="margin-top:8px;">
+        Al cerrar cada canasta, debe pesar aproximadamente estos kg.
+        Los valores salen de la Compra final y se actualizan si editás una cantidad.
+      </div>
+  `;
+
   /* ---------- c) Tabla de verificación ---------- */
   let filasVerif = "";
   let alerta = false;
@@ -3842,16 +3884,30 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- e) Botón de imprimir (opcional) ---------- */
+  /* ---------- e) Botón de imprimir (TAREA 3, OPCIÓN A) ---------- */
   html += `
       <div class="actions" style="margin-top:12px;">
-        <button class="btn-detail" onclick="window.print()">🖨 Imprimir hoja de empaque</button>
+        <button class="btn-detail" onclick="imprimirHojaEmpaque()">🖨 Imprimir hoja de empaque</button>
       </div>
   `;
 
   html += `</div>`;
 
   return html;
+}
+
+
+/* =====================================================
+TAREA 3 — Imprimir hoja de empaque (OPCIÓN A)
+===================================================== */
+
+function imprimirHojaEmpaque() {
+  document.body.classList.add('print-empaque');
+  window.print();
+  /* setTimeout para que el navegador termine de disparar el diálogo antes de limpiar */
+  setTimeout(() => {
+    document.body.classList.remove('print-empaque');
+  }, 300);
 }
 
 
@@ -5063,25 +5119,34 @@ function renderCuadrosReporte(data) {
   `;
 
   /* -------- CUADRO 1: P&L -------- */
+  /* TAREA 1 — campos nuevos con fallback a 0 para snapshots viejos */
+  const ingAlimentos    = (ing.alimentos    !== undefined) ? Number(ing.alimentos)    : 0;
+  const ingCoordinacion = (ing.coordinacion !== undefined) ? Number(ing.coordinacion) : 0;
+  const margenAlimentos    = (pl.margen_alimentos    !== undefined) ? Number(pl.margen_alimentos)    : 0;
+  const margenCoordinacion = (pl.margen_coordinacion !== undefined) ? Number(pl.margen_coordinacion) : 0;
+
   html += `
     <div class="reporte-cuadro">
       <h3>📈 Estado de Resultados (P&L)</h3>
       <table class="reporte-tabla">
+
         <tr><td class="titulo-seccion" colspan="2">INGRESOS</td></tr>
-        <tr><td class="concepto">Canastas aceptadas</td><td class="monto">${soles(ing.canastas)}</td></tr>
+        <tr><td class="concepto">Canastas cobradas (precio completo)</td><td class="monto">${soles(ing.canastas)}</td></tr>
         <tr><td class="concepto">Excedentes</td><td class="monto">${soles(ing.excedentes)}</td></tr>
         <tr><td class="concepto subtotal">TOTAL INGRESOS</td><td class="monto subtotal">${soles(ing.total)}</td></tr>
 
-        <tr><td class="titulo-seccion" colspan="2">COGS</td></tr>
+        <tr><td class="titulo-seccion" colspan="2">COSTO DE ALIMENTOS</td></tr>
         <tr><td class="concepto">Compra a proveedor</td><td class="monto">(${soles(cogs.compras)})</td></tr>
-        <tr><td class="concepto subtotal">MARGEN BRUTO</td><td class="monto subtotal">${soles(pl.margen_bruto)}</td></tr>
+        <tr><td class="concepto subtotal">MARGEN DE ALIMENTOS</td><td class="monto subtotal">${soles(margenAlimentos)}</td></tr>
 
-        <tr><td class="titulo-seccion" colspan="2">GASTOS OPERATIVOS</td></tr>
-        <tr><td class="concepto">Transporte</td><td class="monto">(${soles(gastos.transporte)})</td></tr>
-        <tr><td class="concepto">Empaque</td><td class="monto">(${soles(gastos.empaque)})</td></tr>
-        <tr><td class="concepto">Sueldo</td><td class="monto">(${soles(gastos.sueldo)})</td></tr>
-        <tr><td class="concepto">Otro</td><td class="monto">(${soles(gastos.otro)})</td></tr>
-        <tr><td class="concepto subtotal">TOTAL GASTOS</td><td class="monto subtotal">(${soles(gastos.total)})</td></tr>
+        <tr><td class="titulo-seccion" colspan="2">CUOTA DE COORDINACIÓN</td></tr>
+        <tr><td class="concepto">Cuota cobrada</td><td class="monto">${soles(ingCoordinacion)}</td></tr>
+        <tr><td class="concepto" style="padding-left:22px;">Transporte</td><td class="monto">(${soles(gastos.transporte)})</td></tr>
+        <tr><td class="concepto" style="padding-left:22px;">Empaque</td><td class="monto">(${soles(gastos.empaque)})</td></tr>
+        <tr><td class="concepto" style="padding-left:22px;">Sueldo</td><td class="monto">(${soles(gastos.sueldo)})</td></tr>
+        <tr><td class="concepto" style="padding-left:22px;">Otro</td><td class="monto">(${soles(gastos.otro)})</td></tr>
+        <tr><td class="concepto" style="padding-left:22px;">TOTAL GASTOS</td><td class="monto">(${soles(gastos.total)})</td></tr>
+        <tr><td class="concepto subtotal">MARGEN DE COORDINACIÓN</td><td class="monto subtotal">${soles(margenCoordinacion)}</td></tr>
 
         <tr><td class="titulo-seccion" colspan="2">RESULTADO</td></tr>
         <tr><td class="concepto">EBIT</td><td class="monto">${soles(pl.ebit)}</td></tr>
@@ -5180,9 +5245,21 @@ function calcularReportes() {
     String(p.estado || '').toLowerCase() === 'aceptado' &&
     String(p.ronda_id || '') === String(rondaActiva)
   );
-  const canastas = aceptados.reduce((s, p) => s + Number(p.total_solicitado || 0), 0);
 
-  const ingresosExcedentes = excedentesRonda.reduce((s, e) => s + Number(e.ingreso || 0), 0);
+  /* TAREA 1 — Canastas cobradas a precio completo */
+  const canastasPrecioCompleto = aceptados.reduce(
+    (s, p) => s + Number(p.total_solicitado || 0), 0
+  );
+
+  /* TAREA 1 — Cuota de coordinación (lo que cubre gastos operativos) */
+  const cuotaCoordinacion = Number(r.datos.operaciones) || 0;
+
+  /* TAREA 1 — Ingresos de alimentos = precio completo - cuota de coordinación */
+  const ingresosAlimentos = canastasPrecioCompleto - cuotaCoordinacion;
+
+  const ingresosExcedentes = excedentesRonda.reduce(
+    (s, e) => s + Number(e.ingreso || 0), 0
+  );
 
   const comprasTotal = r.costoEsencialesReal + r.regalosTotal;
 
@@ -5195,21 +5272,26 @@ function calcularReportes() {
   });
   const gastosTotal = Object.values(gastosPorTipo).reduce((s, v) => s + v, 0);
 
-  const totalIngresos = canastas + ingresosExcedentes;
-  const margenBruto = totalIngresos - comprasTotal;
-  const ebit = margenBruto - gastosTotal;
-  const impuestos = ebit > 0 ? r2(ebit * 0.015) : 0;
-  const utilidadNeta = r2(ebit - impuestos);
+  /* TAREA 1 — Márgenes separados (solo presentación) */
+  const margenAlimentos    = ingresosAlimentos - comprasTotal;
+  const margenCoordinacion = cuotaCoordinacion - gastosTotal;
 
-  const cfo = canastas + ingresosExcedentes - comprasTotal - gastosTotal;
+  /* Totales clásicos (NO cambian de significado) */
+  const totalIngresos = canastasPrecioCompleto + ingresosExcedentes;
+  const margenBruto   = totalIngresos - comprasTotal;
+  const ebit          = margenBruto - gastosTotal;
+  const impuestos     = ebit > 0 ? r2(ebit * 0.015) : 0;
+  const utilidadNeta  = r2(ebit - impuestos);
+
+  const cfo = canastasPrecioCompleto + ingresosExcedentes - comprasTotal - gastosTotal;
   const cfi = 0;
   const cff = 0;
-  const deltaCaja = cfo + cfi + cff;
+  const deltaCaja  = cfo + cfi + cff;
   const cajaInicial = 0;
-  const cajaFinal = cajaInicial + deltaCaja;
+  const cajaFinal   = cajaInicial + deltaCaja;
 
-  const activosTotal = cajaFinal;
-  const pasivosTotal = 0;
+  const activosTotal    = cajaFinal;
+  const pasivosTotal    = 0;
   const patrimonioTotal = activosTotal - pasivosTotal;
   const cuadra = Math.abs(activosTotal - (pasivosTotal + patrimonioTotal)) < 0.01;
 
@@ -5218,46 +5300,53 @@ function calcularReportes() {
     fecha_calculo: new Date().toISOString(),
     pl: {
       ingresos: {
-        canastas: r2(canastas),
+        /* Campos viejos — NO tocar su significado */
+        canastas:  r2(canastasPrecioCompleto),
         excedentes: r2(ingresosExcedentes),
-        total: r2(totalIngresos)
+        total:     r2(totalIngresos),
+        /* Campos nuevos (solo presentación) */
+        alimentos:    r2(ingresosAlimentos),
+        coordinacion: r2(cuotaCoordinacion)
       },
       cogs: { compras: r2(comprasTotal), total: r2(comprasTotal) },
-      margen_bruto: r2(margenBruto),
+      margen_bruto: r2(margenBruto),   /* NO cambia de significado */
       gastos: {
         transporte: r2(gastosPorTipo.transporte),
-        empaque: r2(gastosPorTipo.empaque),
-        sueldo: r2(gastosPorTipo.sueldo),
-        otro: r2(gastosPorTipo.otro),
-        total: r2(gastosTotal)
+        empaque:    r2(gastosPorTipo.empaque),
+        sueldo:     r2(gastosPorTipo.sueldo),
+        otro:       r2(gastosPorTipo.otro),
+        total:      r2(gastosTotal)
       },
       ebit: r2(ebit),
       impuestos: r2(impuestos),
-      utilidad_neta: r2(utilidadNeta)
+      utilidad_neta: r2(utilidadNeta),
+      /* Márgenes separados (solo presentación) */
+      margen_alimentos:    r2(margenAlimentos),
+      margen_coordinacion: r2(margenCoordinacion)
     },
     flujo: {
       cfo: {
-        cobros: r2(canastas),
-        excedentes: r2(ingresosExcedentes),
+        cobros:          r2(canastasPrecioCompleto),
+        excedentes:      r2(ingresosExcedentes),
         pagos_proveedor: r2(comprasTotal),
-        pagos_gastos: r2(gastosTotal),
-        total: r2(cfo)
+        pagos_gastos:    r2(gastosTotal),
+        total:           r2(cfo)
       },
       cfi: { total: cfi },
       cff: { aportes: 0, retiros: 0, total: cff },
       variacion: {
-        delta_caja: r2(deltaCaja),
+        delta_caja:  r2(deltaCaja),
         caja_inicial: cajaInicial,
-        caja_final: r2(cajaFinal)
+        caja_final:   r2(cajaFinal)
       }
     },
     balance: {
       activos: {
-        caja: r2(cajaFinal),
+        caja:       r2(cajaFinal),
         inventario: 0,
-        cxc: 0,
-        equipo: 0,
-        total: r2(activosTotal)
+        cxc:        0,
+        equipo:     0,
+        total:      r2(activosTotal)
       },
       pasivos: { cxp: 0, ingresos_diferidos: 0, total: pasivosTotal },
       patrimonio: {
