@@ -985,6 +985,7 @@ tbody tr:hover { background: #F4FBF6; }
   #view-configuracion,
   #view-compra,
   #view-cierre,
+  #view-entregas,
   .modal,
   .nav-btn,
   .btn-refresh,
@@ -1052,6 +1053,94 @@ tbody tr:hover { background: #F4FBF6; }
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   NUEVO — VISTA ENTREGAS (solo estilos agregados)
+   ═══════════════════════════════════════════════════════ */
+
+.entregas-pedido-fila {
+  background: var(--crema);
+  font-weight: 700;
+}
+.entregas-pedido-fila td {
+  border-bottom: 1px solid var(--borde);
+}
+.entregas-canasta-fila td {
+  padding-left: 28px;
+  background: var(--blanco);
+}
+.entregas-canasta-fila .tipo-canasta {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.tipo-semilla  { background: var(--verde-claro); color: var(--verde); }
+.tipo-basica   { background: var(--miel-2); color: #7A5500; }
+.tipo-familiar { background: #FFE0E1; color: #C93A3F; }
+
+.entregas-input-peso {
+  width: 110px;
+  text-align: right;
+  font-weight: 700;
+}
+
+.entregas-dif-ok    { color: var(--verde); font-weight: 700; }
+.entregas-dif-alto  { color: var(--naranja); font-weight: 700; }
+.entregas-dif-bajo  { color: var(--coral); font-weight: 700; }
+
+.entregas-total-box {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: var(--sombra-sm);
+}
+
+.entregas-total-box h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  color: var(--verde);
+}
+
+.entregas-total-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.entregas-total-grid .box {
+  background: var(--crema);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 14px;
+  font-size: 12px;
+  color: var(--texto-2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.entregas-total-grid .box strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 22px;
+  color: var(--texto);
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: -.01em;
+}
+.entregas-total-grid .box.positivo strong { color: var(--verde); }
+.entregas-total-grid .box.negativo strong { color: var(--coral); }
+
+@media(max-width:1000px) {
+  .entregas-total-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width:600px) {
+  .entregas-total-grid { grid-template-columns: 1fr; }
+}
+
 </style>
 
 </head>
@@ -1078,6 +1167,7 @@ tbody tr:hover { background: #F4FBF6; }
     <button class="nav-btn"        data-view="pedidos"       onclick="mostrarVista('pedidos')">🧾 Pedidos</button>
     <button class="nav-btn"        data-view="configuracion" onclick="mostrarVista('configuracion')">⚙️ Configuración</button>
     <button class="nav-btn"        data-view="compra"        onclick="mostrarVista('compra')">🛒 Compra</button>
+    <button class="nav-btn"        data-view="entregas"      onclick="mostrarVista('entregas')">📦 Entregas</button>
     <button class="nav-btn"        data-view="cierre"        onclick="mostrarVista('cierre')">🔒 Cierre</button>
     <button class="nav-btn"        data-view="reportes"      onclick="mostrarVista('reportes')">📊 Reportes</button>
   </nav>
@@ -1449,6 +1539,43 @@ tbody tr:hover { background: #F4FBF6; }
     </section>
 
     <!-- ══════════════════════════════════════════════════
+         VISTA NUEVA — ENTREGAS
+         ══════════════════════════════════════════════════ -->
+    <section class="view" id="view-entregas">
+      <div class="section">
+        <h2 class="section-head">📦 Entregas de la ronda</h2>
+        <p class="section-sub">
+          Peso real entregado por cada canasta individual. Se compara con el peso
+          objetivo que sale del empaquetamiento.
+        </p>
+
+        <div class="anchor-notice">
+          Ingresá el <strong>peso real en kg</strong> de cada canasta entregada.
+          Al final vas a ver el total entregado vs. comprado, y el sobrante o faltante
+          en kg y en S/ (usando el costo promedio por kg de la compra).
+          <br><br>
+          El sobrante en S/ <strong>no se suma automáticamente a excedentes</strong>:
+          si querés, cargalo a mano en la vista Compra → sección Excedentes.
+        </div>
+
+        <div id="entregasContenido">
+          <div class="small-note">Calculá primero la compra de la ronda para ver los pesos objetivo.</div>
+        </div>
+
+        <div class="actions" style="gap:10px; flex-wrap:wrap; margin-top:18px;">
+          <button class="btn-accept" onclick="guardarEntregasEnN8N()">
+            💾 Guardar entregas en n8n
+          </button>
+          <button class="btn-refresh" onclick="cargarEntregasDeRonda(rondaActiva)">
+            ↻ Cargar entregas guardadas
+          </button>
+        </div>
+
+        <div id="resultadoGuardarEntregas" style="margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════
          VISTA 5 — CIERRE
          ══════════════════════════════════════════════════ -->
     <section class="view" id="view-cierre">
@@ -1456,7 +1583,7 @@ tbody tr:hover { background: #F4FBF6; }
       <div class="section">
         <h2 class="section-head">Resumen financiero ampliado</h2>
         <p class="section-sub">
-          Resultado neto = saldo real − gastos operativos + ingresos por excedentes.
+          Resultado neto = saldo real + cuota de coordinación − gastos operativos + ingresos por excedentes.
         </p>
 
         <div id="resumenFinancieroAmpliado">
@@ -1610,6 +1737,13 @@ const API_REPORTES_GUARDAR =
 const API_REPORTES_HISTORIAL =
 "https://msi.tail124b59.ts.net/webhook/admin-reportes-historial";
 
+/* APIs NUEVAS — Entregas */
+const API_ENTREGAS_GUARDAR =
+"https://msi.tail124b59.ts.net/webhook/admin-entregas-guardar";
+
+const API_ENTREGAS_GET =
+"https://msi.tail124b59.ts.net/webhook/admin-entregas";
+
 let pedidos = [];
 
 
@@ -1757,6 +1891,10 @@ let rondasEliminadas = [];
 let gastosRonda = [];
 let excedentesRonda = [];
 
+/* NUEVO — entregas de la ronda activa
+   [{ pedido_id, tipo_canasta, peso_real }] */
+let entregasRonda = [];
+
 /* cache del último mensaje de guardado (para sincronizar vistas) */
 let ultimoMensajeGuardado = "";
 
@@ -1804,6 +1942,11 @@ function mostrarVista(nombre) {
   if (nombre === "reportes") {
     renderReportes();
   }
+
+  /* NUEVO — al abrir Entregas, renderizar la vista */
+  if (nombre === "entregas") {
+    renderEntregas();
+  }
 }
 
 
@@ -1844,7 +1987,10 @@ function guardarConfiguracion() {
       rondasEliminadas: [...rondasEliminadas],
 
       gastosRonda: [...gastosRonda],
-      excedentesRonda: [...excedentesRonda]
+      excedentesRonda: [...excedentesRonda],
+
+      /* NUEVO — entregas */
+      entregasRonda: [...entregasRonda]
     };
 
     localStorage.setItem(
@@ -1919,6 +2065,15 @@ function cargarConfiguracion() {
         fecha: e.fecha || "",
         descripcion: e.descripcion || "",
         ingreso: Number(e.ingreso) || 0
+      }));
+    }
+
+    /* NUEVO — cargar entregas */
+    if (Array.isArray(datos.entregasRonda)) {
+      entregasRonda = datos.entregasRonda.map(e => ({
+        pedido_id: e.pedido_id,
+        tipo_canasta: e.tipo_canasta || "",
+        peso_real: Number(e.peso_real) || 0
       }));
     }
 
@@ -2857,6 +3012,8 @@ function cambiarRondaActiva(valor) {
 
   gastosRonda = [];
   excedentesRonda = [];
+  /* NUEVO — resetear entregas al cambiar de ronda */
+  entregasRonda = [];
 
   reporteActual = null;
   rondaReporteActiva = "";
@@ -2877,6 +3034,8 @@ function cambiarRondaActiva(valor) {
 
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
+    /* NUEVO — cargar entregas de la ronda */
+    cargarEntregasDeRonda(rondaActiva);
   } else {
     regalos = [];
     adicionales = {};
@@ -2900,6 +3059,12 @@ function cambiarRondaActiva(valor) {
   }
 
   if (typeof renderReportes === "function") renderReportes();
+
+  /* NUEVO — si la vista activa es Entregas, refrescarla */
+  if (document.getElementById("view-entregas") &&
+      document.getElementById("view-entregas").classList.contains("active")) {
+    renderEntregas();
+  }
 }
 
 
@@ -2960,6 +3125,8 @@ function crearNuevaRonda() {
 
   gastosRonda = [];
   excedentesRonda = [];
+  /* NUEVO — resetear entregas */
+  entregasRonda = [];
 
   reporteActual = null;
   rondaReporteActiva = "";
@@ -3413,6 +3580,7 @@ function generarJSONCompra() {
       regalos: JSON.parse(JSON.stringify(regalosActuales)),
       gastos_ronda: JSON.parse(JSON.stringify(gastosRonda)),
       excedentes_ronda: JSON.parse(JSON.stringify(excedentesRonda)),
+      entregas_ronda: JSON.parse(JSON.stringify(entregasRonda)),
       compra: resultadoCompra
         ? JSON.parse(JSON.stringify(resultadoCompra))
         : null,
@@ -4054,56 +4222,6 @@ function htmlEmpaquetamiento(r) {
       </div>
   `;
 
-  /* ---------- c) Tabla de verificación ---------- */
-  let filasVerif = "";
-  let alerta = false;
-
-  resultados.forEach(p => {
-
-    const compraFinal = Number(p.compraFinal) || 0;
-    const kgPorEquivalente = compraFinal / equivalentesSemilla;
-
-    const kgSemilla  = kgPorEquivalente * FACTOR_SEMILLA;
-    const kgBasica   = kgPorEquivalente * FACTOR_BASICA;
-    const kgFamiliar = kgPorEquivalente * FACTOR_FAMILIAR;
-
-    const repartido = kgSemilla * semillas +
-                      kgBasica * basicas +
-                      kgFamiliar * familiares;
-
-    const diferencia = redondear2(compraFinal - repartido);
-
-    const claseAlerta = Math.abs(diferencia) > 0.01 ? ' class="fila-alerta"' : '';
-    if (Math.abs(diferencia) > 0.01) alerta = true;
-
-    filasVerif += `
-      <tr${claseAlerta}>
-        <td>${escapeHTML(p.nombre)}</td>
-        <td>${redondear2(compraFinal).toFixed(2)}</td>
-        <td>${redondear2(repartido).toFixed(2)}</td>
-        <td>${diferencia.toFixed(2)}</td>
-      </tr>
-    `;
-  });
-
-  html += `
-      <div class="table-scroll" style="margin-top:16px;">
-        <table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Comprado (kg)</th>
-              <th>Repartido (kg)</th>
-              <th>Diferencia</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filasVerif}
-          </tbody>
-        </table>
-      </div>
-  `;
-
   /* ---------- d) Nota pequeña ---------- */
   html += `
       <div class="small-note" style="margin-top:12px;">
@@ -4214,6 +4332,10 @@ function renderResultadoCompra() {
             <span class="val" id="resumenPresupuesto">${soles(r.datos.alimentos)}</span>
           </div>
           <div class="row">
+            <span>Cuota de coordinación</span>
+            <span class="val" id="resumenCuotaCoordinacion">${soles(r.datos.operaciones)}</span>
+          </div>
+          <div class="row">
             <span>Ingresos por excedentes</span>
             <span class="val" id="resumenExcedentes">${soles(totalExcedentesRonda())}</span>
           </div>
@@ -4242,11 +4364,11 @@ function renderResultadoCompra() {
       </div>
 
       <span class="purchase-total">Resultado neto:</span>
-      <strong id="resumenResultadoNeto" class="live-balance">${soles(r.saldoReal - totalGastosRonda() + totalExcedentesRonda())}</strong>
+      <strong id="resumenResultadoNeto" class="live-balance">${soles(r.saldoReal + r.datos.operaciones - totalGastosRonda() + totalExcedentesRonda())}</strong>
       <br><br>
       <em class="small-note">
-        Resultado neto = saldo real − gastos + excedentes.<br>
-        Saldo real (sin gastos/excedentes): <span id="resumenSaldo">${soles(r.saldoReal)}</span>
+        Resultado neto = saldo real + cuota de coordinación − gastos + excedentes.<br>
+        Saldo real (sin cuota/gastos/excedentes): <span id="resumenSaldo">${soles(r.saldoReal)}</span>
       </em>
     </div>
   `;
@@ -4301,9 +4423,11 @@ function actualizarDOMCompraEnVivo() {
 
   const gastosTot = (typeof totalGastosRonda === "function") ? totalGastosRonda() : 0;
   const excedTot  = (typeof totalExcedentesRonda === "function") ? totalExcedentesRonda() : 0;
-  const resultadoNeto = r.saldoReal - gastosTot + excedTot;
+  /* FIX — ahora sí suma la cuota de coordinación */
+  const resultadoNeto = r.saldoReal + r.datos.operaciones - gastosTot + excedTot;
 
   const presupuesto  = document.getElementById("resumenPresupuesto");
+  const cuotaCoordEl = document.getElementById("resumenCuotaCoordinacion");
   const costoMinimo  = document.getElementById("resumenCostoMinimo");
   const costoEsencial = document.getElementById("resumenCostoEsencial");
   const costoRegalosEl = document.getElementById("resumenCostoRegalos");
@@ -4313,6 +4437,7 @@ function actualizarDOMCompraEnVivo() {
   const saldo        = document.getElementById("resumenSaldo");
 
   if (presupuesto)   presupuesto.textContent   = soles(r.datos.alimentos);
+  if (cuotaCoordEl)  cuotaCoordEl.textContent  = soles(r.datos.operaciones);
   if (costoMinimo)   costoMinimo.textContent   = soles(r.costoMinimoTotal);
   if (costoEsencial) costoEsencial.textContent = soles(r.costoEsencialesReal);
   if (costoRegalosEl) costoRegalosEl.textContent = soles(r.regalosTotal);
@@ -4357,9 +4482,13 @@ function renderResumenFinancieroAmpliado() {
   const excedentes = (typeof totalExcedentesRonda === "function")
     ? totalExcedentesRonda() : 0;
 
-  const ingresosTotales = r.datos.alimentos + excedentes;
+  const cuotaCoordinacion = Number(r.datos.operaciones) || 0;
+
+  /* FIX — la cuota de coordinación ahora entra en los recursos */
+  const ingresosTotales = r.datos.alimentos + cuotaCoordinacion + excedentes;
   const usosTotales     = r.costoEsencialesReal + r.regalosTotal + gastos;
-  const resultadoNeto   = r.saldoReal - gastos + excedentes;
+  /* FIX — fórmula correcta del neto */
+  const resultadoNeto   = r.saldoReal + cuotaCoordinacion - gastos + excedentes;
 
   const clase = resultadoNeto >= 0 ? "good" : "bad";
 
@@ -4378,7 +4507,7 @@ function renderResumenFinancieroAmpliado() {
         </div>
         <div class="fin-row">
           <span>Cuota de coordinación</span>
-          <span class="val">${soles(r.datos.operaciones)}</span>
+          <span class="val">${soles(cuotaCoordinacion)}</span>
         </div>
         <div class="fin-row">
           <span>Ingresos por excedentes</span>
@@ -4417,6 +4546,10 @@ function renderResumenFinancieroAmpliado() {
           <span class="val">${soles(r.saldoReal)}</span>
         </div>
         <div class="fin-row">
+          <span>+ Cuota de coordinación</span>
+          <span class="val">${soles(cuotaCoordinacion)}</span>
+        </div>
+        <div class="fin-row">
           <span>− Gastos operativos</span>
           <span class="val">${soles(-gastos)}</span>
         </div>
@@ -4438,7 +4571,7 @@ function renderResumenFinancieroAmpliado() {
     </div>
 
     <div class="small-note" style="margin-top:10px;">
-      Fórmula: <code>resultadoNeto = saldoReal − gastosOperativos + ingresosPorExcedentes</code>
+      Fórmula: <code>resultadoNeto = saldoReal + cuotaCoordinación − gastosOperativos + ingresosPorExcedentes</code>
     </div>
   `;
 }
@@ -4761,7 +4894,9 @@ function actualizarGastoRonda(index, campo, valor) {
 
   const netoEl = document.getElementById("resumenResultadoNeto");
   if (netoEl && window.ultimoResultadoCompra) {
+    /* FIX — ahora suma la cuota de coordinación */
     const neto = window.ultimoResultadoCompra.saldoReal
+      + window.ultimoResultadoCompra.datos.operaciones
       - totalGastosRonda()
       + totalExcedentesRonda();
     netoEl.textContent = soles(neto);
@@ -4888,7 +5023,9 @@ function actualizarExcedenteRonda(index, campo, valor) {
 
   const netoEl = document.getElementById("resumenResultadoNeto");
   if (netoEl && window.ultimoResultadoCompra) {
+    /* FIX — ahora suma la cuota de coordinación */
     const neto = window.ultimoResultadoCompra.saldoReal
+      + window.ultimoResultadoCompra.datos.operaciones
       - totalGastosRonda()
       + totalExcedentesRonda();
     netoEl.textContent = soles(neto);
@@ -4953,6 +5090,12 @@ function actualizarTodo() {
   if (document.getElementById("view-reportes") &&
       document.getElementById("view-reportes").classList.contains("active")) {
     renderReportes();
+  }
+
+  /* NUEVO — refrescar Entregas si está activa */
+  if (document.getElementById("view-entregas") &&
+      document.getElementById("view-entregas").classList.contains("active")) {
+    renderEntregas();
   }
 }
 
@@ -5853,6 +5996,373 @@ function renderReporteDesdeSnapshot(snapshot) {
 
 
 /* =====================================================
+NUEVO — VISTA ENTREGAS: RENDER + GUARDAR + CARGAR
+===================================================== */
+
+function _pesoObjetivoPorTipo(r) {
+  /* Devuelve { semilla, basica, familiar } con el kg objetivo por canasta,
+     calculado a partir de los resultados del empaquetamiento. */
+  const out = { semilla: 0, basica: 0, familiar: 0 };
+  if (!r || !r.resultadosEsenciales || !r.datos) return out;
+
+  const equivalentesSemilla = Number(r.datos.equivalentesSemilla) || 0;
+  if (equivalentesSemilla <= 0) return out;
+
+  let totalSemilla = 0, totalBasica = 0, totalFamiliar = 0;
+
+  r.resultadosEsenciales.forEach(p => {
+    const compraFinal = Number(p.compraFinal) || 0;
+    if (compraFinal <= 0) return;
+    const kgPorEq = compraFinal / equivalentesSemilla;
+    totalSemilla  += kgPorEq * FACTOR_SEMILLA;
+    totalBasica   += kgPorEq * FACTOR_BASICA;
+    totalFamiliar += kgPorEq * FACTOR_FAMILIAR;
+  });
+
+  out.semilla  = totalSemilla;
+  out.basica   = totalBasica;
+  out.familiar = totalFamiliar;
+  return out;
+}
+
+
+function _kgCompradosTotales(r) {
+  if (!r || !r.resultadosEsenciales) return 0;
+  return r.resultadosEsenciales.reduce(
+    (s, p) => s + (Number(p.compraFinal) || 0), 0
+  );
+}
+
+
+function _costoPromedioKg(r) {
+  const kg = _kgCompradosTotales(r);
+  if (kg <= 0) return 0;
+  return (Number(r.costoEsencialesReal) || 0) / kg;
+}
+
+
+function _buscarEntrega(pedidoId, tipoCanasta) {
+  return entregasRonda.find(e =>
+    String(e.pedido_id) === String(pedidoId) &&
+    String(e.tipo_canasta) === String(tipoCanasta)
+  );
+}
+
+
+function renderEntregas() {
+
+  const cont = document.getElementById("entregasContenido");
+  if (!cont) return;
+
+  if (!rondaActiva) {
+    cont.innerHTML =
+      `<div class="result-warning">Seleccioná una ronda en la barra superior.</div>`;
+    return;
+  }
+
+  if (!window.ultimoResultadoCompra) {
+    cont.innerHTML =
+      `<div class="result-warning">
+        Primero calculá la compra en la vista <strong>Compra</strong> para tener
+        los pesos objetivo de cada canasta.
+      </div>`;
+    return;
+  }
+
+  const r = window.ultimoResultadoCompra;
+  const aceptados = obtenerAceptadosRonda();
+
+  if (!aceptados.length) {
+    cont.innerHTML =
+      `<div class="result-warning">No hay pedidos aceptados en la ronda ${escapeHTML(rondaActiva)}.</div>`;
+    return;
+  }
+
+  const objetivo = _pesoObjetivoPorTipo(r);
+  const costoPromKg = _costoPromedioKg(r);
+  const kgComprados = _kgCompradosTotales(r);
+
+  /* ---- Tabla principal: fila pedido + subfilas canastas ---- */
+  let filas = "";
+
+  aceptados.forEach(p => {
+
+    const s = Number(p.canasta_semilla_cantidad || 0);
+    const b = Number(p.canasta_basica_cantidad || 0);
+    const f = Number(p.canasta_familiar_cantidad || 0);
+
+    const totalCanastasPedido = s + b + f;
+
+    filas += `
+      <tr class="entregas-pedido-fila">
+        <td colspan="6">
+          <strong>${escapeHTML(p.cliente || "Sin nombre")}</strong>
+          <span class="muted small-note" style="margin-left:8px;">
+            · Pedido #${escapeHTML(String(p.id))} · ${totalCanastasPedido} canasta(s)
+          </span>
+        </td>
+      </tr>
+    `;
+
+    const canastas = [];
+    for (let i = 0; i < s; i++) canastas.push({ tipo: "semilla",  idx: i+1, cant: s });
+    for (let i = 0; i < b; i++) canastas.push({ tipo: "basica",   idx: i+1, cant: b });
+    for (let i = 0; i < f; i++) canastas.push({ tipo: "familiar", idx: i+1, cant: f });
+
+    canastas.forEach(c => {
+
+      const pesoObj = objetivo[c.tipo] || 0;
+
+      /* Clave única: pedido_id + tipo + índice de canasta */
+      const tipoConIdx = c.tipo + "_" + c.idx;
+
+      const guardada = _buscarEntrega(p.id, tipoConIdx);
+      const pesoReal = guardada ? Number(guardada.peso_real) || 0 : "";
+
+      const difKg = pesoReal !== "" ? (Number(pesoReal) - pesoObj) : null;
+      const difS  = difKg !== null ? difKg * costoPromKg : null;
+
+      let claseDif = "";
+      if (difKg !== null) {
+        if (Math.abs(difKg) < 0.05) claseDif = "entregas-dif-ok";
+        else if (difKg > 0)          claseDif = "entregas-dif-alto";
+        else                         claseDif = "entregas-dif-bajo";
+      }
+
+      const etiquetaTipo =
+        c.tipo === "semilla"  ? "Semilla"  :
+        c.tipo === "basica"   ? "Básica"   :
+                                "Familiar";
+
+      filas += `
+        <tr class="entregas-canasta-fila">
+          <td>
+            <span class="tipo-canasta tipo-${c.tipo}">
+              ${etiquetaTipo} ${c.idx}/${c.cant}
+            </span>
+          </td>
+          <td>${redondear2(pesoObj).toFixed(2)} kg</td>
+          <td>
+            <input
+              class="entregas-input-peso"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="kg"
+              value="${pesoReal}"
+              data-pedido="${escapeHTML(String(p.id))}"
+              data-tipo="${escapeHTML(tipoConIdx)}"
+              oninput="actualizarEntrega('${escapeHTML(String(p.id))}', '${escapeHTML(tipoConIdx)}', this.value)"
+            >
+          </td>
+          <td class="${claseDif}">
+            ${difKg === null ? "—" : (difKg >= 0 ? "+" : "") + difKg.toFixed(2) + " kg"}
+          </td>
+          <td class="${claseDif}">
+            ${difS === null ? "—" : (difS >= 0 ? "+" : "") + soles(difS).replace("S/ ", "S/ ")}
+          </td>
+          <td>
+            <button class="btn-delete" onclick="limpiarEntrega('${escapeHTML(String(p.id))}', '${escapeHTML(tipoConIdx)}')" title="Borrar peso">×</button>
+          </td>
+        </tr>
+      `;
+    });
+  });
+
+  /* ---- Totales ---- */
+  const kgEntregados = entregasRonda.reduce(
+    (s, e) => s + (Number(e.peso_real) || 0), 0
+  );
+  const difKgTotal = kgEntregados - kgComprados;
+  const difSTotal  = difKgTotal * costoPromKg;
+
+  const claseTotal = Math.abs(difKgTotal) < 0.05
+    ? "positivo"
+    : (difKgTotal > 0 ? "positivo" : "negativo");
+
+  const totalHTML = `
+    <div class="entregas-total-box">
+      <h3>Totales de la ronda</h3>
+      <div class="entregas-total-grid">
+        <div class="box">
+          Kg comprados
+          <strong>${redondear2(kgComprados).toFixed(2)} kg</strong>
+        </div>
+        <div class="box">
+          Kg entregados
+          <strong>${redondear2(kgEntregados).toFixed(2)} kg</strong>
+        </div>
+        <div class="box ${claseTotal}">
+          Sobrante / Faltante (kg)
+          <strong>${(difKgTotal >= 0 ? "+" : "") + redondear2(difKgTotal).toFixed(2)} kg</strong>
+        </div>
+        <div class="box ${claseTotal}">
+          Sobrante / Faltante (S/)
+          <strong>${(difSTotal >= 0 ? "+" : "") + soles(difSTotal).replace("S/ ", "S/ ")}</strong>
+        </div>
+      </div>
+      <div class="small-note" style="margin-top:12px;">
+        Costo promedio por kg: <strong>${soles(costoPromKg)}/kg</strong>
+        (compra esencial real ÷ kg comprados).
+        El sobrante en S/ no se suma automáticamente a excedentes.
+      </div>
+    </div>
+  `;
+
+  cont.innerHTML = `
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Canasta</th>
+            <th>Objetivo</th>
+            <th>Peso real (kg)</th>
+            <th>Diferencia kg</th>
+            <th>Diferencia S/</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filas}
+        </tbody>
+      </table>
+    </div>
+    ${totalHTML}
+  `;
+}
+
+
+function actualizarEntrega(pedidoId, tipoCanasta, valor) {
+
+  const num = Number(valor);
+
+  const idx = entregasRonda.findIndex(e =>
+    String(e.pedido_id) === String(pedidoId) &&
+    String(e.tipo_canasta) === String(tipoCanasta)
+  );
+
+  if (valor === "" || isNaN(num)) {
+    /* Vaciar el input borra la entrega */
+    if (idx >= 0) entregasRonda.splice(idx, 1);
+  } else {
+    if (idx >= 0) {
+      entregasRonda[idx].peso_real = num;
+    } else {
+      entregasRonda.push({
+        pedido_id: pedidoId,
+        tipo_canasta: tipoCanasta,
+        peso_real: num
+      });
+    }
+  }
+
+  guardarConfiguracion();
+
+  /* Re-render para actualizar totales y diferencias */
+  renderEntregas();
+}
+
+
+function limpiarEntrega(pedidoId, tipoCanasta) {
+  const idx = entregasRonda.findIndex(e =>
+    String(e.pedido_id) === String(pedidoId) &&
+    String(e.tipo_canasta) === String(tipoCanasta)
+  );
+  if (idx >= 0) entregasRonda.splice(idx, 1);
+  guardarConfiguracion();
+  renderEntregas();
+}
+
+
+async function guardarEntregasEnN8N() {
+
+  const cont = document.getElementById("resultadoGuardarEntregas");
+  const msgOk = (html) => { if (cont) cont.innerHTML = html; };
+
+  if (!rondaActiva) {
+    msgOk(`<div class="result-warning">⚠ Primero elegí o creá una ronda.</div>`);
+    return;
+  }
+
+  const entregas = entregasRonda.map(e => ({
+    pedido_id: e.pedido_id,
+    tipo_canasta: e.tipo_canasta,
+    peso_real: Number(e.peso_real) || 0
+  }));
+
+  if (!entregas.length) {
+    msgOk(`<div class="result-warning">⚠ No hay pesos cargados para guardar.</div>`);
+    return;
+  }
+
+  try {
+    const response = await fetch(API_ENTREGAS_GUARDAR, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id_ronda: rondaActiva,
+        entregas: entregas
+      })
+    });
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    msgOk(`<div class="result-good">
+      ✓ Guardadas ${entregas.length} entrega(s) en n8n para la ronda ${escapeHTML(rondaActiva)}.
+    </div>`);
+
+  } catch (error) {
+    console.error("Error guardando entregas:", error);
+    msgOk(`<div class="result-error">
+      ✕ No se pudieron guardar las entregas.<br>
+      Verificá que el webhook <code>admin-entregas-guardar</code> esté activo.
+    </div>`);
+  }
+}
+
+
+async function cargarEntregasDeRonda(ronda) {
+
+  if (!ronda) return;
+
+  try {
+    const response = await fetch(
+      API_ENTREGAS_GET + "?ronda=" + encodeURIComponent(ronda),
+      { cache: "no-store" }
+    );
+
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json();
+
+    let lista = [];
+    if (Array.isArray(data))            lista = data;
+    else if (Array.isArray(data.entregas)) lista = data.entregas;
+    else if (Array.isArray(data.value)) lista = data.value;
+
+    entregasRonda = lista
+      .filter(e => e && e.pedido_id !== undefined && e.tipo_canasta)
+      .map(e => ({
+        pedido_id: e.pedido_id,
+        tipo_canasta: e.tipo_canasta,
+        peso_real: Number(e.peso_real) || 0
+      }));
+
+    guardarConfiguracion();
+
+    if (document.getElementById("view-entregas") &&
+        document.getElementById("view-entregas").classList.contains("active")) {
+      renderEntregas();
+    }
+
+  } catch (error) {
+    /* Silencioso: si el webhook no existe todavía, no rompemos nada */
+    console.warn("No se pudieron cargar entregas de n8n:", error);
+  }
+}
+
+
+/* =====================================================
 ELIMINAR RONDA ACTIVA
 ===================================================== */
 
@@ -5931,6 +6441,8 @@ async function eliminarRondaActiva() {
 
   gastosRonda = [];
   excedentesRonda = [];
+  /* NUEVO — limpiar entregas */
+  entregasRonda = [];
 
   reporteActual = null;
   rondaReporteActiva = "";
@@ -5959,6 +6471,8 @@ async function eliminarRondaActiva() {
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
     cargarPreciosGuardadosSilencioso();
+    /* NUEVO — cargar entregas de la ronda siguiente */
+    cargarEntregasDeRonda(rondaActiva);
   }
 
   if (typeof renderGastosRonda === "function") renderGastosRonda();
@@ -5971,6 +6485,12 @@ async function eliminarRondaActiva() {
   }
 
   if (typeof renderReportes === "function") renderReportes();
+
+  /* NUEVO — refrescar Entregas si está activa */
+  if (document.getElementById("view-entregas") &&
+      document.getElementById("view-entregas").classList.contains("active")) {
+    renderEntregas();
+  }
 
   alert(`Ronda ${ronda} eliminada.` + (borrarEnN8N ? " Datos de n8n borrados." : ""));
 }
@@ -5997,6 +6517,8 @@ cargarPedidos();
 setTimeout(() => {
   if (rondaActiva) {
     cargarCompraFinalDeRonda(rondaActiva);
+    /* NUEVO — cargar entregas guardadas de la ronda activa */
+    cargarEntregasDeRonda(rondaActiva);
   }
   renderResumenFinancieroAmpliado();
   cargarHistorialReportes();
