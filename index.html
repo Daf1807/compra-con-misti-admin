@@ -1057,11 +1057,11 @@ tbody tr:hover { background: #F4FBF6; }
    NUEVO — VISTA ENTREGAS (solo estilos agregados)
    ═══════════════════════════════════════════════════════ */
 
-.entregas-pedido-fila {
+.entregas-fila-pedido {
   background: var(--crema);
   font-weight: 700;
 }
-.entregas-pedido-fila td {
+.entregas-fila-pedido td {
   border-bottom: 1px solid var(--borde);
 }
 .entregas-canasta-fila td {
@@ -1082,7 +1082,7 @@ tbody tr:hover { background: #F4FBF6; }
 .tipo-familiar { background: #FFE0E1; color: #C93A3F; }
 
 .entregas-input-peso {
-  width: 110px;
+  width: 80px;
   text-align: right;
   font-weight: 700;
 }
@@ -1140,6 +1140,26 @@ tbody tr:hover { background: #F4FBF6; }
 @media(max-width:600px) {
   .entregas-total-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ESTADO DE ENTREGA (indicador por fila)
+   ═══════════════════════════════════════════════════════ */
+
+.entrega-estado {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.entrega-estado.guardado { background: var(--verde-claro); color: var(--verde); }
+.entrega-estado.falta    { background: var(--miel-2); color: #7A5500; }
+
+.entregas-dif-ok    { color: var(--verde); font-weight: 700; }
+.entregas-dif-alto  { color: var(--naranja); font-weight: 700; }
+.entregas-dif-bajo  { color: var(--coral); font-weight: 700; }
 
 </style>
 
@@ -1545,26 +1565,25 @@ tbody tr:hover { background: #F4FBF6; }
       <div class="section">
         <h2 class="section-head">📦 Entregas de la ronda</h2>
         <p class="section-sub">
-          Peso real entregado por cada canasta individual. Se compara con el peso
-          objetivo que sale del empaquetamiento.
+          Registrá el peso final en kg de cada pedido aceptado: básica, semilla y familiar.
+          Solo se guarda lo entregado, sin comparación ni costo.
         </p>
 
-        <div class="anchor-notice">
-          Ingresá el <strong>peso real en kg</strong> de cada canasta entregada.
-          Al final vas a ver el total entregado vs. comprado, y el sobrante o faltante
-          en kg y en S/ (usando el costo promedio por kg de la compra).
+        <div class="anchor-notice" id="entregasNotice">
+          Ingresá el <strong>peso final en kg</strong> de cada tipo de canasta entregada.
+          Se guarda como registro de lo entregado en la ronda.
           <br><br>
-          El sobrante en S/ <strong>no se suma automáticamente a excedentes</strong>:
-          si querés, cargalo a mano en la vista Compra → sección Excedentes.
+          Los kg que no se entregaron quedan en <strong>inventario</strong>.
+          No se pierden: se usan en la próxima ronda o se venden como excedente.
         </div>
 
         <div id="entregasContenido">
-          <div class="small-note">Calculá primero la compra de la ronda para ver los pesos objetivo.</div>
+          <div class="small-note">Cargá los pesos de los pedidos aceptados.</div>
         </div>
 
         <div class="actions" style="gap:10px; flex-wrap:wrap; margin-top:18px;">
           <button class="btn-accept" onclick="guardarEntregasEnN8N()">
-            💾 Guardar entregas en n8n
+            💾 Guardar entregas
           </button>
           <button class="btn-refresh" onclick="cargarEntregasDeRonda(rondaActiva)">
             ↻ Cargar entregas guardadas
@@ -1892,8 +1911,8 @@ let gastosRonda = [];
 let excedentesRonda = [];
 
 /* NUEVO — entregas de la ronda activa
-   [{ pedido_id, tipo_canasta, peso_real }] */
-let entregasRonda = [];
+   { [pedido_firestore_id]: {basica, semilla, familiar, guardado} } */
+let entregasRonda = {};
 
 /* cache del último mensaje de guardado (para sincronizar vistas) */
 let ultimoMensajeGuardado = "";
@@ -1989,8 +2008,8 @@ function guardarConfiguracion() {
       gastosRonda: [...gastosRonda],
       excedentesRonda: [...excedentesRonda],
 
-      /* NUEVO — entregas */
-      entregasRonda: [...entregasRonda]
+      /* NUEVO — entregas: mapa { pedido_firestore_id: {basica, semilla, familiar, guardado} } */
+      entregasRonda: { ...entregasRonda }
     };
 
     localStorage.setItem(
@@ -2068,13 +2087,11 @@ function cargarConfiguracion() {
       }));
     }
 
-    /* NUEVO — cargar entregas */
-    if (Array.isArray(datos.entregasRonda)) {
-      entregasRonda = datos.entregasRonda.map(e => ({
-        pedido_id: e.pedido_id,
-        tipo_canasta: e.tipo_canasta || "",
-        peso_real: Number(e.peso_real) || 0
-      }));
+    /* NUEVO — cargar entregas: mapa { pedido_firestore_id: {basica, semilla, familiar, guardado} } */
+    if (datos.entregasRonda && typeof datos.entregasRonda === "object" && !Array.isArray(datos.entregasRonda)) {
+      entregasRonda = { ...datos.entregasRonda };
+    } else {
+      entregasRonda = {};
     }
 
   } catch(error) {
@@ -3013,7 +3030,7 @@ function cambiarRondaActiva(valor) {
   gastosRonda = [];
   excedentesRonda = [];
   /* NUEVO — resetear entregas al cambiar de ronda */
-  entregasRonda = [];
+  entregasRonda = {};
 
   reporteActual = null;
   rondaReporteActiva = "";
@@ -3126,7 +3143,7 @@ function crearNuevaRonda() {
   gastosRonda = [];
   excedentesRonda = [];
   /* NUEVO — resetear entregas */
-  entregasRonda = [];
+  entregasRonda = {};
 
   reporteActual = null;
   rondaReporteActiva = "";
@@ -5999,56 +6016,6 @@ function renderReporteDesdeSnapshot(snapshot) {
 NUEVO — VISTA ENTREGAS: RENDER + GUARDAR + CARGAR
 ===================================================== */
 
-function _pesoObjetivoPorTipo(r) {
-  /* Devuelve { semilla, basica, familiar } con el kg objetivo por canasta,
-     calculado a partir de los resultados del empaquetamiento. */
-  const out = { semilla: 0, basica: 0, familiar: 0 };
-  if (!r || !r.resultadosEsenciales || !r.datos) return out;
-
-  const equivalentesSemilla = Number(r.datos.equivalentesSemilla) || 0;
-  if (equivalentesSemilla <= 0) return out;
-
-  let totalSemilla = 0, totalBasica = 0, totalFamiliar = 0;
-
-  r.resultadosEsenciales.forEach(p => {
-    const compraFinal = Number(p.compraFinal) || 0;
-    if (compraFinal <= 0) return;
-    const kgPorEq = compraFinal / equivalentesSemilla;
-    totalSemilla  += kgPorEq * FACTOR_SEMILLA;
-    totalBasica   += kgPorEq * FACTOR_BASICA;
-    totalFamiliar += kgPorEq * FACTOR_FAMILIAR;
-  });
-
-  out.semilla  = totalSemilla;
-  out.basica   = totalBasica;
-  out.familiar = totalFamiliar;
-  return out;
-}
-
-
-function _kgCompradosTotales(r) {
-  if (!r || !r.resultadosEsenciales) return 0;
-  return r.resultadosEsenciales.reduce(
-    (s, p) => s + (Number(p.compraFinal) || 0), 0
-  );
-}
-
-
-function _costoPromedioKg(r) {
-  const kg = _kgCompradosTotales(r);
-  if (kg <= 0) return 0;
-  return (Number(r.costoEsencialesReal) || 0) / kg;
-}
-
-
-function _buscarEntrega(pedidoId, tipoCanasta) {
-  return entregasRonda.find(e =>
-    String(e.pedido_id) === String(pedidoId) &&
-    String(e.tipo_canasta) === String(tipoCanasta)
-  );
-}
-
-
 function renderEntregas() {
 
   const cont = document.getElementById("entregasContenido");
@@ -6060,16 +6027,6 @@ function renderEntregas() {
     return;
   }
 
-  if (!window.ultimoResultadoCompra) {
-    cont.innerHTML =
-      `<div class="result-warning">
-        Primero calculá la compra en la vista <strong>Compra</strong> para tener
-        los pesos objetivo de cada canasta.
-      </div>`;
-    return;
-  }
-
-  const r = window.ultimoResultadoCompra;
   const aceptados = obtenerAceptadosRonda();
 
   if (!aceptados.length) {
@@ -6078,107 +6035,153 @@ function renderEntregas() {
     return;
   }
 
-  const objetivo = _pesoObjetivoPorTipo(r);
-  const costoPromKg = _costoPromedioKg(r);
-  const kgComprados = _kgCompradosTotales(r);
+  /* Actualizar texto de aviso para quitar menciones a S/ y costo */
+  const notice = document.getElementById("entregasNotice");
+  if (notice) {
+    notice.innerHTML = `
+      Ingresá el <strong>peso final en kg</strong> de cada pedido aceptado: básica, semilla y familiar.
+      Se guarda solo el registro de lo entregado.
+      <br><br>
+      Los kg que no se entregaron quedan en <strong>inventario</strong>.
+      No se pierden: se usan en la próxima ronda o se venden como excedente.
+    `;
+  }
 
-  /* ---- Tabla principal: fila pedido + subfilas canastas ---- */
+  const esenciales = obtenerEsenciales();
+  const esencialesSinPrecio = esenciales.filter(p => p.precio <= 0);
+
+  const kgComprados = window.ultimoResultadoCompra
+    ? Number(window.ultimoResultadoCompra.resultadosEsenciales.reduce(
+        (s, p) => s + (Number(p.compraFinal) || 0), 0
+      ))
+    : 0;
+
   let filas = "";
 
   aceptados.forEach(p => {
 
+    const pedidoId = p.pedido_firestore_id || p.id;
     const s = Number(p.canasta_semilla_cantidad || 0);
     const b = Number(p.canasta_basica_cantidad || 0);
     const f = Number(p.canasta_familiar_cantidad || 0);
+    const totalCanastas = s + b + f;
 
-    const totalCanastasPedido = s + b + f;
+    /* Determinar si este pedido tiene algún peso guardado */
+    const entrega = entregasRonda[pedidoId];
+    const tienePesos = entrega && (
+      (Number(entrega.basica)   > 0) ||
+      (Number(entrega.semilla)  > 0) ||
+      (Number(entrega.familiar) > 0)
+    );
+    const estadoClase = tienePesos ? "guardado" : "falta";
+    const estadoTexto = tienePesos ? "guardado" : "falta";
 
     filas += `
-      <tr class="entregas-pedido-fila">
+      <tr class="entregas-fila-pedido">
         <td colspan="6">
           <strong>${escapeHTML(p.cliente || "Sin nombre")}</strong>
           <span class="muted small-note" style="margin-left:8px;">
-            · Pedido #${escapeHTML(String(p.id))} · ${totalCanastasPedido} canasta(s)
+            · ${totalCanastas} canasta(s)
+          </span>
+          <span class="entrega-estado ${estadoClase}" style="margin-left:8px;">
+            ${estadoTexto}
           </span>
         </td>
       </tr>
+      <tr class="entregas-canasta-fila">
+        <td>
+          <span class="tipo-canasta tipo-semilla">
+            Semilla (${s})
+          </span>
+        </td>
+        <td>
+          <input
+            class="entregas-input-peso"
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder="kg"
+            value="${entrega && entrega.semilla != null ? entrega.semilla : ""}"
+            ${s === 0 ? "disabled" : ""}
+            data-pedido="${escapeHTML(String(pedidoId))}"
+            data-tipo="semilla"
+            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'semilla', this.value)"
+          >
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="entregas-canasta-fila">
+        <td>
+          <span class="tipo-canasta tipo-basica">
+            Básica (${b})
+          </span>
+        </td>
+        <td>
+          <input
+            class="entregas-input-peso"
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder="kg"
+            value="${entrega && entrega.basica != null ? entrega.basica : ""}"
+            ${b === 0 ? "disabled" : ""}
+            data-pedido="${escapeHTML(String(pedidoId))}"
+            data-tipo="basica"
+            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'basica', this.value)"
+          >
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="entregas-canasta-fila">
+        <td>
+          <span class="tipo-canasta tipo-familiar">
+            Familiar (${f})
+          </span>
+        </td>
+        <td>
+          <input
+            class="entregas-input-peso"
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder="kg"
+            value="${entrega && entrega.familiar != null ? entrega.familiar : ""}"
+            ${f === 0 ? "disabled" : ""}
+            data-pedido="${escapeHTML(String(pedidoId))}"
+            data-tipo="familiar"
+            oninput="actualizarEntrega('${escapeHTML(String(pedidoId))}', 'familiar', this.value)"
+          >
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
     `;
-
-    const canastas = [];
-    for (let i = 0; i < s; i++) canastas.push({ tipo: "semilla",  idx: i+1, cant: s });
-    for (let i = 0; i < b; i++) canastas.push({ tipo: "basica",   idx: i+1, cant: b });
-    for (let i = 0; i < f; i++) canastas.push({ tipo: "familiar", idx: i+1, cant: f });
-
-    canastas.forEach(c => {
-
-      const pesoObj = objetivo[c.tipo] || 0;
-
-      /* Clave única: pedido_id + tipo + índice de canasta */
-      const tipoConIdx = c.tipo + "_" + c.idx;
-
-      const guardada = _buscarEntrega(p.id, tipoConIdx);
-      const pesoReal = guardada ? Number(guardada.peso_real) || 0 : "";
-
-      const difKg = pesoReal !== "" ? (Number(pesoReal) - pesoObj) : null;
-      const difS  = difKg !== null ? difKg * costoPromKg : null;
-
-      let claseDif = "";
-      if (difKg !== null) {
-        if (Math.abs(difKg) < 0.05) claseDif = "entregas-dif-ok";
-        else if (difKg > 0)          claseDif = "entregas-dif-alto";
-        else                         claseDif = "entregas-dif-bajo";
-      }
-
-      const etiquetaTipo =
-        c.tipo === "semilla"  ? "Semilla"  :
-        c.tipo === "basica"   ? "Básica"   :
-                                "Familiar";
-
-      filas += `
-        <tr class="entregas-canasta-fila">
-          <td>
-            <span class="tipo-canasta tipo-${c.tipo}">
-              ${etiquetaTipo} ${c.idx}/${c.cant}
-            </span>
-          </td>
-          <td>${redondear2(pesoObj).toFixed(2)} kg</td>
-          <td>
-            <input
-              class="entregas-input-peso"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="kg"
-              value="${pesoReal}"
-              data-pedido="${escapeHTML(String(p.id))}"
-              data-tipo="${escapeHTML(tipoConIdx)}"
-              oninput="actualizarEntrega('${escapeHTML(String(p.id))}', '${escapeHTML(tipoConIdx)}', this.value)"
-            >
-          </td>
-          <td class="${claseDif}">
-            ${difKg === null ? "—" : (difKg >= 0 ? "+" : "") + difKg.toFixed(2) + " kg"}
-          </td>
-          <td class="${claseDif}">
-            ${difS === null ? "—" : (difS >= 0 ? "+" : "") + soles(difS).replace("S/ ", "S/ ")}
-          </td>
-          <td>
-            <button class="btn-delete" onclick="limpiarEntrega('${escapeHTML(String(p.id))}', '${escapeHTML(tipoConIdx)}')" title="Borrar peso">×</button>
-          </td>
-        </tr>
-      `;
-    });
   });
 
   /* ---- Totales ---- */
-  const kgEntregados = entregasRonda.reduce(
-    (s, e) => s + (Number(e.peso_real) || 0), 0
-  );
-  const difKgTotal = kgEntregados - kgComprados;
-  const difSTotal  = difKgTotal * costoPromKg;
+  const kgEntregados = Object.values(entregasRonda).reduce((s, e) => {
+    return s + (Number(e.basica) || 0) + (Number(e.semilla) || 0) + (Number(e.familiar) || 0);
+  }, 0);
 
-  const claseTotal = Math.abs(difKgTotal) < 0.05
-    ? "positivo"
-    : (difKgTotal > 0 ? "positivo" : "negativo");
+  const inventarioRestante = kgComprados - kgEntregados;
+  const tieneCompra = !!window.ultimoResultadoCompra;
+  const claseInv = inventarioRestante >= 0 ? "positivo" : "negativo";
+  const labelInv = inventarioRestante >= 0 ? "Inventario restante (kg)" : "Faltante real (kg)";
+
+  /* Aviso si no hay compra calculada */
+  const avisoCompra = !tieneCompra
+    ? `<div class="result-warning" style="margin-bottom:14px;">
+        Calculá la compra en la vista <strong>Compra</strong> para ver el inventario restante.
+      </div>`
+    : "";
 
   const totalHTML = `
     <div class="entregas-total-box">
@@ -6192,33 +6195,33 @@ function renderEntregas() {
           Kg entregados
           <strong>${redondear2(kgEntregados).toFixed(2)} kg</strong>
         </div>
-        <div class="box ${claseTotal}">
-          Sobrante / Faltante (kg)
-          <strong>${(difKgTotal >= 0 ? "+" : "") + redondear2(difKgTotal).toFixed(2)} kg</strong>
+        <div class="box ${claseInv}">
+          ${labelInv}
+          <strong>${(inventarioRestante >= 0 ? "+" : "") + redondear2(inventarioRestante).toFixed(2)} kg</strong>
         </div>
-        <div class="box ${claseTotal}">
-          Sobrante / Faltante (S/)
-          <strong>${(difSTotal >= 0 ? "+" : "") + soles(difSTotal).replace("S/ ", "S/ ")}</strong>
+        <div class="box">
+          &nbsp;
+          <strong>&nbsp;</strong>
         </div>
       </div>
       <div class="small-note" style="margin-top:12px;">
-        Costo promedio por kg: <strong>${soles(costoPromKg)}/kg</strong>
-        (compra esencial real ÷ kg comprados).
-        El sobrante en S/ no se suma automáticamente a excedentes.
+        Los kg que no se entregaron quedan en inventario.
+        No se pierden: se usan en la próxima ronda o se venden como excedente.
       </div>
     </div>
   `;
 
   cont.innerHTML = `
+    ${avisoCompra}
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
             <th>Canasta</th>
-            <th>Objetivo</th>
-            <th>Peso real (kg)</th>
-            <th>Diferencia kg</th>
-            <th>Diferencia S/</th>
+            <th>Peso final (kg)</th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th></th>
           </tr>
         </thead>
@@ -6235,42 +6238,33 @@ function renderEntregas() {
 function actualizarEntrega(pedidoId, tipoCanasta, valor) {
 
   const num = Number(valor);
+  const mapa = { basica: "basica", semilla: "semilla", familiar: "familiar" };
+  const campo = mapa[tipoCanasta];
+  if (!campo) return;
 
-  const idx = entregasRonda.findIndex(e =>
-    String(e.pedido_id) === String(pedidoId) &&
-    String(e.tipo_canasta) === String(tipoCanasta)
-  );
+  if (!entregasRonda[pedidoId]) {
+    entregasRonda[pedidoId] = { basica: null, semilla: null, familiar: null, guardado: false };
+  }
 
   if (valor === "" || isNaN(num)) {
-    /* Vaciar el input borra la entrega */
-    if (idx >= 0) entregasRonda.splice(idx, 1);
+    entregasRonda[pedidoId][campo] = null;
   } else {
-    if (idx >= 0) {
-      entregasRonda[idx].peso_real = num;
-    } else {
-      entregasRonda.push({
-        pedido_id: pedidoId,
-        tipo_canasta: tipoCanasta,
-        peso_real: num
-      });
-    }
+    entregasRonda[pedidoId][campo] = num;
   }
 
   guardarConfiguracion();
-
-  /* Re-render para actualizar totales y diferencias */
+  /* Re-render para actualizar totales e indicador de estado */
   renderEntregas();
 }
 
 
 function limpiarEntrega(pedidoId, tipoCanasta) {
-  const idx = entregasRonda.findIndex(e =>
-    String(e.pedido_id) === String(pedidoId) &&
-    String(e.tipo_canasta) === String(tipoCanasta)
-  );
-  if (idx >= 0) entregasRonda.splice(idx, 1);
-  guardarConfiguracion();
-  renderEntregas();
+  if (entregasRonda[pedidoId]) {
+    const campo = tipoCanasta === "basica" ? "basica" : tipoCanasta === "semilla" ? "semilla" : "familiar";
+    entregasRonda[pedidoId][campo] = null;
+    guardarConfiguracion();
+    renderEntregas();
+  }
 }
 
 
@@ -6284,38 +6278,68 @@ async function guardarEntregasEnN8N() {
     return;
   }
 
-  const entregas = entregasRonda.map(e => ({
-    pedido_id: e.pedido_id,
-    tipo_canasta: e.tipo_canasta,
-    peso_real: Number(e.peso_real) || 0
-  }));
+  /* Recorrer solo pedidos con al menos un peso cargado */
+  const pedidosConPeso = Object.entries(entregasRonda).filter(([id, e]) => {
+    return (Number(e.basica) > 0 || Number(e.semilla) > 0 || Number(e.familiar) > 0);
+  });
 
-  if (!entregas.length) {
+  if (!pedidosConPeso.length) {
     msgOk(`<div class="result-warning">⚠ No hay pesos cargados para guardar.</div>`);
     return;
   }
 
+  msgOk(`<div class="result-info">Guardando…</div>`);
+
   try {
-    const response = await fetch(API_ENTREGAS_GUARDAR, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id_ronda: rondaActiva,
-        entregas: entregas
-      })
+    const promesas = pedidosConPeso.map(([pedidoId, e]) => {
+      return fetch(API_ENTREGAS_GUARDAR, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pedido_id: pedidoId,
+          peso_final_basica: Number(e.basica) > 0 ? Number(e.basica) : null,
+          peso_final_semilla: Number(e.semilla) > 0 ? Number(e.semilla) : null,
+          peso_final_familiar: Number(e.familiar) > 0 ? Number(e.familiar) : null
+        })
+      }).then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json().catch(() => ({}));
+        console.log("✓ Entrega guardada:", pedidoId, data);
+        return { pedidoId, ok: true };
+      }).catch(error => {
+        const pedido = pedidos.find(p => String(p.pedido_firestore_id || p.id) === String(pedidoId));
+        const cliente = pedido ? pedido.cliente : pedidoId;
+        console.error("✕ Error en pedido " + cliente + ":", error);
+        return { pedidoId, ok: false, error: error.message, cliente };
+      });
     });
 
-    if (!response.ok) throw new Error("HTTP " + response.status);
+    const resultados = await Promise.all(promesas);
+    const fallos = resultados.filter(r => !r.ok);
+    const exitos = resultados.filter(r => r.ok);
 
-    msgOk(`<div class="result-good">
-      ✓ Guardadas ${entregas.length} entrega(s) en n8n para la ronda ${escapeHTML(rondaActiva)}.
-    </div>`);
+    if (fallos.length) {
+      msgOk(`<div class="result-error">
+        ❌ Error en pedido <strong>${escapeHTML(fallos[0].cliente || fallos[0].pedidoId)}</strong>: ${escapeHTML(fallos[0].error)}<br>
+        ${exitos.length > 0 ? `✅ ${exitos.length} pedido(s) guardado(s).` : ""}
+      </div>`);
+    } else {
+      /* Marcar como guardados los que se enviaron */
+      pedidosConPeso.forEach(([pedidoId]) => {
+        if (entregasRonda[pedidoId]) {
+          entregasRonda[pedidoId].guardado = true;
+        }
+      });
+      guardarConfiguracion();
+      msgOk(`<div class="result-good">✅ ${exitos.length} pedido(s) guardados</div>`);
+    }
+
+    renderEntregas();
 
   } catch (error) {
     console.error("Error guardando entregas:", error);
     msgOk(`<div class="result-error">
-      ✕ No se pudieron guardar las entregas.<br>
-      Verificá que el webhook <code>admin-entregas-guardar</code> esté activo.
+      ❌ Error al guardar entregas: ${escapeHTML(error.message)}
     </div>`);
   }
 }
@@ -6337,17 +6361,33 @@ async function cargarEntregasDeRonda(ronda) {
 
     let lista = [];
     if (Array.isArray(data))            lista = data;
-    else if (Array.isArray(data.entregas)) lista = data.entregas;
     else if (Array.isArray(data.value)) lista = data.value;
 
-    entregasRonda = lista
-      .filter(e => e && e.pedido_id !== undefined && e.tipo_canasta)
-      .map(e => ({
-        pedido_id: e.pedido_id,
-        tipo_canasta: e.tipo_canasta,
-        peso_real: Number(e.peso_real) || 0
-      }));
+    if (!lista.length) {
+      entregasRonda = {};
+      guardarConfiguracion();
+      if (document.getElementById("view-entregas") &&
+          document.getElementById("view-entregas").classList.contains("active")) {
+        renderEntregas();
+      }
+      return;
+    }
 
+    const nuevoMapa = {};
+
+    lista.forEach(fila => {
+      const pedidoId = fila.pedido_firestore_id || fila.pedido_id;
+      if (!pedidoId) return;
+
+      nuevoMapa[pedidoId] = {
+        basica:   fila.peso_final_basica   !== null && fila.peso_final_basica   !== undefined ? Number(fila.peso_final_basica)   : null,
+        semilla:  fila.peso_final_semilla  !== null && fila.peso_final_semilla  !== undefined ? Number(fila.peso_final_semilla)  : null,
+        familiar: fila.peso_final_familiar !== null && fila.peso_final_familiar !== undefined ? Number(fila.peso_final_familiar) : null,
+        guardado: true
+      };
+    });
+
+    entregasRonda = nuevoMapa;
     guardarConfiguracion();
 
     if (document.getElementById("view-entregas") &&
@@ -6356,8 +6396,13 @@ async function cargarEntregasDeRonda(ronda) {
     }
 
   } catch (error) {
-    /* Silencioso: si el webhook no existe todavía, no rompemos nada */
-    console.warn("No se pudieron cargar entregas de n8n:", error);
+    /* Silencioso: si el webhook no tiene filas, tratar como lista vacía */
+    if (String(error.message).includes("No item to return was found")) {
+      entregasRonda = {};
+      guardarConfiguracion();
+    } else {
+      console.warn("No se pudieron cargar entregas de n8n:", error);
+    }
   }
 }
 
@@ -6442,7 +6487,7 @@ async function eliminarRondaActiva() {
   gastosRonda = [];
   excedentesRonda = [];
   /* NUEVO — limpiar entregas */
-  entregasRonda = [];
+  entregasRonda = {};
 
   reporteActual = null;
   rondaReporteActiva = "";
