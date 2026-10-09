@@ -533,7 +533,8 @@ let DB = {
   reclamos: []
 };
 let calcItems = [];
-let unsubscribers = [];
+let unsubscribersRonda = [];
+let unsubscribersGlobal = [];
 let syncTimer = null;
 let catalogoSuscripto = false;
 let rondasSuscriptas = false;
@@ -848,9 +849,22 @@ async function cargarRondas() {
   DB.rondaActiva = DB.config.ronda_activa && DB.rondas[DB.config.ronda_activa] ? DB.config.ronda_activa : (keys[0] || "");
 }
 
+/* ============================================================================
+   CANCELACIÓN DE SUSCRIPCIONES (separada: ronda vs globales)
+   ============================================================================ */
+function cancelarSuscripcionesRonda() {
+  unsubscribersRonda.forEach(u => u());
+  unsubscribersRonda = [];
+}
+function cancelarSuscripcionesGlobales() {
+  unsubscribersGlobal.forEach(u => u());
+  unsubscribersGlobal = [];
+  catalogoSuscripto = false;
+  rondasSuscriptas = false;
+}
 function cancelarSuscripciones() {
-  unsubscribers.forEach(u => u());
-  unsubscribers = [];
+  cancelarSuscripcionesRonda();
+  cancelarSuscripcionesGlobales();
 }
 
 /* ============================================================================
@@ -859,42 +873,42 @@ function cancelarSuscripciones() {
 
 // Suscribe 8 subcolecciones de la ronda activa + el doc meta de la ronda
 function suscribirRonda(rondaId) {
-  cancelarSuscripciones();
+  cancelarSuscripcionesRonda();
   if (!rondaId) return;
 
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
     DB.precios = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "pedidos"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "pedidos"), snap => {
     DB.pedidos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "items"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "items"), snap => {
     DB.items = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "compras"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "compras"), snap => {
     DB.compras = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "entregas"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "entregas"), snap => {
     DB.entregas = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "gastos"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "gastos"), snap => {
     DB.gastos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "excedentes"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "excedentes"), snap => {
     DB.excedentes = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "reclamos"), snap => {
+  unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "reclamos"), snap => {
     DB.reclamos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-  unsubscribers.push(onSnapshot(doc(db, "rondas", rondaId), snap => {
+  unsubscribersRonda.push(onSnapshot(doc(db, "rondas", rondaId), snap => {
     if (snap.exists()) {
       DB.rondas[rondaId] = snap.data();
       renderTodo();
@@ -902,32 +916,32 @@ function suscribirRonda(rondaId) {
   }));
 }
 
-// NUEVO: suscribe catálogo global (productos, clientes, repartidores)
+// Suscribe catálogo global (productos, clientes, repartidores)
 function suscribirCatalogo() {
   if (catalogoSuscripto) return; // evitar duplicados
   catalogoSuscripto = true;
 
-  unsubscribers.push(onSnapshot(collection(db, "catalogo", "productos", "items"), snap => {
+  unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "productos", "items"), snap => {
     DB.productos = snap.docs.map(d => d.data());
     renderTodo();
   }, err => console.error("Snapshot catálogo productos:", err)));
 
-  unsubscribers.push(onSnapshot(collection(db, "catalogo", "clientes", "items"), snap => {
+  unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "clientes", "items"), snap => {
     DB.clientes = snap.docs.map(d => d.data());
   }, err => console.error("Snapshot catálogo clientes:", err)));
 
-  unsubscribers.push(onSnapshot(collection(db, "catalogo", "repartidores", "items"), snap => {
+  unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "repartidores", "items"), snap => {
     DB.repartidores = snap.docs.map(d => d.data());
     renderTodo();
   }, err => console.error("Snapshot catálogo repartidores:", err)));
 }
 
-// NUEVO: suscribe la colección completa de rondas
+// Suscribe la colección completa de rondas
 function suscribirRondas() {
   if (rondasSuscriptas) return;
   rondasSuscriptas = true;
 
-  unsubscribers.push(onSnapshot(collection(db, "rondas"), snap => {
+  unsubscribersGlobal.push(onSnapshot(collection(db, "rondas"), snap => {
     const nuevas = {};
     snap.docs.forEach(d => { nuevas[d.id] = d.data(); });
     DB.rondas = nuevas;
@@ -1023,7 +1037,7 @@ function mostrarVista(n) {
   if (n === "pipeline") renderPipeline();
   if (n === "calculadora") renderCalculadora();
   if (n === "productos") renderProductos();
-  if (n === "precios") renderPrecios();
+  if (n === "precios") renderPrecios().catch(e => console.error("renderPrecios:", e));
   if (n === "compra") calcularListaCompra();
   if (n === "entregas") renderEntregas();
   if (n === "repartidores") renderRepartidores();
@@ -1687,15 +1701,28 @@ async function guardarProducto() {
 /* ============================================================================
    PRECIOS
    ============================================================================ */
-function renderPrecios() {
+async function renderPrecios() {
   document.getElementById("preciosRondaLabel").textContent = "· " + DB.rondaActiva;
   const q = (document.getElementById("precioBuscar").value || "").toLowerCase();
-  const g = document.getElementById("precioGrupoFiltro").value;
+  const g = (document.getElementById("precioGrupoFiltro").value || "");
   const pmap = precioMapa();
   const rondas = Object.keys(DB.rondas).sort();
   const idx = rondas.indexOf(DB.rondaActiva);
   const prevRonda = idx > 0 ? rondas[idx - 1] : null;
-  const prevMap = {}; if (prevRonda) preciosDeRonda(prevRonda).forEach(p => prevMap[p.codigo_producto] = p);
+
+  const prevMap = {};
+  if (prevRonda) {
+    try {
+      const snap = await getDocs(collection(db, "rondas", prevRonda, "precios"));
+      snap.docs.forEach(d => {
+        const p = d.data();
+        prevMap[p.codigo_producto] = p;
+      });
+    } catch (e) {
+      console.error("Error cargando precios de " + prevRonda, e);
+    }
+  }
+
   const body = document.getElementById("preciosBody");
   let prods = DB.productos.filter(p => p.activo);
   if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
@@ -1755,7 +1782,8 @@ async function copiarPreciosRondaAnterior() {
     batch.set(doc(db, "rondas", DB.rondaActiva, "precios", nuevo.codigo_producto), nuevo, { merge: true });
   });
   await batch.commit();
-  renderPrecios(); toast("✓ Copiados de " + prev, "ok");
+  renderPrecios().catch(e => console.error("renderPrecios:", e));
+  toast("✓ Copiados de " + prev, "ok");
 }
 async function publicarPrecios() {
   await fsSetRonda(DB.rondaActiva, { precios_publicados: true });
@@ -2129,7 +2157,6 @@ function renderReclamos() {
   const pedidos = pedidosDeRonda();
   if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin reclamos.</div>`; return; }
   const total = arr.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const opcionesPed = pedidos.map(p => `<option value="${esc(p.pedido_id)}">${esc(p.pedido_id)} — ${esc(p.cliente_nombre)} — ${soles(p.total)}</option>`).join("");
   cont.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Pedido</th><th>Motivo</th><th>Costo solución</th><th>Estado</th><th></th></tr></thead>
     <tbody>${arr.map(r => `<tr>
@@ -2447,31 +2474,11 @@ function renderTodo() {
   const v = document.querySelector(".view.active");
   if (!v) return;
   const id = v.id.replace("view-", "");
-
-  // Punto 14: mostrar "Cargando…" si aún no llegaron los datos iniciales
-  const r = DB.rondas[DB.rondaActiva];
-  if (r && r.fecha_apertura && DB.pedidos.length === 0 && DB.precios.length === 0) {
-    // Si la vista es la de cierre, igual calculamos (async)
-    // Para el resto, mostramos loading momentáneo solo si no hay nada
-    const contenedores = {
-      dashboard: "dashTopProductos",
-      pipeline: "pipelineGrid",
-      compra: "listaCompraContenido",
-      entregas: "rutasContenido"
-    };
-    if (contenedores[id]) {
-      const el = document.getElementById(contenedores[id]);
-      if (el && !el.innerHTML.trim()) {
-        el.innerHTML = `<div class="small-note">Cargando…</div>`;
-      }
-    }
-  }
-
   if (id === "dashboard") renderDashboard();
   if (id === "pipeline") renderPipeline();
   if (id === "calculadora") renderCalculadora();
   if (id === "productos") renderProductos();
-  if (id === "precios") renderPrecios();
+  if (id === "precios") renderPrecios().catch(e => console.error("renderPrecios:", e));
   if (id === "compra") calcularListaCompra();
   if (id === "entregas") renderEntregas();
   if (id === "repartidores") renderRepartidores();
@@ -2522,10 +2529,8 @@ onAuthStateChanged(auth, async user => {
       btn.style.display = "block";
     }
   } else {
-    // Punto 7: cancelar suscripciones al cerrar sesión
+    // Punto 7: cancelar suscripciones (ronda + globales) al cerrar sesión
     cancelarSuscripciones();
-    catalogoSuscripto = false;
-    rondasSuscriptas = false;
     // Limpiar estado local para que no queden datos de la sesión anterior
     DB = {
       config: {}, rondas: {}, rondaActiva: "",
