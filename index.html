@@ -535,6 +535,8 @@ let DB = {
 let calcItems = [];
 let unsubscribers = [];
 let syncTimer = null;
+let catalogoSuscripto = false;
+let rondasSuscriptas = false;
 
 /* ============================================================================
    CONSTANTES
@@ -773,11 +775,11 @@ async function autoSeed() {
   const seed = crearDBInicial();
   const rondaId = seed.rondaActiva;
 
-  // Catálogo global
+  // Catálogo global (merge:true para idempotencia)
   const batch1 = writeBatch(db);
-  seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), p); });
-  seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), c); });
-  seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), r); });
+  seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }); });
+  seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }); });
+  seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }); });
   await batch1.commit();
 
   // Ronda
@@ -785,22 +787,22 @@ async function autoSeed() {
 
   // Precios
   const batch2 = writeBatch(db);
-  seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p); });
+  seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p, { merge: true }); });
   await batch2.commit();
 
   // Pedidos
   const batch3 = writeBatch(db);
-  seed.pedidos.forEach(p => { batch3.set(doc(db, "rondas", rondaId, "pedidos", p.pedido_id), p); });
+  seed.pedidos.forEach(p => { batch3.set(doc(db, "rondas", rondaId, "pedidos", p.pedido_id), p, { merge: true }); });
   await batch3.commit();
 
   // Items
   const batch4 = writeBatch(db);
-  seed.items.forEach(i => { batch4.set(doc(db, "rondas", rondaId, "items", i.item_id), i); });
+  seed.items.forEach(i => { batch4.set(doc(db, "rondas", rondaId, "items", i.item_id), i, { merge: true }); });
   await batch4.commit();
 
   // Compras
   const batch5 = writeBatch(db);
-  seed.compras.forEach(c => { batch5.set(doc(db, "rondas", rondaId, "compras", c.codigo_producto), c); });
+  seed.compras.forEach(c => { batch5.set(doc(db, "rondas", rondaId, "compras", c.codigo_producto), c, { merge: true }); });
   await batch5.commit();
 
   // Config
@@ -851,59 +853,47 @@ function cancelarSuscripciones() {
   unsubscribers = [];
 }
 
+/* ============================================================================
+   SUSCRIPCIONES EN TIEMPO REAL
+   ============================================================================ */
+
+// Suscribe 8 subcolecciones de la ronda activa + el doc meta de la ronda
 function suscribirRonda(rondaId) {
   cancelarSuscripciones();
   if (!rondaId) return;
 
-  // Precios
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
     DB.precios = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Pedidos
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "pedidos"), snap => {
     DB.pedidos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Items
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "items"), snap => {
     DB.items = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Compras
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "compras"), snap => {
     DB.compras = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Entregas
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "entregas"), snap => {
     DB.entregas = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Gastos
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "gastos"), snap => {
     DB.gastos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Excedentes
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "excedentes"), snap => {
     DB.excedentes = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Reclamos
   unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "reclamos"), snap => {
     DB.reclamos = snap.docs.map(d => d.data());
     renderTodo();
   }));
-
-  // Ronda meta (para estado)
   unsubscribers.push(onSnapshot(doc(db, "rondas", rondaId), snap => {
     if (snap.exists()) {
       DB.rondas[rondaId] = snap.data();
@@ -912,6 +902,48 @@ function suscribirRonda(rondaId) {
   }));
 }
 
+// NUEVO: suscribe catálogo global (productos, clientes, repartidores)
+function suscribirCatalogo() {
+  if (catalogoSuscripto) return; // evitar duplicados
+  catalogoSuscripto = true;
+
+  unsubscribers.push(onSnapshot(collection(db, "catalogo", "productos", "items"), snap => {
+    DB.productos = snap.docs.map(d => d.data());
+    renderTodo();
+  }, err => console.error("Snapshot catálogo productos:", err)));
+
+  unsubscribers.push(onSnapshot(collection(db, "catalogo", "clientes", "items"), snap => {
+    DB.clientes = snap.docs.map(d => d.data());
+  }, err => console.error("Snapshot catálogo clientes:", err)));
+
+  unsubscribers.push(onSnapshot(collection(db, "catalogo", "repartidores", "items"), snap => {
+    DB.repartidores = snap.docs.map(d => d.data());
+    renderTodo();
+  }, err => console.error("Snapshot catálogo repartidores:", err)));
+}
+
+// NUEVO: suscribe la colección completa de rondas
+function suscribirRondas() {
+  if (rondasSuscriptas) return;
+  rondasSuscriptas = true;
+
+  unsubscribers.push(onSnapshot(collection(db, "rondas"), snap => {
+    const nuevas = {};
+    snap.docs.forEach(d => { nuevas[d.id] = d.data(); });
+    DB.rondas = nuevas;
+    // Si la ronda activa ya no existe, elegir la primera disponible
+    if (!DB.rondaActiva || !DB.rondas[DB.rondaActiva]) {
+      const keys = Object.keys(DB.rondas).sort().reverse();
+      DB.rondaActiva = keys[0] || "";
+    }
+    refrescarSelector();
+    renderSemana();
+  }, err => console.error("Snapshot rondas:", err)));
+}
+
+/* ============================================================================
+   CARGA INICIAL
+   ============================================================================ */
 async function cargarTodo() {
   await cargarConfig();
   await cargarCatalogo();
@@ -924,61 +956,36 @@ async function cargarTodo() {
     await cargarRondas();
   }
 
+  // Suscripciones
   suscribirRonda(DB.rondaActiva);
+  suscribirCatalogo();
+  suscribirRondas();
+
+  // Refrescar catálogo tras autoSeed (punto 15)
+  await cargarCatalogo();
+
   renderTodo();
 }
 
 /* ============================================================================
    ACCIONES DE ESCRITURA (reemplazan guardarDB)
    ============================================================================ */
-async function guardarPedido(p) {
-  await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p);
-}
-async function guardarItem(it) {
-  await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it);
-}
-async function eliminarItem(itemId) {
-  await fsDel(["rondas", DB.rondaActiva, "items"], itemId);
-}
-async function guardarPrecio(pr) {
-  await fsSet(["rondas", DB.rondaActiva, "precios"], pr.codigo_producto, pr);
-}
-async function guardarCompra(c) {
-  await fsSet(["rondas", DB.rondaActiva, "compras"], c.codigo_producto, c);
-}
-async function guardarEntrega(e) {
-  await fsSet(["rondas", DB.rondaActiva, "entregas"], e.pedido_id, e);
-}
-async function guardarGasto(g) {
-  await fsSet(["rondas", DB.rondaActiva, "gastos"], g.id, g);
-}
-async function eliminarGastoFS(id) {
-  await fsDel(["rondas", DB.rondaActiva, "gastos"], id);
-}
-async function guardarExcedente(e) {
-  await fsSet(["rondas", DB.rondaActiva, "excedentes"], e.id, e);
-}
-async function eliminarExcedenteFS(id) {
-  await fsDel(["rondas", DB.rondaActiva, "excedentes"], id);
-}
-async function guardarReclamo(r) {
-  await fsSet(["rondas", DB.rondaActiva, "reclamos"], r.id, r);
-}
-async function eliminarReclamoFS(id) {
-  await fsDel(["rondas", DB.rondaActiva, "reclamos"], id);
-}
-async function guardarProductoGlobal(p) {
-  await fsSet(["catalogo", "productos", "items"], p.codigo, p);
-}
-async function guardarClienteGlobal(c) {
-  await fsSet(["catalogo", "clientes", "items"], c.id, c);
-}
-async function guardarRepartidorGlobal(r) {
-  await fsSet(["catalogo", "repartidores", "items"], r.id, r);
-}
-async function eliminarRepartidorGlobal(id) {
-  await fsDel(["catalogo", "repartidores", "items"], id);
-}
+async function guardarPedido(p) { await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p); }
+async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it); }
+async function eliminarItem(itemId) { await fsDel(["rondas", DB.rondaActiva, "items"], itemId); }
+async function guardarPrecio(pr) { await fsSet(["rondas", DB.rondaActiva, "precios"], pr.codigo_producto, pr); }
+async function guardarCompra(c) { await fsSet(["rondas", DB.rondaActiva, "compras"], c.codigo_producto, c); }
+async function guardarEntrega(e) { await fsSet(["rondas", DB.rondaActiva, "entregas"], e.pedido_id, e); }
+async function guardarGasto(g) { await fsSet(["rondas", DB.rondaActiva, "gastos"], g.id, g); }
+async function eliminarGastoFS(id) { await fsDel(["rondas", DB.rondaActiva, "gastos"], id); }
+async function guardarExcedente(e) { await fsSet(["rondas", DB.rondaActiva, "excedentes"], e.id, e); }
+async function eliminarExcedenteFS(id) { await fsDel(["rondas", DB.rondaActiva, "excedentes"], id); }
+async function guardarReclamo(r) { await fsSet(["rondas", DB.rondaActiva, "reclamos"], r.id, r); }
+async function eliminarReclamoFS(id) { await fsDel(["rondas", DB.rondaActiva, "reclamos"], id); }
+async function guardarProductoGlobal(p) { await fsSet(["catalogo", "productos", "items"], p.codigo, p); }
+async function guardarClienteGlobal(c) { await fsSet(["catalogo", "clientes", "items"], c.id, c); }
+async function guardarRepartidorGlobal(r) { await fsSet(["catalogo", "repartidores", "items"], r.id, r); }
+async function eliminarRepartidorGlobal(id) { await fsDel(["catalogo", "repartidores", "items"], id); }
 
 /* ============================================================================
    RENDER — SEMANA
@@ -1021,7 +1028,7 @@ function mostrarVista(n) {
   if (n === "entregas") renderEntregas();
   if (n === "repartidores") renderRepartidores();
   if (n === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
-  if (n === "cierre") calcularReportes();
+  if (n === "cierre") { calcularReportes().catch(e => console.error("calcularReportes:", e)); }
   if (n === "config") renderConfig();
 }
 function abrirModal(id) { document.getElementById(id).classList.add("active"); }
@@ -1042,9 +1049,23 @@ function refrescarSelector() {
 }
 
 async function cambiarRondaActiva(r) {
+  // Punto 2: validar que exista y limpiar arrays antes de re-suscribir
+  if (!r || !DB.rondas[r]) { toast("Ronda no encontrada: " + r, "err"); refrescarSelector(); return; }
+
+  // Limpiar todos los arrays de la ronda activa
+  DB.precios = [];
+  DB.pedidos = [];
+  DB.items = [];
+  DB.compras = [];
+  DB.entregas = [];
+  DB.gastos = [];
+  DB.excedentes = [];
+  DB.reclamos = [];
+
   DB.rondaActiva = r;
   DB.config.ronda_activa = r;
   await fsSetConfig({ ronda_activa: r });
+
   suscribirRonda(r);
   refrescarSelector();
   renderSemana();
@@ -1058,16 +1079,23 @@ async function crearRonda() {
   await fsSetRonda(r, meta);
   DB.rondas[r] = meta;
 
-  // Copiar precios de la ronda anterior
+  // Copiar precios de la ronda anterior con writeBatch (punto 9)
   const prev = Object.keys(DB.rondas).filter(x => x !== r).sort().reverse()[0];
   if (prev) {
     const prevPrecios = preciosDeRonda(prev);
-    for (const p of prevPrecios) {
-      const nuevo = { ...p, id_ronda: r };
-      await fsSet(["rondas", r, "precios"], nuevo.codigo_producto, nuevo);
+    if (prevPrecios.length) {
+      const batch = writeBatch(db);
+      prevPrecios.forEach(p => {
+        const nuevo = { ...p, id_ronda: r };
+        batch.set(doc(db, "rondas", r, "precios", nuevo.codigo_producto), nuevo, { merge: true });
+      });
+      await batch.commit();
     }
   }
 
+  // Limpiar arrays y activar la nueva ronda
+  DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
+  DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
   DB.rondaActiva = r;
   DB.config.ronda_activa = r;
   await fsSetConfig({ ronda_activa: r });
@@ -1219,7 +1247,9 @@ function abrirAceptar(id) {
   abrirModal("modalAceptar");
 }
 async function confirmarAceptar(id) {
-  const p = pedidoPorId(id); if (!p) return;
+  // Punto 11: validar que el pedido exista
+  const p = pedidoPorId(id);
+  if (!p) { toast("Pedido no encontrado: " + id, "err"); cerrarModal("modalAceptar"); return; }
   const verif = (document.getElementById("pagoVerif").value || "").trim();
   if (!verif) { toast("Falta verificado por", "err"); return; }
   p.estado = "aceptado";
@@ -1373,6 +1403,9 @@ async function edCambiarCantidad(itemId, val) {
   recalcEdResumen(it.pedido_id);
 }
 async function edEliminarItem(itemId, pedidoId) {
+  // Punto 12: validar que el item exista
+  const it = DB.items.find(i => i.item_id === itemId);
+  if (!it) { toast("Item no encontrado", "err"); return; }
   if (!confirm("¿Quitar este item?")) return;
   await eliminarItem(itemId);
   verDetalle(pedidoId);
@@ -1380,7 +1413,9 @@ async function edEliminarItem(itemId, pedidoId) {
 async function edAgregarItem(pedidoId) {
   const cod = document.getElementById("edAddProd").value; if (!cod) return;
   const pr = precioMapa()[cod]; if (!pr) return;
-  const n = DB.items.filter(i => i.pedido_id === pedidoId).length + 1;
+  const existentes = DB.items.filter(i => i.pedido_id === pedidoId);
+  const nums = existentes.map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(n => !isNaN(n));
+  const n = Math.max(0, ...nums) + 1;
   const it = {
     id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"),
     pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad, cantidad: 1,
@@ -1530,7 +1565,8 @@ async function calcGuardar() {
 
   let cli = clientePorCelular(cel);
   if (!cli) {
-    const n = DB.clientes.length + 1;
+    const existentes = DB.clientes.map(c => parseInt(String(c.id).replace("C-", ""), 10)).filter(n => !isNaN(n));
+    const n = Math.max(0, ...existentes) + 1;
     cli = {
       id: "C-" + String(n).padStart(4, "0"), nombre, telefono: cel,
       distrito: document.getElementById("calcDistrito").value,
@@ -1542,7 +1578,9 @@ async function calcGuardar() {
     await guardarClienteGlobal(cli);
   }
 
-  const n = pedidosDeRonda().length + 1;
+  // Punto 8: calcular siguiente ID basado en máximo existente
+  const nums = pedidosDeRonda().map(p => parseInt(String(p.pedido_id).replace("P-", ""), 10)).filter(n => !isNaN(n));
+  const n = Math.max(0, ...nums) + 1;
   const pedidoId = "P-" + String(n).padStart(4, "0");
   const pedido = {
     id_ronda: DB.rondaActiva, pedido_id: pedidoId, cliente_id: cli.id,
@@ -1561,10 +1599,14 @@ async function calcGuardar() {
   };
   await guardarPedido(pedido);
 
+  // Items: ID basado en máximo existente
+  const numsItems = DB.items.filter(i => i.pedido_id === pedidoId).map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(x => !isNaN(x));
+  let baseItem = Math.max(0, ...numsItems);
   for (let i = 0; i < calcItems.length; i++) {
     const it = calcItems[i];
+    baseItem++;
     const item = {
-      id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(i + 1).padStart(2, "0"),
+      id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(baseItem).padStart(2, "0"),
       pedido_id: pedidoId, codigo_producto: it.codigo, nombre: it.nombre,
       unidad: it.unidad, cantidad: it.cantidad,
       precio_compra_estimado: it.precio_compra, precio_venta_congelado: it.precio_venta,
@@ -1630,7 +1672,8 @@ async function guardarProducto() {
     p.unidad = document.getElementById("prodUnidadInput").value;
     await guardarProductoGlobal(p);
   } else {
-    const n = DB.productos.length + 1;
+    const nums = DB.productos.map(p => parseInt(String(p.codigo).replace("PR-", ""), 10)).filter(n => !isNaN(n));
+    const n = Math.max(0, ...nums) + 1;
     const nuevo = {
       codigo: "PR-" + String(n).padStart(3, "0"), nombre,
       grupo: document.getElementById("prodGrupoInput").value,
@@ -1704,10 +1747,14 @@ async function copiarPreciosRondaAnterior() {
   const prev = rondas[idx - 1];
   if (!confirm(`¿Copiar precios de ${prev}?`)) return;
   const prevPrecios = preciosDeRonda(prev);
-  for (const p of prevPrecios) {
+  if (!prevPrecios.length) { toast("La ronda anterior no tiene precios", "warn"); return; }
+  // Punto 9: usar writeBatch
+  const batch = writeBatch(db);
+  prevPrecios.forEach(p => {
     const nuevo = { ...p, id_ronda: DB.rondaActiva };
-    await guardarPrecio(nuevo);
-  }
+    batch.set(doc(db, "rondas", DB.rondaActiva, "precios", nuevo.codigo_producto), nuevo, { merge: true });
+  });
+  await batch.commit();
   renderPrecios(); toast("✓ Copiados de " + prev, "ok");
 }
 async function publicarPrecios() {
@@ -1992,7 +2039,8 @@ async function guardarRepartidor() {
     Object.assign(r, datos);
     await guardarRepartidorGlobal(r);
   } else {
-    const n = DB.repartidores.length + 1;
+    const nums = DB.repartidores.map(r => parseInt(String(r.id).replace("R-", ""), 10)).filter(n => !isNaN(n));
+    const n = Math.max(0, ...nums) + 1;
     const nuevo = { id: "R-" + String(n).padStart(2, "0"), ...datos };
     await guardarRepartidorGlobal(nuevo);
   }
@@ -2088,7 +2136,7 @@ function renderReclamos() {
       <td><input type="date" value="${esc(r.fecha)}" onchange="updReclamo('${r.id}','fecha',this.value)"></td>
       <td><select onchange="updReclamo('${r.id}','pedido_id',this.value)">
         <option value="">— Elegir pedido —</option>
-        ${opcionesPed.replace(`value="${esc(r.pedido_id || "")}"`, `value="${esc(r.pedido_id || "")}" selected`)}
+        ${pedidos.map(p => `<option value="${esc(p.pedido_id)}" ${r.pedido_id === p.pedido_id ? "selected" : ""}>${esc(p.pedido_id)} — ${esc(p.cliente_nombre)} — ${soles(p.total)}</option>`).join("")}
       </select></td>
       <td><input value="${esc(r.motivo || "")}" onchange="updReclamo('${r.id}','motivo',this.value)"></td>
       <td><input type="number" step="0.01" value="${r.costo_solucion || 0}" onchange="updReclamo('${r.id}','costo_solucion',this.value)"></td>
@@ -2120,68 +2168,120 @@ async function delReclamo(id) {
 }
 
 /* ============================================================================
-   REPORTES
+   REPORTES (PUNTO 1 CORREGIDO: consulta Firestore para rondas no activas)
    ============================================================================ */
-function calcularReportes() {
+async function calcularReportes() {
   const cont = document.getElementById("reportesContenido");
-  const aceptados = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
-  const ingresos = aceptados.reduce((s, p) => s + Number(p.total || 0), 0);
-  const comprasReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
-  const comprasEst = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_compra || 0), 0);
-  const gs = gastosDeRonda(); const gastos = gs.reduce((s, g) => s + Number(g.monto || 0), 0);
-  const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
-  const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const mb = ingresos - comprasReal; const un = mb - gastos + exc - recl;
-  const pt = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
-  gs.forEach(g => { pt[g.tipo] = (pt[g.tipo] || 0) + Number(g.monto || 0); });
-  const cl = un >= 0 ? "good" : "bad"; const delta = comprasEst - comprasReal;
-  cont.innerHTML = `
-    <div class="info-box"><strong>Ronda:</strong> ${esc(DB.rondaActiva)} · ${rondaActual().estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptados.length} pedidos activos</div>
-    <div class="fin-grid">
-      <div class="fin-col"><h4>Ingresos</h4>
-        <div class="fin-row"><span>Pedidos</span><span class="val">${soles(ingresos)}</span></div>
-        <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresos + exc)}</span></div>
+  if (!cont) return;
+  cont.innerHTML = `<div class="info-box">Calculando reportes…</div>`;
+
+  try {
+    const rondaActiva = DB.rondaActiva;
+    const rondasKeys = Object.keys(DB.rondas).sort().reverse();
+
+    // Datos de la ronda activa (ya sincronizados por onSnapshot)
+    const datosActivos = {
+      pedidos: DB.pedidos.filter(p => p.id_ronda === rondaActiva),
+      compras: DB.compras.filter(c => c.id_ronda === rondaActiva),
+      gastos: DB.gastos.filter(g => g.id_ronda === rondaActiva),
+      reclamos: DB.reclamos.filter(r => r.id_ronda === rondaActiva),
+      excedentes: DB.excedentes.filter(e => e.id_ronda === rondaActiva)
+    };
+
+    // Para cada ronda distinta a la activa, consultar Firestore en paralelo
+    const historicos = await Promise.all(rondasKeys.map(async (rid) => {
+      if (rid === rondaActiva) {
+        return { rid, ...datosActivos };
+      }
+      try {
+        const [pedSnap, comSnap, gasSnap, recSnap, excSnap] = await Promise.all([
+          getDocs(collection(db, "rondas", rid, "pedidos")),
+          getDocs(collection(db, "rondas", rid, "compras")),
+          getDocs(collection(db, "rondas", rid, "gastos")),
+          getDocs(collection(db, "rondas", rid, "reclamos")),
+          getDocs(collection(db, "rondas", rid, "excedentes"))
+        ]);
+        return {
+          rid,
+          pedidos: pedSnap.docs.map(d => d.data()),
+          compras: comSnap.docs.map(d => d.data()),
+          gastos: gasSnap.docs.map(d => d.data()),
+          reclamos: recSnap.docs.map(d => d.data()),
+          excedentes: excSnap.docs.map(d => d.data())
+        };
+      } catch (e) {
+        console.error("Error cargando histórico de " + rid + ":", e);
+        return { rid, pedidos: [], compras: [], gastos: [], reclamos: [], excedentes: [] };
+      }
+    }));
+
+    // Calcular totales de la ronda activa
+    const aceptadosAct = datosActivos.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+    const ingresosAct = aceptadosAct.reduce((s, p) => s + Number(p.total || 0), 0);
+    const comprasRealAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+    const comprasEstAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_compra || 0), 0);
+    const gastosAct = datosActivos.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
+    const excAct = datosActivos.excedentes.reduce((s, e) => s + Number(e.ingreso || 0), 0);
+    const reclAct = datosActivos.reclamos.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
+    const mb = ingresosAct - comprasRealAct;
+    const un = mb - gastosAct + excAct - reclAct;
+    const pt = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
+    datosActivos.gastos.forEach(g => { pt[g.tipo] = (pt[g.tipo] || 0) + Number(g.monto || 0); });
+    const cl = un >= 0 ? "good" : "bad";
+    const delta = comprasEstAct - comprasRealAct;
+
+    cont.innerHTML = `
+      <div class="info-box"><strong>Ronda:</strong> ${esc(rondaActiva)} · ${rondaActual().estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptadosAct.length} pedidos activos</div>
+      <div class="fin-grid">
+        <div class="fin-col"><h4>Ingresos</h4>
+          <div class="fin-row"><span>Pedidos</span><span class="val">${soles(ingresosAct)}</span></div>
+          <div class="fin-row"><span>Excedentes</span><span class="val">${soles(excAct)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresosAct + excAct)}</span></div>
+        </div>
+        <div class="fin-col"><h4>Costos</h4>
+          <div class="fin-row"><span>Compra real</span><span class="val">${soles(comprasRealAct)}</span></div>
+          <div class="fin-row"><span>Compra est.</span><span class="val">${soles(comprasEstAct)}</span></div>
+          <div class="fin-row"><span>Transporte</span><span class="val">${soles(pt.transporte)}</span></div>
+          <div class="fin-row"><span>Empaque</span><span class="val">${soles(pt.empaque)}</span></div>
+          <div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div>
+          <div class="fin-row"><span>Otro</span><span class="val">${soles(pt.otro)}</span></div>
+          <div class="fin-row"><span>Reclamos</span><span class="val">${soles(reclAct)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(comprasRealAct + gastosAct + reclAct)}</span></div>
+        </div>
+        <div class="fin-col"><h4>Resultado</h4>
+          <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div>
+          <div class="fin-row"><span>Δ compra vs est.</span><span class="val ${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</span></div>
+          <div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastosAct)}</span></div>
+          <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(reclAct)}</span></div>
+          <div class="fin-row"><span>Excedentes</span><span class="val">+${soles(excAct)}</span></div>
+          <div class="fin-row"><span><strong>Utilidad neta</strong></span><span class="val">${soles(un)}</span></div>
+        </div>
       </div>
-      <div class="fin-col"><h4>Costos</h4>
-        <div class="fin-row"><span>Compra real</span><span class="val">${soles(comprasReal)}</span></div>
-        <div class="fin-row"><span>Compra est.</span><span class="val">${soles(comprasEst)}</span></div>
-        <div class="fin-row"><span>Transporte</span><span class="val">${soles(pt.transporte)}</span></div>
-        <div class="fin-row"><span>Empaque</span><span class="val">${soles(pt.empaque)}</span></div>
-        <div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div>
-        <div class="fin-row"><span>Otro</span><span class="val">${soles(pt.otro)}</span></div>
-        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(comprasReal + gastos + recl)}</span></div>
-      </div>
-      <div class="fin-col"><h4>Resultado</h4>
-        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div>
-        <div class="fin-row"><span>Δ compra vs est.</span><span class="val ${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</span></div>
-        <div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastos)}</span></div>
-        <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(recl)}</span></div>
-        <div class="fin-row"><span>Excedentes</span><span class="val">+${soles(exc)}</span></div>
-        <div class="fin-row"><span><strong>Utilidad neta</strong></span><span class="val">${soles(un)}</span></div>
-      </div>
-    </div>
-    <div class="fin-result ${cl}"><div class="lbl">Utilidad neta</div><div class="num">${soles(un)}</div></div>
-    <h3 style="margin-top:20px">Histórico</h3>
-    <div class="table-scroll"><table>
-      <thead><tr><th>Ronda</th><th>Estado</th><th>Pedidos</th><th>Ingresos</th><th>Costo real</th><th>Utilidad</th></tr></thead>
-      <tbody>${Object.keys(DB.rondas).sort().reverse().map(r => {
-    const pd = DB.pedidos.filter(p => p.id_ronda === r && ["aceptado", "empacado", "entregado"].includes(p.estado));
-    const ing = pd.reduce((s, p) => s + Number(p.total || 0), 0);
-    const cr = DB.compras.filter(c => c.id_ronda === r).reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
-    const ga = DB.gastos.filter(g => g.id_ronda === r).reduce((s, g) => s + Number(g.monto || 0), 0);
-    const rc = DB.reclamos.filter(x => x.id_ronda === r).reduce((s, x) => s + Number(x.costo_solucion || 0), 0);
-    const ex = DB.excedentes.filter(x => x.id_ronda === r).reduce((s, x) => s + Number(x.ingreso || 0), 0);
-    const ut = ing - cr - ga + ex - rc;
-    return `<tr>
-          <td><strong>${esc(r)}</strong></td>
-          <td><span class="estado-ronda estado-${DB.rondas[r].estado}">${esc(DB.rondas[r].estado)}</span></td>
-          <td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr + ga + rc)}</td>
-          <td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td>
-        </tr>`;
-  }).join("")}</tbody>
-    </table></div>`;
+      <div class="fin-result ${cl}"><div class="lbl">Utilidad neta</div><div class="num">${soles(un)}</div></div>
+      <h3 style="margin-top:20px">Histórico</h3>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Ronda</th><th>Estado</th><th>Pedidos</th><th>Ingresos</th><th>Costo real</th><th>Utilidad</th></tr></thead>
+        <tbody>${historicos.map(h => {
+          const pd = h.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+          const ing = pd.reduce((s, p) => s + Number(p.total || 0), 0);
+          const cr = h.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+          const ga = h.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
+          const rc = h.reclamos.reduce((s, x) => s + Number(x.costo_solucion || 0), 0);
+          const ex = h.excedentes.reduce((s, x) => s + Number(x.ingreso || 0), 0);
+          const ut = ing - cr - ga + ex - rc;
+          const meta = DB.rondas[h.rid] || {};
+          return `<tr>
+            <td><strong>${esc(h.rid)}</strong></td>
+            <td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td>
+            <td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr + ga + rc)}</td>
+            <td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table></div>`;
+  } catch (e) {
+    console.error("Error en calcularReportes:", e);
+    cont.innerHTML = `<div class="error-box">Error al calcular reportes: ${esc(e.message)}</div>`;
+  }
 }
 
 /* ============================================================================
@@ -2224,17 +2324,47 @@ async function exportarJSON() {
       catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores }
     };
     for (const rid of Object.keys(DB.rondas)) {
-      data.rondas[rid] = {
-        meta: DB.rondas[rid],
-        precios: DB.precios.filter(p => p.id_ronda === rid),
-        pedidos: DB.pedidos.filter(p => p.id_ronda === rid),
-        items: DB.items.filter(i => i.id_ronda === rid),
-        compras: DB.compras.filter(c => c.id_ronda === rid),
-        entregas: DB.entregas.filter(e => e.id_ronda === rid),
-        gastos: DB.gastos.filter(g => g.id_ronda === rid),
-        excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
-        reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
-      };
+      if (rid === DB.rondaActiva) {
+        data.rondas[rid] = {
+          meta: DB.rondas[rid],
+          precios: DB.precios.filter(p => p.id_ronda === rid),
+          pedidos: DB.pedidos.filter(p => p.id_ronda === rid),
+          items: DB.items.filter(i => i.id_ronda === rid),
+          compras: DB.compras.filter(c => c.id_ronda === rid),
+          entregas: DB.entregas.filter(e => e.id_ronda === rid),
+          gastos: DB.gastos.filter(g => g.id_ronda === rid),
+          excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
+          reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
+        };
+      } else {
+        // Para rondas no activas, consultar Firestore
+        try {
+          const [pSnap, prSnap, iSnap, cSnap, eSnap, gSnap, xSnap, rSnap] = await Promise.all([
+            getDocs(collection(db, "rondas", rid, "pedidos")),
+            getDocs(collection(db, "rondas", rid, "precios")),
+            getDocs(collection(db, "rondas", rid, "items")),
+            getDocs(collection(db, "rondas", rid, "compras")),
+            getDocs(collection(db, "rondas", rid, "entregas")),
+            getDocs(collection(db, "rondas", rid, "gastos")),
+            getDocs(collection(db, "rondas", rid, "excedentes")),
+            getDocs(collection(db, "rondas", rid, "reclamos"))
+          ]);
+          data.rondas[rid] = {
+            meta: DB.rondas[rid],
+            precios: prSnap.docs.map(d => d.data()),
+            pedidos: pSnap.docs.map(d => d.data()),
+            items: iSnap.docs.map(d => d.data()),
+            compras: cSnap.docs.map(d => d.data()),
+            entregas: eSnap.docs.map(d => d.data()),
+            gastos: gSnap.docs.map(d => d.data()),
+            excedentes: xSnap.docs.map(d => d.data()),
+            reclamos: rSnap.docs.map(d => d.data())
+          };
+        } catch (e) {
+          console.error("Error exportando ronda " + rid, e);
+          data.rondas[rid] = { meta: DB.rondas[rid], precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
+        }
+      }
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -2252,11 +2382,13 @@ function importarJSON() {
         const d = JSON.parse(ev.target.result);
         if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
         if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
+        // Punto 6: cancelar suscripciones antes de importar
+        cancelarSuscripciones();
         // Subir catálogo
         const b1 = writeBatch(db);
-        (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p));
-        (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c));
-        (d.catalogo.repartidores || []).forEach(r => b1.set(doc(db, "catalogo", "repartidores", "items", r.id), r));
+        (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }));
+        (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }));
+        (d.catalogo.repartidores || []).forEach(r => b1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }));
         await b1.commit();
         // Subir rondas
         for (const rid of Object.keys(d.rondas)) {
@@ -2283,15 +2415,15 @@ async function resetTotal() {
   if (!confirm("¿Borrar TODO en Firestore y reiniciar? Esta acción no se puede deshacer.")) return;
   if (!confirm("¿Estás completamente seguro? Se borrarán todas las rondas y catálogo.")) return;
   try {
+    // Punto 5: cancelar suscripciones antes de resetear
+    cancelarSuscripciones();
     const colecciones = [
       ["catalogo", "productos", "items"], ["catalogo", "clientes", "items"], ["catalogo", "repartidores", "items"]
     ];
-    // Borrar catálogo
     for (const col of colecciones) {
       const snap = await getDocs(collection(db, ...col));
       for (const d of snap.docs) await deleteDoc(d.ref);
     }
-    // Borrar todas las rondas y subcolecciones
     const rondasSnap = await getDocs(collection(db, "rondas"));
     for (const rDoc of rondasSnap.docs) {
       const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
@@ -2301,7 +2433,6 @@ async function resetTotal() {
       }
       await deleteDoc(rDoc.ref);
     }
-    // Borrar config
     await deleteDoc(doc(db, "config", "global"));
     toast("✓ Reset completado. Recargando…", "ok");
     setTimeout(() => location.reload(), 1500);
@@ -2314,20 +2445,39 @@ async function resetTotal() {
 function renderTodo() {
   renderSemana(); refrescarSelector();
   const v = document.querySelector(".view.active");
-  if (v) {
-    const id = v.id.replace("view-", "");
-    if (id === "dashboard") renderDashboard();
-    if (id === "pipeline") renderPipeline();
-    if (id === "calculadora") renderCalculadora();
-    if (id === "productos") renderProductos();
-    if (id === "precios") renderPrecios();
-    if (id === "compra") calcularListaCompra();
-    if (id === "entregas") renderEntregas();
-    if (id === "repartidores") renderRepartidores();
-    if (id === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
-    if (id === "cierre") calcularReportes();
-    if (id === "config") renderConfig();
+  if (!v) return;
+  const id = v.id.replace("view-", "");
+
+  // Punto 14: mostrar "Cargando…" si aún no llegaron los datos iniciales
+  const r = DB.rondas[DB.rondaActiva];
+  if (r && r.fecha_apertura && DB.pedidos.length === 0 && DB.precios.length === 0) {
+    // Si la vista es la de cierre, igual calculamos (async)
+    // Para el resto, mostramos loading momentáneo solo si no hay nada
+    const contenedores = {
+      dashboard: "dashTopProductos",
+      pipeline: "pipelineGrid",
+      compra: "listaCompraContenido",
+      entregas: "rutasContenido"
+    };
+    if (contenedores[id]) {
+      const el = document.getElementById(contenedores[id]);
+      if (el && !el.innerHTML.trim()) {
+        el.innerHTML = `<div class="small-note">Cargando…</div>`;
+      }
+    }
   }
+
+  if (id === "dashboard") renderDashboard();
+  if (id === "pipeline") renderPipeline();
+  if (id === "calculadora") renderCalculadora();
+  if (id === "productos") renderProductos();
+  if (id === "precios") renderPrecios();
+  if (id === "compra") calcularListaCompra();
+  if (id === "entregas") renderEntregas();
+  if (id === "repartidores") renderRepartidores();
+  if (id === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
+  if (id === "cierre") { calcularReportes().catch(e => console.error("calcularReportes:", e)); }
+  if (id === "config") renderConfig();
 }
 
 /* ============================================================================
@@ -2359,7 +2509,6 @@ onAuthStateChanged(auth, async user => {
       await signOut(auth);
       return;
     }
-    // Autorizado
     spinner.style.display = "block";
     btn.style.display = "none";
     err.textContent = "";
@@ -2373,6 +2522,17 @@ onAuthStateChanged(auth, async user => {
       btn.style.display = "block";
     }
   } else {
+    // Punto 7: cancelar suscripciones al cerrar sesión
+    cancelarSuscripciones();
+    catalogoSuscripto = false;
+    rondasSuscriptas = false;
+    // Limpiar estado local para que no queden datos de la sesión anterior
+    DB = {
+      config: {}, rondas: {}, rondaActiva: "",
+      productos: [], clientes: [], repartidores: [],
+      precios: [], pedidos: [], items: [], compras: [],
+      entregas: [], gastos: [], excedentes: [], reclamos: []
+    };
     overlay.style.display = "flex";
     spinner.style.display = "none";
     btn.style.display = "block";
@@ -2416,11 +2576,9 @@ Object.assign(window, {
   exportarJSON, importarJSON, resetTotal,
   // Login
   iniciarSesion,
-  // Pipeline render (para buscador)
+  // Renders para buscadores
   renderPipeline,
-  // Productos render (para buscador)
   renderProductos,
-  // Precios render (para buscador)
   renderPrecios
 });
 </script>
