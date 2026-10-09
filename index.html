@@ -32,6 +32,7 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:grayscale(.
 .section-head{margin:0 0 6px;font-size:20px}
 input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--borde);border-radius:var(--radio-sm);font-size:13px;font-family:inherit;background:#fff;color:var(--texto)}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--verde);box-shadow:0 0 0 4px rgba(46,158,91,.16)}
+input:disabled{background:var(--crema);color:var(--texto-2);cursor:not-allowed}
 table{width:100%;border-collapse:collapse}
 th,td{padding:9px 8px;border-bottom:1px solid var(--borde);text-align:left;vertical-align:middle}
 th{background:var(--verde-claro);color:var(--verde);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
@@ -59,11 +60,12 @@ tbody tr:hover{background:#F4FBF6}
 .modal.active{display:flex}
 .modal-content{background:#fff;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;border-radius:var(--radio);padding:22px}
 .modal-content.wide{max-width:1040px}
+.modal-content.narrow{max-width:480px}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .close{border-radius:50%;width:34px;height:34px;min-height:34px;padding:0;background:var(--crema);color:var(--texto);font-size:18px;box-shadow:none}
 .roundbar{background:#fff;border-radius:var(--radio);padding:12px 16px;box-shadow:var(--sombra-sm);margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--borde)}
 .roundbar label{font-weight:700;color:var(--verde);font-size:12px;text-transform:uppercase}
-.roundbar select{width:auto;min-width:190px;font-weight:600}
+.roundbar select{width:auto;min-width:220px;font-weight:600}
 .roundbar .spacer{flex:1}
 .semana-bar{background:#fff;border-bottom:1px solid var(--borde);padding:10px 0}
 .semana-inner{max-width:1500px;margin:auto;padding:0 20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
@@ -178,6 +180,7 @@ tbody tr:hover{background:#F4FBF6}
 #syncIndicator.visible{opacity:1}
 #syncIndicator.saving{background:#FFF3CD;color:#7A5500}
 #syncIndicator.saved{background:var(--verde-claro);color:var(--verde)}
+.aviso-semana{background:#FFF6DE;border-left:4px solid var(--miel);border-radius:8px;padding:6px 10px;font-size:11px;color:#7A5500;font-weight:600}
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.parada-item{grid-template-columns:36px 1fr;gap:6px}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.dash-row,.ruta-info,.pipeline{grid-template-columns:1fr}.container{padding:12px}header h1{font-size:20px}.section{padding:14px}.item-row{grid-template-columns:1fr}}
@@ -198,12 +201,15 @@ tbody tr:hover{background:#F4FBF6}
   <div class="roundbar">
     <label>Ronda:</label>
     <select id="rondaSelector" onchange="cambiarRondaActiva(this.value)"></select>
+    <button class="btn-ghost btn-sm" onclick="abrirModalNombreRonda()" title="Renombrar ronda activa">✏️</button>
     <span id="rondaEstado" class="estado-ronda estado-abierta">abierta</span>
-    <button class="btn-add btn-sm" onclick="crearRonda()">＋ Nueva</button>
+    <button class="btn-add btn-sm" onclick="abrirModalNuevaRonda()">＋ Nueva</button>
+    <button class="btn-delete btn-sm" onclick="borrarRonda(DB.rondaActiva)" title="Borrar la ronda activa y todos sus datos">🗑️ Borrar</button>
     <button class="btn-info btn-sm" onclick="marcarRonda('cerrada')">🔒 Cerrada</button>
     <button class="btn-info btn-sm" onclick="marcarRonda('entregada')">📦 Entregada</button>
     <button class="btn-warn btn-sm" onclick="marcarRonda('abierta')">🔓 Reabrir</button>
     <div class="spacer"></div>
+    <span id="avisoSemana"></span>
     <span class="small-note" id="rondaMeta">—</span>
   </div>
 
@@ -473,6 +479,58 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div></div>
 
+<!-- MODAL NUEVA RONDA -->
+<div class="modal" id="modalNuevaRonda"><div class="modal-content">
+  <div class="modal-header"><h3>＋ Nueva ronda</h3><button class="close" onclick="cerrarModal('modalNuevaRonda')">×</button></div>
+
+  <p><label class="small-note">Fecha (cualquier día de la semana, se normaliza al lunes) *</label>
+    <input type="date" id="nrFecha" onchange="previewNuevaRonda()"></p>
+
+  <p><label class="small-note">Nombre de la ronda (opcional, max 60)</label>
+    <input id="nrNombre" maxlength="60" placeholder="Ej: Semana post-feriado, Ronda especial…"></p>
+
+  <div id="nrPreview" class="info-box">—</div>
+
+  <p><label class="small-note">Copiar precios de…</label>
+    <select id="nrCopiarDe" onchange="previewNuevaRonda()">
+      <option value="">— No copiar precios —</option>
+    </select></p>
+
+  <p><label class="small-note" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+    <input type="checkbox" id="nrCopiarReps" style="width:auto;margin:0" checked>
+    Copiar asignación de repartidores por zona (A/B/C)
+  </label></p>
+
+  <div class="warn-box" style="margin-top:12px">
+    <strong>Ojo:</strong> la nueva ronda arranca vacía de pedidos, items, compras, gastos, entregas, excedentes y reclamos. Solo se copian precios y (opcional) repartidores.
+  </div>
+
+  <div class="actions" style="justify-content:flex-end;margin-top:14px">
+    <button class="btn-ghost" onclick="cerrarModal('modalNuevaRonda')">Cancelar</button>
+    <button class="btn-save" id="nrBtnCrear" onclick="confirmarNuevaRonda()">✓ Crear ronda</button>
+  </div>
+</div></div>
+
+<!-- MODAL RENOMBRAR RONDA -->
+<div class="modal" id="modalNombreRonda"><div class="modal-content narrow">
+  <div class="modal-header"><h3>✏️ Renombrar ronda</h3><button class="close" onclick="cerrarModal('modalNombreRonda')">×</button></div>
+
+  <p><label class="small-note">ID (no editable — clave en Firestore)</label>
+    <input id="rnIdDisplay" disabled></p>
+
+  <p><label class="small-note">Nombre (opcional, max 60)</label>
+    <input id="rnNombreInput" maxlength="60" placeholder="Ej: Semana del feriado" oninput="previewNombreRonda()"></p>
+
+  <div id="rnPreview" class="info-box">—</div>
+
+  <p class="small-note">El ID no cambia nunca. El nombre es solo para mostrarlo en la UI y en el selector.</p>
+
+  <div class="actions" style="justify-content:flex-end;margin-top:14px">
+    <button class="btn-ghost" onclick="cerrarModal('modalNombreRonda')">Cancelar</button>
+    <button class="btn-save" onclick="guardarNombreRonda()">💾 Guardar</button>
+  </div>
+</div></div>
+
 <!-- OVERLAY LOGIN -->
 <div id="loginOverlay">
   <div class="box">
@@ -497,7 +555,7 @@ tbody tr:hover{background:#F4FBF6}
 <script type="module">
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot, writeBatch, query, orderBy } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot, writeBatch } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAonWel671riadA7rP7yKTWFy1APCad1LI",
@@ -632,6 +690,35 @@ function showSync(estado) {
   syncTimer = setTimeout(() => { el.classList.remove("visible"); }, 1500);
 }
 
+/* ---- Helpers de fechas para rondas semanales ---- */
+function normalizarALunes(fechaISO) {
+  if (!fechaISO) return "";
+  const d = new Date(fechaISO + "T12:00:00");
+  if (isNaN(d.getTime())) return "";
+  const dow = d.getDay() || 7;
+  d.setDate(d.getDate() - (dow - 1));
+  return d.toISOString().slice(0, 10);
+}
+function proximoLunes() {
+  const d = new Date();
+  const dow = d.getDay() || 7;
+  let offset;
+  if (dow === 1) offset = 0;
+  else if (dow <= 5) offset = 1 - dow;
+  else offset = 8 - dow;
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0, 10);
+}
+function lunesSemanaActual() {
+  return normalizarALunes(hoy());
+}
+// Devuelve el label visible de una ronda: "Nombre · R-YYYY-MM-DD" o solo el ID
+function labelRonda(rid) {
+  const r = DB.rondas[rid] || {};
+  const nom = (r.nombre || "").trim();
+  return nom ? `${nom} · ${rid}` : rid;
+}
+
 /* ============================================================================
    FIRESTORE — PERSISTENCIA
    ============================================================================ */
@@ -686,7 +773,7 @@ const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
    SEMILLA INICIAL (auto-seed)
    ============================================================================ */
 function crearDBInicial() {
-  const ronda = "R-" + hoy();
+  const ronda = "R-" + lunesSemanaActual();
   const productos = [
     ["PR-001", "Papa amarilla", "Básico", "kg"], ["PR-002", "Papa blanca", "Básico", "kg"],
     ["PR-003", "Papa canchán", "Básico", "kg"], ["PR-004", "Tomate", "Básico", "kg"],
@@ -765,7 +852,7 @@ function crearDBInicial() {
   return {
     version: 13,
     rondaActiva: ronda,
-    rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
+    rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
     productos, clientes, repartidores, precios, pedidos, items, compras,
     entregas: [], gastos: [], excedentes: [], reclamos: [],
     config: { oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng, costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1 }
@@ -776,37 +863,30 @@ async function autoSeed() {
   const seed = crearDBInicial();
   const rondaId = seed.rondaActiva;
 
-  // Catálogo global (merge:true para idempotencia)
   const batch1 = writeBatch(db);
   seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }); });
   seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }); });
   seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }); });
   await batch1.commit();
 
-  // Ronda
   await fsSetRonda(rondaId, seed.rondas[rondaId]);
 
-  // Precios
   const batch2 = writeBatch(db);
   seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p, { merge: true }); });
   await batch2.commit();
 
-  // Pedidos
   const batch3 = writeBatch(db);
   seed.pedidos.forEach(p => { batch3.set(doc(db, "rondas", rondaId, "pedidos", p.pedido_id), p, { merge: true }); });
   await batch3.commit();
 
-  // Items
   const batch4 = writeBatch(db);
   seed.items.forEach(i => { batch4.set(doc(db, "rondas", rondaId, "items", i.item_id), i, { merge: true }); });
   await batch4.commit();
 
-  // Compras
   const batch5 = writeBatch(db);
   seed.compras.forEach(c => { batch5.set(doc(db, "rondas", rondaId, "compras", c.codigo_producto), c, { merge: true }); });
   await batch5.commit();
 
-  // Config
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
 
   console.log("Auto-seed completado");
@@ -850,7 +930,7 @@ async function cargarRondas() {
 }
 
 /* ============================================================================
-   CANCELACIÓN DE SUSCRIPCIONES (separada: ronda vs globales)
+   CANCELACIÓN DE SUSCRIPCIONES
    ============================================================================ */
 function cancelarSuscripcionesRonda() {
   unsubscribersRonda.forEach(u => u());
@@ -870,8 +950,6 @@ function cancelarSuscripciones() {
 /* ============================================================================
    SUSCRIPCIONES EN TIEMPO REAL
    ============================================================================ */
-
-// Suscribe 8 subcolecciones de la ronda activa + el doc meta de la ronda
 function suscribirRonda(rondaId) {
   cancelarSuscripcionesRonda();
   if (!rondaId) return;
@@ -916,9 +994,8 @@ function suscribirRonda(rondaId) {
   }));
 }
 
-// Suscribe catálogo global (productos, clientes, repartidores)
 function suscribirCatalogo() {
-  if (catalogoSuscripto) return; // evitar duplicados
+  if (catalogoSuscripto) return;
   catalogoSuscripto = true;
 
   unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "productos", "items"), snap => {
@@ -936,7 +1013,6 @@ function suscribirCatalogo() {
   }, err => console.error("Snapshot catálogo repartidores:", err)));
 }
 
-// Suscribe la colección completa de rondas
 function suscribirRondas() {
   if (rondasSuscriptas) return;
   rondasSuscriptas = true;
@@ -945,7 +1021,6 @@ function suscribirRondas() {
     const nuevas = {};
     snap.docs.forEach(d => { nuevas[d.id] = d.data(); });
     DB.rondas = nuevas;
-    // Si la ronda activa ya no existe, elegir la primera disponible
     if (!DB.rondaActiva || !DB.rondas[DB.rondaActiva]) {
       const keys = Object.keys(DB.rondas).sort().reverse();
       DB.rondaActiva = keys[0] || "";
@@ -970,19 +1045,17 @@ async function cargarTodo() {
     await cargarRondas();
   }
 
-  // Suscripciones
   suscribirRonda(DB.rondaActiva);
   suscribirCatalogo();
   suscribirRondas();
 
-  // Refrescar catálogo tras autoSeed (punto 15)
   await cargarCatalogo();
 
   renderTodo();
 }
 
 /* ============================================================================
-   ACCIONES DE ESCRITURA (reemplazan guardarDB)
+   ACCIONES DE ESCRITURA
    ============================================================================ */
 async function guardarPedido(p) { await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p); }
 async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it); }
@@ -1054,19 +1127,55 @@ function cerrarModal(id) { document.getElementById(id).classList.remove("active"
 function refrescarSelector() {
   const sel = document.getElementById("rondaSelector");
   const keys = Object.keys(DB.rondas).sort().reverse();
-  sel.innerHTML = keys.map(k => `<option value="${k}" ${k === DB.rondaActiva ? "selected" : ""}>${k}</option>`).join("");
+
+  // Agrupar por estado
+  const grupos = { abierta: [], cerrada: [], entregada: [], otro: [] };
+  keys.forEach(k => {
+    const est = (DB.rondas[k].estado || "abierta");
+    if (grupos[est]) grupos[est].push(k);
+    else grupos.otro.push(k);
+  });
+
+  const opt = k => `<option value="${k}" ${k === DB.rondaActiva ? "selected" : ""} title="${esc(k)}">${esc(labelRonda(k))}</option>`;
+  let html = "";
+  if (grupos.abierta.length)   html += `<optgroup label="🟢 Abiertas">${grupos.abierta.map(opt).join("")}</optgroup>`;
+  if (grupos.cerrada.length)   html += `<optgroup label="🟡 Cerradas">${grupos.cerrada.map(opt).join("")}</optgroup>`;
+  if (grupos.entregada.length) html += `<optgroup label="🔵 Entregadas">${grupos.entregada.map(opt).join("")}</optgroup>`;
+  if (grupos.otro.length)      html += `<optgroup label="⚪ Otras">${grupos.otro.map(opt).join("")}</optgroup>`;
+  sel.innerHTML = html;
+
   const r = rondaActual();
   const est = document.getElementById("rondaEstado");
   est.textContent = r.estado || "abierta"; est.className = "estado-ronda estado-" + (r.estado || "abierta");
-  document.getElementById("crumbRonda").textContent = DB.rondaActiva;
+
+  // Crumb: nombre grande + ID chiquito
+  const nom = (r.nombre || "").trim();
+  document.getElementById("crumbRonda").innerHTML = nom
+    ? `${esc(nom)} <span class="muted" style="font-weight:500;text-transform:none">(${esc(DB.rondaActiva)})</span>`
+    : esc(DB.rondaActiva || "—");
+
   document.getElementById("rondaMeta").textContent = "Apertura: " + (r.fecha_apertura ? new Date(r.fecha_apertura).toLocaleDateString("es-PE") : "—") + " · Precios publicados: " + (r.precios_publicados ? "Sí" : "No");
+
+  // Título del documento
+  document.title = `Compra con Misti — ${nom || DB.rondaActiva || "Admin"}`;
+
+  // Aviso semana
+  const aviso = document.getElementById("avisoSemana");
+  if (!DB.rondaActiva) { aviso.innerHTML = ""; return; }
+  const lunesActivo = DB.rondaActiva.startsWith("R-") ? DB.rondaActiva.slice(2) : "";
+  const lunesActual = lunesSemanaActual();
+  if (lunesActivo && lunesActivo !== lunesActual) {
+    const diff = (new Date(lunesActivo + "T12:00:00") - new Date(lunesActual + "T12:00:00")) / 86400000;
+    const signo = diff < 0 ? "pasada" : "futura";
+    aviso.innerHTML = `<span class="aviso-semana">⚠️ Viendo ronda ${signo} (${Math.abs(Math.round(diff / 7))} sem.)</span>`;
+  } else {
+    aviso.innerHTML = "";
+  }
 }
 
 async function cambiarRondaActiva(r) {
-  // Punto 2: validar que exista y limpiar arrays antes de re-suscribir
   if (!r || !DB.rondas[r]) { toast("Ronda no encontrada: " + r, "err"); refrescarSelector(); return; }
 
-  // Limpiar todos los arrays de la ronda activa
   DB.precios = [];
   DB.pedidos = [];
   DB.items = [];
@@ -1086,38 +1195,215 @@ async function cambiarRondaActiva(r) {
   renderTodo();
 }
 
-async function crearRonda() {
-  const r = "R-" + hoy();
-  if (DB.rondas[r]) { toast("Ya existe " + r, "warn"); return; }
-  const meta = { id_ronda: r, estado: "abierta", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} };
-  await fsSetRonda(r, meta);
-  DB.rondas[r] = meta;
+/* ---- MODAL NUEVA RONDA ---- */
+function abrirModalNuevaRonda() {
+  document.getElementById("nrFecha").value = proximoLunes();
+  document.getElementById("nrNombre").value = "";
 
-  // Copiar precios de la ronda anterior con writeBatch (punto 9)
-  const prev = Object.keys(DB.rondas).filter(x => x !== r).sort().reverse()[0];
-  if (prev) {
-    const prevPrecios = preciosDeRonda(prev);
-    if (prevPrecios.length) {
-      const batch = writeBatch(db);
-      prevPrecios.forEach(p => {
-        const nuevo = { ...p, id_ronda: r };
-        batch.set(doc(db, "rondas", r, "precios", nuevo.codigo_producto), nuevo, { merge: true });
-      });
-      await batch.commit();
-    }
+  const sel = document.getElementById("nrCopiarDe");
+  const keys = Object.keys(DB.rondas).sort().reverse();
+  const defaultPrev = keys[0] || "";
+  sel.innerHTML = '<option value="">— No copiar precios —</option>' +
+    keys.map(k => `<option value="${k}" ${k === defaultPrev ? "selected" : ""}>${esc(labelRonda(k))}</option>`).join("");
+
+  document.getElementById("nrCopiarReps").checked = true;
+  previewNuevaRonda();
+  abrirModal("modalNuevaRonda");
+}
+
+function previewNuevaRonda() {
+  const raw = document.getElementById("nrFecha").value;
+  const lunes = normalizarALunes(raw);
+  const box = document.getElementById("nrPreview");
+  const btn = document.getElementById("nrBtnCrear");
+  if (!lunes) {
+    box.className = "error-box";
+    box.innerHTML = "Elegí una fecha válida.";
+    btn.disabled = true;
+    return;
+  }
+  const id = "R-" + lunes;
+  const existe = !!DB.rondas[id];
+  const copiarDe = document.getElementById("nrCopiarDe").value;
+  const nombre = (document.getElementById("nrNombre").value || "").trim();
+
+  let nPrecios = 0;
+  if (copiarDe) {
+    if (copiarDe === DB.rondaActiva) nPrecios = DB.precios.length;
+    else nPrecios = "?";
   }
 
-  // Limpiar arrays y activar la nueva ronda
-  DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
-  DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
-  DB.rondaActiva = r;
-  DB.config.ronda_activa = r;
-  await fsSetConfig({ ronda_activa: r });
-  suscribirRonda(r);
+  const fechaTxt = new Date(lunes + "T12:00:00").toLocaleDateString("es-PE", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+  if (existe) {
+    box.className = "error-box";
+    box.innerHTML = `⚠️ La ronda <strong>${esc(id)}</strong> ya existe. Elegí otra semana o borrala primero.`;
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  box.className = "info-box";
+  box.innerHTML = `
+    Se creará <strong>${esc(id)}</strong>${nombre ? ` · <strong>${esc(nombre)}</strong>` : ""}<br>
+    <span class="small-note">Semana del ${esc(fechaTxt)}</span><br>
+    <span class="small-note">${copiarDe ? "Copiando precios de <strong>" + esc(labelRonda(copiarDe)) + "</strong> (" + nPrecios + " productos)" : "Sin copiar precios"}</span>
+  `;
+}
+
+async function confirmarNuevaRonda() {
+  const raw = document.getElementById("nrFecha").value;
+  const lunes = normalizarALunes(raw);
+  if (!lunes) { toast("Fecha inválida", "err"); return; }
+  const id = "R-" + lunes;
+  if (DB.rondas[id]) { toast("Ya existe " + id, "err"); return; }
+
+  const nombre = (document.getElementById("nrNombre").value || "").trim();
+  const copiarDe = document.getElementById("nrCopiarDe").value;
+  const copiarReps = document.getElementById("nrCopiarReps").checked;
+
+  const btn = document.getElementById("nrBtnCrear");
+  btn.disabled = true; btn.textContent = "Creando…";
+
+  try {
+    let repZona = {};
+    if (copiarReps && copiarDe && DB.rondas[copiarDe] && DB.rondas[copiarDe].repartidor_zona) {
+      repZona = { ...DB.rondas[copiarDe].repartidor_zona };
+    }
+
+    const meta = {
+      id_ronda: id, estado: "abierta",
+      nombre,
+      fecha_apertura: new Date(lunes + "T08:00:00").toISOString(),
+      fecha_cierre: null, fecha_compra: null, fecha_entrega: null,
+      precios_publicados: false, orden_ruta: [], repartidor_zona: repZona
+    };
+    await fsSetRonda(id, meta);
+    DB.rondas[id] = meta;
+
+    if (copiarDe) {
+      const snap = await getDocs(collection(db, "rondas", copiarDe, "precios"));
+      if (snap.size > 0) {
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => {
+          const nuevo = { ...d.data(), id_ronda: id };
+          batch.set(doc(db, "rondas", id, "precios", d.id), nuevo, { merge: true });
+        });
+        await batch.commit();
+      }
+    }
+
+    DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
+    DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
+    DB.rondaActiva = id;
+    DB.config.ronda_activa = id;
+    await fsSetConfig({ ronda_activa: id });
+    suscribirRonda(id);
+    refrescarSelector();
+    renderSemana();
+    renderTodo();
+
+    cerrarModal("modalNuevaRonda");
+    document.getElementById("nrNombre").value = "";
+    toast("✓ Ronda " + id + " creada", "ok");
+  } catch (e) {
+    console.error("Error creando ronda:", e);
+    toast("Error: " + e.message, "err");
+  } finally {
+    btn.disabled = false; btn.textContent = "✓ Crear ronda";
+  }
+}
+
+/* ---- RENOMBRAR RONDA ---- */
+function abrirModalNombreRonda() {
+  if (!DB.rondaActiva) { toast("Sin ronda activa", "err"); return; }
+  const r = rondaActual();
+  document.getElementById("rnIdDisplay").value = DB.rondaActiva;
+  document.getElementById("rnNombreInput").value = r.nombre || "";
+  previewNombreRonda();
+  abrirModal("modalNombreRonda");
+}
+
+function previewNombreRonda() {
+  const nombre = (document.getElementById("rnNombreInput").value || "").trim();
+  const id = DB.rondaActiva || "—";
+  const box = document.getElementById("rnPreview");
+  if (nombre) {
+    box.className = "info-box";
+    box.innerHTML = `Se mostrará como: <strong>${esc(nombre)}</strong> <span class="small-note">(${esc(id)})</span>`;
+  } else {
+    box.className = "info-box";
+    box.innerHTML = `Sin nombre. Se mostrará solo el ID: <strong>${esc(id)}</strong>`;
+  }
+}
+
+async function guardarNombreRonda() {
+  if (!DB.rondaActiva) { toast("Sin ronda activa", "err"); return; }
+  const nombre = (document.getElementById("rnNombreInput").value || "").trim();
+  await fsSetRonda(DB.rondaActiva, { nombre });
+  DB.rondas[DB.rondaActiva] = { ...DB.rondas[DB.rondaActiva], nombre };
   refrescarSelector();
-  renderSemana();
-  renderTodo();
-  toast("Ronda creada: " + r, "ok");
+  cerrarModal("modalNombreRonda");
+  toast(nombre ? "✓ Nombre guardado" : "Nombre borrado", "ok");
+}
+
+/* ---- BORRAR RONDA ---- */
+async function borrarRonda(id) {
+  if (!id) { toast("No hay ronda activa", "err"); return; }
+  if (!DB.rondas[id]) { toast("Ronda no encontrada", "err"); return; }
+
+  const nombre = (DB.rondas[id].nombre || "").trim();
+  const label = nombre ? `${nombre} (${id})` : id;
+
+  if (!confirm(`¿Borrar la ronda ${label} y TODOS sus datos?\n\nSe eliminarán: precios, pedidos, items, compras, entregas, gastos, excedentes y reclamos.`)) return;
+  if (!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN\n\nVas a borrar ${label} de Firestore. Esta acción NO se puede deshacer.`)) return;
+
+  toast("Borrando ronda " + id + "…", "warn");
+
+  try {
+    cancelarSuscripcionesRonda();
+
+    const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+    for (const sub of subcols) {
+      const snap = await getDocs(collection(db, "rondas", id, sub));
+      const chunks = [];
+      for (let i = 0; i < snap.docs.length; i += 400) chunks.push(snap.docs.slice(i, i + 400));
+      for (const chunk of chunks) {
+        const batch = writeBatch(db);
+        chunk.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      }
+    }
+
+    await deleteDoc(doc(db, "rondas", id));
+    delete DB.rondas[id];
+
+    const keys = Object.keys(DB.rondas).sort().reverse();
+    const nuevaActiva = keys[0] || "";
+
+    if (nuevaActiva) {
+      DB.rondaActiva = nuevaActiva;
+      DB.config.ronda_activa = nuevaActiva;
+      await fsSetConfig({ ronda_activa: nuevaActiva });
+      DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
+      DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
+      suscribirRonda(nuevaActiva);
+    } else {
+      DB.rondaActiva = "";
+      DB.config.ronda_activa = "";
+      await fsSetConfig({ ronda_activa: "" });
+      DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
+      DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
+    }
+
+    refrescarSelector();
+    renderSemana();
+    renderTodo();
+    toast("✓ Ronda " + id + " eliminada de Firestore", "ok");
+  } catch (e) {
+    console.error("Error borrando ronda:", e);
+    toast("Error al borrar: " + e.message, "err");
+    if (DB.rondaActiva) suscribirRonda(DB.rondaActiva);
+  }
 }
 
 async function marcarRonda(estado) {
@@ -1261,7 +1547,6 @@ function abrirAceptar(id) {
   abrirModal("modalAceptar");
 }
 async function confirmarAceptar(id) {
-  // Punto 11: validar que el pedido exista
   const p = pedidoPorId(id);
   if (!p) { toast("Pedido no encontrado: " + id, "err"); cerrarModal("modalAceptar"); return; }
   const verif = (document.getElementById("pagoVerif").value || "").trim();
@@ -1417,7 +1702,6 @@ async function edCambiarCantidad(itemId, val) {
   recalcEdResumen(it.pedido_id);
 }
 async function edEliminarItem(itemId, pedidoId) {
-  // Punto 12: validar que el item exista
   const it = DB.items.find(i => i.item_id === itemId);
   if (!it) { toast("Item no encontrado", "err"); return; }
   if (!confirm("¿Quitar este item?")) return;
@@ -1482,7 +1766,8 @@ function renderCalculadora() {
   const aviso = document.getElementById("calcAviso");
   const r = rondaActual();
   if (!r.id_ronda) { aviso.innerHTML = `<div class="error-box">Sin ronda activa.</div>`; return; }
-  aviso.innerHTML = `<div class="info-box">Ronda <strong>${esc(DB.rondaActiva)}</strong> · Estado: <strong>${r.estado}</strong> · ${preciosDeRonda().length} precios cargados.</div>`;
+  const nom = (r.nombre || "").trim();
+  aviso.innerHTML = `<div class="info-box">Ronda <strong>${esc(nom || DB.rondaActiva)}</strong>${nom ? ` <span class="small-note">(${esc(DB.rondaActiva)})</span>` : ""} · Estado: <strong>${r.estado}</strong> · ${preciosDeRonda().length} precios cargados.</div>`;
   calcFiltrarProductos(); calcRenderItems();
 }
 function calcDistritoChange() {
@@ -1592,7 +1877,6 @@ async function calcGuardar() {
     await guardarClienteGlobal(cli);
   }
 
-  // Punto 8: calcular siguiente ID basado en máximo existente
   const nums = pedidosDeRonda().map(p => parseInt(String(p.pedido_id).replace("P-", ""), 10)).filter(n => !isNaN(n));
   const n = Math.max(0, ...nums) + 1;
   const pedidoId = "P-" + String(n).padStart(4, "0");
@@ -1613,7 +1897,6 @@ async function calcGuardar() {
   };
   await guardarPedido(pedido);
 
-  // Items: ID basado en máximo existente
   const numsItems = DB.items.filter(i => i.pedido_id === pedidoId).map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(x => !isNaN(x));
   let baseItem = Math.max(0, ...numsItems);
   for (let i = 0; i < calcItems.length; i++) {
@@ -1702,7 +1985,7 @@ async function guardarProducto() {
    PRECIOS
    ============================================================================ */
 async function renderPrecios() {
-  document.getElementById("preciosRondaLabel").textContent = "· " + DB.rondaActiva;
+  document.getElementById("preciosRondaLabel").textContent = "· " + labelRonda(DB.rondaActiva);
   const q = (document.getElementById("precioBuscar").value || "").toLowerCase();
   const g = (document.getElementById("precioGrupoFiltro").value || "");
   const pmap = precioMapa();
@@ -1772,18 +2055,17 @@ async function copiarPreciosRondaAnterior() {
   const idx = rondas.indexOf(DB.rondaActiva);
   if (idx <= 0) { toast("No hay ronda anterior", "warn"); return; }
   const prev = rondas[idx - 1];
-  if (!confirm(`¿Copiar precios de ${prev}?`)) return;
-  const prevPrecios = preciosDeRonda(prev);
-  if (!prevPrecios.length) { toast("La ronda anterior no tiene precios", "warn"); return; }
-  // Punto 9: usar writeBatch
+  if (!confirm(`¿Copiar precios de ${labelRonda(prev)}?`)) return;
+  const snap = await getDocs(collection(db, "rondas", prev, "precios"));
+  if (snap.size === 0) { toast("La ronda anterior no tiene precios", "warn"); return; }
   const batch = writeBatch(db);
-  prevPrecios.forEach(p => {
-    const nuevo = { ...p, id_ronda: DB.rondaActiva };
-    batch.set(doc(db, "rondas", DB.rondaActiva, "precios", nuevo.codigo_producto), nuevo, { merge: true });
+  snap.docs.forEach(d => {
+    const nuevo = { ...d.data(), id_ronda: DB.rondaActiva };
+    batch.set(doc(db, "rondas", DB.rondaActiva, "precios", d.id), nuevo, { merge: true });
   });
   await batch.commit();
   renderPrecios().catch(e => console.error("renderPrecios:", e));
-  toast("✓ Copiados de " + prev, "ok");
+  toast("✓ Copiados de " + labelRonda(prev), "ok");
 }
 async function publicarPrecios() {
   await fsSetRonda(DB.rondaActiva, { precios_publicados: true });
@@ -2195,7 +2477,7 @@ async function delReclamo(id) {
 }
 
 /* ============================================================================
-   REPORTES (PUNTO 1 CORREGIDO: consulta Firestore para rondas no activas)
+   REPORTES
    ============================================================================ */
 async function calcularReportes() {
   const cont = document.getElementById("reportesContenido");
@@ -2206,7 +2488,6 @@ async function calcularReportes() {
     const rondaActiva = DB.rondaActiva;
     const rondasKeys = Object.keys(DB.rondas).sort().reverse();
 
-    // Datos de la ronda activa (ya sincronizados por onSnapshot)
     const datosActivos = {
       pedidos: DB.pedidos.filter(p => p.id_ronda === rondaActiva),
       compras: DB.compras.filter(c => c.id_ronda === rondaActiva),
@@ -2215,7 +2496,6 @@ async function calcularReportes() {
       excedentes: DB.excedentes.filter(e => e.id_ronda === rondaActiva)
     };
 
-    // Para cada ronda distinta a la activa, consultar Firestore en paralelo
     const historicos = await Promise.all(rondasKeys.map(async (rid) => {
       if (rid === rondaActiva) {
         return { rid, ...datosActivos };
@@ -2242,7 +2522,6 @@ async function calcularReportes() {
       }
     }));
 
-    // Calcular totales de la ronda activa
     const aceptadosAct = datosActivos.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
     const ingresosAct = aceptadosAct.reduce((s, p) => s + Number(p.total || 0), 0);
     const comprasRealAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
@@ -2257,8 +2536,12 @@ async function calcularReportes() {
     const cl = un >= 0 ? "good" : "bad";
     const delta = comprasEstAct - comprasRealAct;
 
+    const rAct = rondaActual();
+    const nomAct = (rAct.nombre || "").trim();
+    const labelAct = nomAct ? `${esc(nomAct)} <span class="small-note">(${esc(rondaActiva)})</span>` : esc(rondaActiva);
+
     cont.innerHTML = `
-      <div class="info-box"><strong>Ronda:</strong> ${esc(rondaActiva)} · ${rondaActual().estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptadosAct.length} pedidos activos</div>
+      <div class="info-box"><strong>Ronda:</strong> ${labelAct} · ${rAct.estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptadosAct.length} pedidos activos</div>
       <div class="fin-grid">
         <div class="fin-col"><h4>Ingresos</h4>
           <div class="fin-row"><span>Pedidos</span><span class="val">${soles(ingresosAct)}</span></div>
@@ -2297,8 +2580,12 @@ async function calcularReportes() {
           const ex = h.excedentes.reduce((s, x) => s + Number(x.ingreso || 0), 0);
           const ut = ing - cr - ga + ex - rc;
           const meta = DB.rondas[h.rid] || {};
+          const nom = (meta.nombre || "").trim();
+          const labelHist = nom
+            ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(h.rid)}</span>`
+            : `<strong>${esc(h.rid)}</strong>`;
           return `<tr>
-            <td><strong>${esc(h.rid)}</strong></td>
+            <td>${labelHist}</td>
             <td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td>
             <td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr + ga + rc)}</td>
             <td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td>
@@ -2364,7 +2651,6 @@ async function exportarJSON() {
           reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
         };
       } else {
-        // Para rondas no activas, consultar Firestore
         try {
           const [pSnap, prSnap, iSnap, cSnap, eSnap, gSnap, xSnap, rSnap] = await Promise.all([
             getDocs(collection(db, "rondas", rid, "pedidos")),
@@ -2409,15 +2695,12 @@ function importarJSON() {
         const d = JSON.parse(ev.target.result);
         if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
         if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
-        // Punto 6: cancelar suscripciones antes de importar
         cancelarSuscripciones();
-        // Subir catálogo
         const b1 = writeBatch(db);
         (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }));
         (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }));
         (d.catalogo.repartidores || []).forEach(r => b1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }));
         await b1.commit();
-        // Subir rondas
         for (const rid of Object.keys(d.rondas)) {
           const rd = d.rondas[rid];
           await fsSetRonda(rid, rd.meta);
@@ -2442,7 +2725,6 @@ async function resetTotal() {
   if (!confirm("¿Borrar TODO en Firestore y reiniciar? Esta acción no se puede deshacer.")) return;
   if (!confirm("¿Estás completamente seguro? Se borrarán todas las rondas y catálogo.")) return;
   try {
-    // Punto 5: cancelar suscripciones antes de resetear
     cancelarSuscripciones();
     const colecciones = [
       ["catalogo", "productos", "items"], ["catalogo", "clientes", "items"], ["catalogo", "repartidores", "items"]
@@ -2529,9 +2811,7 @@ onAuthStateChanged(auth, async user => {
       btn.style.display = "block";
     }
   } else {
-    // Punto 7: cancelar suscripciones (ronda + globales) al cerrar sesión
     cancelarSuscripciones();
-    // Limpiar estado local para que no queden datos de la sesión anterior
     DB = {
       config: {}, rondas: {}, rondaActiva: "",
       productos: [], clientes: [], repartidores: [],
@@ -2546,13 +2826,16 @@ onAuthStateChanged(auth, async user => {
 });
 
 /* ============================================================================
-   EXPONER FUNCIONES A WINDOW (para onclick del HTML)
+   EXPONER FUNCIONES A WINDOW
    ============================================================================ */
 Object.assign(window, {
   // Navegación
   mostrarVista, abrirModal, cerrarModal,
   // Rondas
-  cambiarRondaActiva, crearRonda, marcarRonda,
+  cambiarRondaActiva, marcarRonda,
+  abrirModalNuevaRonda, previewNuevaRonda, confirmarNuevaRonda,
+  abrirModalNombreRonda, previewNombreRonda, guardarNombreRonda,
+  borrarRonda,
   // Pipeline
   abrirAceptar, confirmarAceptar, transicionar, abrirRetroceder, confirmarRetroceder,
   verDetalle, edCambiarCantidad, edEliminarItem, edAgregarItem, guardarEdicionPedido,
@@ -2582,9 +2865,7 @@ Object.assign(window, {
   // Login
   iniciarSesion,
   // Renders para buscadores
-  renderPipeline,
-  renderProductos,
-  renderPrecios
+  renderPipeline, renderProductos, renderPrecios
 });
 </script>
 </body>
