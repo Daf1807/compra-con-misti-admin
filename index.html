@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v10</title>
+<title>Compra con Misti — Admin v11 · Firestore</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -147,9 +147,63 @@ tbody tr:hover{background:#F4FBF6}
 .kpi-mini .k strong{color:var(--verde);font-size:16px;display:block}
 @media(max-width:1000px){.dash-hero{grid-template-columns:1fr}.dash-row{grid-template-columns:repeat(2,1fr)}.fin-grid{grid-template-columns:1fr}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:10px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}.parada-item{grid-template-columns:36px 1fr}}
 @media(max-width:600px){.dash-row,.ruta-info{grid-template-columns:1fr}.container{padding:12px}header h1{font-size:22px}.section{padding:16px}.item-row{grid-template-columns:1fr}.semana-dia{min-width:60px;padding:6px 8px}}
+/* LOGIN + LOADING + SYNC */
+#loginOverlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--verde),var(--verde-2));display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+#loginOverlay.hidden{display:none}
+.login-card{background:#fff;border-radius:var(--radio);padding:36px 32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.login-card h1{margin:0 0 6px;font-size:26px;color:var(--verde);font-weight:800}
+.login-card p{margin:0 0 24px;color:var(--texto-2);font-size:13px}
+.login-card .logo{font-size:56px;margin-bottom:10px}
+.btn-google{background:#fff;color:var(--texto);border:1.5px solid var(--borde);display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;font-size:14px;font-weight:700;box-shadow:0 3px 0 #E3D9CB;min-height:52px}
+.btn-google:hover{background:#fafafa}
+.btn-google svg{width:20px;height:20px}
+.login-error{background:#FFE8E9;color:#C93A3F;padding:10px;border-radius:8px;font-size:12px;margin-top:14px;display:none}
+.login-error.show{display:block}
+.login-foot{margin-top:20px;font-size:11px;color:var(--texto-2)}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,249,240,.95);display:flex;align-items:center;justify-content:center;z-index:8000;flex-direction:column;gap:16px}
+.loading-overlay.hidden{display:none}
+.spinner{width:48px;height:48px;border:5px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{color:var(--verde);font-weight:700;font-size:14px}
+.sync-indicator{position:fixed;bottom:12px;left:12px;background:#2B2B2B;color:#fff;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:600;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none}
+.sync-indicator.show{opacity:1}
+.sync-indicator.ok{background:var(--verde)}
+.sync-indicator.err{background:var(--coral)}
 </style>
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+  }
+}
+</script>
 </head>
 <body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="logo">🥔</div>
+    <h1>Compra con Misti</h1>
+    <p>Panel Admin · Acceso restringido</p>
+    <button class="btn-google" id="btnLogin">
+      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+      Iniciar sesión con Google
+    </button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-foot">Solo cuentas autorizadas pueden acceder</div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p id="loadingText">Cargando datos de Firestore…</p>
+</div>
+
+<div class="sync-indicator" id="syncIndicator"></div>
 
 <div class="semana-bar">
   <div class="semana-inner" id="semanaBar"></div>
@@ -158,7 +212,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
   <div class="container">
     <h1>Compra con Misti</h1>
-    <p>Panel Admin v10 · colecciones relacionales · LocalStorage · sin bloqueos de fecha</p>
+    <p>Panel Admin v11 · Firestore en tiempo real · <span id="userEmail">—</span></p>
   </div>
 </header>
 
@@ -173,6 +227,7 @@ tbody tr:hover{background:#F4FBF6}
     <button class="btn-warn btn-sm" onclick="marcarRonda('abierta')">🔓 Reabrir</button>
     <div class="spacer"></div>
     <span class="small-note" id="rondaMeta">—</span>
+    <button class="btn-ghost btn-sm" onclick="cerrarSesion()">Salir</button>
   </div>
 
   <div class="app-shell">
@@ -199,7 +254,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </div>
 
-      <!-- DASHBOARD -->
       <section class="view active" id="view-dashboard">
         <div class="dash-hero">
           <div><div class="label">Pedidos activos</div><div class="big" id="dashPedidos">0</div></div>
@@ -218,7 +272,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- CALCULADORA -->
       <section class="view" id="view-calculadora">
         <div class="section">
           <h2 class="section-head">🧮 Calculadora de pedido</h2>
@@ -254,7 +307,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- PEDIDOS -->
       <section class="view" id="view-pedidos">
         <div class="section">
           <h2 class="section-head">🧾 Pedidos</h2>
@@ -284,7 +336,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- PRODUCTOS & PRECIOS -->
       <section class="view" id="view-productos">
         <div class="tabs">
           <button class="tab active" onclick="mostrarTab('tabProductos',this)">📦 Productos maestro</button>
@@ -337,7 +388,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- COMPRA -->
       <section class="view" id="view-compra">
         <div class="section">
           <h2 class="section-head">🛒 Lista de compra consolidada</h2>
@@ -347,7 +397,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- ENTREGAS -->
       <section class="view" id="view-entregas">
         <div class="section">
           <h2 class="section-head">🗺️ Entregas — Google Maps</h2>
@@ -361,7 +410,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- GASTOS -->
       <section class="view" id="view-gastos">
         <div class="section">
           <h2 class="section-head">💸 Gastos</h2>
@@ -375,7 +423,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- CIERRE / REPORTES -->
       <section class="view" id="view-cierre">
         <div class="section">
           <h2 class="section-head">📈 Cierre y reportes</h2>
@@ -386,7 +433,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
       </section>
 
-      <!-- CONFIG -->
       <section class="view" id="view-config">
         <div class="section">
           <h2 class="section-head">⚙️ Configuración</h2>
@@ -399,7 +445,6 @@ tbody tr:hover{background:#F4FBF6}
 
 <div id="toast"></div>
 
-<!-- MODAL: PRODUCTO -->
 <div class="modal" id="modalProducto"><div class="modal-content">
   <div class="modal-header"><h3>Agregar producto</h3><button class="close" onclick="cerrarModal('modalProducto')">×</button></div>
   <p><label class="small-note">Nombre</label><input id="prodNombre"></p>
@@ -411,7 +456,6 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div></div>
 
-<!-- MODAL: CLIENTE -->
 <div class="modal" id="modalCliente"><div class="modal-content">
   <div class="modal-header"><h3>Agregar cliente</h3><button class="close" onclick="cerrarModal('modalCliente')">×</button></div>
   <p><label class="small-note">Nombre</label><input id="cliNombre"></p>
@@ -428,23 +472,44 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div></div>
 
-<!-- MODAL: DETALLE -->
 <div class="modal" id="modalDetalle"><div class="modal-content wide">
   <div class="modal-header"><h3>Detalle del pedido</h3><button class="close" onclick="cerrarModal('modalDetalle')">×</button></div>
   <div id="detalleContenido"></div>
 </div></div>
 
-<!-- MODAL: CONFIRMAR ACEPTAR -->
 <div class="modal" id="modalAceptar"><div class="modal-content">
   <div class="modal-header"><h3>✓ Aceptar pedido</h3><button class="close" onclick="cerrarModal('modalAceptar')">×</button></div>
   <div id="modalAceptarContenido"></div>
 </div></div>
 
-<script>
+<script type="module">
 /* ============================================================================
-   COMPRA MISTI v10 — Colecciones relacionales, sin tabla única
+   COMPRA MISTI v11 — Firestore (misma lógica que v10, pero sin LocalStorage)
    ============================================================================ */
-const STORAGE_KEY="misti_v10_data";
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc,
+  collection, getDocs, onSnapshot, writeBatch
+} from "firebase/firestore";
+
+/* ---------- CONFIG FIREBASE ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyAonWel671riadA7rP7yKTWFy1APCad1LI",
+  authDomain: "misti-panel.firebaseapp.com",
+  projectId: "misti-panel",
+  storageBucket: "misti-panel.firebasestorage.app",
+  messagingSenderId: "1087729241176",
+  appId: "1:1087729241176:web:82eeae27c92bfdb51f0e2d"
+};
+const UID_AUTORIZADO = "s9FcWIZGZ5NjkN5934z1FCxpcsx2";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+/* ---------- CONSTANTES (igual que v10) ---------- */
 const ZONAS={
   A:{desc_recojo:2, min:30, distritos:["La Victoria","Lince","Breña","Cercado"]},
   B:{desc_recojo:3, min:40, distritos:["Jesús María","San Isidro","Miraflores","Surquillo","San Borja"]},
@@ -452,9 +517,16 @@ const ZONAS={
 };
 const OFICINA={lat:-12.0700,lng:-77.0180,direccion:"Eduardo Bello 385, Santa Catalina, La Victoria"};
 
-let DB=null, rondaActiva="", calcItems=[];
+let DB={
+  version:11, rondaActiva:"", rondas:{},
+  productos:[], clientes:[], repartidores:[],
+  precios:[], pedidos:[], items:[],
+  compras:[], entregas:[], gastos:[], excedentes:[], reclamos:[],
+  config:{}
+};
+let rondaActiva="", calcItems=[], usuarioActual=null, unsubs=[];
 
-/* ---------- Utilidades ---------- */
+/* ---------- UTILIDADES (igual que v10) ---------- */
 const soles=v=>"S/ "+Number(v||0).toFixed(2);
 const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
 const red2=v=>Math.round((Number(v)||0)*100)/100;
@@ -473,170 +545,195 @@ function toast(msg,tipo){
   c.appendChild(t);
   setTimeout(()=>{t.style.opacity="0";t.style.transform="translateX(100%)";t.style.transition="all .3s";setTimeout(()=>t.remove(),300);},2800);
 }
+function syncInd(txt,tipo){
+  const el=document.getElementById("syncIndicator");
+  el.textContent=txt;
+  el.className="sync-indicator show "+(tipo||"");
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove("show"),1400);
+}
+function loading(show,txt){
+  const el=document.getElementById("loadingOverlay");
+  if(show){el.classList.remove("hidden"); if(txt) document.getElementById("loadingText").textContent=txt;}
+  else el.classList.add("hidden");
+}
 
-/* ---------- DB inicial ---------- */
-function crearDBInicial(){
-  const ronda="R-"+hoy();
+/* ---------- FIRESTORE: HELPERS ---------- */
+async function fsSet(col,id,data){ 
+  syncInd("↑ Guardando…","");
+  try{ await setDoc(doc(db,...col,id),data,{merge:true}); syncInd("✓ Guardado","ok"); }
+  catch(e){ syncInd("✗ Error","err"); toast("Error: "+e.message,"err"); throw e; }
+}
+async function fsDel(col,id){ try{ await deleteDoc(doc(db,...col,id)); }catch(e){ toast("Error: "+e.message,"err"); } }
+async function fsConfig(){ await setDoc(doc(db,"config","global"),DB.config,{merge:true}); }
+async function fsMeta(){
+  const r=rondaActual();
+  await setDoc(doc(db,"ronda_actual","meta"),{
+    id_ronda:rondaActiva,
+    estado:r.estado||"abierta",
+    fecha_apertura:r.fecha_apertura||ahora(),
+    fecha_cierre:r.fecha_cierre||null,
+    precios_publicados:!!r.precios_publicados,
+    orden_ruta:r.orden_ruta||[]
+  },{merge:true});
+}
+
+/* ---------- FIRESTORE: CARGA INICIAL ---------- */
+async function iniciarFirestore(){
+  loading(true,"Leyendo configuración y catálogo…");
+  try{
+    // Config
+    const cfgSnap=await getDoc(doc(db,"config","global"));
+    if(cfgSnap.exists()) DB.config=cfgSnap.data();
+    else{
+      DB.config={
+        oficina_direccion:OFICINA.direccion,
+        oficina_lat:OFICINA.lat, oficina_lng:OFICINA.lng,
+        costo_personal_compras:50, costo_transporte:45,
+        costo_ayudante_1:70, costo_ayudante_2:140, costo_empaque:1,
+        ronda_activa:"R-"+hoy()
+      };
+      await fsConfig();
+    }
+
+    // Catálogo
+    await cargarCatalogo();
+
+    // Ronda
+    const rondaId=DB.config.ronda_activa||("R-"+hoy());
+    DB.rondas[rondaId]={id_ronda:rondaId,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,precios_publicados:false,orden_ruta:[]};
+    rondaActiva=rondaId; DB.rondaActiva=rondaId;
+
+    // Meta
+    const metaSnap=await getDoc(doc(db,"ronda_actual","meta"));
+    if(metaSnap.exists()) Object.assign(DB.rondas[rondaId],metaSnap.data());
+    else await fsMeta();
+
+    // Suscripciones tiempo real
+    suscribirTodo();
+
+    loading(false);
+    renderTodo();
+    toast("✓ Conectado a Firestore","ok");
+  }catch(e){
+    console.error("Error iniciarFirestore:",e);
+    loading(false);
+    toast("Error cargando Firestore: "+e.message,"err");
+  }
+}
+
+async function cargarCatalogo(){
+  const [p,c,r]=await Promise.all([
+    getDocs(collection(db,"catalogo","productos","items")),
+    getDocs(collection(db,"catalogo","clientes","items")),
+    getDocs(collection(db,"catalogo","repartidores","items"))
+  ]);
+  DB.productos=p.docs.map(d=>({codigo:d.id,...d.data()}));
+  DB.clientes=c.docs.map(d=>({id:d.id,...d.data()}));
+  DB.repartidores=r.docs.map(d=>({id:d.id,...d.data()}));
+  if(!DB.productos.length) await sembrarCatalogo();
+}
+
+async function sembrarCatalogo(){
   const productos=[
-    ["PR-001","Papa Amarilla","Básico","kg"],
-    ["PR-002","Papa Canchán","Básico","kg"],
-    ["PR-003","Papa Huayro","Básico","kg"],
-    ["PR-004","Papa Negra Andina","Básico","kg"],
-    ["PR-005","Yuca Amarilla","Básico","kg"],
-    ["PR-006","Camote Amarillo","Básico","kg"],
-    ["PR-007","Olluco","Básico","kg"],
-    ["PR-008","Choclo","Básico","unidad"],
-    ["PR-009","Ají Amarillo","Sazón","kg"],
-    ["PR-010","Ají Panca","Sazón","kg"],
-    ["PR-011","Ají Rocoto","Sazón","kg"],
-    ["PR-012","Ají Escabeche","Sazón","kg"],
-    ["PR-013","Huacatay","Sazón","atado"],
-    ["PR-014","Culantro","Sazón","atado"],
-    ["PR-015","Perejil","Sazón","atado"],
-    ["PR-016","Ajo Criollo","Sazón","kg"],
-    ["PR-017","Zapallo Loche","Especial","kg"],
-    ["PR-018","Maíz Morado","Especial","kg"],
-    ["PR-019","Cebolla Roja","Especial","kg"],
-    ["PR-020","Tomate","Especial","kg"],
-    ["PR-021","Zanahoria","Especial","kg"],
-    ["PR-022","Apio","Especial","kg"],
-    ["PR-023","Poro","Especial","kg"],
-    ["PR-024","Cebolla China","Especial","kg"]
-  ].map(p=>({codigo:p[0],nombre:p[1],grupo:p[2],unidad:p[3],activo:true}));
-
-  const clientes=[
-    {id:"C-0001",nombre:"Lucía Delgado Medina",telefono:"905154382",distrito:"San Borja",direccion:"Av. Petit Thouars 1116",referencia:"Portero",zona:"B",lat:-12.1122,lng:-77.0000},
-    {id:"C-0002",nombre:"Dafne Mamani Vila",telefono:"934495196",distrito:"La Victoria",direccion:"Av. Aviación 2200",referencia:"Portón negro",zona:"A",lat:-12.0710,lng:-77.0180},
-    {id:"C-0003",nombre:"Isabell Smith",telefono:"987654321",distrito:"Miraflores",direccion:"Av. Larco 500",referencia:"Frente al parque",zona:"B",lat:-12.1210,lng:-77.0300},
-    {id:"C-0004",nombre:"Dayana Maldinu",telefono:"912345678",distrito:"San Isidro",direccion:"Calle Las Begonias 300",referencia:"Edificio azul",zona:"B",lat:-12.0980,lng:-77.0250},
-    {id:"C-0005",nombre:"Carlos Quispe Rojas",telefono:"955112233",distrito:"Lince",direccion:"Av. Arequipa 2300",referencia:"Segundo piso",zona:"A",lat:-12.0850,lng:-77.0350}
+    ["PR-001","Papa Amarilla","Básico","kg"],["PR-002","Papa Canchán","Básico","kg"],
+    ["PR-003","Papa Huayro","Básico","kg"],["PR-004","Papa Negra Andina","Básico","kg"],
+    ["PR-005","Yuca Amarilla","Básico","kg"],["PR-006","Camote Amarillo","Básico","kg"],
+    ["PR-007","Olluco","Básico","kg"],["PR-008","Choclo","Básico","unidad"],
+    ["PR-009","Ají Amarillo","Sazón","kg"],["PR-010","Ají Panca","Sazón","kg"],
+    ["PR-011","Ají Rocoto","Sazón","kg"],["PR-012","Ají Escabeche","Sazón","kg"],
+    ["PR-013","Huacatay","Sazón","atado"],["PR-014","Culantro","Sazón","atado"],
+    ["PR-015","Perejil","Sazón","atado"],["PR-016","Ajo Criollo","Sazón","kg"],
+    ["PR-017","Zapallo Loche","Especial","kg"],["PR-018","Maíz Morado","Especial","kg"],
+    ["PR-019","Cebolla Roja","Especial","kg"],["PR-020","Tomate","Especial","kg"],
+    ["PR-021","Zanahoria","Especial","kg"],["PR-022","Apio","Especial","kg"],
+    ["PR-023","Poro","Especial","kg"],["PR-024","Cebolla China","Especial","kg"]
   ];
+  const batch=writeBatch(db);
+  productos.forEach(([codigo,nombre,grupo,unidad])=>{
+    batch.set(doc(db,"catalogo","productos","items",codigo),{nombre,grupo,unidad,activo:true});
+  });
+  await batch.commit();
+  DB.productos=productos.map(([codigo,nombre,grupo,unidad])=>({codigo,nombre,grupo,unidad,activo:true}));
+  toast("Catálogo inicial sembrado (24 productos)","ok");
+}
 
-  const repartidores=[
-    {id:"R-01",nombre:"Marco Antonio",celular:"911111111",zona:"A",vehiculo:"Moto",capacidad_max_kg:80,activo:true},
-    {id:"R-02",nombre:"Pedro Silva",celular:"922222222",zona:"B",vehiculo:"Auto",capacidad_max_kg:100,activo:true},
-    {id:"R-03",nombre:"Luis Torres",celular:"933333333",zona:"C",vehiculo:"Moto",capacidad_max_kg:60,activo:true}
-  ];
+/* ---------- FIRESTORE: TIEMPO REAL ---------- */
+function suscribirTodo(){
+  unsubs.forEach(u=>u&&u());
+  unsubs=[];
 
-  // Precios de ronda
-  const preciosBase=[
-    ["PR-001",1.75],["PR-002",1.60],["PR-003",1.80],["PR-004",2.10],
-    ["PR-005",1.20],["PR-006",1.30],["PR-007",2.20],["PR-008",1.00],
-    ["PR-009",4.50],["PR-010",5.20],["PR-011",3.80],["PR-012",3.20],
-    ["PR-013",1.00],["PR-014",1.20],["PR-015",1.00],["PR-016",6.00],
-    ["PR-017",3.50],["PR-018",4.00],["PR-019",1.50],["PR-020",2.50],
-    ["PR-021",1.20],["PR-022",1.80],["PR-023",2.00],["PR-024",2.20]
-  ];
-  const precios=preciosBase.map(([cod,pc])=>{
-    const prod=productos.find(p=>p.codigo===cod);
-    const mg=(prod.grupo==="Sazón")?0.35:(prod.grupo==="Especial"?0.30:0.30);
-    const pv=precioVenta(pc,mg);
-    return {id_ronda:ronda,codigo_producto:cod,nombre:prod.nombre,unidad:prod.unidad,
-      precio_compra:pc,margen:mg,precio_venta:pv,precio_minorista_ref:red2(pv*1.4)};
+  const cols=["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+  cols.forEach(col=>{
+    const u=onSnapshot(collection(db,"ronda_actual",col),snap=>{
+      DB[col]=snap.docs.map(d=>{const data=d.data(); return {_docId:d.id,...data};});
+      renderVistaActual();
+    },err=>{
+      console.error("Snapshot "+col+":",err);
+      syncInd("⚠ Error "+col,"err");
+    });
+    unsubs.push(u);
   });
 
-  // Pedidos de ejemplo (con items congelados)
-  const pedidos=[],items=[];
-  function addPedido(id,cli,estado,zona,dir,lat,lng,modal,metodo,sub,desc,total,canal,notas,its){
-    pedidos.push({id_ronda:ronda,pedido_id:id,cliente_id:cli.id,cliente_nombre:cli.nombre,cliente_celular:cli.telefono,
-      estado,fecha:ahora(),modalidad:modal,metodo_pago:metodo,zona,direccion:dir,lat,lng,
-      subtotal:sub,descuento_recojo:desc,total,fecha_entrega:null,repartidor_id:null,
-      notas,canal,codigo_yape:null,verificado_por:null,fecha_verificacion:null});
-    its.forEach((it,i)=>{
-      const pr=precios.find(p=>p.codigo_producto===it.c);
-      items.push({id_ronda:ronda,item_id:id+"-"+String(i+1).padStart(2,"0"),pedido_id:id,
-        codigo_producto:it.c,nombre:pr.nombre,unidad:pr.unidad,cantidad:it.q,
-        precio_compra:pr.precio_compra,precio_venta_congelado:pr.precio_venta,
-        subtotal_compra:red2(it.q*pr.precio_compra),subtotal_venta:red2(it.q*pr.precio_venta),
-        estado:"pendiente"});
-    });
-  }
-  addPedido("P-0001",clientes[0],"aceptado","B","Av. Petit Thouars 1116, San Borja",-12.1122,-77.0000,"delivery","Yape",13.50,0,13.50,"web","Dejar con el portero",[{c:"PR-001",q:3},{c:"PR-020",q:2}]);
-  addPedido("P-0002",clientes[1],"aceptado","A","Oficina",OFICINA.lat,OFICINA.lng,"recojo","Efectivo",8.50,2,6.50,"whatsapp","Pasa el domingo",[{c:"PR-019",q:2},{c:"PR-021",q:3}]);
-  addPedido("P-0003",clientes[2],"pendiente_pago_yape","B","Av. Larco 500, Miraflores",-12.1210,-77.0300,"delivery","Yape",7.14,0,7.14,"web","",[{c:"PR-020",q:2}]);
-  addPedido("P-0004",clientes[4],"aceptado","A","Av. Arequipa 2300, Lince",-12.0850,-77.0350,"delivery","Efectivo",10,0,10,"whatsapp","Timbre 2 veces",[{c:"PR-001",q:4}]);
-
-  return {
-    version:10,
-    rondaActiva:ronda,
-    rondas:{[ronda]:{id_ronda:ronda,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,precios_publicados:false,orden_ruta:[]}},
-    productos, clientes, repartidores,
-    precios, pedidos, items, compras:[],
-    entregas:[], gastos:[], excedentes:[], reclamos:[],
-    config:{
-      oficina_direccion:OFICINA.direccion,
-      oficina_lat:OFICINA.lat, oficina_lng:OFICINA.lng,
-      costo_personal_compras:50, costo_transporte:45,
-      costo_ayudante_1:70, costo_ayudante_2:140, costo_empaque:1
+  const um=onSnapshot(doc(db,"ronda_actual","meta"),snap=>{
+    if(snap.exists()){
+      const r=DB.rondas[rondaActiva]||{};
+      DB.rondas[rondaActiva]={...r,...snap.data()};
+      refrescarSelector();
     }
-  };
+  });
+  unsubs.push(um);
 }
 
-/* ---------- Persistencia ---------- */
-function cargarDB(){
-  const raw=localStorage.getItem(STORAGE_KEY);
-  if(raw){try{return JSON.parse(raw);}catch(e){}}
-  const db=crearDBInicial();
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
-  return db;
-}
-function guardarDB(){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(DB));
-}
-function exportarJSON(){
-  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;a.download="misti_v10_"+hoy()+".json";a.click();
-  URL.revokeObjectURL(url);
-}
-function importarJSON(){
-  const inp=document.createElement("input");
-  inp.type="file";inp.accept=".json";
-  inp.onchange=e=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=ev=>{
-      try{
-        const d=JSON.parse(ev.target.result);
-        if(!d.pedidos||!d.precios)throw new Error("JSON no es v10");
-        if(!confirm("¿Reemplazar todos los datos actuales?"))return;
-        DB=d;guardarDB();location.reload();
-      }catch(err){toast("Error: "+err.message,"err");}
-    };
-    r.readAsText(f);
-  };
-  inp.click();
-}
-function resetTotal(){
-  if(!confirm("¿Borrar TODO y reiniciar al estado inicial?"))return;
-  localStorage.removeItem(STORAGE_KEY);
-  location.reload();
-}
+/* ---------- LOGIN ---------- */
+document.getElementById("btnLogin").onclick=async()=>{
+  const err=document.getElementById("loginError");
+  err.classList.remove("show");
+  try{
+    const res=await signInWithPopup(auth,provider);
+    if(res.user.uid!==UID_AUTORIZADO){
+      await signOut(auth);
+      err.textContent="Esta cuenta no está autorizada.";
+      err.classList.add("show");
+    }
+  }catch(e){
+    err.textContent="Error: "+e.message;
+    err.classList.add("show");
+  }
+};
+async function cerrarSesion(){ if(confirm("¿Cerrar sesión?")) await signOut(auth); }
+onAuthStateChanged(auth,async user=>{
+  const ov=document.getElementById("loginOverlay");
+  if(!user){ ov.classList.remove("hidden"); usuarioActual=null; return; }
+  if(user.uid!==UID_AUTORIZADO){ await signOut(auth); return; }
+  usuarioActual=user;
+  document.getElementById("userEmail").textContent=user.email||user.uid;
+  ov.classList.add("hidden");
+  await iniciarFirestore();
+});
 
-/* ---------- Accesos por colección ---------- */
+/* ---------- ACCESOS POR COLECCIÓN (igual que v10) ---------- */
 const rondaActual=()=>DB.rondas[rondaActiva]||{};
-const preciosDeRonda=()=>DB.precios.filter(p=>p.id_ronda===rondaActiva);
-const pedidosDeRonda=()=>DB.pedidos.filter(p=>p.id_ronda===rondaActiva);
-const itemsDeRonda=()=>DB.items.filter(i=>i.id_ronda===rondaActiva);
-const itemsDePedido=id=>DB.items.filter(i=>i.id_ronda===rondaActiva&&i.pedido_id===id);
-const comprasDeRonda=()=>DB.compras.filter(c=>c.id_ronda===rondaActiva);
-const entregasDeRonda=()=>DB.entregas.filter(e=>e.id_ronda===rondaActiva);
-const gastosDeRonda=()=>DB.gastos.filter(g=>g.id_ronda===rondaActiva);
-const excedentesDeRonda=()=>DB.excedentes.filter(e=>e.id_ronda===rondaActiva);
-const pedidoPorId=id=>DB.pedidos.find(p=>p.id_ronda===rondaActiva&&p.pedido_id===id);
-const precioMapa=()=>{const m={};preciosDeRonda().forEach(p=>m[p.codigo_producto]=p);return m;};
+const preciosDeRonda=()=>DB.precios;
+const pedidosDeRonda=()=>DB.pedidos;
+const itemsDeRonda=()=>DB.items;
+const itemsDePedido=id=>DB.items.filter(i=>i.pedido_id===id);
+const comprasDeRonda=()=>DB.compras;
+const entregasDeRonda=()=>DB.entregas;
+const gastosDeRonda=()=>DB.gastos;
+const excedentesDeRonda=()=>DB.excedentes;
+const pedidoPorId=id=>DB.pedidos.find(p=>(p._docId||p.pedido_id)===id||p.pedido_id===id);
+const precioMapa=()=>{const m={};preciosDeRonda().forEach(p=>{const k=p.codigo_producto||p._docId;m[k]=p;});return m;};
 const clientePorCelular=c=>DB.clientes.find(x=>String(x.telefono)===String(c));
 const esTerminal=e=>["entregado","fallido","rechazado"].includes(e);
 
-/* ---------- Mini-mapa de la semana (días reales de la ronda) ---------- */
+/* ---------- SEMANA (igual que v10) ---------- */
 function renderSemana(){
   const r=rondaActual();
   const cont=document.getElementById("semanaBar");
   if(!r||!r.fecha_apertura){cont.innerHTML='<div class="small-note">Sin ronda activa</div>';return;}
   const apertura=new Date(r.fecha_apertura);
   const year=apertura.getFullYear(),month=apertura.getMonth(),date=apertura.getDate();
-  // Lunes de esa semana
   const dow=apertura.getDay()||7;
   const lunes=new Date(year,month,date-(dow-1));
   const nombres=["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
@@ -647,8 +744,8 @@ function renderSemana(){
     const ds=d.toISOString().slice(0,10);
     const isHoy=ds===hoyStr;
     let cls="semana-dia";
-    if(i===4)cls+=" hito"; // viernes 17:00 cierre
-    if(i===6)cls+=" hito"; // domingo entrega
+    if(i===4)cls+=" hito";
+    if(i===6)cls+=" hito";
     if(isHoy)cls+=" hoy";
     let nota="";
     if(i===4)nota="17:00 cierre";
@@ -659,21 +756,26 @@ function renderSemana(){
   cont.innerHTML=html;
 }
 
-/* ---------- Navegación ---------- */
+/* ---------- NAVEGACIÓN (igual que v10) ---------- */
 function mostrarVista(n){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   const obj=document.getElementById("view-"+n);if(obj)obj.classList.add("active");
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   const btn=document.querySelector('.nav-btn[data-view="'+n+'"]');if(btn)btn.classList.add("active");
-  if(n==="dashboard")renderDashboard();
-  if(n==="calculadora")renderCalculadora();
-  if(n==="pedidos")renderPedidos();
-  if(n==="productos"){renderProductos();renderPrecios();renderClientes();renderRepartidores();}
-  if(n==="compra"){const c=document.getElementById("listaCompraContenido");if(c)c.innerHTML='<div class="small-note">Presioná "Recalcular".</div>';renderGastos();renderExcedentes();}
-  if(n==="entregas")renderEntregas();
-  if(n==="gastos"){renderGastos();renderExcedentes();}
-  if(n==="cierre")calcularReportes();
-  if(n==="config")renderConfig();
+  renderVistaActual();
+}
+function renderVistaActual(){
+  const v=document.querySelector(".view.active"); if(!v) return;
+  const id=v.id.replace("view-","");
+  if(id==="dashboard")renderDashboard();
+  if(id==="calculadora")renderCalculadora();
+  if(id==="pedidos")renderPedidos();
+  if(id==="productos"){renderProductos();renderPrecios();renderClientes();renderRepartidores();}
+  if(id==="compra"){const c=document.getElementById("listaCompraContenido");if(c)c.innerHTML='<div class="small-note">Presioná "Recalcular".</div>';}
+  if(id==="entregas")renderEntregas();
+  if(id==="gastos"){renderGastos();renderExcedentes();}
+  if(id==="cierre")calcularReportes();
+  if(id==="config")renderConfig();
 }
 function mostrarTab(id,btn){
   document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
@@ -688,7 +790,7 @@ function mostrarTab(id,btn){
 function abrirModal(id){document.getElementById(id).classList.add("active");}
 function cerrarModal(id){document.getElementById(id).classList.remove("active");}
 
-/* ---------- Rondas ---------- */
+/* ---------- RONDAS ---------- */
 function refrescarSelector(){
   const sel=document.getElementById("rondaSelector");
   const keys=Object.keys(DB.rondas).sort().reverse();
@@ -700,41 +802,60 @@ function refrescarSelector(){
   document.getElementById("crumbRonda").textContent=rondaActiva;
   document.getElementById("rondaMeta").textContent="Apertura: "+(r.fecha_apertura?new Date(r.fecha_apertura).toLocaleString("es-PE"):"—")+" · Precios publicados: "+(r.precios_publicados?"Sí":"No");
 }
-function cambiarRondaActiva(r){rondaActiva=r;DB.rondaActiva=r;guardarDB();refrescarSelector();renderSemana();renderTodo();}
-function crearRonda(){
+function cambiarRondaActiva(r){
+  rondaActiva=r; DB.rondaActiva=r;
+  DB.config.ronda_activa=r; fsConfig();
+  refrescarSelector(); renderSemana(); renderVistaActual();
+}
+async function crearRonda(){
   const r="R-"+hoy();
   if(DB.rondas[r]){toast("Ya existe "+r,"warn");return;}
-  DB.rondas[r]={id_ronda:r,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,precios_publicados:false,orden_ruta:[]};
-  // Copiar precios de la ronda anterior
-  const prev=Object.keys(DB.rondas).filter(x=>x!==r).sort().reverse()[0];
-  if(prev){
-    DB.precios.filter(p=>p.id_ronda===prev).forEach(p=>{
-      DB.precios.push({...p,id_ronda:r});
-    });
+  if(!confirm("¿Crear ronda "+r+"?\n\nEsto BORRA los datos de ronda_actual (pedidos, items, precios, compras, gastos, etc).\n\nEl catálogo y la config NO se tocan.")) return;
+
+  loading(true,"Borrando ronda anterior…");
+  try{
+    const cols=["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    for(const c of cols){
+      const snap=await getDocs(collection(db,"ronda_actual",c));
+      if(snap.empty) continue;
+      const batch=writeBatch(db);
+      snap.docs.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
+    DB.rondas={[r]:{id_ronda:r,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,precios_publicados:false,orden_ruta:[]}};
+    rondaActiva=r; DB.rondaActiva=r;
+    DB.config.ronda_activa=r;
+    await fsConfig();
+    await fsMeta();
+    loading(false);
+    refrescarSelector(); renderSemana(); renderVistaActual();
+    toast("✓ Ronda "+r+" creada","ok");
+  }catch(e){
+    loading(false);
+    toast("Error creando ronda: "+e.message,"err");
   }
-  rondaActiva=r;DB.rondaActiva=r;guardarDB();refrescarSelector();renderSemana();renderTodo();
-  toast("Ronda creada: "+r,"ok");
 }
-function marcarRonda(estado){
+async function marcarRonda(estado){
   const r=rondaActual();
   if(!r.id_ronda){toast("Sin ronda","err");return;}
   r.estado=estado;
-  if(estado==="cerrada")r.fecha_cierre=ahora();
-  guardarDB();refrescarSelector();
+  if(estado==="cerrada") r.fecha_cierre=ahora();
+  await fsMeta();
+  refrescarSelector();
   toast("Ronda marcada como "+estado,"info");
 }
 
-/* ---------- Dashboard ---------- */
+/* ---------- DASHBOARD (igual que v10) ---------- */
 function renderDashboard(){
   const pedidos=pedidosDeRonda();
   const activos=pedidos.filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const pendientes=pedidos.filter(p=>p.estado.startsWith("pendiente"));
+  const pendientes=pedidos.filter(p=>p.estado&&p.estado.startsWith("pendiente"));
   const aceptados=pedidos.filter(p=>p.estado==="aceptado");
   const empacados=pedidos.filter(p=>p.estado==="empacado");
   const entregados=pedidos.filter(p=>p.estado==="entregado");
   const ingreso=activos.reduce((s,p)=>s+Number(p.total||0),0);
   const pmap=precioMapa();
-  const items=itemsDeRonda().filter(i=>activos.some(p=>p.pedido_id===i.pedido_id));
+  const items=itemsDeRonda().filter(i=>activos.some(p=>(p._docId||p.pedido_id)===i.pedido_id));
   const costo=items.reduce((s,i)=>s+Number(i.cantidad)*Number(pmap[i.codigo_producto]?.precio_compra||0),0);
   document.getElementById("dashPedidos").textContent=activos.length;
   document.getElementById("dashIngreso").textContent=soles(ingreso);
@@ -751,7 +872,7 @@ function renderDashboard(){
     :`<div class="small-note">Sin items.</div>`;
 }
 
-/* ---------- Calculadora ---------- */
+/* ---------- CALCULADORA ---------- */
 function renderCalculadora(){
   const aviso=document.getElementById("calcAviso");
   const r=rondaActual();
@@ -798,7 +919,7 @@ function calcAgregarProducto(){
   if(!pr||!prod){toast("Producto sin precio en esta ronda","err");return;}
   const ex=calcItems.find(i=>i.codigo===cod);
   if(ex)ex.cantidad++;
-  else calcItems.push({codigo:cod,nombre:prod.nombre,unidad:prod.unidad,cantidad:1,precio_compra:pr.precio_compra,precio_venta:pr.precio_venta});
+  else calcItems.push({codigo:cod,nombre:prod.nombre,unidad:prod.unidad,cantidad:1,precio_compra:pr.precio_compra||0,precio_venta:pr.precio_venta||0});
   document.getElementById("calcProductoSelect").value="";
   calcRenderItems();
 }
@@ -837,7 +958,7 @@ function calcLimpiar(){
   ["calcCelular","calcNombre","calcDistrito","calcDireccion","calcReferencia","calcNotas","calcLat","calcLng"].forEach(id=>document.getElementById(id).value="");
   calcRenderItems();
 }
-function calcGuardar(estado){
+async function calcGuardar(estado){
   const cel=document.getElementById("calcCelular").value.trim();
   const nombre=document.getElementById("calcNombre").value.trim();
   if(!cel||!nombre){toast("Faltan celular y nombre","err");return;}
@@ -849,9 +970,7 @@ function calcGuardar(estado){
   const metodo=document.getElementById("calcMetodoPago").value;
   const desc=modalidad==="recojo"?ZONAS[zona].desc_recojo:0;
   const total=subtotal-desc;
-  let estadoFinal;
-  if(estado==="pendiente")estadoFinal=(metodo==="Yape")?"pendiente_pago_yape":"pendiente_pago_efectivo";
-  else estadoFinal=estado;
+  let estadoFinal=(estado==="pendiente")?((metodo==="Yape")?"pendiente_pago_yape":"pendiente_pago_efectivo"):estado;
 
   // Cliente
   let cli=clientePorCelular(cel);
@@ -863,12 +982,21 @@ function calcGuardar(estado){
       referencia:document.getElementById("calcReferencia").value.trim(),
       zona,lat:Number(document.getElementById("calcLat").value)||null,
       lng:Number(document.getElementById("calcLng").value)||null};
-    DB.clientes.push(cli);
+    await fsSet(["catalogo","clientes","items"],cli.id,cli);
   }
-  const n=pedidosDeRonda().length+1;
+  const n=DB.pedidos.length+1;
   const pedidoId="P-"+String(n).padStart(4,"0");
-  DB.pedidos.push({
-    id_ronda:rondaActiva,pedido_id:pedidoId,cliente_id:cli.id,
+  const items=calcItems.map((it,i)=>({
+    item_id:pedidoId+"-"+String(i+1).padStart(2,"0"),
+    pedido_id:pedidoId,
+    codigo_producto:it.codigo,nombre:it.nombre,unidad:it.unidad,cantidad:it.cantidad,
+    precio_compra:it.precio_compra,precio_venta_congelado:it.precio_venta,
+    subtotal_compra:red2(it.cantidad*it.precio_compra),
+    subtotal_venta:red2(it.cantidad*it.precio_venta),
+    estado:"pendiente"
+  }));
+  const pedido={
+    pedido_id:pedidoId,cliente_id:cli.id,
     cliente_nombre:nombre,cliente_celular:cel,estado:estadoFinal,
     fecha:ahora(),modalidad,metodo_pago:metodo,zona,
     direccion:document.getElementById("calcDireccion").value.trim(),
@@ -879,25 +1007,19 @@ function calcGuardar(estado){
     notas:document.getElementById("calcNotas").value.trim(),
     canal:document.getElementById("calcCanal").value,
     codigo_yape:null,verificado_por:null,fecha_verificacion:null
+  };
+  await fsSet(["ronda_actual","pedidos"],pedidoId,pedido);
+  // Items como docs separados con pedido_id
+  const batch=writeBatch(db);
+  items.forEach(it=>{
+    batch.set(doc(db,"ronda_actual","items",it.item_id),it);
   });
-  calcItems.forEach((it,i)=>{
-    DB.items.push({
-      id_ronda:rondaActiva,item_id:pedidoId+"-"+String(i+1).padStart(2,"0"),
-      pedido_id:pedidoId,codigo_producto:it.codigo,nombre:it.nombre,
-      unidad:it.unidad,cantidad:it.cantidad,
-      precio_compra:it.precio_compra,precio_venta_congelado:it.precio_venta,
-      subtotal_compra:red2(it.cantidad*it.precio_compra),
-      subtotal_venta:red2(it.cantidad*it.precio_venta),
-      estado:"pendiente"
-    });
-  });
-  guardarDB();
+  await batch.commit();
   toast("✓ Pedido "+pedidoId+" creado ("+estadoFinal+")","ok");
   calcLimpiar();
-  renderTodo();
 }
 
-/* ---------- Pedidos ---------- */
+/* ---------- PEDIDOS ---------- */
 function renderPedidos(){
   const body=document.getElementById("pedidosBody");
   const q=(document.getElementById("buscarPedido").value||"").toLowerCase();
@@ -910,6 +1032,7 @@ function renderPedidos(){
   arr.sort((a,b)=>(b.fecha||"").localeCompare(a.fecha||""));
   if(!arr.length){body.innerHTML=`<tr><td colspan="7" class="muted" style="text-align:center">Sin pedidos.</td></tr>`;return;}
   body.innerHTML=arr.map(p=>{
+    const pid=p._docId||p.pedido_id;
     const its=itemsDePedido(p.pedido_id);
     return`<tr>
       <td><strong>${esc(p.pedido_id)}</strong></td>
@@ -918,21 +1041,21 @@ function renderPedidos(){
       <td>${its.length}</td>
       <td><strong>${soles(p.total)}</strong></td>
       <td><span class="status status-${p.estado}">${esc(p.estado)}</span></td>
-      <td><div class="actions">${accionesPedido(p)}<button class="btn-ghost btn-sm" onclick="verDetalle('${p.pedido_id}')">Detalle</button></div></td>
+      <td><div class="actions">${accionesPedido(p)}<button class="btn-ghost btn-sm" onclick="verDetalle('${pid}')">Detalle</button></div></td>
     </tr>`;
   }).join("");
 }
 function accionesPedido(p){
-  const e=p.estado;
+  const e=p.estado, pid=p._docId||p.pedido_id;
   if(esTerminal(e))return`<span class="muted small-note">Terminal</span>`;
-  if(e.startsWith("pendiente"))return`<button class="btn-accept btn-sm" onclick="abrirAceptar('${p.pedido_id}')">Aceptar</button><button class="btn-reject btn-sm" onclick="rechazarPedido('${p.pedido_id}')">Rechazar</button>`;
-  if(e==="aceptado")return`<button class="btn-info btn-sm" onclick="transicionar('${p.pedido_id}','empacado')">Empacar</button><button class="btn-reject btn-sm" onclick="rechazarPedido('${p.pedido_id}')">Rechazar</button>`;
-  if(e==="empacado")return`<button class="btn-accept btn-sm" onclick="transicionar('${p.pedido_id}','entregado')">Entregar</button><button class="btn-reject btn-sm" onclick="fallarPedido('${p.pedido_id}')">Fallar</button>`;
+  if(e&&e.startsWith("pendiente"))return`<button class="btn-accept btn-sm" onclick="abrirAceptar('${pid}')">Aceptar</button><button class="btn-reject btn-sm" onclick="rechazarPedido('${pid}')">Rechazar</button>`;
+  if(e==="aceptado")return`<button class="btn-info btn-sm" onclick="transicionar('${pid}','empacado')">Empacar</button><button class="btn-reject btn-sm" onclick="rechazarPedido('${pid}')">Rechazar</button>`;
+  if(e==="empacado")return`<button class="btn-accept btn-sm" onclick="transicionar('${pid}','entregado')">Entregar</button><button class="btn-reject btn-sm" onclick="fallarPedido('${pid}')">Fallar</button>`;
   return"";
 }
 function abrirAceptar(id){
   const p=pedidoPorId(id);if(!p)return;
-  const its=itemsDePedido(id);
+  const its=itemsDePedido(p.pedido_id);
   document.getElementById("modalAceptarContenido").innerHTML=`
     <div class="info-box">
       <strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
@@ -948,49 +1071,46 @@ function abrirAceptar(id){
     </div>`;
   abrirModal("modalAceptar");
 }
-function confirmarAceptar(id){
+async function confirmarAceptar(id){
   const p=pedidoPorId(id);if(!p)return;
   if(esTerminal(p.estado)){toast("Pedido terminal","err");return;}
   const verif=(document.getElementById("pagoVerif").value||"").trim();
   if(!verif){toast("Falta verificado por","err");return;}
-  p.estado="aceptado";
-  p.verificado_por=verif;
-  p.fecha_verificacion=ahora();
+  const upd={estado:"aceptado",verificado_por:verif,fecha_verificacion:ahora()};
   if(p.metodo_pago==="Yape"){
     const yp=document.getElementById("pagoYape");
-    if(yp&&yp.value.trim())p.codigo_yape=yp.value.trim();
+    if(yp&&yp.value.trim())upd.codigo_yape=yp.value.trim();
   }
-  guardarDB();
+  await fsSet(["ronda_actual","pedidos"],id,upd);
   cerrarModal("modalAceptar");
-  toast("✓ Pedido "+id+" aceptado","ok");
-  renderTodo();
+  toast("✓ Pedido "+p.pedido_id+" aceptado","ok");
 }
-function rechazarPedido(id){
+async function rechazarPedido(id){
   const p=pedidoPorId(id);if(!p)return;
   if(esTerminal(p.estado)){toast("Terminal","err");return;}
-  if(!confirm("¿Rechazar pedido "+id+"? Esta acción es terminal."))return;
-  p.estado="rechazado";
-  guardarDB();toast("Pedido "+id+" rechazado","warn");renderTodo();
+  if(!confirm("¿Rechazar pedido "+p.pedido_id+"? Terminal."))return;
+  await fsSet(["ronda_actual","pedidos"],id,{estado:"rechazado"});
+  toast("Pedido rechazado","warn");
 }
-function fallarPedido(id){
+async function fallarPedido(id){
   const p=pedidoPorId(id);if(!p)return;
   if(esTerminal(p.estado)){toast("Terminal","err");return;}
-  if(!confirm("¿Marcar pedido "+id+" como fallido? Terminal."))return;
-  p.estado="fallido";
-  guardarDB();toast("Pedido "+id+" fallido","warn");renderTodo();
+  if(!confirm("¿Marcar pedido "+p.pedido_id+" como fallido? Terminal."))return;
+  await fsSet(["ronda_actual","pedidos"],id,{estado:"fallido"});
+  toast("Pedido fallido","warn");
 }
-function transicionar(id,nuevo){
+async function transicionar(id,nuevo){
   const p=pedidoPorId(id);if(!p)return;
   const trans={aceptado:"empacado",empacado:"entregado"};
   if(trans[p.estado]!==nuevo){toast("Transición inválida","err");return;}
-  p.estado=nuevo;
-  if(nuevo==="entregado")p.fecha_entrega=ahora();
-  guardarDB();toast("Pedido "+id+" → "+nuevo,"ok");renderTodo();
+  const upd={estado:nuevo};
+  if(nuevo==="entregado")upd.fecha_entrega=ahora();
+  await fsSet(["ronda_actual","pedidos"],id,upd);
+  toast("Pedido → "+nuevo,"ok");
 }
 function verDetalle(id){
   const p=pedidoPorId(id);if(!p)return;
-  const its=itemsDePedido(id);
-  const r=rondaActual();
+  const its=itemsDePedido(p.pedido_id);
   document.getElementById("detalleContenido").innerHTML=`
     <div class="info-box">
       <strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
@@ -1012,89 +1132,79 @@ function verDetalle(id){
   abrirModal("modalDetalle");
 }
 
-/* ---------- Productos maestro ---------- */
+/* ---------- PRODUCTOS ---------- */
 function renderProductos(){
-  document.getElementById("productosBody").innerHTML=DB.productos.map((p,i)=>`<tr>
+  document.getElementById("productosBody").innerHTML=DB.productos.map(p=>`<tr>
     <td><strong>${esc(p.codigo)}</strong></td>
     <td>${esc(p.nombre)}</td>
-    <td><span class="badge badge-${p.grupo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}">${esc(p.grupo)}</span></td>
+    <td><span class="badge badge-${(p.grupo||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}">${esc(p.grupo)}</span></td>
     <td>${esc(p.unidad)}</td>
     <td>${p.activo?'<span class="badge badge-basico">Sí</span>':'<span class="badge badge-inactivo">No</span>'}</td>
-    <td><button class="btn-ghost btn-sm" onclick="toggleProducto(${i})">${p.activo?"Desactivar":"Activar"}</button></td>
+    <td><button class="btn-ghost btn-sm" onclick="toggleProducto('${p.codigo}')">${p.activo?"Desactivar":"Activar"}</button></td>
   </tr>`).join("");
 }
-function toggleProducto(i){
-  DB.productos[i].activo=!DB.productos[i].activo;
-  guardarDB();renderProductos();
-  toast("Producto "+(DB.productos[i].activo?"activado":"desactivado"),"info");
+async function toggleProducto(codigo){
+  const p=DB.productos.find(x=>x.codigo===codigo); if(!p) return;
+  const nuevo=!p.activo;
+  await fsSet(["catalogo","productos","items"],codigo,{activo:nuevo});
+  toast("Producto "+(nuevo?"activado":"desactivado"),"info");
 }
-function abrirModalProducto(){
-  document.getElementById("prodNombre").value="";
-  abrirModal("modalProducto");
-}
-function guardarProducto(){
+function abrirModalProducto(){ document.getElementById("prodNombre").value=""; abrirModal("modalProducto"); }
+async function guardarProducto(){
   const nombre=document.getElementById("prodNombre").value.trim();
   if(!nombre){toast("Falta nombre","err");return;}
   const n=DB.productos.length+1;
   const codigo="PR-"+String(n).padStart(3,"0");
-  DB.productos.push({
-    codigo,nombre,
-    grupo:document.getElementById("prodGrupo").value,
-    unidad:document.getElementById("prodUnidad").value,
-    activo:true
+  await fsSet(["catalogo","productos","items"],codigo,{
+    nombre, grupo:document.getElementById("prodGrupo").value,
+    unidad:document.getElementById("prodUnidad").value, activo:true
   });
-  guardarDB();cerrarModal("modalProducto");renderProductos();
+  cerrarModal("modalProducto");
   toast("Producto agregado: "+codigo,"ok");
 }
 
-/* ---------- Precios de ronda ---------- */
+/* ---------- PRECIOS ---------- */
 function renderPrecios(){
   document.getElementById("preciosRondaLabel").textContent="· "+rondaActiva;
   const body=document.getElementById("preciosBody");
   const pmap=precioMapa();
   const prodsActivos=DB.productos.filter(p=>p.activo);
   body.innerHTML=prodsActivos.map(p=>{
-    const pr=pmap[p.codigo];
-    const pc=pr?pr.precio_compra:0;
-    const mg=pr?pr.margen:0.30;
-    const pv=pr?pr.precio_venta:0;
-    const ref=pr?pr.precio_minorista_ref:0;
+    const pr=pmap[p.codigo]||{};
     return`<tr>
       <td><strong>${esc(p.nombre)}</strong><br><small class="muted">${esc(p.codigo)}</small></td>
       <td>${esc(p.unidad)}</td>
-      <td><input type="number" step="0.01" value="${pc}" onchange="setPrecio('${p.codigo}','precio_compra',this.value)"></td>
-      <td><input type="number" step="0.01" value="${mg}" onchange="setPrecio('${p.codigo}','margen',this.value)"></td>
-      <td id="pv-${p.codigo}"><strong style="color:var(--verde)">${soles(pv)}</strong></td>
-      <td><input type="number" step="0.01" value="${ref}" onchange="setPrecio('${p.codigo}','precio_minorista_ref',this.value)"></td>
+      <td><input type="number" step="0.01" value="${pr.precio_compra||0}" onchange="setPrecio('${p.codigo}','precio_compra',this.value)"></td>
+      <td><input type="number" step="0.01" value="${pr.margen||0.30}" onchange="setPrecio('${p.codigo}','margen',this.value)"></td>
+      <td id="pv-${p.codigo}"><strong style="color:var(--verde)">${soles(pr.precio_venta||0)}</strong></td>
+      <td><input type="number" step="0.01" value="${pr.precio_minorista_ref||0}" onchange="setPrecio('${p.codigo}','precio_minorista_ref',this.value)"></td>
     </tr>`;
   }).join("");
 }
-function setPrecio(codigo,campo,valor){
+async function setPrecio(codigo,campo,valor){
   const num=Number(valor)||0;
-  const prod=DB.productos.find(p=>p.codigo===codigo);
-  if(!prod)return;
-  let pr=DB.precios.find(p=>p.id_ronda===rondaActiva&&p.codigo_producto===codigo);
-  if(!pr){
-    pr={id_ronda:rondaActiva,codigo_producto:codigo,nombre:prod.nombre,unidad:prod.unidad,
-      precio_compra:0,margen:0.30,precio_venta:0,precio_minorista_ref:0};
-    DB.precios.push(pr);
-  }
+  const prod=DB.productos.find(p=>p.codigo===codigo); if(!prod) return;
+  const pr=DB.precios.find(p=>(p.codigo_producto||p._docId)===codigo)||{
+    codigo_producto:codigo,nombre:prod.nombre,unidad:prod.unidad,
+    precio_compra:0,margen:0.30,precio_venta:0,precio_minorista_ref:0
+  };
   pr[campo]=num;
   if(campo==="precio_compra"||campo==="margen"){
     pr.precio_venta=precioVenta(pr.precio_compra,pr.margen);
     const el=document.getElementById("pv-"+codigo);
     if(el)el.innerHTML=`<strong style="color:var(--verde)">${soles(pr.precio_venta)}</strong>`;
   }
-  guardarDB();
+  await fsSet(["ronda_actual","precios"],codigo,pr);
 }
-function publicarPrecios(){
+async function publicarPrecios(){
   const r=rondaActual();
   r.precios_publicados=true;
-  guardarDB();refrescarSelector();
+  await fsMeta();
+  refrescarSelector();
   toast("Precios publicados (siguen editables)","ok");
 }
 
-/* ---------- Clientes ---------- */
+/* ---------- CLIENTES ---------- */
 function renderClientes(){
   document.getElementById("clientesBody").innerHTML=DB.clientes.map(c=>`<tr>
     <td><strong>${esc(c.id)}</strong></td>
@@ -1109,13 +1219,13 @@ function abrirModalCliente(){
   ["cliNombre","cliTelefono","cliDistrito","cliDireccion","cliReferencia","cliLat","cliLng"].forEach(id=>document.getElementById(id).value="");
   abrirModal("modalCliente");
 }
-function guardarCliente(){
+async function guardarCliente(){
   const nombre=document.getElementById("cliNombre").value.trim();
   if(!nombre){toast("Falta nombre","err");return;}
   const n=DB.clientes.length+1;
-  DB.clientes.push({
-    id:"C-"+String(n).padStart(4,"0"),nombre,
-    telefono:document.getElementById("cliTelefono").value.trim(),
+  const id="C-"+String(n).padStart(4,"0");
+  await fsSet(["catalogo","clientes","items"],id,{
+    nombre, telefono:document.getElementById("cliTelefono").value.trim(),
     distrito:document.getElementById("cliDistrito").value.trim(),
     direccion:document.getElementById("cliDireccion").value.trim(),
     referencia:document.getElementById("cliReferencia").value.trim(),
@@ -1123,11 +1233,11 @@ function guardarCliente(){
     lat:Number(document.getElementById("cliLat").value)||null,
     lng:Number(document.getElementById("cliLng").value)||null
   });
-  guardarDB();cerrarModal("modalCliente");renderClientes();
+  cerrarModal("modalCliente");
   toast("Cliente agregado","ok");
 }
 
-/* ---------- Repartidores ---------- */
+/* ---------- REPARTIDORES ---------- */
 function renderRepartidores(){
   document.getElementById("repartidoresBody").innerHTML=DB.repartidores.map(r=>`<tr>
     <td><strong>${esc(r.id)}</strong></td>
@@ -1135,15 +1245,15 @@ function renderRepartidores(){
     <td>${esc(r.celular)}</td>
     <td><span class="zona-chip zona-${r.zona}">${esc(r.zona)}</span></td>
     <td>${esc(r.vehiculo)}</td>
-    <td>${r.capacidad_max_kg} kg</td>
+    <td>${r.capacidad_max_kg||0} kg</td>
     <td>${r.activo?"Sí":"No"}</td>
   </tr>`).join("");
 }
 
-/* ---------- Compra ---------- */
+/* ---------- COMPRA ---------- */
 function calcularListaCompra(){
   const aceptados=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const its=itemsDeRonda().filter(i=>aceptados.some(p=>p.pedido_id===i.pedido_id));
+  const its=itemsDeRonda().filter(i=>aceptados.some(p=>(p._docId||p.pedido_id)===i.pedido_id));
   const pmap=precioMapa();
   const compras=comprasDeRonda();
   const c={};
@@ -1154,13 +1264,13 @@ function calcularListaCompra(){
   });
   const filas=Object.values(c).sort((a,b)=>b.pedida-a.pedida);
   if(!filas.length){
-    document.getElementById("listaCompraContenido").innerHTML=`<div class="warn-box">No hay pedidos aceptados en esta ronda. Aceptá pedidos primero.</div>`;
+    document.getElementById("listaCompraContenido").innerHTML=`<div class="warn-box">No hay pedidos aceptados. Aceptá pedidos primero.</div>`;
     return;
   }
   const total=filas.reduce((s,f)=>{
-    const aj=compras.find(x=>x.codigo_producto===f.codigo);
+    const aj=compras.find(x=>(x.codigo_producto||x._docId)===f.codigo);
     const pr=pmap[f.codigo];
-    const cant=aj?aj.cantidad_real:f.pedida;
+    const cant=aj&&aj.cantidad_real!=null?aj.cantidad_real:f.pedida;
     const pu=pr?pr.precio_compra:0;
     return s+cant*pu;
   },0);
@@ -1168,7 +1278,7 @@ function calcularListaCompra(){
     <div class="table-scroll"><table>
       <thead><tr><th>Producto</th><th>Unidad</th><th>Pedida</th><th>Real (editable)</th><th>Merma</th><th>P. compra</th><th>Costo</th></tr></thead>
       <tbody>${filas.map(f=>{
-        const aj=compras.find(x=>x.codigo_producto===f.codigo)||{};
+        const aj=compras.find(x=>(x.codigo_producto||x._docId)===f.codigo)||{};
         const cant=aj.cantidad_real!=null?aj.cantidad_real:f.pedida;
         const mm=aj.merma||0;
         const pr=pmap[f.codigo];
@@ -1185,34 +1295,32 @@ function calcularListaCompra(){
       }).join("")}</tbody>
       <tfoot><tr style="background:#fafafa;font-weight:bold"><td colspan="6" style="text-align:right">TOTAL</td><td>${soles(total)}</td></tr></tfoot>
     </table></div>
-    <p class="small-note" style="margin-top:10px">Los ajustes (real, merma) se guardan en compras[]. Al recalcular, los pedidos aceptados se re-suman pero los ajustes se respetan.</p>`;
+    <p class="small-note" style="margin-top:10px">Los ajustes se guardan en Firestore (ronda_actual/compras).</p>`;
 }
-function setCompraReal(codigo,cant){
+async function setCompraReal(codigo,cant){
   const n=Number(cant)||0;
   const pr=precioMapa()[codigo];
   const prod=DB.productos.find(p=>p.codigo===codigo);
-  let c=DB.compras.find(x=>x.id_ronda===rondaActiva&&x.codigo_producto===codigo);
-  if(c){c.cantidad_real=n;}
-  else{
-    DB.compras.push({id_ronda:rondaActiva,codigo_producto:codigo,nombre:prod?.nombre||codigo,
-      unidad:prod?.unidad||"",cantidad_real:n,merma:0,precio_unitario:pr?pr.precio_compra:0});
-  }
-  guardarDB();
+  const c=DB.compras.find(x=>(x.codigo_producto||x._docId)===codigo)||{
+    codigo_producto:codigo,nombre:prod?.nombre||codigo,unidad:prod?.unidad||"",cantidad_real:0,merma:0
+  };
+  c.cantidad_real=n;
+  c.precio_unitario=pr?pr.precio_compra:0;
+  await fsSet(["ronda_actual","compras"],codigo,c);
 }
-function setCompraMerma(codigo,merma){
+async function setCompraMerma(codigo,merma){
   const n=Number(merma)||0;
   const prod=DB.productos.find(p=>p.codigo===codigo);
   const pr=precioMapa()[codigo];
-  let c=DB.compras.find(x=>x.id_ronda===rondaActiva&&x.codigo_producto===codigo);
-  if(c){c.merma=n;}
-  else{
-    DB.compras.push({id_ronda:rondaActiva,codigo_producto:codigo,nombre:prod?.nombre||codigo,
-      unidad:prod?.unidad||"",cantidad_real:0,merma:n,precio_unitario:pr?pr.precio_compra:0});
-  }
-  guardarDB();
+  const c=DB.compras.find(x=>(x.codigo_producto||x._docId)===codigo)||{
+    codigo_producto:codigo,nombre:prod?.nombre||codigo,unidad:prod?.unidad||"",cantidad_real:0,merma:0
+  };
+  c.merma=n;
+  c.precio_unitario=pr?pr.precio_compra:0;
+  await fsSet(["ronda_actual","compras"],codigo,c);
 }
 
-/* ---------- Entregas ---------- */
+/* ---------- ENTREGAS ---------- */
 function renderEntregas(){
   const pedidos=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
   const cont=document.getElementById("paradasLista");
@@ -1227,10 +1335,11 @@ function renderEntregas(){
   const ordG=rondaActual().orden_ruta||[];
   if(ordG.length){
     const m={};ordG.forEach((id,i)=>m[id]=i);
-    orden.sort((a,b)=>(m[a.pedido_id]??999)-(m[b.pedido_id]??999));
+    orden.sort((a,b)=>(m[a._docId||a.pedido_id]??999)-(m[b._docId||b.pedido_id]??999));
   }
   cont.innerHTML=orden.map((p,i)=>{
-    const e=DB.entregas.find(x=>x.id_ronda===rondaActiva&&x.pedido_id===p.pedido_id)||{};
+    const pid=p._docId||p.pedido_id;
+    const e=DB.entregas.find(x=>(x._docId||x.pedido_id)===pid)||{};
     const est=e.estado||"pendiente";
     const cl=est==="entregado"?"entregado":(est==="fallido"?"fallido":"");
     const gmaps=p.lat&&p.lng?`<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Maps</a>`:"";
@@ -1238,13 +1347,13 @@ function renderEntregas(){
       <div class="parada-num ${cl}">${i+1}</div>
       <div><strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)}<br><small class="muted">${esc(p.direccion||"")}</small></div>
       <div><span class="zona-chip zona-${p.zona}">${esc(p.zona)}</span></div>
-      <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por||"")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)">
-      <select onchange="updEntrega('${p.pedido_id}','estado',this.value)">
+      <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por||"")}" onchange="updEntrega('${pid}','recibido_por',this.value)">
+      <select onchange="updEntrega('${pid}','estado',this.value)">
         <option value="pendiente" ${est==="pendiente"?"selected":""}>Pendiente</option>
         <option value="entregado" ${est==="entregado"?"selected":""}>Entregado</option>
         <option value="fallido" ${est==="fallido"?"selected":""}>Fallido</option>
       </select>
-      <select onchange="updEntrega('${p.pedido_id}','repartidor_id',this.value)">
+      <select onchange="updEntrega('${pid}','repartidor_id',this.value)">
         <option value="">Repartidor...</option>
         ${DB.repartidores.map(r=>`<option value="${r.id}" ${e.repartidor_id===r.id?"selected":""}>${esc(r.nombre)}</option>`).join("")}
       </select>
@@ -1259,29 +1368,21 @@ function renderEntregas(){
     <div class="box">Peso<strong>${peso.toFixed(1)} kg</strong></div>
     <div class="box">Con coords<strong>${conC.length}/${pedidos.length}</strong></div>`;
 }
-function updEntrega(pedidoId,campo,valor){
-  let e=DB.entregas.find(x=>x.id_ronda===rondaActiva&&x.pedido_id===pedidoId);
-  if(!e){
-    e={id_ronda:rondaActiva,pedido_id:pedidoId,repartidor_id:null,estado:"pendiente",recibido_por:"",fecha:ahora()};
-    DB.entregas.push(e);
-  }
+async function updEntrega(pedidoId,campo,valor){
+  const p=pedidoPorId(pedidoId); if(!p) return;
+  const e=DB.entregas.find(x=>(x._docId||x.pedido_id)===pedidoId)||{
+    pedido_id:pedidoId,repartidor_id:null,estado:"pendiente",recibido_por:"",fecha:ahora()
+  };
   e[campo]=valor;
-  if(campo==="estado"&&valor==="entregado"){
-    const p=pedidoPorId(pedidoId);
-    if(p&&p.estado!=="entregado"){
-      p.estado="entregado";
-      p.fecha_entrega=ahora();
-      toast("Pedido "+pedidoId+" marcado como entregado","ok");
-    }
+  await fsSet(["ronda_actual","entregas"],pedidoId,e);
+  if(campo==="estado"&&valor==="entregado"&&p.estado!=="entregado"){
+    await fsSet(["ronda_actual","pedidos"],pedidoId,{estado:"entregado",fecha_entrega:ahora()});
+    toast("Pedido "+p.pedido_id+" entregado","ok");
   }
-  if(campo==="estado"&&valor==="fallido"){
-    const p=pedidoPorId(pedidoId);
-    if(p&&!esTerminal(p.estado)){
-      p.estado="fallido";
-      toast("Pedido "+pedidoId+" marcado como fallido","warn");
-    }
+  if(campo==="estado"&&valor==="fallido"&&!esTerminal(p.estado)){
+    await fsSet(["ronda_actual","pedidos"],pedidoId,{estado:"fallido"});
+    toast("Pedido "+p.pedido_id+" fallido","warn");
   }
-  guardarDB();renderEntregas();
 }
 function calcularDistanciaTotal(orden){
   const cs=orden.filter(p=>p.lat&&p.lng);
@@ -1290,7 +1391,7 @@ function calcularDistanciaTotal(orden){
   for(let i=1;i<cs.length;i++)km+=distHav(cs[i-1].lat,cs[i-1].lng,cs[i].lat,cs[i].lng);
   return km;
 }
-function optimizarRuta(){
+async function optimizarRuta(){
   const pedidos=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado)&&p.lat&&p.lng);
   if(pedidos.length<2){toast("Necesitás al menos 2 pedidos con coordenadas","warn");return;}
   const noV=[...pedidos],orden=[];
@@ -1300,14 +1401,15 @@ function optimizarRuta(){
     noV.forEach((p,i)=>{const d=distHav(act.lat,act.lng,p.lat,p.lng);if(d<md){md=d;mejor=i;}});
     const sig=noV.splice(mejor,1)[0];orden.push(sig);act=sig;
   }
-  rondaActual().orden_ruta=orden.map(p=>p.pedido_id);
-  guardarDB();renderEntregas();
+  const r=rondaActual();
+  r.orden_ruta=orden.map(p=>p._docId||p.pedido_id);
+  await fsMeta();
   toast("✓ Ruta optimizada: "+orden.length+" paradas","ok");
 }
 function abrirRutaGoogleMaps(){
   const orden=rondaActual().orden_ruta||[];
   const pedidos=pedidosDeRonda().filter(p=>p.lat&&p.lng);
-  const sorted=orden.length?orden.map(id=>pedidos.find(p=>p.pedido_id===id)).filter(Boolean):pedidos;
+  const sorted=orden.length?orden.map(id=>pedidos.find(p=>(p._docId||p.pedido_id)===id)).filter(Boolean):pedidos;
   if(!sorted.length){toast("Sin coordenadas","err");return;}
   const o=`${OFICINA.lat},${OFICINA.lng}`;
   const d=`${sorted[sorted.length-1].lat},${sorted[sorted.length-1].lng}`;
@@ -1316,7 +1418,7 @@ function abrirRutaGoogleMaps(){
   window.open(url,"_blank");
 }
 
-/* ---------- Gastos ---------- */
+/* ---------- GASTOS ---------- */
 function renderGastos(){
   const arr=gastosDeRonda();
   const cont=document.getElementById("gastosContenido");
@@ -1325,31 +1427,30 @@ function renderGastos(){
   const total=arr.reduce((s,g)=>s+Number(g.monto||0),0);
   cont.innerHTML=`<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Medio</th><th></th></tr></thead>
-    <tbody>${arr.map(g=>`<tr>
-      <td><input type="date" value="${esc(g.fecha)}" onchange="updGasto('${g.id}','fecha',this.value)"></td>
-      <td><select onchange="updGasto('${g.id}','tipo',this.value)">${tipos.map(t=>`<option ${g.tipo===t?"selected":""}>${t}</option>`).join("")}</select></td>
-      <td><input value="${esc(g.descripcion)}" onchange="updGasto('${g.id}','descripcion',this.value)"></td>
-      <td><input type="number" step="0.01" value="${g.monto||0}" onchange="updGasto('${g.id}','monto',this.value)"></td>
-      <td><select onchange="updGasto('${g.id}','medio_pago',this.value)">${medios.map(m=>`<option ${g.medio_pago===m?"selected":""}>${m}</option>`).join("")}</select></td>
-      <td><button class="btn-delete" onclick="delGasto('${g.id}')">×</button></td>
-    </tr>`).join("")}</tbody></table></div>
+    <tbody>${arr.map(g=>{
+      const gid=g._docId||g.id;
+      return`<tr>
+        <td><input type="date" value="${esc(g.fecha||hoy())}" onchange="updGasto('${gid}','fecha',this.value)"></td>
+        <td><select onchange="updGasto('${gid}','tipo',this.value)">${tipos.map(t=>`<option ${g.tipo===t?"selected":""}>${t}</option>`).join("")}</select></td>
+        <td><input value="${esc(g.descripcion||"")}" onchange="updGasto('${gid}','descripcion',this.value)"></td>
+        <td><input type="number" step="0.01" value="${g.monto||0}" onchange="updGasto('${gid}','monto',this.value)"></td>
+        <td><select onchange="updGasto('${gid}','medio_pago',this.value)">${medios.map(m=>`<option ${g.medio_pago===m?"selected":""}>${m}</option>`).join("")}</select></td>
+        <td><button class="btn-delete" onclick="delGasto('${gid}')">×</button></td>
+      </tr>`;
+    }).join("")}</tbody></table></div>
     <p style="text-align:right;margin-top:10px"><strong>Total gastos: ${soles(total)}</strong></p>`;
 }
-function agregarGasto(){
-  DB.gastos.push({id:uid("G"),id_ronda:rondaActiva,fecha:hoy(),tipo:"transporte",descripcion:"",monto:0,medio_pago:"efectivo"});
-  guardarDB();renderGastos();
+async function agregarGasto(){
+  const id=uid("G");
+  await fsSet(["ronda_actual","gastos"],id,{id,fecha:hoy(),tipo:"transporte",descripcion:"",monto:0,medio_pago:"efectivo"});
   toast("Gasto agregado","ok");
 }
-function updGasto(id,c,v){
-  const t=DB.gastos.find(x=>x.id===id);if(!t)return;
-  t[c]=c==="monto"?(Number(v)||0):v;
-  guardarDB();
-  if(c==="monto")renderGastos();
+async function updGasto(id,c,v){
+  await fsSet(["ronda_actual","gastos"],id,{[c]:c==="monto"?(Number(v)||0):v});
 }
-function delGasto(id){
+async function delGasto(id){
   if(!confirm("¿Eliminar gasto?"))return;
-  DB.gastos=DB.gastos.filter(x=>x.id!==id);
-  guardarDB();renderGastos();
+  await fsDel(["ronda_actual","gastos"],id);
   toast("Gasto eliminado","info");
 }
 function renderExcedentes(){
@@ -1359,32 +1460,31 @@ function renderExcedentes(){
   const total=arr.reduce((s,e)=>s+Number(e.ingreso||0),0);
   cont.innerHTML=`<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Descripción</th><th>Ingreso</th><th></th></tr></thead>
-    <tbody>${arr.map(e=>`<tr>
-      <td><input type="date" value="${esc(e.fecha)}" onchange="updExc('${e.id}','fecha',this.value)"></td>
-      <td><input value="${esc(e.descripcion)}" onchange="updExc('${e.id}','descripcion',this.value)"></td>
-      <td><input type="number" step="0.01" value="${e.ingreso||0}" onchange="updExc('${e.id}','ingreso',this.value)"></td>
-      <td><button class="btn-delete" onclick="delExc('${e.id}')">×</button></td>
-    </tr>`).join("")}</tbody></table></div>
+    <tbody>${arr.map(e=>{
+      const eid=e._docId||e.id;
+      return`<tr>
+        <td><input type="date" value="${esc(e.fecha||hoy())}" onchange="updExc('${eid}','fecha',this.value)"></td>
+        <td><input value="${esc(e.descripcion||"")}" onchange="updExc('${eid}','descripcion',this.value)"></td>
+        <td><input type="number" step="0.01" value="${e.ingreso||0}" onchange="updExc('${eid}','ingreso',this.value)"></td>
+        <td><button class="btn-delete" onclick="delExc('${eid}')">×</button></td>
+      </tr>`;
+    }).join("")}</tbody></table></div>
     <p style="text-align:right;margin-top:10px"><strong>Total excedentes: ${soles(total)}</strong></p>`;
 }
-function agregarExcedente(){
-  DB.excedentes.push({id:uid("E"),id_ronda:rondaActiva,fecha:hoy(),descripcion:"",ingreso:0});
-  guardarDB();renderExcedentes();
+async function agregarExcedente(){
+  const id=uid("E");
+  await fsSet(["ronda_actual","excedentes"],id,{id,fecha:hoy(),descripcion:"",ingreso:0});
   toast("Excedente agregado","ok");
 }
-function updExc(id,c,v){
-  const t=DB.excedentes.find(x=>x.id===id);if(!t)return;
-  t[c]=c==="ingreso"?(Number(v)||0):v;
-  guardarDB();
-  if(c==="ingreso")renderExcedentes();
+async function updExc(id,c,v){
+  await fsSet(["ronda_actual","excedentes"],id,{[c]:c==="ingreso"?(Number(v)||0):v});
 }
-function delExc(id){
+async function delExc(id){
   if(!confirm("¿Eliminar excedente?"))return;
-  DB.excedentes=DB.excedentes.filter(x=>x.id!==id);
-  guardarDB();renderExcedentes();
+  await fsDel(["ronda_actual","excedentes"],id);
 }
 
-/* ---------- Reportes ---------- */
+/* ---------- REPORTES ---------- */
 function calcularReportes(){
   const cont=document.getElementById("reportesContenido");
   const aceptados=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
@@ -1393,10 +1493,9 @@ function calcularReportes(){
   const gs=gastosDeRonda();
   const gastos=gs.reduce((s,g)=>s+Number(g.monto||0),0);
   const exc=excedentesDeRonda().reduce((s,e)=>s+Number(e.ingreso||0),0);
-  const recl=DB.reclamos.filter(r=>r.id_ronda===rondaActiva);
-  const reclamos=recl.reduce((s,r)=>s+Number(r.costo_solucion||0),0);
+  const recl=(DB.reclamos||[]).reduce((s,r)=>s+Number(r.costo_solucion||0),0);
   const mb=ingresos-compras;
-  const un=mb-gastos+exc-reclamos;
+  const un=mb-gastos+exc-recl;
   const pt={transporte:0,empaque:0,sueldo:0,otro:0};
   gs.forEach(g=>{pt[g.tipo]=(pt[g.tipo]||0)+Number(g.monto||0);});
   const cl=un>=0?"good":"bad";
@@ -1417,13 +1516,13 @@ function calcularReportes(){
         <div class="fin-row"><span>Empaque</span><span class="val">${soles(pt.empaque)}</span></div>
         <div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div>
         <div class="fin-row"><span>Otro</span><span class="val">${soles(pt.otro)}</span></div>
-        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(reclamos)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(compras+gastos+reclamos)}</span></div>
+        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(compras+gastos+recl)}</span></div>
       </div>
       <div class="fin-col"><h4>Resultado</h4>
         <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div>
         <div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastos)}</span></div>
-        <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(reclamos)}</span></div>
+        <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(recl)}</span></div>
         <div class="fin-row"><span>Excedentes</span><span class="val">+${soles(exc)}</span></div>
         <div class="fin-row"><span><strong>Utilidad neta</strong></span><span class="val">${soles(un)}</span></div>
       </div>
@@ -1434,7 +1533,7 @@ function calcularReportes(){
     </div>`;
 }
 
-/* ---------- Config ---------- */
+/* ---------- CONFIG ---------- */
 function renderConfig(){
   const c=DB.config;
   const campos=[
@@ -1448,56 +1547,69 @@ function renderConfig(){
   document.getElementById("configContenido").innerHTML=`
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
       ${campos.map(([k,lbl,t])=>`<div><label class="small-note">${lbl}</label>
-        <input type="${t}" step="0.01" value="${esc(c[k])}" onchange="updConfig('${k}',this.value,${t==='number'})"></div>`).join("")}
+        <input type="${t}" step="0.01" value="${esc(c[k]||"")}" onchange="updConfig('${k}',this.value,${t==='number'})"></div>`).join("")}
     </div>
     <div class="info-box" style="margin-top:16px">
       <strong>Zonas y mínimos:</strong><br>
       ${Object.entries(ZONAS).map(([z,i])=>`<strong>Zona ${z}</strong>: ${i.distritos.join(", ")} · Mínimo ${soles(i.min)} · Recojo −${soles(i.desc_recojo)}`).join("<br>")}
     </div>`;
 }
-function updConfig(k,v,isNum){
+async function updConfig(k,v,isNum){
   DB.config[k]=isNum?(Number(v)||0):v;
-  guardarDB();
+  await fsConfig();
   toast("Config actualizada","ok");
+}
+
+/* ---------- EXPORT / RESET ---------- */
+function exportarJSON(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="misti_firestore_"+hoy()+".json";a.click();
+  URL.revokeObjectURL(url);
+}
+function importarJSON(){
+  toast("Importar en Firestore aún no implementado","warn");
+}
+async function resetTotal(){
+  if(!confirm("⚠️ ¿BORRAR TODA la ronda_actual de Firestore?\n\nEl catálogo y la config NO se tocan.")) return;
+  loading(true,"Borrando ronda actual…");
+  try{
+    const cols=["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    for(const c of cols){
+      const snap=await getDocs(collection(db,"ronda_actual",c));
+      if(snap.empty) continue;
+      const batch=writeBatch(db);
+      snap.docs.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+    }
+    loading(false);
+    toast("Ronda actual borrada","info");
+  }catch(e){ loading(false); toast("Error: "+e.message,"err"); }
 }
 
 /* ---------- renderTodo ---------- */
 function renderTodo(){
   renderSemana();
   refrescarSelector();
-  const v=document.querySelector(".view.active");
-  if(v){
-    const id=v.id.replace("view-","");
-    if(id==="dashboard")renderDashboard();
-    if(id==="calculadora")renderCalculadora();
-    if(id==="pedidos")renderPedidos();
-    if(id==="productos"){renderProductos();renderPrecios();renderClientes();renderRepartidores();}
-    if(id==="compra"){renderGastos();renderExcedentes();}
-    if(id==="entregas")renderEntregas();
-    if(id==="gastos"){renderGastos();renderExcedentes();}
-    if(id==="cierre")calcularReportes();
-    if(id==="config")renderConfig();
-  }
+  renderVistaActual();
 }
 
-/* ---------- Init ---------- */
-(function init(){
-  try{
-    DB=cargarDB();
-    rondaActiva=DB.rondaActiva||Object.keys(DB.rondas).sort().reverse()[0]||"";
-    if(!rondaActiva){
-      const r="R-"+hoy();
-      DB.rondas[r]={id_ronda:r,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,precios_publicados:false,orden_ruta:[]};
-      rondaActiva=r;DB.rondaActiva=r;guardarDB();
-    }
-    renderTodo();
-    toast("✓ Misti v10 lista · Ronda "+rondaActiva,"ok");
-    console.log("✓ DB cargada:",DB);
-  }catch(e){
-    console.error("Error init:",e);
-    document.body.innerHTML+='<div class="error-box" style="margin:20px"><strong>Error al iniciar:</strong> '+e.message+'</div>';
-  }
-})();
+/* ---------- EXPONER FUNCIONES A WINDOW (por type="module") ---------- */
+Object.assign(window,{
+  mostrarVista,mostrarTab,abrirModal,cerrarModal,
+  cambiarRondaActiva,crearRonda,marcarRonda,cerrarSesion,
+  calcBuscarCliente,calcSugerirZona,calcAgregarProducto,
+  calcCambiarCantidad,calcEliminar,calcLimpiar,calcGuardar,calcFiltrarProductos,
+  renderPedidos,abrirAceptar,confirmarAceptar,rechazarPedido,fallarPedido,
+  transicionar,verDetalle,calcularListaCompra,setCompraReal,setCompraMerma,
+  optimizarRuta,abrirRutaGoogleMaps,updEntrega,
+  agregarGasto,updGasto,delGasto,agregarExcedente,updExc,delExc,
+  calcularReportes,renderConfig,updConfig,
+  abrirModalProducto,guardarProducto,toggleProducto,
+  abrirModalCliente,guardarCliente,publicarPrecios,setPrecio,
+  exportarJSON,importarJSON,resetTotal
+});
 </script>
 </body>
 </html>
