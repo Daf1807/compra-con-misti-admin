@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v12</title>
+<title>Compra con Misti — Admin v13</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -110,7 +110,6 @@ tbody tr:hover{background:#F4FBF6}
 .ruta-info{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
 .ruta-info .box{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:10px;font-size:11px;color:var(--texto-2);text-transform:uppercase}
 .ruta-info .box strong{display:block;margin-top:4px;font-size:18px;color:var(--texto);font-weight:800;text-transform:none}
-/* PIPELINE KANBAN */
 .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
 .pipe-col{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);padding:12px;box-shadow:var(--sombra-sm);min-height:180px}
 .pipe-col-h{font-size:11px;text-transform:uppercase;font-weight:800;padding:6px 10px;border-radius:999px;display:inline-block;margin-bottom:10px}
@@ -127,7 +126,6 @@ tbody tr:hover{background:#F4FBF6}
 .pipe-card .acts{display:flex;gap:4px;flex-wrap:wrap}
 .pipe-card .acts button{padding:5px 9px;min-height:28px;font-size:11px}
 .pipe-empty{color:var(--texto-2);font-size:11px;text-align:center;padding:14px 0}
-/* ENTREGAS */
 .ruta-bloque{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);padding:14px;margin-bottom:14px;box-shadow:var(--sombra-sm)}
 .ruta-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .ruta-head .title{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
@@ -158,7 +156,29 @@ tbody tr:hover{background:#F4FBF6}
 .delta-zero{color:var(--texto-2)}
 .hist-item{font-size:11px;padding:4px 0;border-bottom:1px dashed var(--borde);color:var(--texto-2)}
 .hist-item strong{color:var(--texto)}
-@media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.parada-item{grid-template-columns:36px 1fr;gap:6px}.dash-hero{grid-template-columns:1fr 1fr}}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
+.fin-col{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:14px}
+.fin-col h4{margin:0 0 10px;color:var(--verde);font-size:14px}
+.fin-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px dashed var(--borde)}
+.fin-row .val{font-weight:700}
+.fin-result{margin-top:16px;padding:18px;border-radius:var(--radio);text-align:center}
+.fin-result.good{background:var(--verde-claro);border:2px solid var(--verde)}
+.fin-result.bad{background:#FFE8E9;border:2px solid var(--coral)}
+.fin-result .lbl{font-size:12px;text-transform:uppercase;color:var(--texto-2);font-weight:700}
+.fin-result .num{font-size:34px;font-weight:800;color:var(--verde);margin-top:4px}
+.fin-result.bad .num{color:var(--coral)}
+#loginOverlay{position:fixed;inset:0;background:linear-gradient(135deg,var(--verde),var(--verde-2));display:flex;align-items:center;justify-content:center;z-index:5000}
+#loginOverlay .box{background:#fff;border-radius:var(--radio);padding:40px;text-align:center;max-width:400px;width:90%;box-shadow:var(--sombra-md)}
+#loginOverlay h1{color:var(--verde);margin:0 0 8px}
+#loginOverlay p{color:var(--texto-2);font-size:13px;margin:0 0 24px}
+#loginOverlay button{width:100%;padding:14px;font-size:15px}
+#loginOverlay .spinner{width:40px;height:40px;border:4px solid var(--verde-claro);border-top-color:var(--verde);border-radius:50%;animation:spin 1s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+#syncIndicator{position:fixed;bottom:20px;left:20px;z-index:1500;font-size:11px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--verde-claro);color:var(--verde);box-shadow:var(--sombra-sm);opacity:0;transition:opacity .3s}
+#syncIndicator.visible{opacity:1}
+#syncIndicator.saving{background:#FFF3CD;color:#7A5500}
+#syncIndicator.saved{background:var(--verde-claro);color:var(--verde)}
+@media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.parada-item{grid-template-columns:36px 1fr;gap:6px}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.dash-row,.ruta-info,.pipeline{grid-template-columns:1fr}.container{padding:12px}header h1{font-size:20px}.section{padding:14px}.item-row{grid-template-columns:1fr}}
 </style>
@@ -170,7 +190,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
   <div class="container">
     <h1>Compra con Misti</h1>
-    <p>Panel Admin v12 · pipeline con retroceso · rutas por zona · distritos de Lima</p>
+    <p>Panel Admin v13 · Firestore · pipeline con retroceso · rutas por zona · distritos de Lima</p>
   </div>
 </header>
 
@@ -400,6 +420,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 
 <div id="toast"></div>
+<div id="syncIndicator"></div>
 
 <!-- MODAL PRODUCTO -->
 <div class="modal" id="modalProducto"><div class="modal-content">
@@ -452,344 +473,651 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div></div>
 
-<script>
-/* ============================================================================
-   COMPRA MISTI v12
-   ============================================================================ */
-const STORAGE_KEY="misti_v12_data";
+<!-- OVERLAY LOGIN -->
+<div id="loginOverlay">
+  <div class="box">
+    <h1>Compra con Misti</h1>
+    <p>Panel Admin · Firestore</p>
+    <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
+    <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
+    <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
+  </div>
+</div>
 
-const ZONAS={
-  A:{desc_recojo:2, min:30, distritos:["La Victoria","Lince","Breña","Cercado de Lima","Rímac"]},
-  B:{desc_recojo:3, min:40, distritos:["Jesús María","San Isidro","Miraflores","Surquillo","San Borja","Lince","Magdalena del Mar","San Miguel","Pueblo Libre"]},
-  C:{desc_recojo:5, min:50, distritos:["Ate","Santa Anita","San Luis","San Juan de Lurigancho","El Agustino","Chorrillos","Villa María del Triunfo","Villa El Salvador"]}
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+  }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, onSnapshot, writeBatch, query, orderBy } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAonWel671riadA7rP7yKTWFy1APCad1LI",
+  authDomain: "misti-panel.firebaseapp.com",
+  projectId: "misti-panel",
+  storageBucket: "misti-panel.firebasestorage.app",
+  messagingSenderId: "1087729241176",
+  appId: "1:1087729241176:web:82eeae27c92bfdb51f0e2d"
+};
+const UID_AUTORIZADO = "s9FcWIZGZ5NjkN5934z1FCxpcsx2";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ============================================================================
+   ESTADO LOCAL
+   ============================================================================ */
+let DB = {
+  config: {},
+  rondas: {},
+  rondaActiva: "",
+  productos: [],
+  clientes: [],
+  repartidores: [],
+  precios: [],
+  pedidos: [],
+  items: [],
+  compras: [],
+  entregas: [],
+  gastos: [],
+  excedentes: [],
+  reclamos: []
+};
+let calcItems = [];
+let unsubscribers = [];
+let syncTimer = null;
+
+/* ============================================================================
+   CONSTANTES
+   ============================================================================ */
+const ZONAS = {
+  A: { desc_recojo: 2, min: 30, distritos: ["La Victoria", "Lince", "Breña", "Cercado de Lima", "Rímac"] },
+  B: { desc_recojo: 3, min: 40, distritos: ["Jesús María", "San Isidro", "Miraflores", "Surquillo", "San Borja", "Lince", "Magdalena del Mar", "San Miguel", "Pueblo Libre"] },
+  C: { desc_recojo: 5, min: 50, distritos: ["Ate", "Santa Anita", "San Luis", "San Juan de Lurigancho", "El Agustino", "Chorrillos", "Villa María del Triunfo", "Villa El Salvador"] }
 };
 
-/* 50 distritos de Lima Metropolitana con lat/lng del centro (aprox) y zona sugerida */
-const DISTRITOS=[
-  {n:"Ate",z:"C",lat:-12.0184,lng:-76.9240},
-  {n:"Barranco",z:"B",lat:-12.1461,lng:-77.0206},
-  {n:"Breña",z:"A",lat:-12.0561,lng:-77.0495},
-  {n:"Carabayllo",z:"C",lat:-11.8944,lng:-77.0355},
-  {n:"Cercado de Lima",z:"A",lat:-12.0464,lng:-77.0428},
-  {n:"Chaclacayo",z:"C",lat:-11.9761,lng:-76.7694},
-  {n:"Chorrillos",z:"C",lat:-12.1770,lng:-77.0222},
-  {n:"Cieneguilla",z:"C",lat:-12.1188,lng:-76.8183},
-  {n:"Comas",z:"C",lat:-11.9445,lng:-77.0497},
-  {n:"El Agustino",z:"C",lat:-12.0464,lng:-76.9908},
-  {n:"Independencia",z:"C",lat:-11.9939,lng:-77.0531},
-  {n:"Jesús María",z:"B",lat:-12.0746,lng:-77.0489},
-  {n:"La Molina",z:"B",lat:-12.0779,lng:-76.9444},
-  {n:"La Victoria",z:"A",lat:-12.0651,lng:-77.0176},
-  {n:"Lince",z:"A",lat:-12.0846,lng:-77.0350},
-  {n:"Los Olivos",z:"C",lat:-11.9766,lng:-77.0694},
-  {n:"Lurigancho",z:"C",lat:-12.0000,lng:-76.8500},
-  {n:"Lurín",z:"C",lat:-12.2730,lng:-76.8700},
-  {n:"Magdalena del Mar",z:"B",lat:-12.0900,lng:-77.0700},
-  {n:"Miraflores",z:"B",lat:-12.1219,lng:-77.0298},
-  {n:"Pachacámac",z:"C",lat:-12.2300,lng:-76.8700},
-  {n:"Pucusana",z:"C",lat:-12.4800,lng:-76.8000},
-  {n:"Pueblo Libre",z:"B",lat:-12.0726,lng:-77.0628},
-  {n:"Puente Piedra",z:"C",lat:-11.8700,lng:-77.0750},
-  {n:"Punta Hermosa",z:"C",lat:-12.3300,lng:-76.8200},
-  {n:"Punta Negra",z:"C",lat:-12.3600,lng:-76.8000},
-  {n:"Rímac",z:"A",lat:-12.0328,lng:-77.0275},
-  {n:"San Bartolo",z:"C",lat:-12.3900,lng:-76.7800},
-  {n:"San Borja",z:"B",lat:-12.1066,lng:-77.0020},
-  {n:"San Isidro",z:"B",lat:-12.0968,lng:-77.0365},
-  {n:"San Juan de Lurigancho",z:"C",lat:-12.0000,lng:-77.0000},
-  {n:"San Juan de Miraflores",z:"C",lat:-12.1600,lng:-76.9700},
-  {n:"San Luis",z:"C",lat:-12.0780,lng:-76.9970},
-  {n:"San Martín de Porres",z:"C",lat:-12.0200,lng:-77.0700},
-  {n:"San Miguel",z:"C",lat:-12.0770,lng:-77.0900},
-  {n:"Santa Anita",z:"C",lat:-12.0450,lng:-76.9700},
-  {n:"Santa María del Mar",z:"C",lat:-12.4100,lng:-76.7700},
-  {n:"Santa Rosa",z:"C",lat:-11.8000,lng:-77.1600},
-  {n:"Santiago de Surco",z:"B",lat:-12.1400,lng:-76.9900},
-  {n:"Surquillo",z:"B",lat:-12.1150,lng:-77.0200},
-  {n:"Villa El Salvador",z:"C",lat:-12.2137,lng:-76.9350},
-  {n:"Villa María del Triunfo",z:"C",lat:-12.1600,lng:-76.9300},
-  {n:"Callao",z:"C",lat:-12.0566,lng:-77.1180},
-  {n:"Bellavista",z:"C",lat:-12.0620,lng:-77.1100},
-  {n:"Carmen de la Legua",z:"C",lat:-12.0520,lng:-77.0900},
-  {n:"La Perla",z:"C",lat:-12.0680,lng:-77.1100},
-  {n:"La Punta",z:"C",lat:-12.0700,lng:-77.1600},
-  {n:"Mi Perú",z:"C",lat:-11.8500,lng:-77.1300},
-  {n:"Ventanilla",z:"C",lat:-11.8700,lng:-77.1300}
+const DISTRITOS = [
+  { n: "Ate", z: "C", lat: -12.0184, lng: -76.9240 },
+  { n: "Barranco", z: "B", lat: -12.1461, lng: -77.0206 },
+  { n: "Breña", z: "A", lat: -12.0561, lng: -77.0495 },
+  { n: "Carabayllo", z: "C", lat: -11.8944, lng: -77.0355 },
+  { n: "Cercado de Lima", z: "A", lat: -12.0464, lng: -77.0428 },
+  { n: "Chaclacayo", z: "C", lat: -11.9761, lng: -76.7694 },
+  { n: "Chorrillos", z: "C", lat: -12.1770, lng: -77.0222 },
+  { n: "Cieneguilla", z: "C", lat: -12.1188, lng: -76.8183 },
+  { n: "Comas", z: "C", lat: -11.9445, lng: -77.0497 },
+  { n: "El Agustino", z: "C", lat: -12.0464, lng: -76.9908 },
+  { n: "Independencia", z: "C", lat: -11.9939, lng: -77.0531 },
+  { n: "Jesús María", z: "B", lat: -12.0746, lng: -77.0489 },
+  { n: "La Molina", z: "B", lat: -12.0779, lng: -76.9444 },
+  { n: "La Victoria", z: "A", lat: -12.0651, lng: -77.0176 },
+  { n: "Lince", z: "A", lat: -12.0846, lng: -77.0350 },
+  { n: "Los Olivos", z: "C", lat: -11.9766, lng: -77.0694 },
+  { n: "Lurigancho", z: "C", lat: -12.0000, lng: -76.8500 },
+  { n: "Lurín", z: "C", lat: -12.2730, lng: -76.8700 },
+  { n: "Magdalena del Mar", z: "B", lat: -12.0900, lng: -77.0700 },
+  { n: "Miraflores", z: "B", lat: -12.1219, lng: -77.0298 },
+  { n: "Pachacámac", z: "C", lat: -12.2300, lng: -76.8700 },
+  { n: "Pucusana", z: "C", lat: -12.4800, lng: -76.8000 },
+  { n: "Pueblo Libre", z: "B", lat: -12.0726, lng: -77.0628 },
+  { n: "Puente Piedra", z: "C", lat: -11.8700, lng: -77.0750 },
+  { n: "Punta Hermosa", z: "C", lat: -12.3300, lng: -76.8200 },
+  { n: "Punta Negra", z: "C", lat: -12.3600, lng: -76.8000 },
+  { n: "Rímac", z: "A", lat: -12.0328, lng: -77.0275 },
+  { n: "San Bartolo", z: "C", lat: -12.3900, lng: -76.7800 },
+  { n: "San Borja", z: "B", lat: -12.1066, lng: -77.0020 },
+  { n: "San Isidro", z: "B", lat: -12.0968, lng: -77.0365 },
+  { n: "San Juan de Lurigancho", z: "C", lat: -12.0000, lng: -77.0000 },
+  { n: "San Juan de Miraflores", z: "C", lat: -12.1600, lng: -76.9700 },
+  { n: "San Luis", z: "C", lat: -12.0780, lng: -76.9970 },
+  { n: "San Martín de Porres", z: "C", lat: -12.0200, lng: -77.0700 },
+  { n: "San Miguel", z: "C", lat: -12.0770, lng: -77.0900 },
+  { n: "Santa Anita", z: "C", lat: -12.0450, lng: -76.9700 },
+  { n: "Santa María del Mar", z: "C", lat: -12.4100, lng: -76.7700 },
+  { n: "Santa Rosa", z: "C", lat: -11.8000, lng: -77.1600 },
+  { n: "Santiago de Surco", z: "B", lat: -12.1400, lng: -76.9900 },
+  { n: "Surquillo", z: "B", lat: -12.1150, lng: -77.0200 },
+  { n: "Villa El Salvador", z: "C", lat: -12.2137, lng: -76.9350 },
+  { n: "Villa María del Triunfo", z: "C", lat: -12.1600, lng: -76.9300 },
+  { n: "Callao", z: "C", lat: -12.0566, lng: -77.1180 },
+  { n: "Bellavista", z: "C", lat: -12.0620, lng: -77.1100 },
+  { n: "Carmen de la Legua", z: "C", lat: -12.0520, lng: -77.0900 },
+  { n: "La Perla", z: "C", lat: -12.0680, lng: -77.1100 },
+  { n: "La Punta", z: "C", lat: -12.0700, lng: -77.1600 },
+  { n: "Mi Perú", z: "C", lat: -11.8500, lng: -77.1300 },
+  { n: "Ventanilla", z: "C", lat: -11.8700, lng: -77.1300 }
 ];
 
-const OFICINA={lat:-12.0700,lng:-77.0180,direccion:"Eduardo Bello 385, Santa Catalina, La Victoria"};
+const OFICINA = { lat: -12.0700, lng: -77.0180, direccion: "Eduardo Bello 385, Santa Catalina, La Victoria" };
 
-let DB=null, rondaActiva="", calcItems=[];
+/* ============================================================================
+   HELPERS
+   ============================================================================ */
+const soles = v => "S/ " + Number(v || 0).toFixed(2);
+const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+const red2 = v => Math.round((Number(v) || 0) * 100) / 100;
+const roundUp2 = v => Math.ceil((Number(v) || 0) * 100) / 100;
+const hoy = () => new Date().toISOString().slice(0, 10);
+const ahora = () => new Date().toISOString();
+const uid = p => p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const distHav = (a, b, c, d) => { const R = 6371, t = x => x * Math.PI / 180; const dLat = t(c - a), dLng = t(b - d); const x = Math.sin(dLat / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dLng / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
+const precioVenta = (pc, mg) => roundUp2((Number(pc) || 0) / (1 - (Number(mg) || 0.30)));
 
-const soles=v=>"S/ "+Number(v||0).toFixed(2);
-const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-const red2=v=>Math.round((Number(v)||0)*100)/100;
-const roundUp2=v=>Math.ceil((Number(v)||0)*100)/100;
-const hoy=()=>new Date().toISOString().slice(0,10);
-const ahora=()=>new Date().toISOString();
-const uid=p=>p+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const distHav=(a,b,c,d)=>{const R=6371,t=x=>x*Math.PI/180;const dLat=t(c-a),dLng=t(b-d);const x=Math.sin(dLat/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));};
-const precioVenta=(pc,mg)=>roundUp2((Number(pc)||0)/(1-(Number(mg)||0.30)));
-
-function toast(msg,tipo){
-  const c=document.getElementById("toast");
-  const t=document.createElement("div");
-  t.className="toast "+(tipo||"ok");t.textContent=msg;c.appendChild(t);
-  setTimeout(()=>{t.style.opacity="0";t.style.transform="translateX(100%)";t.style.transition="all .3s";setTimeout(()=>t.remove(),300);},2600);
+function toast(msg, tipo) {
+  const c = document.getElementById("toast");
+  const t = document.createElement("div");
+  t.className = "toast " + (tipo || "ok"); t.textContent = msg; c.appendChild(t);
+  setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateX(100%)"; t.style.transition = "all .3s"; setTimeout(() => t.remove(), 300); }, 2600);
 }
-function vehiculoAModo(v){
-  if(v==="A pie")return "walking";
-  if(v==="Bici")return "bicycling";
-  return "driving";
-}
-function modoIcono(m){
-  if(m==="walking")return "🚶 A pie";
-  if(m==="bicycling")return "🚲 Bici";
-  return "🚗 Vehículo";
+function vehiculoAModo(v) { if (v === "A pie") return "walking"; if (v === "Bici") return "bicycling"; return "driving"; }
+function modoIcono(m) { if (m === "walking") return "🚶 A pie"; if (m === "bicycling") return "🚲 Bici"; return "🚗 Vehículo"; }
+
+function showSync(estado) {
+  const el = document.getElementById("syncIndicator");
+  el.className = "visible " + estado;
+  el.textContent = estado === "saving" ? "guardando…" : "✓ guardado";
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { el.classList.remove("visible"); }, 1500);
 }
 
-/* ---------- DB inicial ---------- */
-function crearDBInicial(){
-  const ronda="R-"+hoy();
-  const productos=[
-    ["PR-001","Papa amarilla","Básico","kg"],["PR-002","Papa blanca","Básico","kg"],
-    ["PR-003","Papa canchán","Básico","kg"],["PR-004","Tomate","Básico","kg"],
-    ["PR-005","Cebolla roja","Básico","kg"],["PR-006","Zanahoria","Básico","kg"],
-    ["PR-007","Choclo","Básico","unidad"],["PR-008","Camote amarillo","Básico","kg"],
-    ["PR-009","Yuca amarilla","Sazón","kg"],["PR-010","Zapallo macre","Sazón","kg"],
-    ["PR-011","Papa huayro","Sazón","kg"],["PR-012","Papa negra andina","Sazón","kg"],
-    ["PR-013","Cebolla china","Sazón","atado"],["PR-014","Ajo criollo","Sazón","kg"],
-    ["PR-015","Kion","Sazón","kg"],["PR-016","Ají amarillo","Sazón","kg"],
-    ["PR-017","Ají panca","Especial","kg"],["PR-018","Ají rocoto","Especial","kg"],
-    ["PR-019","Huacatay","Especial","atado"],["PR-020","Culantro","Especial","atado"],
-    ["PR-021","Perejil","Especial","atado"],["PR-022","Apio","Especial","atado"],
-    ["PR-023","Poro","Especial","atado"],["PR-024","Maíz morado","Especial","kg"]
-  ].map(p=>({codigo:p[0],nombre:p[1],grupo:p[2],unidad:p[3],activo:true}));
+/* ============================================================================
+   FIRESTORE — PERSISTENCIA
+   ============================================================================ */
+async function fsSet(colPath, id, data) {
+  try {
+    showSync("saving");
+    const ref = doc(db, ...colPath, id);
+    await setDoc(ref, data, { merge: true });
+    showSync("saved");
+  } catch (e) { console.error("fsSet error:", e); toast("Error al guardar: " + e.message, "err"); }
+}
+async function fsDel(colPath, id) {
+  try {
+    showSync("saving");
+    await deleteDoc(doc(db, ...colPath, id));
+    showSync("saved");
+  } catch (e) { console.error("fsDel error:", e); toast("Error al eliminar: " + e.message, "err"); }
+}
+async function fsSetRonda(rondaId, data) {
+  try {
+    showSync("saving");
+    await setDoc(doc(db, "rondas", rondaId), data, { merge: true });
+    showSync("saved");
+  } catch (e) { console.error("fsSetRonda error:", e); toast("Error al guardar ronda: " + e.message, "err"); }
+}
+async function fsSetConfig(data) {
+  try {
+    showSync("saving");
+    await setDoc(doc(db, "config", "global"), data, { merge: true });
+    showSync("saved");
+  } catch (e) { console.error("fsSetConfig error:", e); toast("Error al guardar config: " + e.message, "err"); }
+}
 
-  const clientes=[
-    {id:"C-0001",nombre:"Luis Delgado Ortiz",telefono:"960214584",distrito:"Pueblo Libre",direccion:"Av. Aviación 512",referencia:"Frente al parque",zona:"C",lat:-12.0716,lng:-77.0588},
-    {id:"C-0002",nombre:"Carmen Cárdenas Cárdenas",telefono:"988281126",distrito:"Miraflores",direccion:"Calle Los Olivos 1170",referencia:"Portón negro",zona:"B",lat:-12.1266,lng:-77.0286},
-    {id:"C-0003",nombre:"Gloria Benavides Chávez",telefono:"952630976",distrito:"Miraflores",direccion:"Calle Los Olivos 799",referencia:"Casa de reja blanca",zona:"B",lat:-12.1209,lng:-77.0335},
-    {id:"C-0004",nombre:"Lucía Delgado Medina",telefono:"905154382",distrito:"San Borja",direccion:"Av. Petit Thouars 1116",referencia:"Al costado de la bodega",zona:"B",lat:-12.1122,lng:-77.0000},
-    {id:"C-0005",nombre:"Héctor Chávez Aguirre",telefono:"915771883",distrito:"Breña",direccion:"Jr. Puno 1967",referencia:"Cerca al paradero",zona:"A",lat:-12.0598,lng:-77.0561}
+/* ============================================================================
+   ACCESOS RÁPIDOS (basados en DB local)
+   ============================================================================ */
+const rondaActual = () => DB.rondas[DB.rondaActiva] || {};
+const preciosDeRonda = (r = DB.rondaActiva) => DB.precios.filter(p => p.id_ronda === r);
+const pedidosDeRonda = () => DB.pedidos.filter(p => p.id_ronda === DB.rondaActiva);
+const itemsDeRonda = () => DB.items.filter(i => i.id_ronda === DB.rondaActiva);
+const itemsDePedido = id => DB.items.filter(i => i.id_ronda === DB.rondaActiva && i.pedido_id === id);
+const comprasDeRonda = () => DB.compras.filter(c => c.id_ronda === DB.rondaActiva);
+const gastosDeRonda = () => DB.gastos.filter(g => g.id_ronda === DB.rondaActiva);
+const excedentesDeRonda = () => DB.excedentes.filter(e => e.id_ronda === DB.rondaActiva);
+const reclamosDeRonda = () => DB.reclamos.filter(r => r.id_ronda === DB.rondaActiva);
+const pedidoPorId = id => DB.pedidos.find(p => p.id_ronda === DB.rondaActiva && p.pedido_id === id);
+const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).forEach(p => m[p.codigo_producto] = p); return m; };
+const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
+const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
+
+/* ============================================================================
+   SEMILLA INICIAL (auto-seed)
+   ============================================================================ */
+function crearDBInicial() {
+  const ronda = "R-" + hoy();
+  const productos = [
+    ["PR-001", "Papa amarilla", "Básico", "kg"], ["PR-002", "Papa blanca", "Básico", "kg"],
+    ["PR-003", "Papa canchán", "Básico", "kg"], ["PR-004", "Tomate", "Básico", "kg"],
+    ["PR-005", "Cebolla roja", "Básico", "kg"], ["PR-006", "Zanahoria", "Básico", "kg"],
+    ["PR-007", "Choclo", "Básico", "unidad"], ["PR-008", "Camote amarillo", "Básico", "kg"],
+    ["PR-009", "Yuca amarilla", "Sazón", "kg"], ["PR-010", "Zapallo macre", "Sazón", "kg"],
+    ["PR-011", "Papa huayro", "Sazón", "kg"], ["PR-012", "Papa negra andina", "Sazón", "kg"],
+    ["PR-013", "Cebolla china", "Sazón", "atado"], ["PR-014", "Ajo criollo", "Sazón", "kg"],
+    ["PR-015", "Kion", "Sazón", "kg"], ["PR-016", "Ají amarillo", "Sazón", "kg"],
+    ["PR-017", "Ají panca", "Especial", "kg"], ["PR-018", "Ají rocoto", "Especial", "kg"],
+    ["PR-019", "Huacatay", "Especial", "atado"], ["PR-020", "Culantro", "Especial", "atado"],
+    ["PR-021", "Perejil", "Especial", "atado"], ["PR-022", "Apio", "Especial", "atado"],
+    ["PR-023", "Poro", "Especial", "atado"], ["PR-024", "Maíz morado", "Especial", "kg"]
+  ].map(p => ({ codigo: p[0], nombre: p[1], grupo: p[2], unidad: p[3], activo: true }));
+
+  const clientes = [
+    { id: "C-0001", nombre: "Luis Delgado Ortiz", telefono: "960214584", distrito: "Pueblo Libre", direccion: "Av. Aviación 512", referencia: "Frente al parque", zona: "C", lat: -12.0716, lng: -77.0588 },
+    { id: "C-0002", nombre: "Carmen Cárdenas Cárdenas", telefono: "988281126", distrito: "Miraflores", direccion: "Calle Los Olivos 1170", referencia: "Portón negro", zona: "B", lat: -12.1266, lng: -77.0286 },
+    { id: "C-0003", nombre: "Gloria Benavides Chávez", telefono: "952630976", distrito: "Miraflores", direccion: "Calle Los Olivos 799", referencia: "Casa de reja blanca", zona: "B", lat: -12.1209, lng: -77.0335 },
+    { id: "C-0004", nombre: "Lucía Delgado Medina", telefono: "905154382", distrito: "San Borja", direccion: "Av. Petit Thouars 1116", referencia: "Al costado de la bodega", zona: "B", lat: -12.1122, lng: -77.0000 },
+    { id: "C-0005", nombre: "Héctor Chávez Aguirre", telefono: "915771883", distrito: "Breña", direccion: "Jr. Puno 1967", referencia: "Cerca al paradero", zona: "A", lat: -12.0598, lng: -77.0561 }
   ];
 
-  const repartidores=[
-    {id:"R-01",nombre:"Luis Mendoza Paredes",celular:"987654321",zona:"A",vehiculo:"Bici",capacidad_max_kg:60,activo:true},
-    {id:"R-02",nombre:"Marco Salazar Rivas",celular:"976543210",zona:"B",vehiculo:"Moto",capacidad_max_kg:180,activo:true},
-    {id:"R-03",nombre:"Jorge Valdivia Núñez",celular:"965432109",zona:"C",vehiculo:"Auto",capacidad_max_kg:350,activo:true}
+  const repartidores = [
+    { id: "R-01", nombre: "Luis Mendoza Paredes", celular: "987654321", zona: "A", vehiculo: "Bici", capacidad_max_kg: 60, activo: true },
+    { id: "R-02", nombre: "Marco Salazar Rivas", celular: "976543210", zona: "B", vehiculo: "Moto", capacidad_max_kg: 180, activo: true },
+    { id: "R-03", nombre: "Jorge Valdivia Núñez", celular: "965432109", zona: "C", vehiculo: "Auto", capacidad_max_kg: 350, activo: true }
   ];
 
-  const preciosBase=[
-    ["PR-001",1.75],["PR-002",0.60],["PR-003",1.31],["PR-004",2.64],["PR-005",1.12],["PR-006",1.11],["PR-007",1.21],["PR-008",0.85],
-    ["PR-009",1.32],["PR-010",1.24],["PR-011",2.24],["PR-012",2.05],["PR-013",8.38],["PR-014",8.41],["PR-015",9.98],["PR-016",8.56],
-    ["PR-017",10.25],["PR-018",9.48],["PR-019",1.48],["PR-020",1.24],["PR-021",1.23],["PR-022",1.99],["PR-023",3.66],["PR-024",1.99]
+  const preciosBase = [
+    ["PR-001", 1.75], ["PR-002", 0.60], ["PR-003", 1.31], ["PR-004", 2.64], ["PR-005", 1.12], ["PR-006", 1.11], ["PR-007", 1.21], ["PR-008", 0.85],
+    ["PR-009", 1.32], ["PR-010", 1.24], ["PR-011", 2.24], ["PR-012", 2.05], ["PR-013", 8.38], ["PR-014", 8.41], ["PR-015", 9.98], ["PR-016", 8.56],
+    ["PR-017", 10.25], ["PR-018", 9.48], ["PR-019", 1.48], ["PR-020", 1.24], ["PR-021", 1.23], ["PR-022", 1.99], ["PR-023", 3.66], ["PR-024", 1.99]
   ];
-  const precios=preciosBase.map(([cod,pc])=>{
-    const prod=productos.find(p=>p.codigo===cod);
-    const mg=(prod.grupo==="Sazón")?0.35:0.30;
-    const pv=precioVenta(pc,mg);
-    return {id_ronda:ronda,codigo_producto:cod,nombre:prod.nombre,unidad:prod.unidad,
-      precio_compra:pc,margen:mg,precio_venta:pv,precio_minorista_ref:red2(pv*1.4)};
+  const precios = preciosBase.map(([cod, pc]) => {
+    const prod = productos.find(p => p.codigo === cod);
+    const mg = (prod.grupo === "Sazón") ? 0.35 : 0.30;
+    const pv = precioVenta(pc, mg);
+    return { id_ronda: ronda, codigo_producto: cod, nombre: prod.nombre, unidad: prod.unidad, precio_compra: pc, margen: mg, precio_venta: pv, precio_minorista_ref: red2(pv * 1.4) };
   });
 
-  const pedidos=[],items=[];
-  function addPedido(id,cli,estado,dir,lat,lng,modal,metodo,canal,notas,its){
-    let sub=0;its.forEach(it=>{const pr=precios.find(p=>p.codigo_producto===it.c);sub+=it.q*pr.precio_venta;});
-    const desc=modal==="recojo"?ZONAS[cli.zona].desc_recojo:0;
-    const total=red2(sub-desc);
-    pedidos.push({id_ronda:ronda,pedido_id:id,cliente_id:cli.id,cliente_nombre:cli.nombre,cliente_celular:cli.telefono,
-      estado,fecha:ahora(),modalidad:modal,metodo_pago:metodo,zona:cli.zona,direccion:dir,lat,lng,
-      subtotal:red2(sub),descuento_recojo:desc,total,fecha_entrega:null,repartidor_id:null,
-      notas,canal,codigo_yape:null,verificado_por:null,fecha_verificacion:null,
-      historial_estados:[{estado, fecha:ahora(), por:"Fundador", motivo:"Creación"}]});
-    its.forEach((it,i)=>{
-      const pr=precios.find(p=>p.codigo_producto===it.c);
-      items.push({id_ronda:ronda,item_id:id+"-"+String(i+1).padStart(2,"0"),pedido_id:id,
-        codigo_producto:it.c,nombre:pr.nombre,unidad:pr.unidad,cantidad:it.q,
-        precio_compra_estimado:pr.precio_compra,precio_venta_congelado:pr.precio_venta,
-        subtotal_venta:red2(it.q*pr.precio_venta),estado:"pendiente"});
+  const pedidos = [], items = [];
+  function addPedido(id, cli, estado, dir, lat, lng, modal, metodo, canal, notas, its) {
+    let sub = 0; its.forEach(it => { const pr = precios.find(p => p.codigo_producto === it.c); sub += it.q * pr.precio_venta; });
+    const desc = modal === "recojo" ? ZONAS[cli.zona].desc_recojo : 0;
+    const total = red2(sub - desc);
+    pedidos.push({
+      id_ronda: ronda, pedido_id: id, cliente_id: cli.id, cliente_nombre: cli.nombre, cliente_celular: cli.telefono,
+      estado, fecha: ahora(), modalidad: modal, metodo_pago: metodo, zona: cli.zona, direccion: dir, lat, lng,
+      subtotal: red2(sub), descuento_recojo: desc, total, fecha_entrega: null, repartidor_id: null,
+      notas, canal, codigo_yape: null, verificado_por: null, fecha_verificacion: null,
+      historial_estados: [{ estado, fecha: ahora(), por: "Fundador", motivo: "Creación" }]
+    });
+    its.forEach((it, i) => {
+      const pr = precios.find(p => p.codigo_producto === it.c);
+      items.push({
+        id_ronda: ronda, item_id: id + "-" + String(i + 1).padStart(2, "0"), pedido_id: id,
+        codigo_producto: it.c, nombre: pr.nombre, unidad: pr.unidad, cantidad: it.q,
+        precio_compra_estimado: pr.precio_compra, precio_venta_congelado: pr.precio_venta,
+        subtotal_venta: red2(it.q * pr.precio_venta), estado: "pendiente"
+      });
     });
   }
-  addPedido("P-0001",clientes[0],"pendiente_pago_yape","Av. Aviación 512, Pueblo Libre",-12.0716,-77.0588,"delivery","Yape","web","Dejar con el portero",[{c:"PR-001",q:3},{c:"PR-004",q:2}]);
-  addPedido("P-0002",clientes[1],"aceptado","Calle Los Olivos 1170, Miraflores",-12.1266,-77.0286,"delivery","Yape","whatsapp","",[{c:"PR-005",q:4},{c:"PR-006",q:3}]);
-  addPedido("P-0003",clientes[2],"empacado","Calle Los Olivos 799, Miraflores",-12.1209,-77.0335,"delivery","Yape","web","Tocar timbre",[{c:"PR-001",q:5},{c:"PR-024",q:2}]);
-  addPedido("P-0004",clientes[3],"entregado","Av. Petit Thouars 1116, San Borja",-12.1122,-77.0000,"delivery","Yape","web","",[{c:"PR-004",q:3},{c:"PR-005",q:2}]);
-  addPedido("P-0005",clientes[4],"pendiente_pago_efectivo","Jr. Puno 1967, Breña",-12.0598,-77.0561,"delivery","Efectivo","whatsapp","",[{c:"PR-001",q:4},{c:"PR-002",q:3}]);
-  addPedido("P-0006",clientes[1],"aceptado","Calle Los Olivos 1170, Miraflores",-12.1266,-77.0286,"recojo","Yape","web","Pasa el domingo",[{c:"PR-003",q:4},{c:"PR-006",q:3}]);
+  addPedido("P-0001", clientes[0], "pendiente_pago_yape", "Av. Aviación 512, Pueblo Libre", -12.0716, -77.0588, "delivery", "Yape", "web", "Dejar con el portero", [{ c: "PR-001", q: 3 }, { c: "PR-004", q: 2 }]);
+  addPedido("P-0002", clientes[1], "aceptado", "Calle Los Olivos 1170, Miraflores", -12.1266, -77.0286, "delivery", "Yape", "whatsapp", "", [{ c: "PR-005", q: 4 }, { c: "PR-006", q: 3 }]);
+  addPedido("P-0003", clientes[2], "empacado", "Calle Los Olivos 799, Miraflores", -12.1209, -77.0335, "delivery", "Yape", "web", "Tocar timbre", [{ c: "PR-001", q: 5 }, { c: "PR-024", q: 2 }]);
+  addPedido("P-0004", clientes[3], "entregado", "Av. Petit Thouars 1116, San Borja", -12.1122, -77.0000, "delivery", "Yape", "web", "", [{ c: "PR-004", q: 3 }, { c: "PR-005", q: 2 }]);
+  addPedido("P-0005", clientes[4], "pendiente_pago_efectivo", "Jr. Puno 1967, Breña", -12.0598, -77.0561, "delivery", "Efectivo", "whatsapp", "", [{ c: "PR-001", q: 4 }, { c: "PR-002", q: 3 }]);
+  addPedido("P-0006", clientes[1], "aceptado", "Calle Los Olivos 1170, Miraflores", -12.1266, -77.0286, "recojo", "Yape", "web", "Pasa el domingo", [{ c: "PR-003", q: 4 }, { c: "PR-006", q: 3 }]);
 
-  const compras=[
-    {id_ronda:ronda,codigo_producto:"PR-001",nombre:"Papa amarilla",unidad:"kg",cantidad_real:12,precio_unitario_real:1.72,merma:0.3,confirmado:true},
-    {id_ronda:ronda,codigo_producto:"PR-005",nombre:"Cebolla roja",unidad:"kg",cantidad_real:6,precio_unitario_real:1.10,merma:0.1,confirmado:true}
+  const compras = [
+    { id_ronda: ronda, codigo_producto: "PR-001", nombre: "Papa amarilla", unidad: "kg", cantidad_real: 12, precio_unitario_real: 1.72, merma: 0.3, confirmado: true },
+    { id_ronda: ronda, codigo_producto: "PR-005", nombre: "Cebolla roja", unidad: "kg", cantidad_real: 6, precio_unitario_real: 1.10, merma: 0.1, confirmado: true }
   ];
 
   return {
-    version:12,
-    rondaActiva:ronda,
-    rondas:{[ronda]:{id_ronda:ronda,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,fecha_compra:null,fecha_entrega:null,precios_publicados:false,orden_ruta:[],repartidor_zona:{}}},
-    productos, clientes, repartidores,
-    precios, pedidos, items, compras,
-    entregas:[], gastos:[], excedentes:[], reclamos:[],
-    config:{
-      oficina_direccion:OFICINA.direccion,
-      oficina_lat:OFICINA.lat, oficina_lng:OFICINA.lng,
-      costo_personal_compras:50, costo_transporte:45,
-      costo_empaque:1
-    }
+    version: 13,
+    rondaActiva: ronda,
+    rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
+    productos, clientes, repartidores, precios, pedidos, items, compras,
+    entregas: [], gastos: [], excedentes: [], reclamos: [],
+    config: { oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng, costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1 }
   };
 }
 
-/* ---------- Persistencia ---------- */
-function cargarDB(){
-  const raw=localStorage.getItem(STORAGE_KEY);
-  if(raw){try{return JSON.parse(raw);}catch(e){}}
-  const db=crearDBInicial();
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
-  return db;
+async function autoSeed() {
+  const seed = crearDBInicial();
+  const rondaId = seed.rondaActiva;
+
+  // Catálogo global
+  const batch1 = writeBatch(db);
+  seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), p); });
+  seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), c); });
+  seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), r); });
+  await batch1.commit();
+
+  // Ronda
+  await fsSetRonda(rondaId, seed.rondas[rondaId]);
+
+  // Precios
+  const batch2 = writeBatch(db);
+  seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p); });
+  await batch2.commit();
+
+  // Pedidos
+  const batch3 = writeBatch(db);
+  seed.pedidos.forEach(p => { batch3.set(doc(db, "rondas", rondaId, "pedidos", p.pedido_id), p); });
+  await batch3.commit();
+
+  // Items
+  const batch4 = writeBatch(db);
+  seed.items.forEach(i => { batch4.set(doc(db, "rondas", rondaId, "items", i.item_id), i); });
+  await batch4.commit();
+
+  // Compras
+  const batch5 = writeBatch(db);
+  seed.compras.forEach(c => { batch5.set(doc(db, "rondas", rondaId, "compras", c.codigo_producto), c); });
+  await batch5.commit();
+
+  // Config
+  await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
+
+  console.log("Auto-seed completado");
 }
-function guardarDB(){localStorage.setItem(STORAGE_KEY,JSON.stringify(DB));}
-function exportarJSON(){
-  const blob=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download="misti_v12_"+hoy()+".json";a.click();
-  URL.revokeObjectURL(url);
-}
-function importarJSON(){
-  const inp=document.createElement("input");inp.type="file";inp.accept=".json";
-  inp.onchange=e=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=ev=>{
-      try{
-        const d=JSON.parse(ev.target.result);
-        if(!d.pedidos||!d.precios)throw new Error("JSON no es v12");
-        if(!confirm("¿Reemplazar todos los datos actuales?"))return;
-        DB=d;guardarDB();location.reload();
-      }catch(err){toast("Error: "+err.message,"err");}
+
+/* ============================================================================
+   CARGA INICIAL DESDE FIRESTORE
+   ============================================================================ */
+async function cargarConfig() {
+  const ref = doc(db, "config", "global");
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    DB.config = snap.data();
+  } else {
+    const cfg = {
+      oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
+      costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1, ronda_activa: ""
     };
-    r.readAsText(f);
-  };
-  inp.click();
-}
-function resetTotal(){
-  if(!confirm("¿Borrar TODO y reiniciar al estado inicial?"))return;
-  localStorage.removeItem(STORAGE_KEY);location.reload();
-}
-
-/* ---------- Accesos ---------- */
-const rondaActual=()=>DB.rondas[rondaActiva]||{};
-const preciosDeRonda=(r=rondaActiva)=>DB.precios.filter(p=>p.id_ronda===r);
-const pedidosDeRonda=()=>DB.pedidos.filter(p=>p.id_ronda===rondaActiva);
-const itemsDeRonda=()=>DB.items.filter(i=>i.id_ronda===rondaActiva);
-const itemsDePedido=id=>DB.items.filter(i=>i.id_ronda===rondaActiva&&i.pedido_id===id);
-const comprasDeRonda=()=>DB.compras.filter(c=>c.id_ronda===rondaActiva);
-const gastosDeRonda=()=>DB.gastos.filter(g=>g.id_ronda===rondaActiva);
-const excedentesDeRonda=()=>DB.excedentes.filter(e=>e.id_ronda===rondaActiva);
-const reclamosDeRonda=()=>DB.reclamos.filter(r=>r.id_ronda===rondaActiva);
-const pedidoPorId=id=>DB.pedidos.find(p=>p.id_ronda===rondaActiva&&p.pedido_id===id);
-const precioMapa=(r=rondaActiva)=>{const m={};preciosDeRonda(r).forEach(p=>m[p.codigo_producto]=p);return m;};
-const clientePorCelular=c=>DB.clientes.find(x=>String(x.telefono)===String(c));
-const esTerminal=e=>["entregado","fallido","rechazado"].includes(e);
-
-/* ---------- Mini-mapa semana ---------- */
-function renderSemana(){
-  const r=rondaActual();const cont=document.getElementById("semanaBar");
-  if(!r||!r.fecha_apertura){cont.innerHTML='<div class="small-note">Sin ronda activa</div>';return;}
-  const apertura=new Date(r.fecha_apertura);
-  const dow=apertura.getDay()||7;
-  const lunes=new Date(apertura.getFullYear(),apertura.getMonth(),apertura.getDate()-(dow-1));
-  const nombres=["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];const hoyStr=hoy();
-  let html="";
-  for(let i=0;i<7;i++){
-    const d=new Date(lunes);d.setDate(lunes.getDate()+i);
-    const ds=d.toISOString().slice(0,10);const isHoy=ds===hoyStr;
-    let cls="semana-dia",nota="";
-    if(i===4){cls+=" hito";nota="17:00 cierre";}
-    if(i===6){cls+=" hito";nota="04:00 compra";}
-    if(isHoy)cls+=" hoy";
-    html+=`<div class="${cls}"><span class="d">${nombres[i]}</span><span class="f">${d.getDate()}/${d.getMonth()+1}</span><span class="d">${nota}</span></div>`;
-    if(i<6)html+='<span class="semana-arrow">›</span>';
+    await fsSetConfig(cfg);
+    DB.config = cfg;
   }
-  cont.innerHTML=html;
 }
 
-/* ---------- Navegación ---------- */
-function mostrarVista(n){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  const obj=document.getElementById("view-"+n);if(obj)obj.classList.add("active");
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  const btn=document.querySelector('.nav-btn[data-view="'+n+'"]');if(btn)btn.classList.add("active");
-  if(n==="dashboard")renderDashboard();
-  if(n==="pipeline")renderPipeline();
-  if(n==="calculadora")renderCalculadora();
-  if(n==="productos")renderProductos();
-  if(n==="precios")renderPrecios();
-  if(n==="compra")calcularListaCompra();
-  if(n==="entregas")renderEntregas();
-  if(n==="repartidores")renderRepartidores();
-  if(n==="gastos"){renderGastos();renderExcedentes();renderReclamos();}
-  if(n==="cierre")calcularReportes();
-  if(n==="config")renderConfig();
-}
-function abrirModal(id){document.getElementById(id).classList.add("active");}
-function cerrarModal(id){document.getElementById(id).classList.remove("active");}
-
-/* ---------- Rondas ---------- */
-function refrescarSelector(){
-  const sel=document.getElementById("rondaSelector");
-  const keys=Object.keys(DB.rondas).sort().reverse();
-  sel.innerHTML=keys.map(k=>`<option value="${k}" ${k===rondaActiva?"selected":""}>${k}</option>`).join("");
-  const r=rondaActual();
-  const est=document.getElementById("rondaEstado");
-  est.textContent=r.estado||"abierta";est.className="estado-ronda estado-"+(r.estado||"abierta");
-  document.getElementById("crumbRonda").textContent=rondaActiva;
-  document.getElementById("rondaMeta").textContent="Apertura: "+(r.fecha_apertura?new Date(r.fecha_apertura).toLocaleDateString("es-PE"):"—")+" · Precios publicados: "+(r.precios_publicados?"Sí":"No");
-}
-function cambiarRondaActiva(r){rondaActiva=r;DB.rondaActiva=r;guardarDB();refrescarSelector();renderSemana();renderTodo();}
-function crearRonda(){
-  const r="R-"+hoy();
-  if(DB.rondas[r]){toast("Ya existe "+r,"warn");return;}
-  DB.rondas[r]={id_ronda:r,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,fecha_compra:null,fecha_entrega:null,precios_publicados:false,orden_ruta:[],repartidor_zona:{}};
-  const prev=Object.keys(DB.rondas).filter(x=>x!==r).sort().reverse()[0];
-  if(prev)DB.precios.filter(p=>p.id_ronda===prev).forEach(p=>DB.precios.push({...p,id_ronda:r}));
-  rondaActiva=r;DB.rondaActiva=r;guardarDB();refrescarSelector();renderSemana();renderTodo();
-  toast("Ronda creada: "+r,"ok");
-}
-function marcarRonda(estado){
-  const r=rondaActual();if(!r.id_ronda){toast("Sin ronda","err");return;}
-  r.estado=estado;
-  if(estado==="cerrada")r.fecha_cierre=ahora();
-  if(estado==="entregada")r.fecha_entrega=ahora();
-  guardarDB();refrescarSelector();toast("Ronda → "+estado,"info");
+async function cargarCatalogo() {
+  const [prodSnap, cliSnap, repSnap] = await Promise.all([
+    getDocs(collection(db, "catalogo", "productos", "items")),
+    getDocs(collection(db, "catalogo", "clientes", "items")),
+    getDocs(collection(db, "catalogo", "repartidores", "items"))
+  ]);
+  DB.productos = prodSnap.docs.map(d => d.data());
+  DB.clientes = cliSnap.docs.map(d => d.data());
+  DB.repartidores = repSnap.docs.map(d => d.data());
 }
 
-/* ---------- Dashboard ---------- */
-function renderDashboard(){
-  const pedidos=pedidosDeRonda();
-  const activos=pedidos.filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const pendientes=pedidos.filter(p=>p.estado.startsWith("pendiente"));
-  const aceptados=pedidos.filter(p=>p.estado==="aceptado");
-  const empacados=pedidos.filter(p=>p.estado==="empacado");
-  const entregados=pedidos.filter(p=>p.estado==="entregado");
-  const ingreso=activos.reduce((s,p)=>s+Number(p.total||0),0);
-  const pmap=precioMapa();
-  const items=itemsDeRonda().filter(i=>activos.some(p=>p.pedido_id===i.pedido_id));
-  const costoEst=items.reduce((s,i)=>s+Number(i.cantidad)*Number(pmap[i.codigo_producto]?.precio_compra||0),0);
-  const costoReal=comprasDeRonda().reduce((s,c)=>s+Number(c.cantidad_real||0)*Number(c.precio_unitario_real||c.precio_compra||0),0);
-  document.getElementById("dashPedidos").textContent=activos.length;
-  document.getElementById("dashIngreso").textContent=soles(ingreso);
-  document.getElementById("dashCostoEst").textContent=soles(costoEst);
-  document.getElementById("dashCostoReal").textContent=soles(costoReal);
-  document.getElementById("dashPendientes").textContent=pendientes.length;
-  document.getElementById("dashAceptados").textContent=aceptados.length;
-  document.getElementById("dashEmpacados").textContent=empacados.length;
-  document.getElementById("dashEntregados").textContent=entregados.length;
-  const gastos=gastosDeRonda().reduce((s,g)=>s+Number(g.monto||0),0);
-  const exc=excedentesDeRonda().reduce((s,e)=>s+Number(e.ingreso||0),0);
-  const recl=reclamosDeRonda().reduce((s,r)=>s+Number(r.costo_solucion||0),0);
-  const util=ingreso-costoReal-gastos+exc-recl;
-  const deltaEst=costoEst-costoReal;
-  document.getElementById("dashGanancia").innerHTML=`
+async function cargarRondas() {
+  const snap = await getDocs(collection(db, "rondas"));
+  DB.rondas = {};
+  snap.docs.forEach(d => { DB.rondas[d.id] = d.data(); });
+  const keys = Object.keys(DB.rondas).sort().reverse();
+  DB.rondaActiva = DB.config.ronda_activa && DB.rondas[DB.config.ronda_activa] ? DB.config.ronda_activa : (keys[0] || "");
+}
+
+function cancelarSuscripciones() {
+  unsubscribers.forEach(u => u());
+  unsubscribers = [];
+}
+
+function suscribirRonda(rondaId) {
+  cancelarSuscripciones();
+  if (!rondaId) return;
+
+  // Precios
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
+    DB.precios = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Pedidos
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "pedidos"), snap => {
+    DB.pedidos = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Items
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "items"), snap => {
+    DB.items = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Compras
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "compras"), snap => {
+    DB.compras = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Entregas
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "entregas"), snap => {
+    DB.entregas = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Gastos
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "gastos"), snap => {
+    DB.gastos = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Excedentes
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "excedentes"), snap => {
+    DB.excedentes = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Reclamos
+  unsubscribers.push(onSnapshot(collection(db, "rondas", rondaId, "reclamos"), snap => {
+    DB.reclamos = snap.docs.map(d => d.data());
+    renderTodo();
+  }));
+
+  // Ronda meta (para estado)
+  unsubscribers.push(onSnapshot(doc(db, "rondas", rondaId), snap => {
+    if (snap.exists()) {
+      DB.rondas[rondaId] = snap.data();
+      renderTodo();
+    }
+  }));
+}
+
+async function cargarTodo() {
+  await cargarConfig();
+  await cargarCatalogo();
+  await cargarRondas();
+
+  if (Object.keys(DB.rondas).length === 0) {
+    await autoSeed();
+    await cargarConfig();
+    await cargarCatalogo();
+    await cargarRondas();
+  }
+
+  suscribirRonda(DB.rondaActiva);
+  renderTodo();
+}
+
+/* ============================================================================
+   ACCIONES DE ESCRITURA (reemplazan guardarDB)
+   ============================================================================ */
+async function guardarPedido(p) {
+  await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p);
+}
+async function guardarItem(it) {
+  await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it);
+}
+async function eliminarItem(itemId) {
+  await fsDel(["rondas", DB.rondaActiva, "items"], itemId);
+}
+async function guardarPrecio(pr) {
+  await fsSet(["rondas", DB.rondaActiva, "precios"], pr.codigo_producto, pr);
+}
+async function guardarCompra(c) {
+  await fsSet(["rondas", DB.rondaActiva, "compras"], c.codigo_producto, c);
+}
+async function guardarEntrega(e) {
+  await fsSet(["rondas", DB.rondaActiva, "entregas"], e.pedido_id, e);
+}
+async function guardarGasto(g) {
+  await fsSet(["rondas", DB.rondaActiva, "gastos"], g.id, g);
+}
+async function eliminarGastoFS(id) {
+  await fsDel(["rondas", DB.rondaActiva, "gastos"], id);
+}
+async function guardarExcedente(e) {
+  await fsSet(["rondas", DB.rondaActiva, "excedentes"], e.id, e);
+}
+async function eliminarExcedenteFS(id) {
+  await fsDel(["rondas", DB.rondaActiva, "excedentes"], id);
+}
+async function guardarReclamo(r) {
+  await fsSet(["rondas", DB.rondaActiva, "reclamos"], r.id, r);
+}
+async function eliminarReclamoFS(id) {
+  await fsDel(["rondas", DB.rondaActiva, "reclamos"], id);
+}
+async function guardarProductoGlobal(p) {
+  await fsSet(["catalogo", "productos", "items"], p.codigo, p);
+}
+async function guardarClienteGlobal(c) {
+  await fsSet(["catalogo", "clientes", "items"], c.id, c);
+}
+async function guardarRepartidorGlobal(r) {
+  await fsSet(["catalogo", "repartidores", "items"], r.id, r);
+}
+async function eliminarRepartidorGlobal(id) {
+  await fsDel(["catalogo", "repartidores", "items"], id);
+}
+
+/* ============================================================================
+   RENDER — SEMANA
+   ============================================================================ */
+function renderSemana() {
+  const r = rondaActual(); const cont = document.getElementById("semanaBar");
+  if (!r || !r.fecha_apertura) { cont.innerHTML = '<div class="small-note">Sin ronda activa</div>'; return; }
+  const apertura = new Date(r.fecha_apertura);
+  const dow = apertura.getDay() || 7;
+  const lunes = new Date(apertura.getFullYear(), apertura.getMonth(), apertura.getDate() - (dow - 1));
+  const nombres = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"]; const hoyStr = hoy();
+  let html = "";
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lunes); d.setDate(lunes.getDate() + i);
+    const ds = d.toISOString().slice(0, 10); const isHoy = ds === hoyStr;
+    let cls = "semana-dia", nota = "";
+    if (i === 4) { cls += " hito"; nota = "17:00 cierre"; }
+    if (i === 6) { cls += " hito"; nota = "04:00 compra"; }
+    if (isHoy) cls += " hoy";
+    html += `<div class="${cls}"><span class="d">${nombres[i]}</span><span class="f">${d.getDate()}/${d.getMonth() + 1}</span><span class="d">${nota}</span></div>`;
+    if (i < 6) html += '<span class="semana-arrow">›</span>';
+  }
+  cont.innerHTML = html;
+}
+
+/* ============================================================================
+   RENDER — NAVEGACIÓN
+   ============================================================================ */
+function mostrarVista(n) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  const obj = document.getElementById("view-" + n); if (obj) obj.classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  const btn = document.querySelector('.nav-btn[data-view="' + n + '"]'); if (btn) btn.classList.add("active");
+  if (n === "dashboard") renderDashboard();
+  if (n === "pipeline") renderPipeline();
+  if (n === "calculadora") renderCalculadora();
+  if (n === "productos") renderProductos();
+  if (n === "precios") renderPrecios();
+  if (n === "compra") calcularListaCompra();
+  if (n === "entregas") renderEntregas();
+  if (n === "repartidores") renderRepartidores();
+  if (n === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
+  if (n === "cierre") calcularReportes();
+  if (n === "config") renderConfig();
+}
+function abrirModal(id) { document.getElementById(id).classList.add("active"); }
+function cerrarModal(id) { document.getElementById(id).classList.remove("active"); }
+
+/* ============================================================================
+   RONDAS
+   ============================================================================ */
+function refrescarSelector() {
+  const sel = document.getElementById("rondaSelector");
+  const keys = Object.keys(DB.rondas).sort().reverse();
+  sel.innerHTML = keys.map(k => `<option value="${k}" ${k === DB.rondaActiva ? "selected" : ""}>${k}</option>`).join("");
+  const r = rondaActual();
+  const est = document.getElementById("rondaEstado");
+  est.textContent = r.estado || "abierta"; est.className = "estado-ronda estado-" + (r.estado || "abierta");
+  document.getElementById("crumbRonda").textContent = DB.rondaActiva;
+  document.getElementById("rondaMeta").textContent = "Apertura: " + (r.fecha_apertura ? new Date(r.fecha_apertura).toLocaleDateString("es-PE") : "—") + " · Precios publicados: " + (r.precios_publicados ? "Sí" : "No");
+}
+
+async function cambiarRondaActiva(r) {
+  DB.rondaActiva = r;
+  DB.config.ronda_activa = r;
+  await fsSetConfig({ ronda_activa: r });
+  suscribirRonda(r);
+  refrescarSelector();
+  renderSemana();
+  renderTodo();
+}
+
+async function crearRonda() {
+  const r = "R-" + hoy();
+  if (DB.rondas[r]) { toast("Ya existe " + r, "warn"); return; }
+  const meta = { id_ronda: r, estado: "abierta", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} };
+  await fsSetRonda(r, meta);
+  DB.rondas[r] = meta;
+
+  // Copiar precios de la ronda anterior
+  const prev = Object.keys(DB.rondas).filter(x => x !== r).sort().reverse()[0];
+  if (prev) {
+    const prevPrecios = preciosDeRonda(prev);
+    for (const p of prevPrecios) {
+      const nuevo = { ...p, id_ronda: r };
+      await fsSet(["rondas", r, "precios"], nuevo.codigo_producto, nuevo);
+    }
+  }
+
+  DB.rondaActiva = r;
+  DB.config.ronda_activa = r;
+  await fsSetConfig({ ronda_activa: r });
+  suscribirRonda(r);
+  refrescarSelector();
+  renderSemana();
+  renderTodo();
+  toast("Ronda creada: " + r, "ok");
+}
+
+async function marcarRonda(estado) {
+  const r = rondaActual(); if (!r.id_ronda) { toast("Sin ronda", "err"); return; }
+  const update = { estado };
+  if (estado === "cerrada") update.fecha_cierre = ahora();
+  if (estado === "entregada") update.fecha_entrega = ahora();
+  await fsSetRonda(DB.rondaActiva, update);
+  DB.rondas[DB.rondaActiva] = { ...DB.rondas[DB.rondaActiva], ...update };
+  refrescarSelector();
+  toast("Ronda → " + estado, "info");
+}
+
+/* ============================================================================
+   DASHBOARD
+   ============================================================================ */
+function renderDashboard() {
+  const pedidos = pedidosDeRonda();
+  const activos = pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+  const pendientes = pedidos.filter(p => p.estado.startsWith("pendiente"));
+  const aceptados = pedidos.filter(p => p.estado === "aceptado");
+  const empacados = pedidos.filter(p => p.estado === "empacado");
+  const entregados = pedidos.filter(p => p.estado === "entregado");
+  const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
+  const pmap = precioMapa();
+  const items = itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id));
+  const costoEst = items.reduce((s, i) => s + Number(i.cantidad) * Number(pmap[i.codigo_producto]?.precio_compra || 0), 0);
+  const costoReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || c.precio_compra || 0), 0);
+  document.getElementById("dashPedidos").textContent = activos.length;
+  document.getElementById("dashIngreso").textContent = soles(ingreso);
+  document.getElementById("dashCostoEst").textContent = soles(costoEst);
+  document.getElementById("dashCostoReal").textContent = soles(costoReal);
+  document.getElementById("dashPendientes").textContent = pendientes.length;
+  document.getElementById("dashAceptados").textContent = aceptados.length;
+  document.getElementById("dashEmpacados").textContent = empacados.length;
+  document.getElementById("dashEntregados").textContent = entregados.length;
+  const gastos = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
+  const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
+  const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
+  const util = ingreso - costoReal - gastos + exc - recl;
+  const deltaEst = costoEst - costoReal;
+  document.getElementById("dashGanancia").innerHTML = `
     <div class="calc-summary">
       <div class="row"><span>Ingreso (ventas congeladas)</span><span><strong>${soles(ingreso)}</strong></span></div>
       <div class="row"><span>Costo compra real</span><span>−${soles(costoReal)}</span></div>
@@ -799,86 +1127,90 @@ function renderDashboard(){
       <div class="row total"><span>Utilidad neta</span><span>${soles(util)}</span></div>
     </div>
     <div class="info-box" style="margin-top:10px">
-      <strong>Δ compra vs estimado:</strong> <span class="${deltaEst>0?'delta-pos':(deltaEst<0?'delta-neg':'delta-zero')}">${soles(deltaEst)}</span>
-      ${deltaEst>0?'<br><span class="small-note">Compraste más barato que el estimado — ganancia extra.</span>':''}
-      ${deltaEst<0?'<br><span class="small-note">Compraste más caro — come margen.</span>':''}
+      <strong>Δ compra vs estimado:</strong> <span class="${deltaEst > 0 ? 'delta-pos' : (deltaEst < 0 ? 'delta-neg' : 'delta-zero')}">${soles(deltaEst)}</span>
+      ${deltaEst > 0 ? '<br><span class="small-note">Compraste más barato que el estimado — ganancia extra.</span>' : ''}
+      ${deltaEst < 0 ? '<br><span class="small-note">Compraste más caro — come margen.</span>' : ''}
     </div>`;
-  const top={};
-  items.forEach(i=>{top[i.nombre]=(top[i.nombre]||0)+Number(i.cantidad);});
-  const arr=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  document.getElementById("dashTopProductos").innerHTML=arr.length
-    ?`<div class="table-scroll"><table><thead><tr><th>Producto</th><th>Cantidad</th></tr></thead><tbody>${arr.map(([n,c])=>`<tr><td>${esc(n)}</td><td><strong>${c.toFixed(2)}</strong></td></tr>`).join("")}</tbody></table></div>`
-    :`<div class="small-note">Sin items.</div>`;
+  const top = {};
+  items.forEach(i => { top[i.nombre] = (top[i.nombre] || 0) + Number(i.cantidad); });
+  const arr = Object.entries(top).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  document.getElementById("dashTopProductos").innerHTML = arr.length
+    ? `<div class="table-scroll"><table><thead><tr><th>Producto</th><th>Cantidad</th></tr></thead><tbody>${arr.map(([n, c]) => `<tr><td>${esc(n)}</td><td><strong>${c.toFixed(2)}</strong></td></tr>`).join("")}</tbody></table></div>`
+    : `<div class="small-note">Sin items.</div>`;
 }
 
-/* ---------- Pipeline ---------- */
-function renderPipeline(){
-  const grid=document.getElementById("pipelineGrid");
-  const q=(document.getElementById("pipeBuscar").value||"").toLowerCase();
-  const z=document.getElementById("pipeZona").value;
-  let arr=pedidosDeRonda();
-  if(q)arr=arr.filter(p=>String(p.cliente_nombre||"").toLowerCase().includes(q)||String(p.cliente_celular||"").includes(q));
-  if(z)arr=arr.filter(p=>p.zona===z);
-  const cols=[
-    {key:"pendiente",label:"Pendiente pago",cls:"pend",estados:["pendiente_pago_yape","pendiente_pago_efectivo"]},
-    {key:"aceptado",label:"Aceptado",cls:"acep",estados:["aceptado"]},
-    {key:"empacado",label:"Empacado",cls:"empa",estados:["empacado"]},
-    {key:"entregado",label:"Entregado",cls:"entr",estados:["entregado"]},
-    {key:"rechazado",label:"Rechazado / Fallido",cls:"rech",estados:["rechazado","fallido"]}
+/* ============================================================================
+   PIPELINE
+   ============================================================================ */
+function renderPipeline() {
+  const grid = document.getElementById("pipelineGrid");
+  const q = (document.getElementById("pipeBuscar").value || "").toLowerCase();
+  const z = document.getElementById("pipeZona").value;
+  let arr = pedidosDeRonda();
+  if (q) arr = arr.filter(p => String(p.cliente_nombre || "").toLowerCase().includes(q) || String(p.cliente_celular || "").includes(q));
+  if (z) arr = arr.filter(p => p.zona === z);
+  const cols = [
+    { key: "pendiente", label: "Pendiente pago", cls: "pend", estados: ["pendiente_pago_yape", "pendiente_pago_efectivo"] },
+    { key: "aceptado", label: "Aceptado", cls: "acep", estados: ["aceptado"] },
+    { key: "empacado", label: "Empacado", cls: "empa", estados: ["empacado"] },
+    { key: "entregado", label: "Entregado", cls: "entr", estados: ["entregado"] },
+    { key: "rechazado", label: "Rechazado / Fallido", cls: "rech", estados: ["rechazado", "fallido"] }
   ];
-  grid.innerHTML=cols.map(c=>{
-    const list=arr.filter(p=>c.estados.includes(p.estado));
-    return`<div class="pipe-col">
+  grid.innerHTML = cols.map(c => {
+    const list = arr.filter(p => c.estados.includes(p.estado));
+    return `<div class="pipe-col">
       <div class="pipe-col-h ${c.cls}">${c.label} · ${list.length}</div>
-      ${list.length?list.map(p=>{
-        const its=itemsDePedido(p.pedido_id);
-        return`<div class="pipe-card">
+      ${list.length ? list.map(p => {
+      const its = itemsDePedido(p.pedido_id);
+      return `<div class="pipe-card">
           <div class="id">${esc(p.pedido_id)}</div>
           <div class="name">${esc(p.cliente_nombre)}</div>
           <div class="meta">${esc(p.cliente_celular)} · ${esc(p.zona)} · ${its.length} items</div>
           <div class="tot">${soles(p.total)}</div>
           <div class="acts">${botonesPipeline(p)}</div>
         </div>`;
-      }).join(""):`<div class="pipe-empty">— vacío —</div>`}
+    }).join("") : `<div class="pipe-empty">— vacío —</div>`}
     </div>`;
   }).join("");
 }
-function botonesPipeline(p){
-  const e=p.estado;
-  let html="";
-  if(e.startsWith("pendiente")){
-    html+=`<button class="btn-accept" onclick="abrirAceptar('${p.pedido_id}')">Aceptar</button>`;
-    html+=`<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','rechazado')">Rechazar</button>`;
+function botonesPipeline(p) {
+  const e = p.estado;
+  let html = "";
+  if (e.startsWith("pendiente")) {
+    html += `<button class="btn-accept" onclick="abrirAceptar('${p.pedido_id}')">Aceptar</button>`;
+    html += `<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','rechazado')">Rechazar</button>`;
   }
-  if(e==="aceptado"){
-    html+=`<button class="btn-info" onclick="transicionar('${p.pedido_id}','empacado')">Empacar</button>`;
-    html+=`<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','pendiente')">↩ Pendiente</button>`;
-    html+=`<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','rechazado')">Rechazar</button>`;
+  if (e === "aceptado") {
+    html += `<button class="btn-info" onclick="transicionar('${p.pedido_id}','empacado')">Empacar</button>`;
+    html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','pendiente')">↩ Pendiente</button>`;
+    html += `<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','rechazado')">Rechazar</button>`;
   }
-  if(e==="empacado"){
-    html+=`<button class="btn-accept" onclick="transicionar('${p.pedido_id}','entregado')">Entregar</button>`;
-    html+=`<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','aceptado')">↩ Aceptado</button>`;
-    html+=`<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','fallido')">Fallar</button>`;
+  if (e === "empacado") {
+    html += `<button class="btn-accept" onclick="transicionar('${p.pedido_id}','entregado')">Entregar</button>`;
+    html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','aceptado')">↩ Aceptado</button>`;
+    html += `<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','fallido')">Fallar</button>`;
   }
-  if(e==="entregado"||e==="rechazado"||e==="fallido"){
-    html+=`<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','retroceder')">↩ Retroceder</button>`;
+  if (e === "entregado" || e === "rechazado" || e === "fallido") {
+    html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','retroceder')">↩ Retroceder</button>`;
   }
-  html+=`<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
+  html += `<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
   return html;
 }
 
-/* ---------- Aceptar ---------- */
-function abrirAceptar(id){
-  const p=pedidoPorId(id);if(!p)return;
-  const its=itemsDePedido(id);
-  document.getElementById("modalAceptarContenido").innerHTML=`
+/* ============================================================================
+   ACEPTAR
+   ============================================================================ */
+function abrirAceptar(id) {
+  const p = pedidoPorId(id); if (!p) return;
+  const its = itemsDePedido(id);
+  document.getElementById("modalAceptarContenido").innerHTML = `
     <div class="info-box">
       <strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
       Zona ${esc(p.zona)} · ${esc(p.modalidad)} · ${esc(p.metodo_pago)}<br>
       <strong style="font-size:19px;color:var(--verde)">${soles(p.total)}</strong>
     </div>
-    <p class="small-note">Items (${its.length}): ${its.map(i=>esc(i.nombre)+" ×"+i.cantidad).join(", ")}</p>
-    ${p.metodo_pago==="Yape"?`<p><label class="small-note">Código Yape</label><input id="pagoYape" placeholder="Ej. 001234"></p>`:""}
+    <p class="small-note">Items (${its.length}): ${its.map(i => esc(i.nombre) + " ×" + i.cantidad).join(", ")}</p>
+    ${p.metodo_pago === "Yape" ? `<p><label class="small-note">Código Yape</label><input id="pagoYape" placeholder="Ej. 001234"></p>` : ""}
     <p><label class="small-note">Verificado por *</label><input id="pagoVerif" value="Fundador"></p>
     <div class="actions" style="justify-content:flex-end;margin-top:12px">
       <button class="btn-ghost" onclick="cerrarModal('modalAceptar')">Cancelar</button>
@@ -886,62 +1218,61 @@ function abrirAceptar(id){
     </div>`;
   abrirModal("modalAceptar");
 }
-function confirmarAceptar(id){
-  const p=pedidoPorId(id);if(!p)return;
-  const verif=(document.getElementById("pagoVerif").value||"").trim();
-  if(!verif){toast("Falta verificado por","err");return;}
-  p.estado="aceptado";
-  p.verificado_por=verif;
-  p.fecha_verificacion=ahora();
-  if(p.metodo_pago==="Yape"){
-    const yp=document.getElementById("pagoYape");
-    if(yp&&yp.value.trim())p.codigo_yape=yp.value.trim();
+async function confirmarAceptar(id) {
+  const p = pedidoPorId(id); if (!p) return;
+  const verif = (document.getElementById("pagoVerif").value || "").trim();
+  if (!verif) { toast("Falta verificado por", "err"); return; }
+  p.estado = "aceptado";
+  p.verificado_por = verif;
+  p.fecha_verificacion = ahora();
+  if (p.metodo_pago === "Yape") {
+    const yp = document.getElementById("pagoYape");
+    if (yp && yp.value.trim()) p.codigo_yape = yp.value.trim();
   }
-  if(!p.historial_estados)p.historial_estados=[];
-  p.historial_estados.push({estado:"aceptado",fecha:ahora(),por:verif,motivo:"Aceptado"});
-  guardarDB();cerrarModal("modalAceptar");
-  toast("✓ Pedido "+id+" aceptado","ok");
+  if (!p.historial_estados) p.historial_estados = [];
+  p.historial_estados.push({ estado: "aceptado", fecha: ahora(), por: verif, motivo: "Aceptado" });
+  await guardarPedido(p);
+  cerrarModal("modalAceptar");
+  toast("✓ Pedido " + id + " aceptado", "ok");
   renderTodo();
 }
-function transicionar(id,nuevo){
-  const p=pedidoPorId(id);if(!p)return;
-  const trans={aceptado:"empacado",empacado:"entregado"};
-  if(trans[p.estado]!==nuevo){toast("Transición inválida","err");return;}
-  p.estado=nuevo;
-  if(nuevo==="entregado")p.fecha_entrega=ahora();
-  if(!p.historial_estados)p.historial_estados=[];
-  p.historial_estados.push({estado:nuevo,fecha:ahora(),por:"Fundador",motivo:"Avance"});
-  guardarDB();toast("Pedido "+id+" → "+nuevo,"ok");
+async function transicionar(id, nuevo) {
+  const p = pedidoPorId(id); if (!p) return;
+  const trans = { aceptado: "empacado", empacado: "entregado" };
+  if (trans[p.estado] !== nuevo) { toast("Transición inválida", "err"); return; }
+  p.estado = nuevo;
+  if (nuevo === "entregado") p.fecha_entrega = ahora();
+  if (!p.historial_estados) p.historial_estados = [];
+  p.historial_estados.push({ estado: nuevo, fecha: ahora(), por: "Fundador", motivo: "Avance" });
+  await guardarPedido(p);
+  toast("Pedido " + id + " → " + nuevo, "ok");
   renderTodo();
 }
 
-/* ---------- Retroceder (con motivo) ---------- */
-function abrirRetroceder(id,destino){
-  const p=pedidoPorId(id);if(!p)return;
-  const opciones={
-    pendiente:"Pendiente pago",
-    aceptado:"Aceptado",
-    empacado:"Empacado",
-    entregado:"Entregado",
-    rechazado:"Rechazado",
-    fallido:"Fallido",
-    retroceder:"Elegir otro estado..."
+/* ============================================================================
+   RETROCEDER
+   ============================================================================ */
+function abrirRetroceder(id, destino) {
+  const p = pedidoPorId(id); if (!p) return;
+  const opciones = {
+    pendiente: "Pendiente pago", aceptado: "Aceptado", empacado: "Empacado",
+    entregado: "Entregado", rechazado: "Rechazado", fallido: "Fallido", retroceder: "Elegir otro estado..."
   };
-  const esRechazo=(destino==="rechazado"||destino==="fallido");
-  document.getElementById("modalRetrocederContenido").innerHTML=`
+  const esRechazo = (destino === "rechazado" || destino === "fallido");
+  document.getElementById("modalRetrocederContenido").innerHTML = `
     <div class="info-box">
       <strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)}<br>
       Estado actual: <span class="status status-${p.estado}">${esc(p.estado)}</span>
     </div>
     <p><label class="small-note">Nuevo estado *</label>
       <select id="retEstado">
-        ${destino==="retroceder"?
-          Object.entries(opciones).filter(([k])=>k!=="retroceder"&&k!==p.estado).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")
-          :`<option value="${destino}" selected>${opciones[destino]}</option>`}
+        ${destino === "retroceder" ?
+      Object.entries(opciones).filter(([k]) => k !== "retroceder" && k !== p.estado).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")
+      : `<option value="${destino}" selected>${opciones[destino]}</option>`}
       </select>
     </p>
     <p><label class="small-note">Motivo * (queda en historial)</label>
-      <textarea id="retMotivo" rows="2" placeholder="${esRechazo?'Ej: Cliente no pagó / producto agotado / cliente canceló':'Ej: Me equivoqué al aceptar / cliente pidió cambio'}"></textarea>
+      <textarea id="retMotivo" rows="2" placeholder="${esRechazo ? 'Ej: Cliente no pagó / producto agotado / cliente canceló' : 'Ej: Me equivoqué al aceptar / cliente pidió cambio'}"></textarea>
     </p>
     <p><label class="small-note">Usuario</label><input id="retPor" value="Fundador"></p>
     <div class="actions" style="justify-content:flex-end;margin-top:12px">
@@ -950,57 +1281,60 @@ function abrirRetroceder(id,destino){
     </div>`;
   abrirModal("modalRetroceder");
 }
-function confirmarRetroceder(id){
-  const p=pedidoPorId(id);if(!p)return;
-  const nuevo=document.getElementById("retEstado").value;
-  const motivo=(document.getElementById("retMotivo").value||"").trim();
-  const por=(document.getElementById("retPor").value||"Fundador").trim();
-  if(!motivo){toast("Motivo obligatorio","err");return;}
-  if(nuevo===p.estado){toast("Mismo estado","warn");return;}
-  const anterior=p.estado;
-  p.estado=nuevo;
-  if(nuevo==="entregado")p.fecha_entrega=ahora();
-  if(!p.historial_estados)p.historial_estados=[];
-  p.historial_estados.push({estado:nuevo,fecha:ahora(),por,motivo:`${anterior} → ${nuevo}: ${motivo}`});
-  guardarDB();cerrarModal("modalRetroceder");
-  toast(`Pedido ${id}: ${anterior} → ${nuevo}`,"ok");
+async function confirmarRetroceder(id) {
+  const p = pedidoPorId(id); if (!p) return;
+  const nuevo = document.getElementById("retEstado").value;
+  const motivo = (document.getElementById("retMotivo").value || "").trim();
+  const por = (document.getElementById("retPor").value || "Fundador").trim();
+  if (!motivo) { toast("Motivo obligatorio", "err"); return; }
+  if (nuevo === p.estado) { toast("Mismo estado", "warn"); return; }
+  const anterior = p.estado;
+  p.estado = nuevo;
+  if (nuevo === "entregado") p.fecha_entrega = ahora();
+  if (!p.historial_estados) p.historial_estados = [];
+  p.historial_estados.push({ estado: nuevo, fecha: ahora(), por, motivo: `${anterior} → ${nuevo}: ${motivo}` });
+  await guardarPedido(p);
+  cerrarModal("modalRetroceder");
+  toast(`Pedido ${id}: ${anterior} → ${nuevo}`, "ok");
   renderTodo();
 }
 
-/* ---------- Detalle / Editar pedido ---------- */
-function verDetalle(id){
-  const p=pedidoPorId(id);if(!p)return;
-  const its=itemsDePedido(id);
-  const edit=!esTerminal(p.estado);
-  const hist=(p.historial_estados||[]).map(h=>`<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo||"")}</span></div>`).join("");
-  document.getElementById("detalleContenido").innerHTML=`
+/* ============================================================================
+   DETALLE / EDITAR PEDIDO
+   ============================================================================ */
+function verDetalle(id) {
+  const p = pedidoPorId(id); if (!p) return;
+  const its = itemsDePedido(id);
+  const edit = !esTerminal(p.estado);
+  const hist = (p.historial_estados || []).map(h => `<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo || "")}</span></div>`).join("");
+  document.getElementById("detalleContenido").innerHTML = `
     <div class="info-box">
       <strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
       <span class="status status-${p.estado}">${esc(p.estado)}</span>
-      ${p.verificado_por?` · Verificado por ${esc(p.verificado_por)}`:""}
-      ${p.codigo_yape?` · Yape ${esc(p.codigo_yape)}`:""}
-      ${p.lat&&p.lng?`<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>`:""}
+      ${p.verificado_por ? ` · Verificado por ${esc(p.verificado_por)}` : ""}
+      ${p.codigo_yape ? ` · Yape ${esc(p.codigo_yape)}` : ""}
+      ${p.lat && p.lng ? `<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>` : ""}
     </div>
     <h4 style="margin-top:14px">Historial de estados</h4>
-    ${hist||'<div class="small-note">Sin historial.</div>'}
-    ${edit?`
+    ${hist || '<div class="small-note">Sin historial.</div>'}
+    ${edit ? `
     <h3 style="margin-top:14px">Editar pedido</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><label class="small-note">Nombre</label><input id="edNombre" value="${esc(p.cliente_nombre)}"></div>
       <div><label class="small-note">Celular</label><input id="edCelular" value="${esc(p.cliente_celular)}"></div>
-      <div><label class="small-note">Distrito</label><select id="edDistrito">${DISTRITOS.map(d=>`<option value="${esc(d.n)}" ${p.distrito===d.n?"selected":""}>${esc(d.n)}</option>`).join("")}</select></div>
-      <div><label class="small-note">Zona</label><select id="edZona"><option ${p.zona==="A"?"selected":""}>A</option><option ${p.zona==="B"?"selected":""}>B</option><option ${p.zona==="C"?"selected":""}>C</option></select></div>
-      <div style="grid-column:1/-1"><label class="small-note">Dirección</label><input id="edDireccion" value="${esc(p.direccion||"")}"></div>
-      <div><label class="small-note">Modalidad</label><select id="edModalidad"><option value="delivery" ${p.modalidad==="delivery"?"selected":""}>Delivery</option><option value="recojo" ${p.modalidad==="recojo"?"selected":""}>Recojo</option></select></div>
-      <div><label class="small-note">Método pago</label><select id="edMetodo"><option ${p.metodo_pago==="Efectivo"?"selected":""}>Efectivo</option><option ${p.metodo_pago==="Yape"?"selected":""}>Yape</option><option ${p.metodo_pago==="Transferencia"?"selected":""}>Transferencia</option><option ${p.metodo_pago==="Plin"?"selected":""}>Plin</option></select></div>
-      <div><label class="small-note">Lat</label><input id="edLat" type="number" step="0.0000001" value="${p.lat||""}"></div>
-      <div><label class="small-note">Lng</label><input id="edLng" type="number" step="0.0000001" value="${p.lng||""}"></div>
-      <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas||"")}"></div>
+      <div><label class="small-note">Distrito</label><select id="edDistrito">${DISTRITOS.map(d => `<option value="${esc(d.n)}" ${p.distrito === d.n ? "selected" : ""}>${esc(d.n)}</option>`).join("")}</select></div>
+      <div><label class="small-note">Zona</label><select id="edZona"><option ${p.zona === "A" ? "selected" : ""}>A</option><option ${p.zona === "B" ? "selected" : ""}>B</option><option ${p.zona === "C" ? "selected" : ""}>C</option></select></div>
+      <div style="grid-column:1/-1"><label class="small-note">Dirección</label><input id="edDireccion" value="${esc(p.direccion || "")}"></div>
+      <div><label class="small-note">Modalidad</label><select id="edModalidad"><option value="delivery" ${p.modalidad === "delivery" ? "selected" : ""}>Delivery</option><option value="recojo" ${p.modalidad === "recojo" ? "selected" : ""}>Recojo</option></select></div>
+      <div><label class="small-note">Método pago</label><select id="edMetodo"><option ${p.metodo_pago === "Efectivo" ? "selected" : ""}>Efectivo</option><option ${p.metodo_pago === "Yape" ? "selected" : ""}>Yape</option><option ${p.metodo_pago === "Transferencia" ? "selected" : ""}>Transferencia</option><option ${p.metodo_pago === "Plin" ? "selected" : ""}>Plin</option></select></div>
+      <div><label class="small-note">Lat</label><input id="edLat" type="number" step="0.0000001" value="${p.lat || ""}"></div>
+      <div><label class="small-note">Lng</label><input id="edLng" type="number" step="0.0000001" value="${p.lng || ""}"></div>
+      <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
     </div>
     <h4 style="margin-top:14px">Items (precio congelado — no editable)</h4>
     <table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead>
     <tbody id="edItemsBody">
-      ${its.map(i=>`<tr>
+      ${its.map(i => `<tr>
         <td>${esc(i.nombre)}</td>
         <td><input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)"></td>
         <td>${soles(i.precio_venta_congelado)}</td>
@@ -1009,17 +1343,17 @@ function verDetalle(id){
       </tr>`).join("")}
     </tbody></table>
     <div style="display:flex;gap:8px;margin-top:10px">
-      <select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr=>`<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select>
+      <select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select>
       <button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button>
     </div>
     <div class="calc-summary" style="margin-top:12px" id="edResumen"></div>
     <div class="actions" style="justify-content:flex-end;margin-top:14px">
       <button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button>
       <button class="btn-save" onclick="guardarEdicionPedido('${p.pedido_id}')">💾 Guardar cambios</button>
-    </div>`:`
+    </div>` : `
     <h3 style="margin-top:14px">Items</h3>
     <table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th></tr></thead>
-    <tbody>${its.map(i=>`<tr><td>${esc(i.nombre)}</td><td>${i.cantidad} ${esc(i.unidad)}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong>${soles(i.subtotal_venta)}</strong></td></tr>`).join("")}</tbody></table>
+    <tbody>${its.map(i => `<tr><td>${esc(i.nombre)}</td><td>${i.cantidad} ${esc(i.unidad)}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong>${soles(i.subtotal_venta)}</strong></td></tr>`).join("")}</tbody></table>
     <div class="calc-summary" style="margin-top:12px">
       <div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div>
       <div class="row"><span>Desc. recojo</span><span>−${soles(p.descuento_recojo)}</span></div>
@@ -1027,286 +1361,313 @@ function verDetalle(id){
     </div>
     <p class="small-note" style="margin-top:10px">Este pedido está en estado terminal. Igual podés retroceder desde el pipeline.</p>`}
     `;
-  if(edit)recalcEdResumen(id);
+  if (edit) recalcEdResumen(id);
   abrirModal("modalDetalle");
 }
-function edCambiarCantidad(itemId,val){
-  const it=DB.items.find(i=>i.item_id===itemId);if(!it)return;
-  it.cantidad=Math.max(0,Number(val)||0);
-  it.subtotal_venta=red2(it.cantidad*it.precio_venta_congelado);
-  const el=document.getElementById("edSub-"+itemId);if(el)el.textContent=soles(it.subtotal_venta);
-  guardarDB();recalcEdResumen(it.pedido_id);
+async function edCambiarCantidad(itemId, val) {
+  const it = DB.items.find(i => i.item_id === itemId); if (!it) return;
+  it.cantidad = Math.max(0, Number(val) || 0);
+  it.subtotal_venta = red2(it.cantidad * it.precio_venta_congelado);
+  const el = document.getElementById("edSub-" + itemId); if (el) el.textContent = soles(it.subtotal_venta);
+  await guardarItem(it);
+  recalcEdResumen(it.pedido_id);
 }
-function edEliminarItem(itemId,pedidoId){
-  if(!confirm("¿Quitar este item?"))return;
-  DB.items=DB.items.filter(i=>i.item_id!==itemId);
-  guardarDB();verDetalle(pedidoId);
+async function edEliminarItem(itemId, pedidoId) {
+  if (!confirm("¿Quitar este item?")) return;
+  await eliminarItem(itemId);
+  verDetalle(pedidoId);
 }
-function edAgregarItem(pedidoId){
-  const cod=document.getElementById("edAddProd").value;if(!cod)return;
-  const pr=precioMapa()[cod];if(!pr)return;
-  const n=DB.items.filter(i=>i.pedido_id===pedidoId).length+1;
-  DB.items.push({id_ronda:rondaActiva,item_id:pedidoId+"-"+String(n).padStart(2,"0"),
-    pedido_id:pedidoId,codigo_producto:cod,nombre:pr.nombre,unidad:pr.unidad,cantidad:1,
-    precio_compra_estimado:pr.precio_compra,precio_venta_congelado:pr.precio_venta,
-    subtotal_venta:red2(1*pr.precio_venta),estado:"pendiente"});
-  guardarDB();verDetalle(pedidoId);
+async function edAgregarItem(pedidoId) {
+  const cod = document.getElementById("edAddProd").value; if (!cod) return;
+  const pr = precioMapa()[cod]; if (!pr) return;
+  const n = DB.items.filter(i => i.pedido_id === pedidoId).length + 1;
+  const it = {
+    id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"),
+    pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad, cantidad: 1,
+    precio_compra_estimado: pr.precio_compra, precio_venta_congelado: pr.precio_venta,
+    subtotal_venta: red2(1 * pr.precio_venta), estado: "pendiente"
+  };
+  await guardarItem(it);
+  verDetalle(pedidoId);
 }
-function recalcEdResumen(pedidoId){
-  const p=pedidoPorId(pedidoId);if(!p)return;
-  const its=itemsDePedido(pedidoId);
-  const sub=its.reduce((s,i)=>s+Number(i.subtotal_venta||0),0);
-  p.subtotal=red2(sub);
-  const desc=p.modalidad==="recojo"?ZONAS[p.zona].desc_recojo:0;
-  p.descuento_recojo=desc;p.total=red2(sub-desc);
-  const el=document.getElementById("edResumen");
-  if(el)el.innerHTML=`<div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div>
+async function recalcEdResumen(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  const its = itemsDePedido(pedidoId);
+  const sub = its.reduce((s, i) => s + Number(i.subtotal_venta || 0), 0);
+  p.subtotal = red2(sub);
+  const desc = p.modalidad === "recojo" ? ZONAS[p.zona].desc_recojo : 0;
+  p.descuento_recojo = desc; p.total = red2(sub - desc);
+  const el = document.getElementById("edResumen");
+  if (el) el.innerHTML = `<div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div>
     <div class="row"><span>Desc. recojo</span><span>−${soles(desc)}</span></div>
     <div class="row total"><span>TOTAL</span><span>${soles(p.total)}</span></div>`;
-  guardarDB();
+  await guardarPedido(p);
 }
-function guardarEdicionPedido(pedidoId){
-  const p=pedidoPorId(pedidoId);if(!p)return;
-  if(esTerminal(p.estado)){toast("Terminal","err");return;}
-  p.cliente_nombre=document.getElementById("edNombre").value.trim();
-  p.cliente_celular=document.getElementById("edCelular").value.trim();
-  p.distrito=document.getElementById("edDistrito").value;
-  p.zona=document.getElementById("edZona").value;
-  p.direccion=document.getElementById("edDireccion").value.trim();
-  p.modalidad=document.getElementById("edModalidad").value;
-  p.metodo_pago=document.getElementById("edMetodo").value;
-  p.lat=Number(document.getElementById("edLat").value)||null;
-  p.lng=Number(document.getElementById("edLng").value)||null;
-  p.notas=document.getElementById("edNotas").value.trim();
-  recalcEdResumen(pedidoId);
-  guardarDB();toast("✓ Pedido actualizado","ok");
-  cerrarModal("modalDetalle");renderTodo();
+async function guardarEdicionPedido(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  if (esTerminal(p.estado)) { toast("Terminal", "err"); return; }
+  p.cliente_nombre = document.getElementById("edNombre").value.trim();
+  p.cliente_celular = document.getElementById("edCelular").value.trim();
+  p.distrito = document.getElementById("edDistrito").value;
+  p.zona = document.getElementById("edZona").value;
+  p.direccion = document.getElementById("edDireccion").value.trim();
+  p.modalidad = document.getElementById("edModalidad").value;
+  p.metodo_pago = document.getElementById("edMetodo").value;
+  p.lat = Number(document.getElementById("edLat").value) || null;
+  p.lng = Number(document.getElementById("edLng").value) || null;
+  p.notas = document.getElementById("edNotas").value.trim();
+  await recalcEdResumen(pedidoId);
+  toast("✓ Pedido actualizado", "ok");
+  cerrarModal("modalDetalle"); renderTodo();
 }
 
-/* ---------- Calculadora ---------- */
-function renderDistritosSelects(){
-  const opts=DISTRITOS.map(d=>`<option value="${esc(d.n)}">${esc(d.n)}</option>`).join("");
-  const s1=document.getElementById("calcDistrito");if(s1)s1.innerHTML=opts;
+/* ============================================================================
+   CALCULADORA
+   ============================================================================ */
+function renderDistritosSelects() {
+  const opts = DISTRITOS.map(d => `<option value="${esc(d.n)}">${esc(d.n)}</option>`).join("");
+  const s1 = document.getElementById("calcDistrito"); if (s1) s1.innerHTML = opts;
 }
-function renderCalculadora(){
+function renderCalculadora() {
   renderDistritosSelects();
-  const aviso=document.getElementById("calcAviso");
-  const r=rondaActual();
-  if(!r.id_ronda){aviso.innerHTML=`<div class="error-box">Sin ronda activa.</div>`;return;}
-  aviso.innerHTML=`<div class="info-box">Ronda <strong>${esc(rondaActiva)}</strong> · Estado: <strong>${r.estado}</strong> · ${preciosDeRonda().length} precios cargados.</div>`;
-  calcFiltrarProductos();calcRenderItems();
+  const aviso = document.getElementById("calcAviso");
+  const r = rondaActual();
+  if (!r.id_ronda) { aviso.innerHTML = `<div class="error-box">Sin ronda activa.</div>`; return; }
+  aviso.innerHTML = `<div class="info-box">Ronda <strong>${esc(DB.rondaActiva)}</strong> · Estado: <strong>${r.estado}</strong> · ${preciosDeRonda().length} precios cargados.</div>`;
+  calcFiltrarProductos(); calcRenderItems();
 }
-function calcDistritoChange(){
-  const d=document.getElementById("calcDistrito").value;
-  const info=DISTRITOS.find(x=>x.n===d);
-  if(info){
-    document.getElementById("calcLat").value=info.lat;
-    document.getElementById("calcLng").value=info.lng;
-    document.getElementById("calcZona").value=info.z;
+function calcDistritoChange() {
+  const d = document.getElementById("calcDistrito").value;
+  const info = DISTRITOS.find(x => x.n === d);
+  if (info) {
+    document.getElementById("calcLat").value = info.lat;
+    document.getElementById("calcLng").value = info.lng;
+    document.getElementById("calcZona").value = info.z;
   }
   calcRecalcular();
 }
-function calcFiltrarProductos(){
-  const q=(document.getElementById("calcBuscarProd").value||"").toLowerCase();
-  const pmap=precioMapa();
-  const prods=DB.productos.filter(p=>p.activo&&(!q||p.nombre.toLowerCase().includes(q)));
-  document.getElementById("calcProductoSelect").innerHTML=`<option value="">— Elegir producto —</option>`+prods.map(p=>{
-    const pr=pmap[p.codigo];
-    return`<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad)}) — ${soles(pr?.precio_venta||0)}</option>`;
+function calcFiltrarProductos() {
+  const q = (document.getElementById("calcBuscarProd").value || "").toLowerCase();
+  const pmap = precioMapa();
+  const prods = DB.productos.filter(p => p.activo && (!q || p.nombre.toLowerCase().includes(q)));
+  document.getElementById("calcProductoSelect").innerHTML = `<option value="">— Elegir producto —</option>` + prods.map(p => {
+    const pr = pmap[p.codigo];
+    return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad)}) — ${soles(pr?.precio_venta || 0)}</option>`;
   }).join("");
 }
-function calcBuscarCliente(){
-  const cel=document.getElementById("calcCelular").value.trim();
-  if(cel.length<6)return;
-  const c=clientePorCelular(cel);
-  if(c){
-    document.getElementById("calcNombre").value=c.nombre||"";
-    if(c.distrito)document.getElementById("calcDistrito").value=c.distrito;
-    document.getElementById("calcDireccion").value=c.direccion||"";
-    document.getElementById("calcReferencia").value=c.referencia||"";
-    document.getElementById("calcLat").value=c.lat||"";
-    document.getElementById("calcLng").value=c.lng||"";
-    if(c.zona)document.getElementById("calcZona").value=c.zona;
+function calcBuscarCliente() {
+  const cel = document.getElementById("calcCelular").value.trim();
+  if (cel.length < 6) return;
+  const c = clientePorCelular(cel);
+  if (c) {
+    document.getElementById("calcNombre").value = c.nombre || "";
+    if (c.distrito) document.getElementById("calcDistrito").value = c.distrito;
+    document.getElementById("calcDireccion").value = c.direccion || "";
+    document.getElementById("calcReferencia").value = c.referencia || "";
+    document.getElementById("calcLat").value = c.lat || "";
+    document.getElementById("calcLng").value = c.lng || "";
+    if (c.zona) document.getElementById("calcZona").value = c.zona;
     calcRecalcular();
   }
 }
-function calcAgregarProducto(){
-  const cod=document.getElementById("calcProductoSelect").value;if(!cod)return;
-  const pmap=precioMapa(),pr=pmap[cod],prod=DB.productos.find(p=>p.codigo===cod);
-  if(!pr||!prod){toast("Producto sin precio","err");return;}
-  const ex=calcItems.find(i=>i.codigo===cod);
-  if(ex)ex.cantidad++;
-  else calcItems.push({codigo:cod,nombre:prod.nombre,unidad:prod.unidad,cantidad:1,precio_compra:pr.precio_compra,precio_venta:pr.precio_venta});
-  document.getElementById("calcProductoSelect").value="";
+function calcAgregarProducto() {
+  const cod = document.getElementById("calcProductoSelect").value; if (!cod) return;
+  const pmap = precioMapa(), pr = pmap[cod], prod = DB.productos.find(p => p.codigo === cod);
+  if (!pr || !prod) { toast("Producto sin precio", "err"); return; }
+  const ex = calcItems.find(i => i.codigo === cod);
+  if (ex) ex.cantidad++;
+  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad, cantidad: 1, precio_compra: pr.precio_compra, precio_venta: pr.precio_venta });
+  document.getElementById("calcProductoSelect").value = "";
   calcRenderItems();
 }
-function calcCambiarCantidad(i,v){calcItems[i].cantidad=Math.max(0,Number(v)||0);calcRenderItems();}
-function calcEliminar(i){calcItems.splice(i,1);calcRenderItems();}
-function calcRenderItems(){
-  const cont=document.getElementById("calcItems");
-  if(!calcItems.length){cont.innerHTML=`<div class="small-note">Sin productos.</div>`;calcRecalcular();return;}
-  cont.innerHTML=calcItems.map((it,i)=>`<div class="item-row">
+function calcCambiarCantidad(i, v) { calcItems[i].cantidad = Math.max(0, Number(v) || 0); calcRenderItems(); }
+function calcEliminar(i) { calcItems.splice(i, 1); calcRenderItems(); }
+function calcRenderItems() {
+  const cont = document.getElementById("calcItems");
+  if (!calcItems.length) { cont.innerHTML = `<div class="small-note">Sin productos.</div>`; calcRecalcular(); return; }
+  cont.innerHTML = calcItems.map((it, i) => `<div class="item-row">
     <div><strong>${esc(it.nombre)}</strong> <span class="muted">(${esc(it.unidad)})</span></div>
     <input type="number" min="0" step="0.01" value="${it.cantidad}" onchange="calcCambiarCantidad(${i},this.value)">
     <div class="muted">× ${soles(it.precio_venta)}</div>
-    <div><strong>${soles(it.cantidad*it.precio_venta)}</strong></div>
+    <div><strong>${soles(it.cantidad * it.precio_venta)}</strong></div>
     <button class="btn-delete" onclick="calcEliminar(${i})">×</button>
   </div>`).join("");
   calcRecalcular();
 }
-function calcRecalcular(){
-  const subtotal=calcItems.reduce((s,i)=>s+i.cantidad*i.precio_venta,0);
-  const modalidad=document.getElementById("calcModalidad").value;
-  const zona=document.getElementById("calcZona").value;
-  const desc=modalidad==="recojo"?ZONAS[zona].desc_recojo:0;
-  const total=subtotal-desc;
-  const min=ZONAS[zona].min;const falta=subtotal<min;
-  document.getElementById("calcResumen").innerHTML=`
+function calcRecalcular() {
+  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.precio_venta, 0);
+  const modalidad = document.getElementById("calcModalidad").value;
+  const zona = document.getElementById("calcZona").value;
+  const desc = modalidad === "recojo" ? ZONAS[zona].desc_recojo : 0;
+  const total = subtotal - desc;
+  const min = ZONAS[zona].min; const falta = subtotal < min;
+  document.getElementById("calcResumen").innerHTML = `
     <div class="row"><span>Subtotal</span><span>${soles(subtotal)}</span></div>
     <div class="row"><span>Descuento recojo (zona ${zona})</span><span>−${soles(desc)}</span></div>
     <div class="row total"><span>TOTAL</span><span>${soles(total)}</span></div>
-    <div class="small-note" style="margin-top:6px;${falta?"color:var(--coral);font-weight:700":""}">
-      Mínimo zona ${zona}: ${soles(min)} ${falta?"— ⚠️ Falta "+soles(min-subtotal):"✓"}
+    <div class="small-note" style="margin-top:6px;${falta ? "color:var(--coral);font-weight:700" : ""}">
+      Mínimo zona ${zona}: ${soles(min)} ${falta ? "— ⚠️ Falta " + soles(min - subtotal) : "✓"}
     </div>`;
 }
-function calcLimpiar(){
-  calcItems=[];
-  ["calcCelular","calcNombre","calcDireccion","calcReferencia","calcNotas","calcLat","calcLng"].forEach(id=>document.getElementById(id).value="");
+function calcLimpiar() {
+  calcItems = [];
+  ["calcCelular", "calcNombre", "calcDireccion", "calcReferencia", "calcNotas", "calcLat", "calcLng"].forEach(id => document.getElementById(id).value = "");
   calcRenderItems();
 }
-function calcGuardar(){
-  const cel=document.getElementById("calcCelular").value.trim();
-  const nombre=document.getElementById("calcNombre").value.trim();
-  if(!cel||!nombre){toast("Faltan celular y nombre","err");return;}
-  if(!calcItems.length){toast("Agregá al menos un producto","err");return;}
-  const zona=document.getElementById("calcZona").value;
-  const subtotal=calcItems.reduce((s,i)=>s+i.cantidad*i.precio_venta,0);
-  if(subtotal<ZONAS[zona].min){toast(`Mínimo zona ${zona}: ${soles(ZONAS[zona].min)}`,"err");return;}
-  const modalidad=document.getElementById("calcModalidad").value;
-  const metodo=document.getElementById("calcMetodoPago").value;
-  const desc=modalidad==="recojo"?ZONAS[zona].desc_recojo:0;
-  const total=subtotal-desc;
-  const estadoFinal=(metodo==="Yape")?"pendiente_pago_yape":"pendiente_pago_efectivo";
-  let cli=clientePorCelular(cel);
-  if(!cli){
-    const n=DB.clientes.length+1;
-    cli={id:"C-"+String(n).padStart(4,"0"),nombre,telefono:cel,
-      distrito:document.getElementById("calcDistrito").value,
-      direccion:document.getElementById("calcDireccion").value.trim(),
-      referencia:document.getElementById("calcReferencia").value.trim(),
-      zona,lat:Number(document.getElementById("calcLat").value)||null,
-      lng:Number(document.getElementById("calcLng").value)||null};
-    DB.clientes.push(cli);
+async function calcGuardar() {
+  const cel = document.getElementById("calcCelular").value.trim();
+  const nombre = document.getElementById("calcNombre").value.trim();
+  if (!cel || !nombre) { toast("Faltan celular y nombre", "err"); return; }
+  if (!calcItems.length) { toast("Agregá al menos un producto", "err"); return; }
+  const zona = document.getElementById("calcZona").value;
+  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.precio_venta, 0);
+  if (subtotal < ZONAS[zona].min) { toast(`Mínimo zona ${zona}: ${soles(ZONAS[zona].min)}`, "err"); return; }
+  const modalidad = document.getElementById("calcModalidad").value;
+  const metodo = document.getElementById("calcMetodoPago").value;
+  const desc = modalidad === "recojo" ? ZONAS[zona].desc_recojo : 0;
+  const total = subtotal - desc;
+  const estadoFinal = (metodo === "Yape") ? "pendiente_pago_yape" : "pendiente_pago_efectivo";
+
+  let cli = clientePorCelular(cel);
+  if (!cli) {
+    const n = DB.clientes.length + 1;
+    cli = {
+      id: "C-" + String(n).padStart(4, "0"), nombre, telefono: cel,
+      distrito: document.getElementById("calcDistrito").value,
+      direccion: document.getElementById("calcDireccion").value.trim(),
+      referencia: document.getElementById("calcReferencia").value.trim(),
+      zona, lat: Number(document.getElementById("calcLat").value) || null,
+      lng: Number(document.getElementById("calcLng").value) || null
+    };
+    await guardarClienteGlobal(cli);
   }
-  const n=pedidosDeRonda().length+1;
-  const pedidoId="P-"+String(n).padStart(4,"0");
-  DB.pedidos.push({
-    id_ronda:rondaActiva,pedido_id:pedidoId,cliente_id:cli.id,
-    cliente_nombre:nombre,cliente_celular:cel,estado:estadoFinal,
-    fecha:ahora(),modalidad,metodo_pago:metodo,zona,
-    distrito:document.getElementById("calcDistrito").value,
-    direccion:document.getElementById("calcDireccion").value.trim(),
-    lat:Number(document.getElementById("calcLat").value)||cli.lat,
-    lng:Number(document.getElementById("calcLng").value)||cli.lng,
-    subtotal:red2(subtotal),descuento_recojo:desc,total:red2(total),
-    fecha_entrega:null,repartidor_id:null,
-    notas:document.getElementById("calcNotas").value.trim(),
-    canal:document.getElementById("calcCanal").value,
-    codigo_yape:null,verificado_por:null,fecha_verificacion:null,
-    historial_estados:[{estado:estadoFinal,fecha:ahora(),por:"Fundador",motivo:"Creación"}]
-  });
-  calcItems.forEach((it,i)=>{
-    DB.items.push({
-      id_ronda:rondaActiva,item_id:pedidoId+"-"+String(i+1).padStart(2,"0"),
-      pedido_id:pedidoId,codigo_producto:it.codigo,nombre:it.nombre,
-      unidad:it.unidad,cantidad:it.cantidad,
-      precio_compra_estimado:it.precio_compra,precio_venta_congelado:it.precio_venta,
-      subtotal_venta:red2(it.cantidad*it.precio_venta),estado:"pendiente"
-    });
-  });
-  guardarDB();toast("✓ Pedido "+pedidoId+" creado","ok");
-  calcLimpiar();renderTodo();
+
+  const n = pedidosDeRonda().length + 1;
+  const pedidoId = "P-" + String(n).padStart(4, "0");
+  const pedido = {
+    id_ronda: DB.rondaActiva, pedido_id: pedidoId, cliente_id: cli.id,
+    cliente_nombre: nombre, cliente_celular: cel, estado: estadoFinal,
+    fecha: ahora(), modalidad, metodo_pago: metodo, zona,
+    distrito: document.getElementById("calcDistrito").value,
+    direccion: document.getElementById("calcDireccion").value.trim(),
+    lat: Number(document.getElementById("calcLat").value) || cli.lat,
+    lng: Number(document.getElementById("calcLng").value) || cli.lng,
+    subtotal: red2(subtotal), descuento_recojo: desc, total: red2(total),
+    fecha_entrega: null, repartidor_id: null,
+    notas: document.getElementById("calcNotas").value.trim(),
+    canal: document.getElementById("calcCanal").value,
+    codigo_yape: null, verificado_por: null, fecha_verificacion: null,
+    historial_estados: [{ estado: estadoFinal, fecha: ahora(), por: "Fundador", motivo: "Creación" }]
+  };
+  await guardarPedido(pedido);
+
+  for (let i = 0; i < calcItems.length; i++) {
+    const it = calcItems[i];
+    const item = {
+      id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(i + 1).padStart(2, "0"),
+      pedido_id: pedidoId, codigo_producto: it.codigo, nombre: it.nombre,
+      unidad: it.unidad, cantidad: it.cantidad,
+      precio_compra_estimado: it.precio_compra, precio_venta_congelado: it.precio_venta,
+      subtotal_venta: red2(it.cantidad * it.precio_venta), estado: "pendiente"
+    };
+    await guardarItem(item);
+  }
+
+  toast("✓ Pedido " + pedidoId + " creado", "ok");
+  calcLimpiar(); renderTodo();
 }
 
-/* ---------- Productos ---------- */
-function renderProductos(){
-  const q=(document.getElementById("prodBuscar").value||"").toLowerCase();
-  const g=document.getElementById("prodGrupoFiltro").value;
-  let arr=DB.productos;
-  if(q)arr=arr.filter(p=>p.nombre.toLowerCase().includes(q)||p.codigo.toLowerCase().includes(q));
-  if(g)arr=arr.filter(p=>p.grupo===g);
-  document.getElementById("productosBody").innerHTML=arr.map(p=>`<tr>
+/* ============================================================================
+   PRODUCTOS
+   ============================================================================ */
+function renderProductos() {
+  const q = (document.getElementById("prodBuscar").value || "").toLowerCase();
+  const g = document.getElementById("prodGrupoFiltro").value;
+  let arr = DB.productos;
+  if (q) arr = arr.filter(p => p.nombre.toLowerCase().includes(q) || p.codigo.toLowerCase().includes(q));
+  if (g) arr = arr.filter(p => p.grupo === g);
+  document.getElementById("productosBody").innerHTML = arr.map(p => `<tr>
     <td><strong>${esc(p.codigo)}</strong></td>
     <td>${esc(p.nombre)}</td>
-    <td><span class="badge badge-${p.grupo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}">${esc(p.grupo)}</span></td>
+    <td><span class="badge badge-${p.grupo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${esc(p.grupo)}</span></td>
     <td>${esc(p.unidad)}</td>
-    <td>${p.activo?'<span class="badge badge-basico">Sí</span>':'<span class="badge badge-inactivo">No</span>'}</td>
+    <td>${p.activo ? '<span class="badge badge-basico">Sí</span>' : '<span class="badge badge-inactivo">No</span>'}</td>
     <td><div class="actions">
       <button class="btn-ghost btn-sm" onclick="abrirModalProducto('${p.codigo}')">Editar</button>
-      <button class="btn-ghost btn-sm" onclick="toggleProducto('${p.codigo}')">${p.activo?"Desactivar":"Activar"}</button>
+      <button class="btn-ghost btn-sm" onclick="toggleProducto('${p.codigo}')">${p.activo ? "Desactivar" : "Activar"}</button>
     </div></td>
   </tr>`).join("");
 }
-function toggleProducto(cod){
-  const p=DB.productos.find(x=>x.codigo===cod);if(!p)return;
-  p.activo=!p.activo;guardarDB();renderProductos();
+async function toggleProducto(cod) {
+  const p = DB.productos.find(x => x.codigo === cod); if (!p) return;
+  p.activo = !p.activo;
+  await guardarProductoGlobal(p);
+  renderProductos();
 }
-function abrirModalProducto(cod){
-  document.getElementById("prodEditCodigo").value=cod||"";
-  document.getElementById("modalProductoTitle").textContent=cod?"Editar producto":"Agregar producto";
-  if(cod){
-    const p=DB.productos.find(x=>x.codigo===cod);
-    document.getElementById("prodNombreInput").value=p.nombre;
-    document.getElementById("prodGrupoInput").value=p.grupo;
-    document.getElementById("prodUnidadInput").value=p.unidad;
-  }else{
-    document.getElementById("prodNombreInput").value="";
-    document.getElementById("prodGrupoInput").value="Básico";
-    document.getElementById("prodUnidadInput").value="kg";
+function abrirModalProducto(cod) {
+  document.getElementById("prodEditCodigo").value = cod || "";
+  document.getElementById("modalProductoTitle").textContent = cod ? "Editar producto" : "Agregar producto";
+  if (cod) {
+    const p = DB.productos.find(x => x.codigo === cod);
+    document.getElementById("prodNombreInput").value = p.nombre;
+    document.getElementById("prodGrupoInput").value = p.grupo;
+    document.getElementById("prodUnidadInput").value = p.unidad;
+  } else {
+    document.getElementById("prodNombreInput").value = "";
+    document.getElementById("prodGrupoInput").value = "Básico";
+    document.getElementById("prodUnidadInput").value = "kg";
   }
   abrirModal("modalProducto");
 }
-function guardarProducto(){
-  const cod=document.getElementById("prodEditCodigo").value;
-  const nombre=document.getElementById("prodNombreInput").value.trim();
-  if(!nombre){toast("Falta nombre","err");return;}
-  if(cod){
-    const p=DB.productos.find(x=>x.codigo===cod);
-    p.nombre=nombre;
-    p.grupo=document.getElementById("prodGrupoInput").value;
-    p.unidad=document.getElementById("prodUnidadInput").value;
-  }else{
-    const n=DB.productos.length+1;
-    DB.productos.push({codigo:"PR-"+String(n).padStart(3,"0"),nombre,grupo:document.getElementById("prodGrupoInput").value,unidad:document.getElementById("prodUnidadInput").value,activo:true});
+async function guardarProducto() {
+  const cod = document.getElementById("prodEditCodigo").value;
+  const nombre = document.getElementById("prodNombreInput").value.trim();
+  if (!nombre) { toast("Falta nombre", "err"); return; }
+  if (cod) {
+    const p = DB.productos.find(x => x.codigo === cod);
+    p.nombre = nombre;
+    p.grupo = document.getElementById("prodGrupoInput").value;
+    p.unidad = document.getElementById("prodUnidadInput").value;
+    await guardarProductoGlobal(p);
+  } else {
+    const n = DB.productos.length + 1;
+    const nuevo = {
+      codigo: "PR-" + String(n).padStart(3, "0"), nombre,
+      grupo: document.getElementById("prodGrupoInput").value,
+      unidad: document.getElementById("prodUnidadInput").value, activo: true
+    };
+    await guardarProductoGlobal(nuevo);
   }
-  guardarDB();cerrarModal("modalProducto");renderProductos();toast("Producto guardado","ok");
+  cerrarModal("modalProducto"); renderProductos(); toast("Producto guardado", "ok");
 }
 
-/* ---------- Precios ---------- */
-function renderPrecios(){
-  document.getElementById("preciosRondaLabel").textContent="· "+rondaActiva;
-  const q=(document.getElementById("precioBuscar").value||"").toLowerCase();
-  const g=document.getElementById("precioGrupoFiltro").value;
-  const pmap=precioMapa();
-  const rondas=Object.keys(DB.rondas).sort();
-  const idx=rondas.indexOf(rondaActiva);
-  const prevRonda=idx>0?rondas[idx-1]:null;
-  const prevMap={};if(prevRonda)preciosDeRonda(prevRonda).forEach(p=>prevMap[p.codigo_producto]=p);
-  const body=document.getElementById("preciosBody");
-  let prods=DB.productos.filter(p=>p.activo);
-  if(q)prods=prods.filter(p=>p.nombre.toLowerCase().includes(q));
-  if(g)prods=prods.filter(p=>p.grupo===g);
-  body.innerHTML=prods.map(p=>{
-    const pr=pmap[p.codigo];
-    const pc=pr?pr.precio_compra:0,mg=pr?pr.margen:0.30,pv=pr?pr.precio_venta:0,ref=pr?pr.precio_minorista_ref:0;
-    const prev=prevMap[p.codigo];let delta="";
-    if(prev){
-      const d=red2(pc-prev.precio_compra);
-      if(Math.abs(d)<0.001)delta='<span class="delta-zero">=</span>';
-      else if(d>0)delta=`<span class="delta-pos">+${soles(d)}</span>`;
-      else delta=`<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
-    }else delta='<span class="small-note">nuevo</span>';
-    return`<tr>
+/* ============================================================================
+   PRECIOS
+   ============================================================================ */
+function renderPrecios() {
+  document.getElementById("preciosRondaLabel").textContent = "· " + DB.rondaActiva;
+  const q = (document.getElementById("precioBuscar").value || "").toLowerCase();
+  const g = document.getElementById("precioGrupoFiltro").value;
+  const pmap = precioMapa();
+  const rondas = Object.keys(DB.rondas).sort();
+  const idx = rondas.indexOf(DB.rondaActiva);
+  const prevRonda = idx > 0 ? rondas[idx - 1] : null;
+  const prevMap = {}; if (prevRonda) preciosDeRonda(prevRonda).forEach(p => prevMap[p.codigo_producto] = p);
+  const body = document.getElementById("preciosBody");
+  let prods = DB.productos.filter(p => p.activo);
+  if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
+  if (g) prods = prods.filter(p => p.grupo === g);
+  body.innerHTML = prods.map(p => {
+    const pr = pmap[p.codigo];
+    const pc = pr ? pr.precio_compra : 0, mg = pr ? pr.margen : 0.30, pv = pr ? pr.precio_venta : 0, ref = pr ? pr.precio_minorista_ref : 0;
+    const prev = prevMap[p.codigo]; let delta = "";
+    if (prev) {
+      const d = red2(pc - prev.precio_compra);
+      if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
+      else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
+      else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
+    } else delta = '<span class="small-note">nuevo</span>';
+    return `<tr>
       <td><strong>${esc(p.codigo)}</strong></td>
       <td>${esc(p.nombre)}</td>
       <td>${esc(p.unidad)}</td>
@@ -1318,80 +1679,90 @@ function renderPrecios(){
     </tr>`;
   }).join("");
 }
-function setPrecio(codigo,campo,valor){
-  const num=Number(valor)||0;
-  const prod=DB.productos.find(p=>p.codigo===codigo);if(!prod)return;
-  let pr=DB.precios.find(p=>p.id_ronda===rondaActiva&&p.codigo_producto===codigo);
-  if(!pr){
-    pr={id_ronda:rondaActiva,codigo_producto:codigo,nombre:prod.nombre,unidad:prod.unidad,
-      precio_compra:0,margen:0.30,precio_venta:0,precio_minorista_ref:0};
-    DB.precios.push(pr);
+async function setPrecio(codigo, campo, valor) {
+  const num = Number(valor) || 0;
+  const prod = DB.productos.find(p => p.codigo === codigo); if (!prod) return;
+  let pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
+  if (!pr) {
+    pr = {
+      id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod.nombre, unidad: prod.unidad,
+      precio_compra: 0, margen: 0.30, precio_venta: 0, precio_minorista_ref: 0
+    };
   }
-  pr[campo]=num;
-  if(campo==="precio_compra"||campo==="margen"){
-    pr.precio_venta=precioVenta(pr.precio_compra,pr.margen);
-    const el=document.getElementById("pv-"+codigo);
-    if(el)el.innerHTML=`<strong style="color:var(--verde)">${soles(pr.precio_venta)}</strong>`;
+  pr[campo] = num;
+  if (campo === "precio_compra" || campo === "margen") {
+    pr.precio_venta = precioVenta(pr.precio_compra, pr.margen);
+    const el = document.getElementById("pv-" + codigo);
+    if (el) el.innerHTML = `<strong style="color:var(--verde)">${soles(pr.precio_venta)}</strong>`;
   }
-  guardarDB();
+  await guardarPrecio(pr);
 }
-function copiarPreciosRondaAnterior(){
-  const rondas=Object.keys(DB.rondas).sort();
-  const idx=rondas.indexOf(rondaActiva);
-  if(idx<=0){toast("No hay ronda anterior","warn");return;}
-  const prev=rondas[idx-1];
-  if(!confirm(`¿Copiar precios de ${prev}?`))return;
-  DB.precios=DB.precios.filter(p=>p.id_ronda!==rondaActiva);
-  preciosDeRonda(prev).forEach(p=>DB.precios.push({...p,id_ronda:rondaActiva}));
-  guardarDB();renderPrecios();toast("✓ Copiados de "+prev,"ok");
+async function copiarPreciosRondaAnterior() {
+  const rondas = Object.keys(DB.rondas).sort();
+  const idx = rondas.indexOf(DB.rondaActiva);
+  if (idx <= 0) { toast("No hay ronda anterior", "warn"); return; }
+  const prev = rondas[idx - 1];
+  if (!confirm(`¿Copiar precios de ${prev}?`)) return;
+  const prevPrecios = preciosDeRonda(prev);
+  for (const p of prevPrecios) {
+    const nuevo = { ...p, id_ronda: DB.rondaActiva };
+    await guardarPrecio(nuevo);
+  }
+  renderPrecios(); toast("✓ Copiados de " + prev, "ok");
 }
-function publicarPrecios(){rondaActual().precios_publicados=true;guardarDB();refrescarSelector();toast("Publicados","ok");}
+async function publicarPrecios() {
+  await fsSetRonda(DB.rondaActiva, { precios_publicados: true });
+  DB.rondas[DB.rondaActiva].precios_publicados = true;
+  refrescarSelector(); toast("Publicados", "ok");
+}
 
-/* ---------- Compra ---------- */
-function calcularListaCompra(){
-  const aceptados=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const its=itemsDeRonda().filter(i=>aceptados.some(p=>p.pedido_id===i.pedido_id));
-  const pmap=precioMapa();
-  const compras=comprasDeRonda();
-  const c={};
-  its.forEach(i=>{const k=i.codigo_producto;if(!c[k])c[k]={codigo:k,nombre:i.nombre,unidad:i.unidad,pedida:0};c[k].pedida+=Number(i.cantidad);});
-  const filas=Object.values(c).sort((a,b)=>b.pedida-a.pedida);
-  if(!filas.length){
-    document.getElementById("compraResumen").innerHTML=`<div class="warn-box">Sin pedidos aceptados.</div>`;
-    document.getElementById("listaCompraContenido").innerHTML="";return;
+/* ============================================================================
+   COMPRA
+   ============================================================================ */
+function calcularListaCompra() {
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id));
+  const pmap = precioMapa();
+  const compras = comprasDeRonda();
+  const c = {};
+  its.forEach(i => { const k = i.codigo_producto; if (!c[k]) c[k] = { codigo: k, nombre: i.nombre, unidad: i.unidad, pedida: 0 }; c[k].pedida += Number(i.cantidad); });
+  const filas = Object.values(c).sort((a, b) => b.pedida - a.pedida);
+  if (!filas.length) {
+    document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados.</div>`;
+    document.getElementById("listaCompraContenido").innerHTML = ""; return;
   }
-  let costoEst=0,costoReal=0;
-  filas.forEach(f=>{
-    const puEst=pmap[f.codigo]?pmap[f.codigo].precio_compra:0;
-    const aj=compras.find(x=>x.codigo_producto===f.codigo)||{};
-    const cantReal=aj.cantidad_real!=null?aj.cantidad_real:f.pedida;
-    const puReal=aj.precio_unitario_real!=null?aj.precio_unitario_real:puEst;
-    costoEst+=cantReal*puEst;costoReal+=cantReal*puReal;
+  let costoEst = 0, costoReal = 0;
+  filas.forEach(f => {
+    const puEst = pmap[f.codigo] ? pmap[f.codigo].precio_compra : 0;
+    const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
+    const cantReal = aj.cantidad_real != null ? aj.cantidad_real : f.pedida;
+    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : puEst;
+    costoEst += cantReal * puEst; costoReal += cantReal * puReal;
   });
-  const delta=costoEst-costoReal;
-  const confirmados=compras.filter(c=>c.confirmado).length;
-  document.getElementById("compraResumen").innerHTML=`
+  const delta = costoEst - costoReal;
+  const confirmados = compras.filter(c => c.confirmado).length;
+  document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
       <div class="box">Costo estimado<strong>${soles(costoEst)}</strong></div>
       <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
-      <div class="box">Δ vs estimado<strong class="${delta>0?'delta-pos':(delta<0?'delta-neg':'')}">${soles(delta)}</strong></div>
+      <div class="box">Δ vs estimado<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div>
     </div>
-    <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta>0?`<br>Ganancia extra: ${soles(delta)}`:""}${delta<0?`<br>Pérdida: ${soles(Math.abs(delta))}`:""}</div>`;
-  document.getElementById("listaCompraContenido").innerHTML=`
+    <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ganancia extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pérdida: ${soles(Math.abs(delta))}` : ""}</div>`;
+  document.getElementById("listaCompraContenido").innerHTML = `
     <div class="table-scroll"><table>
       <thead><tr><th>✓</th><th>Producto</th><th>Unidad</th><th>Pedida</th><th>Cant. real</th><th>P. unit. est.</th><th>P. unit. real</th><th>Merma</th><th>Costo real</th><th>Δ vs est.</th></tr></thead>
-      <tbody>${filas.map(f=>{
-        const aj=compras.find(x=>x.codigo_producto===f.codigo)||{};
-        const cantReal=aj.cantidad_real!=null?aj.cantidad_real:f.pedida;
-        const puEst=pmap[f.codigo]?pmap[f.codigo].precio_compra:0;
-        const puReal=aj.precio_unitario_real!=null?aj.precio_unitario_real:puEst;
-        const mm=aj.merma||0;const confirmado=aj.confirmado===true;
-        const costoRealItem=cantReal*puReal;
-        const deltaItem=red2(cantReal*(puEst-puReal));
-        const cl=deltaItem>0?"delta-pos":(deltaItem<0?"delta-neg":"delta-zero");
-        return`<tr style="${confirmado?'background:var(--verde-claro)':''}">
-          <td><input type="checkbox" ${confirmado?"checked":""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td>
+      <tbody>${filas.map(f => {
+    const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
+    const cantReal = aj.cantidad_real != null ? aj.cantidad_real : f.pedida;
+    const puEst = pmap[f.codigo] ? pmap[f.codigo].precio_compra : 0;
+    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : puEst;
+    const mm = aj.merma || 0; const confirmado = aj.confirmado === true;
+    const costoRealItem = cantReal * puReal;
+    const deltaItem = red2(cantReal * (puEst - puReal));
+    const cl = deltaItem > 0 ? "delta-pos" : (deltaItem < 0 ? "delta-neg" : "delta-zero");
+    return `<tr style="${confirmado ? 'background:var(--verde-claro)' : ''}">
+          <td><input type="checkbox" ${confirmado ? "checked" : ""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td>
           <td><strong>${esc(f.nombre)}</strong></td>
           <td>${esc(f.unidad)}</td>
           <td>${f.pedida.toFixed(2)}</td>
@@ -1402,51 +1773,54 @@ function calcularListaCompra(){
           <td><strong>${soles(costoRealItem)}</strong></td>
           <td class="${cl}"><strong>${soles(deltaItem)}</strong></td>
         </tr>`;
-      }).join("")}</tbody></table></div>`;
+  }).join("")}</tbody></table></div>`;
 }
-function asegurarCompraItem(codigo){
-  const prod=DB.productos.find(p=>p.codigo===codigo);const pr=precioMapa()[codigo];
-  let c=DB.compras.find(x=>x.id_ronda===rondaActiva&&x.codigo_producto===codigo);
-  if(!c){
-    c={id_ronda:rondaActiva,codigo_producto:codigo,nombre:prod?.nombre||codigo,unidad:prod?.unidad||"",
-       cantidad_real:null,precio_unitario_real:pr?pr.precio_compra:0,merma:0,confirmado:false};
+function asegurarCompraItem(codigo) {
+  const prod = DB.productos.find(p => p.codigo === codigo); const pr = precioMapa()[codigo];
+  let c = DB.compras.find(x => x.id_ronda === DB.rondaActiva && x.codigo_producto === codigo);
+  if (!c) {
+    c = {
+      id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, unidad: prod?.unidad || "",
+      cantidad_real: null, precio_unitario_real: pr ? pr.precio_compra : 0, merma: 0, confirmado: false
+    };
     DB.compras.push(c);
   }
   return c;
 }
-function setCompraReal(codigo,cant){const c=asegurarCompraItem(codigo);c.cantidad_real=Number(cant)||0;guardarDB();calcularListaCompra();}
-function setCompraPrecioReal(codigo,precio){const c=asegurarCompraItem(codigo);c.precio_unitario_real=Number(precio)||0;guardarDB();calcularListaCompra();}
-function setCompraMerma(codigo,merma){const c=asegurarCompraItem(codigo);c.merma=Number(merma)||0;guardarDB();calcularListaCompra();}
-function toggleConfirmado(codigo,val){const c=asegurarCompraItem(codigo);c.confirmado=val;guardarDB();calcularListaCompra();}
+async function setCompraReal(codigo, cant) { const c = asegurarCompraItem(codigo); c.cantidad_real = Number(cant) || 0; await guardarCompra(c); calcularListaCompra(); }
+async function setCompraPrecioReal(codigo, precio) { const c = asegurarCompraItem(codigo); c.precio_unitario_real = Number(precio) || 0; await guardarCompra(c); calcularListaCompra(); }
+async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codigo); c.merma = Number(merma) || 0; await guardarCompra(c); calcularListaCompra(); }
+async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
 
-/* ---------- Entregas por zona ---------- */
-function renderEntregas(){
-  const pedidos=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const cont=document.getElementById("rutasContenido");
-  const info=document.getElementById("rutaInfo");
-  if(!pedidos.length){
-    info.innerHTML="";
-    cont.innerHTML=`<div class="warn-box">Sin pedidos aceptados en esta ronda.</div>`;return;
+/* ============================================================================
+   ENTREGAS
+   ============================================================================ */
+function renderEntregas() {
+  const pedidos = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+  const cont = document.getElementById("rutasContenido");
+  const info = document.getElementById("rutaInfo");
+  if (!pedidos.length) {
+    info.innerHTML = "";
+    cont.innerHTML = `<div class="warn-box">Sin pedidos aceptados en esta ronda.</div>`; return;
   }
-  const zonas=["A","B","C"];
-  let totalParadas=0,totalKm=0,totalPeso=0;
-  const repActivos=DB.repartidores.filter(r=>r.activo);
-  const asignaciones=rondaActual().repartidor_zona||{};
-  const bloques=zonas.map(z=>{
-    const del=pedidos.filter(p=>p.zona===z);
-    if(!del.length)return"";
-    totalParadas+=del.length;
-    const repId=asignaciones[z];
-    const rep=repId?repActivos.find(r=>r.id===repId):repActivos.find(r=>r.zona===z);
-    const vehiculo=rep?rep.vehiculo:"Auto";
-    const modo=vehiculoAModo(vehiculo);
-    // ordenar por vecino más cercano dentro de la zona
-    const orden=optimizarLista(del);
-    const km=calcularDistanciaTotal(orden);
-    const peso=del.reduce((s,p)=>s+itemsDePedido(p.pedido_id).reduce((ss,i)=>ss+Number(i.cantidad||0),0),0);
-    totalKm+=km;totalPeso+=peso;
-    const gmapsUrl=armarUrlGoogle(orden,modo);
-    return`<div class="ruta-bloque ruta-zona-${z}">
+  const zonas = ["A", "B", "C"];
+  let totalParadas = 0, totalKm = 0, totalPeso = 0;
+  const repActivos = DB.repartidores.filter(r => r.activo);
+  const asignaciones = rondaActual().repartidor_zona || {};
+  const bloques = zonas.map(z => {
+    const del = pedidos.filter(p => p.zona === z);
+    if (!del.length) return "";
+    totalParadas += del.length;
+    const repId = asignaciones[z];
+    const rep = repId ? repActivos.find(r => r.id === repId) : repActivos.find(r => r.zona === z);
+    const vehiculo = rep ? rep.vehiculo : "Auto";
+    const modo = vehiculoAModo(vehiculo);
+    const orden = optimizarLista(del);
+    const km = calcularDistanciaTotal(orden);
+    const peso = del.reduce((s, p) => s + itemsDePedido(p.pedido_id).reduce((ss, i) => ss + Number(i.cantidad || 0), 0), 0);
+    totalKm += km; totalPeso += peso;
+    const gmapsUrl = armarUrlGoogle(orden, modo);
+    return `<div class="ruta-bloque ruta-zona-${z}">
       <div class="ruta-head">
         <div class="title">
           <span class="zona-chip zona-${z}">Zona ${z}</span>
@@ -1455,104 +1829,116 @@ function renderEntregas(){
         <div class="actions">
           <select onchange="asignarRepartidor('${z}',this.value)" style="max-width:200px">
             <option value="">— Repartidor —</option>
-            ${repActivos.map(r=>`<option value="${r.id}" ${repId===r.id?"selected":""}>${esc(r.nombre)} (${esc(r.vehiculo)})</option>`).join("")}
+            ${repActivos.map(r => `<option value="${r.id}" ${repId === r.id ? "selected" : ""}>${esc(r.nombre)} (${esc(r.vehiculo)})</option>`).join("")}
           </select>
           <span class="ruta-modo">${modoIcono(modo)}</span>
           <a class="btn-info btn-sm" style="text-decoration:none;color:#fff;display:inline-block;padding:7px 12px;border-radius:999px;font-weight:700;font-size:12px" target="_blank" href="${gmapsUrl}">📍 Abrir en Google Maps</a>
         </div>
       </div>
-      ${orden.map((p,i)=>{
-        const e=DB.entregas.find(x=>x.id_ronda===rondaActiva&&x.pedido_id===p.pedido_id)||{};
-        const est=e.estado||"pendiente";
-        const cl=est==="entregado"?"entregado":(est==="fallido"?"fallido":"");
-        const gmaps=p.lat&&p.lng?`<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=${modo}">📍</a>`:"";
-        return`<div class="parada-item">
-          <div class="parada-num ${cl}">${i+1}</div>
-          <div><strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)}<br><small class="muted">${esc(p.direccion||"")}${p.distrito?" · "+esc(p.distrito):""}</small></div>
-          <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por||"")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)">
+      ${orden.map((p, i) => {
+      const e = DB.entregas.find(x => x.id_ronda === DB.rondaActiva && x.pedido_id === p.pedido_id) || {};
+      const est = e.estado || "pendiente";
+      const cl = est === "entregado" ? "entregado" : (est === "fallido" ? "fallido" : "");
+      const gmaps = p.lat && p.lng ? `<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=${modo}">📍</a>` : "";
+      return `<div class="parada-item">
+          <div class="parada-num ${cl}">${i + 1}</div>
+          <div><strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)}<br><small class="muted">${esc(p.direccion || "")}${p.distrito ? " · " + esc(p.distrito) : ""}</small></div>
+          <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por || "")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)">
           <select onchange="updEntrega('${p.pedido_id}','estado',this.value)">
-            <option value="pendiente" ${est==="pendiente"?"selected":""}>Pendiente</option>
-            <option value="entregado" ${est==="entregado"?"selected":""}>Entregado</option>
-            <option value="fallido" ${est==="fallido"?"selected":""}>Fallido</option>
+            <option value="pendiente" ${est === "pendiente" ? "selected" : ""}>Pendiente</option>
+            <option value="entregado" ${est === "entregado" ? "selected" : ""}>Entregado</option>
+            <option value="fallido" ${est === "fallido" ? "selected" : ""}>Fallido</option>
           </select>
           <select onchange="updEntrega('${p.pedido_id}','repartidor_id',this.value)">
             <option value="">Repartidor...</option>
-            ${repActivos.filter(r=>r.zona===z).map(r=>`<option value="${r.id}" ${e.repartidor_id===r.id?"selected":""}>${esc(r.nombre)}</option>`).join("")}
+            ${repActivos.filter(r => r.zona === z).map(r => `<option value="${r.id}" ${e.repartidor_id === r.id ? "selected" : ""}>${esc(r.nombre)}</option>`).join("")}
           </select>
           <div>${gmaps}</div>
         </div>`;
-      }).join("")}
+    }).join("")}
     </div>`;
   }).join("");
-  info.innerHTML=`
+  info.innerHTML = `
     <div class="box">Paradas<strong>${totalParadas}</strong></div>
     <div class="box">Distancia<strong>${totalKm.toFixed(2)} km</strong></div>
     <div class="box">Peso<strong>${totalPeso.toFixed(1)} kg</strong></div>
-    <div class="box">Rutas<strong>${zonas.filter(z=>pedidos.some(p=>p.zona===z)).length}</strong></div>`;
-  cont.innerHTML=bloques;
+    <div class="box">Rutas<strong>${zonas.filter(z => pedidos.some(p => p.zona === z)).length}</strong></div>`;
+  cont.innerHTML = bloques;
 }
-function optimizarLista(lista){
-  if(lista.length<2)return lista;
-  const conC=lista.filter(p=>p.lat&&p.lng);
-  const sinC=lista.filter(p=>!p.lat||!p.lng);
-  const noV=[...conC],orden=[];
-  let act={lat:OFICINA.lat,lng:OFICINA.lng};
-  while(noV.length){
-    let mejor=0,md=Infinity;
-    noV.forEach((p,i)=>{const d=distHav(act.lat,act.lng,p.lat,p.lng);if(d<md){md=d;mejor=i;}});
-    const sig=noV.splice(mejor,1)[0];orden.push(sig);act=sig;
+function optimizarLista(lista) {
+  if (lista.length < 2) return lista;
+  const conC = lista.filter(p => p.lat && p.lng);
+  const sinC = lista.filter(p => !p.lat || !p.lng);
+  const noV = [...conC], orden = [];
+  let act = { lat: OFICINA.lat, lng: OFICINA.lng };
+  while (noV.length) {
+    let mejor = 0, md = Infinity;
+    noV.forEach((p, i) => { const d = distHav(act.lat, act.lng, p.lat, p.lng); if (d < md) { md = d; mejor = i; } });
+    const sig = noV.splice(mejor, 1)[0]; orden.push(sig); act = sig;
   }
-  return [...orden,...sinC];
+  return [...orden, ...sinC];
 }
-function calcularDistanciaTotal(orden){
-  const cs=orden.filter(p=>p.lat&&p.lng);
-  if(!cs.length)return 0;
-  let km=distHav(OFICINA.lat,OFICINA.lng,cs[0].lat,cs[0].lng);
-  for(let i=1;i<cs.length;i++)km+=distHav(cs[i-1].lat,cs[i-1].lng,cs[i].lat,cs[i].lng);
+function calcularDistanciaTotal(orden) {
+  const cs = orden.filter(p => p.lat && p.lng);
+  if (!cs.length) return 0;
+  let km = distHav(OFICINA.lat, OFICINA.lng, cs[0].lat, cs[0].lng);
+  for (let i = 1; i < cs.length; i++) km += distHav(cs[i - 1].lat, cs[i - 1].lng, cs[i].lat, cs[i].lng);
   return km;
 }
-function armarUrlGoogle(orden,modo){
-  const cs=orden.filter(p=>p.lat&&p.lng);
-  if(!cs.length)return"#";
-  const o=`${OFICINA.lat},${OFICINA.lng}`;
-  const d=`${cs[cs.length-1].lat},${cs[cs.length-1].lng}`;
-  const w=cs.slice(0,-1).map(p=>`${p.lat},${p.lng}`).join("|");
-  return`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w?"&waypoints="+w:""}&travelmode=${modo}`;
+function armarUrlGoogle(orden, modo) {
+  const cs = orden.filter(p => p.lat && p.lng);
+  if (!cs.length) return "#";
+  const o = `${OFICINA.lat},${OFICINA.lng}`;
+  const d = `${cs[cs.length - 1].lat},${cs[cs.length - 1].lng}`;
+  const w = cs.slice(0, -1).map(p => `${p.lat},${p.lng}`).join("|");
+  return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w ? "&waypoints=" + w : ""}&travelmode=${modo}`;
 }
-function asignarRepartidor(zona,repId){
-  const r=rondaActual();if(!r.repartidor_zona)r.repartidor_zona={};
-  r.repartidor_zona[zona]=repId||null;guardarDB();renderEntregas();
+async function asignarRepartidor(zona, repId) {
+  const r = rondaActual(); if (!r.repartidor_zona) r.repartidor_zona = {};
+  r.repartidor_zona[zona] = repId || null;
+  await fsSetRonda(DB.rondaActiva, { repartidor_zona: r.repartidor_zona });
+  DB.rondas[DB.rondaActiva] = r;
+  renderEntregas();
 }
-function updEntrega(pedidoId,campo,valor){
-  let e=DB.entregas.find(x=>x.id_ronda===rondaActiva&&x.pedido_id===pedidoId);
-  if(!e){e={id_ronda:rondaActiva,pedido_id:pedidoId,repartidor_id:null,estado:"pendiente",recibido_por:"",fecha:ahora()};DB.entregas.push(e);}
-  e[campo]=valor;
-  if(campo==="estado"&&valor==="entregado"){
-    const p=pedidoPorId(pedidoId);
-    if(p&&p.estado!=="entregado"){
-      p.estado="entregado";p.fecha_entrega=ahora();
-      if(!p.historial_estados)p.historial_estados=[];
-      p.historial_estados.push({estado:"entregado",fecha:ahora(),por:"Fundador",motivo:"Marcado en entregas"});
-      toast("Pedido "+pedidoId+" → entregado","ok");
+async function updEntrega(pedidoId, campo, valor) {
+  let e = DB.entregas.find(x => x.id_ronda === DB.rondaActiva && x.pedido_id === pedidoId);
+  if (!e) {
+    e = { id_ronda: DB.rondaActiva, pedido_id: pedidoId, repartidor_id: null, estado: "pendiente", recibido_por: "", fecha: ahora() };
+    DB.entregas.push(e);
+  }
+  e[campo] = valor;
+  await guardarEntrega(e);
+
+  if (campo === "estado" && valor === "entregado") {
+    const p = pedidoPorId(pedidoId);
+    if (p && p.estado !== "entregado") {
+      p.estado = "entregado"; p.fecha_entrega = ahora();
+      if (!p.historial_estados) p.historial_estados = [];
+      p.historial_estados.push({ estado: "entregado", fecha: ahora(), por: "Fundador", motivo: "Marcado en entregas" });
+      await guardarPedido(p);
+      toast("Pedido " + pedidoId + " → entregado", "ok");
     }
   }
-  if(campo==="estado"&&valor==="fallido"){
-    const p=pedidoPorId(pedidoId);
-    if(p&&!esTerminal(p.estado)){
-      p.estado="fallido";
-      if(!p.historial_estados)p.historial_estados=[];
-      p.historial_estados.push({estado:"fallido",fecha:ahora(),por:"Fundador",motivo:"Marcado en entregas"});
-      toast("Pedido "+pedidoId+" → fallido","warn");
+  if (campo === "estado" && valor === "fallido") {
+    const p = pedidoPorId(pedidoId);
+    if (p && !esTerminal(p.estado)) {
+      p.estado = "fallido";
+      if (!p.historial_estados) p.historial_estados = [];
+      p.historial_estados.push({ estado: "fallido", fecha: ahora(), por: "Fundador", motivo: "Marcado en entregas" });
+      await guardarPedido(p);
+      toast("Pedido " + pedidoId + " → fallido", "warn");
     }
   }
-  guardarDB();renderEntregas();
+  renderEntregas();
 }
 
-/* ---------- Repartidores ---------- */
-function renderRepartidores(){
-  document.getElementById("repartidoresBody").innerHTML=DB.repartidores.map(r=>{
-    const modo=vehiculoAModo(r.vehiculo);
-    return`<tr>
+/* ============================================================================
+   REPARTIDORES
+   ============================================================================ */
+function renderRepartidores() {
+  document.getElementById("repartidoresBody").innerHTML = DB.repartidores.map(r => {
+    const modo = vehiculoAModo(r.vehiculo);
+    return `<tr>
       <td><strong>${esc(r.id)}</strong></td>
       <td>${esc(r.nombre)}</td>
       <td>${esc(r.celular)}</td>
@@ -1560,146 +1946,202 @@ function renderRepartidores(){
       <td>${esc(r.vehiculo)}</td>
       <td><span class="ruta-modo">${modoIcono(modo)}</span></td>
       <td>${r.capacidad_max_kg} kg</td>
-      <td>${r.activo?'<span class="badge badge-basico">Sí</span>':'<span class="badge badge-inactivo">No</span>'}</td>
+      <td>${r.activo ? '<span class="badge badge-basico">Sí</span>' : '<span class="badge badge-inactivo">No</span>'}</td>
       <td><div class="actions">
         <button class="btn-ghost btn-sm" onclick="abrirModalRepartidor('${r.id}')">Editar</button>
-        <button class="btn-ghost btn-sm" onclick="toggleRepartidor('${r.id}')">${r.activo?"Desactivar":"Activar"}</button>
+        <button class="btn-ghost btn-sm" onclick="toggleRepartidor('${r.id}')">${r.activo ? "Desactivar" : "Activar"}</button>
         <button class="btn-delete" onclick="borrarRepartidor('${r.id}')">×</button>
       </div></td>
     </tr>`;
   }).join("");
 }
-function abrirModalRepartidor(id){
-  document.getElementById("repEditId").value=id||"";
-  document.getElementById("modalRepartidorTitle").textContent=id?"Editar repartidor":"Agregar repartidor";
-  if(id){
-    const r=DB.repartidores.find(x=>x.id===id);
-    document.getElementById("repNombre").value=r.nombre;
-    document.getElementById("repCelular").value=r.celular;
-    document.getElementById("repZona").value=r.zona;
-    document.getElementById("repVehiculo").value=r.vehiculo;
-    document.getElementById("repCap").value=r.capacidad_max_kg;
-    document.getElementById("repActivo").value=String(r.activo);
-  }else{
-    document.getElementById("repNombre").value="";
-    document.getElementById("repCelular").value="";
-    document.getElementById("repZona").value="A";
-    document.getElementById("repVehiculo").value="Moto";
-    document.getElementById("repCap").value="80";
-    document.getElementById("repActivo").value="true";
+function abrirModalRepartidor(id) {
+  document.getElementById("repEditId").value = id || "";
+  document.getElementById("modalRepartidorTitle").textContent = id ? "Editar repartidor" : "Agregar repartidor";
+  if (id) {
+    const r = DB.repartidores.find(x => x.id === id);
+    document.getElementById("repNombre").value = r.nombre;
+    document.getElementById("repCelular").value = r.celular;
+    document.getElementById("repZona").value = r.zona;
+    document.getElementById("repVehiculo").value = r.vehiculo;
+    document.getElementById("repCap").value = r.capacidad_max_kg;
+    document.getElementById("repActivo").value = String(r.activo);
+  } else {
+    document.getElementById("repNombre").value = "";
+    document.getElementById("repCelular").value = "";
+    document.getElementById("repZona").value = "A";
+    document.getElementById("repVehiculo").value = "Moto";
+    document.getElementById("repCap").value = "80";
+    document.getElementById("repActivo").value = "true";
   }
   abrirModal("modalRepartidor");
 }
-function guardarRepartidor(){
-  const id=document.getElementById("repEditId").value;
-  const nombre=document.getElementById("repNombre").value.trim();
-  if(!nombre){toast("Falta nombre","err");return;}
-  const datos={
-    nombre,celular:document.getElementById("repCelular").value.trim(),
-    zona:document.getElementById("repZona").value,
-    vehiculo:document.getElementById("repVehiculo").value,
-    capacidad_max_kg:Number(document.getElementById("repCap").value)||0,
-    activo:document.getElementById("repActivo").value==="true"
+async function guardarRepartidor() {
+  const id = document.getElementById("repEditId").value;
+  const nombre = document.getElementById("repNombre").value.trim();
+  if (!nombre) { toast("Falta nombre", "err"); return; }
+  const datos = {
+    nombre, celular: document.getElementById("repCelular").value.trim(),
+    zona: document.getElementById("repZona").value,
+    vehiculo: document.getElementById("repVehiculo").value,
+    capacidad_max_kg: Number(document.getElementById("repCap").value) || 0,
+    activo: document.getElementById("repActivo").value === "true"
   };
-  if(id)Object.assign(DB.repartidores.find(x=>x.id===id),datos);
-  else{
-    const n=DB.repartidores.length+1;
-    DB.repartidores.push({id:"R-"+String(n).padStart(2,"0"),...datos});
+  if (id) {
+    const r = DB.repartidores.find(x => x.id === id);
+    Object.assign(r, datos);
+    await guardarRepartidorGlobal(r);
+  } else {
+    const n = DB.repartidores.length + 1;
+    const nuevo = { id: "R-" + String(n).padStart(2, "0"), ...datos };
+    await guardarRepartidorGlobal(nuevo);
   }
-  guardarDB();cerrarModal("modalRepartidor");renderRepartidores();toast("Guardado","ok");
+  cerrarModal("modalRepartidor"); renderRepartidores(); toast("Guardado", "ok");
 }
-function toggleRepartidor(id){const r=DB.repartidores.find(x=>x.id===id);if(!r)return;r.activo=!r.activo;guardarDB();renderRepartidores();}
-function borrarRepartidor(id){if(!confirm("¿Eliminar?"))return;DB.repartidores=DB.repartidores.filter(x=>x.id!==id);guardarDB();renderRepartidores();}
+async function toggleRepartidor(id) {
+  const r = DB.repartidores.find(x => x.id === id); if (!r) return;
+  r.activo = !r.activo;
+  await guardarRepartidorGlobal(r);
+  renderRepartidores();
+}
+async function borrarRepartidor(id) {
+  if (!confirm("¿Eliminar?")) return;
+  await eliminarRepartidorGlobal(id);
+  renderRepartidores();
+}
 
-/* ---------- Gastos/Excedentes/Reclamos ---------- */
-function renderGastos(){
-  const arr=gastosDeRonda();const cont=document.getElementById("gastosContenido");
-  if(!arr.length){cont.innerHTML=`<div class="small-note">Sin gastos.</div>`;return;}
-  const tipos=["transporte","empaque","sueldo","otro"],medios=["yape","efectivo","otro"];
-  const total=arr.reduce((s,g)=>s+Number(g.monto||0),0);
-  cont.innerHTML=`<div class="table-scroll"><table>
+/* ============================================================================
+   GASTOS / EXCEDENTES / RECLAMOS
+   ============================================================================ */
+function renderGastos() {
+  const arr = gastosDeRonda(); const cont = document.getElementById("gastosContenido");
+  if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin gastos.</div>`; return; }
+  const tipos = ["transporte", "empaque", "sueldo", "otro"], medios = ["yape", "efectivo", "otro"];
+  const total = arr.reduce((s, g) => s + Number(g.monto || 0), 0);
+  cont.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Medio</th><th></th></tr></thead>
-    <tbody>${arr.map(g=>`<tr>
+    <tbody>${arr.map(g => `<tr>
       <td><input type="date" value="${esc(g.fecha)}" onchange="updGasto('${g.id}','fecha',this.value)"></td>
-      <td><select onchange="updGasto('${g.id}','tipo',this.value)">${tipos.map(t=>`<option ${g.tipo===t?"selected":""}>${t}</option>`).join("")}</select></td>
+      <td><select onchange="updGasto('${g.id}','tipo',this.value)">${tipos.map(t => `<option ${g.tipo === t ? "selected" : ""}>${t}</option>`).join("")}</select></td>
       <td><input value="${esc(g.descripcion)}" onchange="updGasto('${g.id}','descripcion',this.value)"></td>
-      <td><input type="number" step="0.01" value="${g.monto||0}" onchange="updGasto('${g.id}','monto',this.value)"></td>
-      <td><select onchange="updGasto('${g.id}','medio_pago',this.value)">${medios.map(m=>`<option ${g.medio_pago===m?"selected":""}>${m}</option>`).join("")}</select></td>
+      <td><input type="number" step="0.01" value="${g.monto || 0}" onchange="updGasto('${g.id}','monto',this.value)"></td>
+      <td><select onchange="updGasto('${g.id}','medio_pago',this.value)">${medios.map(m => `<option ${g.medio_pago === m ? "selected" : ""}>${m}</option>`).join("")}</select></td>
       <td><button class="btn-delete" onclick="delGasto('${g.id}')">×</button></td>
     </tr>`).join("")}</tbody></table></div>
     <p style="text-align:right;margin-top:8px"><strong>Total: ${soles(total)}</strong></p>`;
 }
-function agregarGasto(){DB.gastos.push({id:uid("G"),id_ronda:rondaActiva,fecha:hoy(),tipo:"transporte",descripcion:"",monto:0,medio_pago:"efectivo"});guardarDB();renderGastos();}
-function updGasto(id,c,v){const t=DB.gastos.find(x=>x.id===id);if(!t)return;t[c]=c==="monto"?(Number(v)||0):v;guardarDB();if(c==="monto")renderGastos();}
-function delGasto(id){if(!confirm("¿Eliminar?"))return;DB.gastos=DB.gastos.filter(x=>x.id!==id);guardarDB();renderGastos();}
-function renderExcedentes(){
-  const arr=excedentesDeRonda();const cont=document.getElementById("excedentesContenido");
-  if(!arr.length){cont.innerHTML=`<div class="small-note">Sin excedentes.</div>`;return;}
-  const total=arr.reduce((s,e)=>s+Number(e.ingreso||0),0);
-  cont.innerHTML=`<div class="table-scroll"><table>
+async function agregarGasto() {
+  const g = { id: uid("G"), id_ronda: DB.rondaActiva, fecha: hoy(), tipo: "transporte", descripcion: "", monto: 0, medio_pago: "efectivo" };
+  await guardarGasto(g);
+  renderGastos();
+}
+async function updGasto(id, c, v) {
+  const t = DB.gastos.find(x => x.id === id); if (!t) return;
+  t[c] = c === "monto" ? (Number(v) || 0) : v;
+  await guardarGasto(t);
+  if (c === "monto") renderGastos();
+}
+async function delGasto(id) {
+  if (!confirm("¿Eliminar?")) return;
+  await eliminarGastoFS(id);
+  renderGastos();
+}
+function renderExcedentes() {
+  const arr = excedentesDeRonda(); const cont = document.getElementById("excedentesContenido");
+  if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin excedentes.</div>`; return; }
+  const total = arr.reduce((s, e) => s + Number(e.ingreso || 0), 0);
+  cont.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Descripción</th><th>Ingreso</th><th></th></tr></thead>
-    <tbody>${arr.map(e=>`<tr>
+    <tbody>${arr.map(e => `<tr>
       <td><input type="date" value="${esc(e.fecha)}" onchange="updExc('${e.id}','fecha',this.value)"></td>
       <td><input value="${esc(e.descripcion)}" onchange="updExc('${e.id}','descripcion',this.value)"></td>
-      <td><input type="number" step="0.01" value="${e.ingreso||0}" onchange="updExc('${e.id}','ingreso',this.value)"></td>
+      <td><input type="number" step="0.01" value="${e.ingreso || 0}" onchange="updExc('${e.id}','ingreso',this.value)"></td>
       <td><button class="btn-delete" onclick="delExc('${e.id}')">×</button></td>
     </tr>`).join("")}</tbody></table></div>
     <p style="text-align:right;margin-top:8px"><strong>Total: ${soles(total)}</strong></p>`;
 }
-function agregarExcedente(){DB.excedentes.push({id:uid("E"),id_ronda:rondaActiva,fecha:hoy(),descripcion:"",ingreso:0});guardarDB();renderExcedentes();}
-function updExc(id,c,v){const t=DB.excedentes.find(x=>x.id===id);if(!t)return;t[c]=c==="ingreso"?(Number(v)||0):v;guardarDB();if(c==="ingreso")renderExcedentes();}
-function delExc(id){if(!confirm("¿Eliminar?"))return;DB.excedentes=DB.excedentes.filter(x=>x.id!==id);guardarDB();renderExcedentes();}
-function renderReclamos(){
-  const arr=reclamosDeRonda();const cont=document.getElementById("reclamosContenido");
-  const pedidos=pedidosDeRonda();
-  if(!arr.length){cont.innerHTML=`<div class="small-note">Sin reclamos.</div>`;return;}
-  const total=arr.reduce((s,r)=>s+Number(r.costo_solucion||0),0);
-  const opcionesPed=pedidos.map(p=>`<option value="${esc(p.pedido_id)}">${esc(p.pedido_id)} — ${esc(p.cliente_nombre)} — ${soles(p.total)}</option>`).join("");
-  cont.innerHTML=`<div class="table-scroll"><table>
+async function agregarExcedente() {
+  const e = { id: uid("E"), id_ronda: DB.rondaActiva, fecha: hoy(), descripcion: "", ingreso: 0 };
+  await guardarExcedente(e);
+  renderExcedentes();
+}
+async function updExc(id, c, v) {
+  const t = DB.excedentes.find(x => x.id === id); if (!t) return;
+  t[c] = c === "ingreso" ? (Number(v) || 0) : v;
+  await guardarExcedente(t);
+  if (c === "ingreso") renderExcedentes();
+}
+async function delExc(id) {
+  if (!confirm("¿Eliminar?")) return;
+  await eliminarExcedenteFS(id);
+  renderExcedentes();
+}
+function renderReclamos() {
+  const arr = reclamosDeRonda(); const cont = document.getElementById("reclamosContenido");
+  const pedidos = pedidosDeRonda();
+  if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin reclamos.</div>`; return; }
+  const total = arr.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
+  const opcionesPed = pedidos.map(p => `<option value="${esc(p.pedido_id)}">${esc(p.pedido_id)} — ${esc(p.cliente_nombre)} — ${soles(p.total)}</option>`).join("");
+  cont.innerHTML = `<div class="table-scroll"><table>
     <thead><tr><th>Fecha</th><th>Pedido</th><th>Motivo</th><th>Costo solución</th><th>Estado</th><th></th></tr></thead>
-    <tbody>${arr.map(r=>`<tr>
+    <tbody>${arr.map(r => `<tr>
       <td><input type="date" value="${esc(r.fecha)}" onchange="updReclamo('${r.id}','fecha',this.value)"></td>
       <td><select onchange="updReclamo('${r.id}','pedido_id',this.value)">
         <option value="">— Elegir pedido —</option>
-        ${opcionesPed.replace(`value="${esc(r.pedido_id||"")}"`,`value="${esc(r.pedido_id||"")}" selected`)}
+        ${opcionesPed.replace(`value="${esc(r.pedido_id || "")}"`, `value="${esc(r.pedido_id || "")}" selected`)}
       </select></td>
-      <td><input value="${esc(r.motivo||"")}" onchange="updReclamo('${r.id}','motivo',this.value)"></td>
-      <td><input type="number" step="0.01" value="${r.costo_solucion||0}" onchange="updReclamo('${r.id}','costo_solucion',this.value)"></td>
+      <td><input value="${esc(r.motivo || "")}" onchange="updReclamo('${r.id}','motivo',this.value)"></td>
+      <td><input type="number" step="0.01" value="${r.costo_solucion || 0}" onchange="updReclamo('${r.id}','costo_solucion',this.value)"></td>
       <td><select onchange="updReclamo('${r.id}','estado',this.value)">
-        <option ${r.estado==="abierto"?"selected":""}>abierto</option>
-        <option ${r.estado==="en_proceso"?"selected":""}>en_proceso</option>
-        <option ${r.estado==="resuelto"?"selected":""}>resuelto</option>
-        <option ${r.estado==="cerrado"?"selected":""}>cerrado</option>
+        <option ${r.estado === "abierto" ? "selected" : ""}>abierto</option>
+        <option ${r.estado === "en_proceso" ? "selected" : ""}>en_proceso</option>
+        <option ${r.estado === "resuelto" ? "selected" : ""}>resuelto</option>
+        <option ${r.estado === "cerrado" ? "selected" : ""}>cerrado</option>
       </select></td>
       <td><button class="btn-delete" onclick="delReclamo('${r.id}')">×</button></td>
     </tr>`).join("")}</tbody></table></div>
     <p style="text-align:right;margin-top:8px"><strong>Total reclamos: ${soles(total)}</strong></p>`;
 }
-function agregarReclamo(){DB.reclamos.push({id:uid("RC"),id_ronda:rondaActiva,fecha:hoy(),pedido_id:"",motivo:"",costo_solucion:0,estado:"abierto"});guardarDB();renderReclamos();}
-function updReclamo(id,c,v){const t=DB.reclamos.find(x=>x.id===id);if(!t)return;t[c]=c==="costo_solucion"?(Number(v)||0):v;guardarDB();if(c==="costo_solucion")renderReclamos();}
-function delReclamo(id){if(!confirm("¿Eliminar?"))return;DB.reclamos=DB.reclamos.filter(x=>x.id!==id);guardarDB();renderReclamos();}
+async function agregarReclamo() {
+  const r = { id: uid("RC"), id_ronda: DB.rondaActiva, fecha: hoy(), pedido_id: "", motivo: "", costo_solucion: 0, estado: "abierto" };
+  await guardarReclamo(r);
+  renderReclamos();
+}
+async function updReclamo(id, c, v) {
+  const t = DB.reclamos.find(x => x.id === id); if (!t) return;
+  t[c] = c === "costo_solucion" ? (Number(v) || 0) : v;
+  await guardarReclamo(t);
+  if (c === "costo_solucion") renderReclamos();
+}
+async function delReclamo(id) {
+  if (!confirm("¿Eliminar?")) return;
+  await eliminarReclamoFS(id);
+  renderReclamos();
+}
 
-/* ---------- Reportes ---------- */
-function calcularReportes(){
-  const cont=document.getElementById("reportesContenido");
-  const aceptados=pedidosDeRonda().filter(p=>["aceptado","empacado","entregado"].includes(p.estado));
-  const ingresos=aceptados.reduce((s,p)=>s+Number(p.total||0),0);
-  const comprasReal=comprasDeRonda().reduce((s,c)=>s+Number(c.cantidad_real||0)*Number(c.precio_unitario_real||0),0);
-  const comprasEst=comprasDeRonda().reduce((s,c)=>s+Number(c.cantidad_real||0)*Number(c.precio_compra||0),0);
-  const gs=gastosDeRonda();const gastos=gs.reduce((s,g)=>s+Number(g.monto||0),0);
-  const exc=excedentesDeRonda().reduce((s,e)=>s+Number(e.ingreso||0),0);
-  const recl=reclamosDeRonda().reduce((s,r)=>s+Number(r.costo_solucion||0),0);
-  const mb=ingresos-comprasReal;const un=mb-gastos+exc-recl;
-  const pt={transporte:0,empaque:0,sueldo:0,otro:0};
-  gs.forEach(g=>{pt[g.tipo]=(pt[g.tipo]||0)+Number(g.monto||0);});
-  const cl=un>=0?"good":"bad";const delta=comprasEst-comprasReal;
-  cont.innerHTML=`
-    <div class="info-box"><strong>Ronda:</strong> ${esc(rondaActiva)} · ${rondaActual().estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptados.length} pedidos activos</div>
+/* ============================================================================
+   REPORTES
+   ============================================================================ */
+function calcularReportes() {
+  const cont = document.getElementById("reportesContenido");
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
+  const ingresos = aceptados.reduce((s, p) => s + Number(p.total || 0), 0);
+  const comprasReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+  const comprasEst = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_compra || 0), 0);
+  const gs = gastosDeRonda(); const gastos = gs.reduce((s, g) => s + Number(g.monto || 0), 0);
+  const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
+  const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
+  const mb = ingresos - comprasReal; const un = mb - gastos + exc - recl;
+  const pt = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
+  gs.forEach(g => { pt[g.tipo] = (pt[g.tipo] || 0) + Number(g.monto || 0); });
+  const cl = un >= 0 ? "good" : "bad"; const delta = comprasEst - comprasReal;
+  cont.innerHTML = `
+    <div class="info-box"><strong>Ronda:</strong> ${esc(DB.rondaActiva)} · ${rondaActual().estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptados.length} pedidos activos</div>
     <div class="fin-grid">
       <div class="fin-col"><h4>Ingresos</h4>
         <div class="fin-row"><span>Pedidos</span><span class="val">${soles(ingresos)}</span></div>
         <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresos+exc)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresos + exc)}</span></div>
       </div>
       <div class="fin-col"><h4>Costos</h4>
         <div class="fin-row"><span>Compra real</span><span class="val">${soles(comprasReal)}</span></div>
@@ -1709,11 +2151,11 @@ function calcularReportes(){
         <div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div>
         <div class="fin-row"><span>Otro</span><span class="val">${soles(pt.otro)}</span></div>
         <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(comprasReal+gastos+recl)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(comprasReal + gastos + recl)}</span></div>
       </div>
       <div class="fin-col"><h4>Resultado</h4>
         <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div>
-        <div class="fin-row"><span>Δ compra vs est.</span><span class="val ${delta>0?'delta-pos':(delta<0?'delta-neg':'')}">${soles(delta)}</span></div>
+        <div class="fin-row"><span>Δ compra vs est.</span><span class="val ${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</span></div>
         <div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastos)}</span></div>
         <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(recl)}</span></div>
         <div class="fin-row"><span>Excedentes</span><span class="val">+${soles(exc)}</span></div>
@@ -1724,84 +2166,263 @@ function calcularReportes(){
     <h3 style="margin-top:20px">Histórico</h3>
     <div class="table-scroll"><table>
       <thead><tr><th>Ronda</th><th>Estado</th><th>Pedidos</th><th>Ingresos</th><th>Costo real</th><th>Utilidad</th></tr></thead>
-      <tbody>${Object.keys(DB.rondas).sort().reverse().map(r=>{
-        const pd=DB.pedidos.filter(p=>p.id_ronda===r&&["aceptado","empacado","entregado"].includes(p.estado));
-        const ing=pd.reduce((s,p)=>s+Number(p.total||0),0);
-        const cr=DB.compras.filter(c=>c.id_ronda===r).reduce((s,c)=>s+Number(c.cantidad_real||0)*Number(c.precio_unitario_real||0),0);
-        const ga=DB.gastos.filter(g=>g.id_ronda===r).reduce((s,g)=>s+Number(g.monto||0),0);
-        const rc=DB.reclamos.filter(x=>x.id_ronda===r).reduce((s,x)=>s+Number(x.costo_solucion||0),0);
-        const ex=DB.excedentes.filter(x=>x.id_ronda===r).reduce((s,x)=>s+Number(x.ingreso||0),0);
-        const ut=ing-cr-ga+ex-rc;
-        return`<tr>
+      <tbody>${Object.keys(DB.rondas).sort().reverse().map(r => {
+    const pd = DB.pedidos.filter(p => p.id_ronda === r && ["aceptado", "empacado", "entregado"].includes(p.estado));
+    const ing = pd.reduce((s, p) => s + Number(p.total || 0), 0);
+    const cr = DB.compras.filter(c => c.id_ronda === r).reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+    const ga = DB.gastos.filter(g => g.id_ronda === r).reduce((s, g) => s + Number(g.monto || 0), 0);
+    const rc = DB.reclamos.filter(x => x.id_ronda === r).reduce((s, x) => s + Number(x.costo_solucion || 0), 0);
+    const ex = DB.excedentes.filter(x => x.id_ronda === r).reduce((s, x) => s + Number(x.ingreso || 0), 0);
+    const ut = ing - cr - ga + ex - rc;
+    return `<tr>
           <td><strong>${esc(r)}</strong></td>
           <td><span class="estado-ronda estado-${DB.rondas[r].estado}">${esc(DB.rondas[r].estado)}</span></td>
-          <td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr+ga+rc)}</td>
-          <td><strong class="${ut>=0?'delta-pos':'delta-neg'}">${soles(ut)}</strong></td>
+          <td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr + ga + rc)}</td>
+          <td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td>
         </tr>`;
-      }).join("")}</tbody>
+  }).join("")}</tbody>
     </table></div>`;
 }
 
-/* ---------- Config ---------- */
-function renderConfig(){
-  const c=DB.config;
-  const campos=[
-    ["oficina_direccion","Dirección oficina","text"],
-    ["oficina_lat","Oficina lat","number"],
-    ["oficina_lng","Oficina lng","number"],
-    ["costo_personal_compras","Costo personal compras","number"],
-    ["costo_transporte","Costo transporte","number"],
-    ["costo_empaque","Costo empaque por pedido","number"]
+/* ============================================================================
+   CONFIG
+   ============================================================================ */
+function renderConfig() {
+  const c = DB.config;
+  const campos = [
+    ["oficina_direccion", "Dirección oficina", "text"],
+    ["oficina_lat", "Oficina lat", "number"],
+    ["oficina_lng", "Oficina lng", "number"],
+    ["costo_personal_compras", "Costo personal compras", "number"],
+    ["costo_transporte", "Costo transporte", "number"],
+    ["costo_empaque", "Costo empaque por pedido", "number"]
   ];
-  document.getElementById("configContenido").innerHTML=`
+  document.getElementById("configContenido").innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-      ${campos.map(([k,lbl,t])=>`<div><label class="small-note">${lbl}</label>
-        <input type="${t}" step="0.01" value="${esc(c[k])}" onchange="updConfig('${k}',this.value,${t==='number'})"></div>`).join("")}
+      ${campos.map(([k, lbl, t]) => `<div><label class="small-note">${lbl}</label>
+        <input type="${t}" step="0.01" value="${esc(c[k] ?? '')}" onchange="updConfig('${k}',this.value,${t === 'number'})"></div>`).join("")}
     </div>
     <div class="info-box" style="margin-top:16px">
       <strong>Zonas y mínimos:</strong><br>
-      ${Object.entries(ZONAS).map(([z,i])=>`<strong>Zona ${z}</strong>: ${i.distritos.join(", ")} · Mínimo ${soles(i.min)} · Recojo −${soles(i.desc_recojo)}`).join("<br>")}
+      ${Object.entries(ZONAS).map(([z, i]) => `<strong>Zona ${z}</strong>: ${i.distritos.join(", ")} · Mínimo ${soles(i.min)} · Recojo −${soles(i.desc_recojo)}`).join("<br>")}
     </div>`;
 }
-function updConfig(k,v,isNum){DB.config[k]=isNum?(Number(v)||0):v;guardarDB();toast("Actualizado","ok");}
+async function updConfig(k, v, isNum) {
+  DB.config[k] = isNum ? (Number(v) || 0) : v;
+  await fsSetConfig({ [k]: DB.config[k] });
+  toast("Actualizado", "ok");
+}
 
-/* ---------- renderTodo ---------- */
-function renderTodo(){
-  renderSemana();refrescarSelector();
-  const v=document.querySelector(".view.active");
-  if(v){
-    const id=v.id.replace("view-","");
-    if(id==="dashboard")renderDashboard();
-    if(id==="pipeline")renderPipeline();
-    if(id==="calculadora")renderCalculadora();
-    if(id==="productos")renderProductos();
-    if(id==="precios")renderPrecios();
-    if(id==="compra")calcularListaCompra();
-    if(id==="entregas")renderEntregas();
-    if(id==="repartidores")renderRepartidores();
-    if(id==="gastos"){renderGastos();renderExcedentes();renderReclamos();}
-    if(id==="cierre")calcularReportes();
-    if(id==="config")renderConfig();
+/* ============================================================================
+   EXPORTAR / IMPORTAR / RESET
+   ============================================================================ */
+async function exportarJSON() {
+  try {
+    const data = {
+      config: DB.config,
+      rondas: {},
+      catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores }
+    };
+    for (const rid of Object.keys(DB.rondas)) {
+      data.rondas[rid] = {
+        meta: DB.rondas[rid],
+        precios: DB.precios.filter(p => p.id_ronda === rid),
+        pedidos: DB.pedidos.filter(p => p.id_ronda === rid),
+        items: DB.items.filter(i => i.id_ronda === rid),
+        compras: DB.compras.filter(c => c.id_ronda === rid),
+        entregas: DB.entregas.filter(e => e.id_ronda === rid),
+        gastos: DB.gastos.filter(g => g.id_ronda === rid),
+        excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
+        reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
+      };
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v13_" + hoy() + ".json"; a.click();
+    URL.revokeObjectURL(url);
+  } catch (e) { toast("Error al exportar: " + e.message, "err"); }
+}
+function importarJSON() {
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = async ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
+        if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
+        // Subir catálogo
+        const b1 = writeBatch(db);
+        (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p));
+        (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c));
+        (d.catalogo.repartidores || []).forEach(r => b1.set(doc(db, "catalogo", "repartidores", "items", r.id), r));
+        await b1.commit();
+        // Subir rondas
+        for (const rid of Object.keys(d.rondas)) {
+          const rd = d.rondas[rid];
+          await fsSetRonda(rid, rd.meta);
+          const colMap = { precios: "codigo_producto", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
+          for (const [col, idField] of Object.entries(colMap)) {
+            const arr = rd[col] || [];
+            for (const item of arr) {
+              await fsSet(["rondas", rid, col], item[idField], item);
+            }
+          }
+        }
+        if (d.config) await fsSetConfig(d.config);
+        toast("✓ Importación completada. Recargando…", "ok");
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) { toast("Error: " + err.message, "err"); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+async function resetTotal() {
+  if (!confirm("¿Borrar TODO en Firestore y reiniciar? Esta acción no se puede deshacer.")) return;
+  if (!confirm("¿Estás completamente seguro? Se borrarán todas las rondas y catálogo.")) return;
+  try {
+    const colecciones = [
+      ["catalogo", "productos", "items"], ["catalogo", "clientes", "items"], ["catalogo", "repartidores", "items"]
+    ];
+    // Borrar catálogo
+    for (const col of colecciones) {
+      const snap = await getDocs(collection(db, ...col));
+      for (const d of snap.docs) await deleteDoc(d.ref);
+    }
+    // Borrar todas las rondas y subcolecciones
+    const rondasSnap = await getDocs(collection(db, "rondas"));
+    for (const rDoc of rondasSnap.docs) {
+      const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+      for (const sub of subcols) {
+        const subSnap = await getDocs(collection(db, "rondas", rDoc.id, sub));
+        for (const d of subSnap.docs) await deleteDoc(d.ref);
+      }
+      await deleteDoc(rDoc.ref);
+    }
+    // Borrar config
+    await deleteDoc(doc(db, "config", "global"));
+    toast("✓ Reset completado. Recargando…", "ok");
+    setTimeout(() => location.reload(), 1500);
+  } catch (e) { toast("Error en reset: " + e.message, "err"); }
+}
+
+/* ============================================================================
+   RENDER GENERAL
+   ============================================================================ */
+function renderTodo() {
+  renderSemana(); refrescarSelector();
+  const v = document.querySelector(".view.active");
+  if (v) {
+    const id = v.id.replace("view-", "");
+    if (id === "dashboard") renderDashboard();
+    if (id === "pipeline") renderPipeline();
+    if (id === "calculadora") renderCalculadora();
+    if (id === "productos") renderProductos();
+    if (id === "precios") renderPrecios();
+    if (id === "compra") calcularListaCompra();
+    if (id === "entregas") renderEntregas();
+    if (id === "repartidores") renderRepartidores();
+    if (id === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
+    if (id === "cierre") calcularReportes();
+    if (id === "config") renderConfig();
   }
 }
 
-/* ---------- Init ---------- */
-(function init(){
-  try{
-    DB=cargarDB();
-    rondaActiva=DB.rondaActiva||Object.keys(DB.rondas).sort().reverse()[0]||"";
-    if(!rondaActiva){
-      const r="R-"+hoy();
-      DB.rondas[r]={id_ronda:r,estado:"abierta",fecha_apertura:ahora(),fecha_cierre:null,fecha_compra:null,fecha_entrega:null,precios_publicados:false,orden_ruta:[],repartidor_zona:{}};
-      rondaActiva=r;DB.rondaActiva=r;guardarDB();
+/* ============================================================================
+   LOGIN
+   ============================================================================ */
+function iniciarSesion() {
+  const provider = new GoogleAuthProvider();
+  document.getElementById("loginSpinner").style.display = "block";
+  document.getElementById("loginBtn").style.display = "none";
+  document.getElementById("loginError").textContent = "";
+  signInWithPopup(auth, provider).catch(e => {
+    document.getElementById("loginSpinner").style.display = "none";
+    document.getElementById("loginBtn").style.display = "block";
+    document.getElementById("loginError").textContent = "Error al iniciar sesión: " + e.message;
+  });
+}
+
+onAuthStateChanged(auth, async user => {
+  const overlay = document.getElementById("loginOverlay");
+  const spinner = document.getElementById("loginSpinner");
+  const btn = document.getElementById("loginBtn");
+  const err = document.getElementById("loginError");
+
+  if (user) {
+    if (user.uid !== UID_AUTORIZADO) {
+      err.textContent = "Cuenta no autorizada. Contactá al administrador.";
+      spinner.style.display = "none";
+      btn.style.display = "block";
+      await signOut(auth);
+      return;
     }
-    renderTodo();
-    toast("✓ Misti v12 lista · Ronda "+rondaActiva,"ok");
-  }catch(e){
-    console.error("Error init:",e);
-    document.body.innerHTML+='<div class="error-box" style="margin:20px"><strong>Error al iniciar:</strong> '+e.message+'</div>';
+    // Autorizado
+    spinner.style.display = "block";
+    btn.style.display = "none";
+    err.textContent = "";
+    try {
+      await cargarTodo();
+      overlay.style.display = "none";
+    } catch (e) {
+      console.error("Error al cargar:", e);
+      err.textContent = "Error al cargar datos: " + e.message;
+      spinner.style.display = "none";
+      btn.style.display = "block";
+    }
+  } else {
+    overlay.style.display = "flex";
+    spinner.style.display = "none";
+    btn.style.display = "block";
+    err.textContent = "";
   }
-})();
+});
+
+/* ============================================================================
+   EXPONER FUNCIONES A WINDOW (para onclick del HTML)
+   ============================================================================ */
+Object.assign(window, {
+  // Navegación
+  mostrarVista, abrirModal, cerrarModal,
+  // Rondas
+  cambiarRondaActiva, crearRonda, marcarRonda,
+  // Pipeline
+  abrirAceptar, confirmarAceptar, transicionar, abrirRetroceder, confirmarRetroceder,
+  verDetalle, edCambiarCantidad, edEliminarItem, edAgregarItem, guardarEdicionPedido,
+  // Calculadora
+  calcBuscarCliente, calcDistritoChange, calcFiltrarProductos, calcAgregarProducto,
+  calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
+  // Productos
+  abrirModalProducto, guardarProducto, toggleProducto,
+  // Precios
+  setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
+  // Compra
+  calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado,
+  // Entregas
+  asignarRepartidor, updEntrega,
+  // Repartidores
+  abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
+  // Gastos
+  agregarGasto, updGasto, delGasto,
+  agregarExcedente, updExc, delExc,
+  agregarReclamo, updReclamo, delReclamo,
+  // Reportes
+  calcularReportes,
+  // Config
+  updConfig,
+  // Exportar/Importar/Reset
+  exportarJSON, importarJSON, resetTotal,
+  // Login
+  iniciarSesion,
+  // Pipeline render (para buscador)
+  renderPipeline,
+  // Productos render (para buscador)
+  renderProductos,
+  // Precios render (para buscador)
+  renderPrecios
+});
 </script>
 </body>
 </html>
