@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v13</title>
+<title>Compra con Misti — Admin v14</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -137,14 +137,12 @@ tbody tr:hover{background:#F4FBF6}
 .ruta-zona-B{border-left:6px solid var(--miel)}
 .ruta-zona-C{border-left:6px solid var(--coral)}
 .ruta-modo{font-size:10px;padding:3px 9px;border-radius:999px;background:var(--crema);color:var(--texto-2);font-weight:700;text-transform:uppercase}
-/* ----- NUEVO: cards de viaje ----- */
 .viaje-card{background:var(--crema);border:1.5px solid var(--borde);border-radius:var(--radio-sm);padding:12px;margin-bottom:10px}
 .viaje-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .viaje-card-title{font-weight:800;font-size:14px;color:var(--texto);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .viaje-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:var(--texto);color:#fff}
 .viaje-card-meta{font-size:11px;color:var(--texto-2);margin-top:3px}
 .viaje-card-actions{display:flex;gap:6px;flex-wrap:wrap}
-/* ----- NUEVO: paradas reordenadas ----- */
 .parada-item{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:10px 12px;margin-bottom:6px}
 .parada-row-1{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
 .parada-row-2{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center}
@@ -162,9 +160,6 @@ tbody tr:hover{background:#F4FBF6}
 .msg-preview{background:var(--crema);border:1.5px solid var(--borde);border-radius:12px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;line-height:1.6;color:var(--texto);max-height:400px;overflow-y:auto}
 .config-cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:8px}
 .config-cap-grid label{display:block;font-size:11px;color:var(--texto-2);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:5px}
-.resumen-viajes{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--texto-2);margin-bottom:8px}
-.resumen-viajes .pill{background:var(--crema);border:1px solid var(--borde);padding:3px 10px;border-radius:999px;font-weight:600}
-.resumen-viajes .pill strong{color:var(--texto)}
 #toast{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{padding:11px 16px;border-radius:12px;background:#2B2B2B;color:#fff;font-size:12px;font-weight:600;box-shadow:var(--sombra-md);animation:slideIn .3s ease;max-width:340px}
 .toast.ok{background:var(--verde)}
@@ -178,6 +173,9 @@ tbody tr:hover{background:#F4FBF6}
 .delta-pos{color:var(--verde);font-weight:700}
 .delta-neg{color:var(--coral);font-weight:700}
 .delta-zero{color:var(--texto-2)}
+.margen-bueno{background:var(--verde-claro);color:var(--verde);font-weight:700;padding:2px 8px;border-radius:999px;font-size:11px}
+.margen-regular{background:#FFF3CD;color:#7A5500;font-weight:700;padding:2px 8px;border-radius:999px;font-size:11px}
+.margen-malo{background:#FFE0E1;color:#C93A3F;font-weight:700;padding:2px 8px;border-radius:999px;font-size:11px}
 .hist-item{font-size:11px;padding:4px 0;border-bottom:1px dashed var(--borde);color:var(--texto-2)}
 .hist-item strong{color:var(--texto)}
 .fin-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
@@ -217,7 +215,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
   <div class="container">
     <h1>Compra con Misti</h1>
-    <p>Panel Admin v13 · Firestore · pipeline con retroceso · rutas por zona · distritos de Lima</p>
+    <p>Panel Admin v14 · Firestore · precio_ref_mayorista → margen → precio_venta</p>
   </div>
 </header>
 
@@ -360,7 +358,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-precios">
         <div class="section">
           <h2>Precios de ronda <span id="preciosRondaLabel" class="muted"></span></h2>
-          <p class="section-sub">Editables cualquier día. Cambiar precio_compra recalcula precio_venta al instante. Items ya creados NO cambian.</p>
+          <p class="section-sub">Editá <strong>P. mayorista ref</strong> (del boletín GMML) y <strong>Margen</strong>. El <strong>P. venta</strong> se calcula solo y es lo que ve el cliente.</p>
           <div class="actions" style="margin-bottom:12px">
             <button class="btn-info btn-sm" onclick="copiarPreciosRondaAnterior()">📋 Copiar ronda anterior</button>
             <button class="btn-save btn-sm" onclick="publicarPrecios()">📢 Publicar</button>
@@ -371,7 +369,15 @@ tbody tr:hover{background:#F4FBF6}
             </select>
           </div>
           <div class="table-scroll"><table>
-            <thead><tr><th>Código</th><th>Producto</th><th>Unidad</th><th>P. compra</th><th>Margen</th><th>P. venta</th><th>P. minorista ref</th><th>Δ vs ronda ant.</th></tr></thead>
+            <thead><tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th>Unidad</th>
+              <th>P. mayorista ref</th>
+              <th>Margen</th>
+              <th>P. venta</th>
+              <th>Δ vs ronda ant.</th>
+            </tr></thead>
             <tbody id="preciosBody"></tbody>
           </table></div>
         </div>
@@ -380,7 +386,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-compra">
         <div class="section">
           <h2 class="section-head">🛒 Lista de compra consolidada</h2>
-          <p class="section-sub">Se recalcula automáticamente. Ingresá precio real pagado y la Δ es tu ganancia extra.</p>
+          <p class="section-sub">Ingresá el <strong>P. compra real</strong> pagado el domingo. El <strong>margen real</strong> se calcula comparando contra el P. venta congelado.</p>
           <div class="actions" style="margin-bottom:12px">
             <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
             <span class="small-note">Auto-recalcula al cambiar datos ✓</span>
@@ -393,7 +399,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-entregas">
         <div class="section">
           <h2 class="section-head">🗺️ Entregas por zona</h2>
-          <p class="section-sub">Cada zona se divide en viajes según la capacidad del vehículo del repartidor. Máximo 9 paradas por viaje (límite de Google Maps). Asigná un repartidor a cada zona para calcular las idas.</p>
+          <p class="section-sub">Cada zona se divide en viajes según la capacidad del vehículo del repartidor. Máximo 9 paradas por viaje (límite de Google Maps).</p>
           <div class="ruta-info" id="rutaInfo"></div>
           <div id="rutasContenido"></div>
         </div>
@@ -402,7 +408,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-repartidores">
         <div class="section">
           <h2 class="section-head">🛵 Repartidores</h2>
-          <p class="section-sub">CRUD completo. El vehículo define el modo de viaje en Google Maps (A pie→walking, Bici→bicycling, Moto/Auto/Combi→driving) y la capacidad de carga por viaje.</p>
+          <p class="section-sub">El vehículo define el modo de viaje en Google Maps y la capacidad de carga por viaje.</p>
           <button class="btn-add btn-sm" onclick="abrirModalRepartidor(null)">＋ Agregar repartidor</button>
           <div class="table-scroll" style="margin-top:12px"><table>
             <thead><tr><th>ID</th><th>Nombre</th><th>Celular</th><th>Zona</th><th>Vehículo</th><th>Modo</th><th>Cap kg</th><th>Activo</th><th></th></tr></thead>
@@ -424,7 +430,6 @@ tbody tr:hover{background:#F4FBF6}
         </div>
         <div class="section">
           <h2 class="section-head">🛠️ Reclamos</h2>
-          <p class="section-sub">El pedido se elige de la lista de pedidos de la ronda activa.</p>
           <button class="btn-add btn-sm" onclick="agregarReclamo()">＋ Agregar reclamo</button>
           <div id="reclamosContenido" style="margin-top:12px"></div>
         </div>
@@ -691,9 +696,9 @@ const DISTRITOS = [
 ];
 
 const OFICINA = { lat: -12.0873, lng: -77.0218, direccion: "Eduardo Bello 385, Santa Catalina, La Victoria" };
-/* Capacidades por defecto según vehículo (kg) */
 const CAP_DEFAULT = { "A pie": 45, "Bici": 25, "Moto": 60, "Auto": 150, "Combi": 300 };
 const MAX_PARADAS_VIAJE_DEFAULT = 9;
+const MARGEN_DEFAULT = 0.30;
 
 /* ============================================================================
    HELPERS
@@ -706,7 +711,40 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 const ahora = () => new Date().toISOString();
 const uid = p => p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 const distHav = (a, b, c, d) => { const R = 6371, t = x => x * Math.PI / 180; const dLat = t(c - a), dLng = t(b - d); const x = Math.sin(dLat / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dLng / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-const precioVenta = (pc, mg) => roundUp2((Number(pc) || 0) / (1 - (Number(mg) || 0.30)));
+
+/* Precio de venta = ref / (1 - margen). Si margen no está, usa MARGEN_DEFAULT. */
+function calcPrecioVenta(ref, margen) {
+  const r = Number(ref) || 0;
+  const m = (margen == null || margen === "") ? MARGEN_DEFAULT : Number(margen);
+  if (m >= 1) return roundUp2(r);
+  return roundUp2(r / (1 - m));
+}
+
+/* Lee precio_ref_mayorista con fallback a precio_compra (compatibilidad) */
+function precioRef(pr) {
+  if (!pr) return 0;
+  if (pr.precio_ref_mayorista != null) return Number(pr.precio_ref_mayorista);
+  if (pr.precio_compra != null) return Number(pr.precio_compra);
+  return 0;
+}
+
+/* Margen real = (precio_venta - precio_compra_real) / precio_venta */
+function calcMargenReal(precioVenta, precioCompraReal) {
+  const pv = Number(precioVenta) || 0;
+  const pc = Number(precioCompraReal) || 0;
+  if (pv <= 0) return 0;
+  return (pv - pc) / pv;
+}
+function fmtMargen(m) {
+  const pct = (Number(m) || 0) * 100;
+  return pct.toFixed(1) + "%";
+}
+function claseMargen(m) {
+  const pct = (Number(m) || 0) * 100;
+  if (pct >= 25) return "margen-bueno";
+  if (pct >= 15) return "margen-regular";
+  return "margen-malo";
+}
 
 function toast(msg, tipo) {
   const c = document.getElementById("toast");
@@ -717,7 +755,6 @@ function toast(msg, tipo) {
 function vehiculoAModo(v) { if (v === "A pie") return "walking"; if (v === "Bici") return "bicycling"; return "driving"; }
 function modoIcono(m) { if (m === "walking") return "🚶 A pie"; if (m === "bicycling") return "🚲 Bici"; return "🚗 Vehículo"; }
 
-/* Capacidad configurable por vehículo */
 function capacidadVehiculo(vehiculo) {
   const caps = (DB.config && DB.config.cap_vehiculo) || {};
   return Number(caps[vehiculo]) || CAP_DEFAULT[vehiculo] || 45;
@@ -725,11 +762,9 @@ function capacidadVehiculo(vehiculo) {
 function maxParadasViaje() {
   return Number(DB.config && DB.config.max_paradas_viaje) || MAX_PARADAS_VIAJE_DEFAULT;
 }
-/* Peso total de un pedido = suma de cantidades de sus items */
 function pesoPedido(pedidoId) {
   return itemsDePedido(pedidoId).reduce((s, i) => s + Number(i.cantidad || 0), 0);
 }
-/* Divide una lista de pedidos en viajes según peso y número máximo de paradas */
 function dividirEnViajes(pedidosOrdenados, capKg, maxParadas) {
   const viajes = [];
   let actual = { paradas: [], peso: 0 };
@@ -756,7 +791,6 @@ function showSync(estado) {
   syncTimer = setTimeout(() => { el.classList.remove("visible"); }, 1500);
 }
 
-/* ---- Helpers de fechas para rondas semanales ---- */
 function normalizarALunes(fechaISO) {
   if (!fechaISO) return "";
   const d = new Date(fechaISO + "T12:00:00");
@@ -818,7 +852,7 @@ async function fsSetConfig(data) {
 }
 
 /* ============================================================================
-   ACCESOS RÁPIDOS (basados en DB local)
+   ACCESOS RÁPIDOS
    ============================================================================ */
 const rondaActual = () => DB.rondas[DB.rondaActiva] || {};
 const preciosDeRonda = (r = DB.rondaActiva) => DB.precios.filter(p => p.id_ronda === r);
@@ -835,8 +869,17 @@ const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === Stri
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
 /* ============================================================================
-   SEMILLA INICIAL (auto-seed)
+   SEMILLA INICIAL (auto-seed) — con valores GMML
    ============================================================================ */
+const GMML_REF = {
+  "PR-001": 3.73, "PR-002": 1.08, "PR-003": 2.20, "PR-004": 3.19,
+  "PR-005": 2.28, "PR-006": 1.48, "PR-007": 3.15, "PR-008": 1.05,
+  "PR-009": 1.88, "PR-010": 1.85, "PR-011": 2.13, "PR-012": 1.53,
+  "PR-013": 4.13, "PR-014": 3.38, "PR-015": 4.20, "PR-016": 14.63,
+  "PR-017": 16.63, "PR-018": 4.65, "PR-019": 3.38, "PR-020": 5.50,
+  "PR-021": 2.88, "PR-022": 5.58, "PR-023": 3.37, "PR-024": 4.28
+};
+
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
   const productos = [
@@ -868,57 +911,28 @@ function crearDBInicial() {
     { id: "R-03", nombre: "Jorge Valdivia Núñez", celular: "965432109", zona: "C", vehiculo: "Auto", capacidad_max_kg: 350, activo: true }
   ];
 
-  const preciosBase = [
-    ["PR-001", 1.75], ["PR-002", 0.60], ["PR-003", 1.31], ["PR-004", 2.64], ["PR-005", 1.12], ["PR-006", 1.11], ["PR-007", 1.21], ["PR-008", 0.85],
-    ["PR-009", 1.32], ["PR-010", 1.24], ["PR-011", 2.24], ["PR-012", 2.05], ["PR-013", 8.38], ["PR-014", 8.41], ["PR-015", 9.98], ["PR-016", 8.56],
-    ["PR-017", 10.25], ["PR-018", 9.48], ["PR-019", 1.48], ["PR-020", 1.24], ["PR-021", 1.23], ["PR-022", 1.99], ["PR-023", 3.66], ["PR-024", 1.99]
-  ];
-  const precios = preciosBase.map(([cod, pc]) => {
-    const prod = productos.find(p => p.codigo === cod);
-    const mg = (prod.grupo === "Sazón") ? 0.35 : 0.30;
-    const pv = precioVenta(pc, mg);
-    return { id_ronda: ronda, codigo_producto: cod, nombre: prod.nombre, unidad: prod.unidad, precio_compra: pc, margen: mg, precio_venta: pv, precio_minorista_ref: red2(pv * 1.4) };
+  // Usa GMML_REF como precio_ref_mayorista, margen 0.30 por default
+  const precios = productos.map(prod => {
+    const ref = GMML_REF[prod.codigo] ?? 1.00;
+    const mg = prod.grupo === "Sazón" ? 0.35 : 0.30;
+    const pv = calcPrecioVenta(ref, mg);
+    return {
+      id_ronda: ronda,
+      codigo_producto: prod.codigo,
+      nombre: prod.nombre,
+      unidad: prod.unidad,
+      precio_ref_mayorista: ref,
+      margen: mg,
+      precio_venta: pv
+    };
   });
 
-  const pedidos = [], items = [];
-  function addPedido(id, cli, estado, dir, lat, lng, modal, metodo, canal, notas, its) {
-    let sub = 0; its.forEach(it => { const pr = precios.find(p => p.codigo_producto === it.c); sub += it.q * pr.precio_venta; });
-    const desc = modal === "recojo" ? ZONAS[cli.zona].desc_recojo : 0;
-    const total = red2(sub - desc);
-    pedidos.push({
-      id_ronda: ronda, pedido_id: id, cliente_id: cli.id, cliente_nombre: cli.nombre, cliente_celular: cli.telefono,
-      estado, fecha: ahora(), modalidad: modal, metodo_pago: metodo, zona: cli.zona, direccion: dir, lat, lng,
-      subtotal: red2(sub), descuento_recojo: desc, total, fecha_entrega: null, repartidor_id: null,
-      notas, canal, codigo_yape: null, verificado_por: null, fecha_verificacion: null,
-      historial_estados: [{ estado, fecha: ahora(), por: "Fundador", motivo: "Creación" }]
-    });
-    its.forEach((it, i) => {
-      const pr = precios.find(p => p.codigo_producto === it.c);
-      items.push({
-        id_ronda: ronda, item_id: id + "-" + String(i + 1).padStart(2, "0"), pedido_id: id,
-        codigo_producto: it.c, nombre: pr.nombre, unidad: pr.unidad, cantidad: it.q,
-        precio_compra_estimado: pr.precio_compra, precio_venta_congelado: pr.precio_venta,
-        subtotal_venta: red2(it.q * pr.precio_venta), estado: "pendiente"
-      });
-    });
-  }
-  addPedido("P-0001", clientes[0], "pendiente_pago_yape", "Av. Aviación 512, Pueblo Libre", -12.0716, -77.0588, "delivery", "Yape", "web", "Dejar con el portero", [{ c: "PR-001", q: 3 }, { c: "PR-004", q: 2 }]);
-  addPedido("P-0002", clientes[1], "aceptado", "Calle Los Olivos 1170, Miraflores", -12.1266, -77.0286, "delivery", "Yape", "whatsapp", "", [{ c: "PR-005", q: 4 }, { c: "PR-006", q: 3 }]);
-  addPedido("P-0003", clientes[2], "empacado", "Calle Los Olivos 799, Miraflores", -12.1209, -77.0335, "delivery", "Yape", "web", "Tocar timbre", [{ c: "PR-001", q: 5 }, { c: "PR-024", q: 2 }]);
-  addPedido("P-0004", clientes[3], "entregado", "Av. Petit Thouars 1116, San Borja", -12.1122, -77.0000, "delivery", "Yape", "web", "", [{ c: "PR-004", q: 3 }, { c: "PR-005", q: 2 }]);
-  addPedido("P-0005", clientes[4], "pendiente_pago_efectivo", "Jr. Puno 1967, Breña", -12.0598, -77.0561, "delivery", "Efectivo", "whatsapp", "", [{ c: "PR-001", q: 4 }, { c: "PR-002", q: 3 }]);
-  addPedido("P-0006", clientes[1], "aceptado", "Calle Los Olivos 1170, Miraflores", -12.1266, -77.0286, "recojo", "Yape", "web", "Pasa el domingo", [{ c: "PR-003", q: 4 }, { c: "PR-006", q: 3 }]);
-
-  const compras = [
-    { id_ronda: ronda, codigo_producto: "PR-001", nombre: "Papa amarilla", unidad: "kg", cantidad_real: 12, precio_unitario_real: 1.72, merma: 0.3, confirmado: true },
-    { id_ronda: ronda, codigo_producto: "PR-005", nombre: "Cebolla roja", unidad: "kg", cantidad_real: 6, precio_unitario_real: 1.10, merma: 0.1, confirmado: true }
-  ];
-
   return {
-    version: 13,
+    version: 14,
     rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
-    productos, clientes, repartidores, precios, pedidos, items, compras,
+    productos, clientes, repartidores, precios,
+    pedidos: [], items: [], compras: [],
     entregas: [], gastos: [], excedentes: [], reclamos: [],
     config: {
       oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
@@ -945,25 +959,45 @@ async function autoSeed() {
   seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p, { merge: true }); });
   await batch2.commit();
 
-  const batch3 = writeBatch(db);
-  seed.pedidos.forEach(p => { batch3.set(doc(db, "rondas", rondaId, "pedidos", p.pedido_id), p, { merge: true }); });
-  await batch3.commit();
-
-  const batch4 = writeBatch(db);
-  seed.items.forEach(i => { batch4.set(doc(db, "rondas", rondaId, "items", i.item_id), i, { merge: true }); });
-  await batch4.commit();
-
-  const batch5 = writeBatch(db);
-  seed.compras.forEach(c => { batch5.set(doc(db, "rondas", rondaId, "compras", c.codigo_producto), c, { merge: true }); });
-  await batch5.commit();
-
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
 
-  console.log("Auto-seed completado");
+  console.log("Auto-seed v14 completado");
 }
 
 /* ============================================================================
-   CARGA INICIAL DESDE FIRESTORE
+   MIGRACIÓN: precio_compra → precio_ref_mayorista
+   ============================================================================ */
+async function migrarPreciosRonda(rondaId) {
+  if (!rondaId) return;
+  try {
+    const snap = await getDocs(collection(db, "rondas", rondaId, "precios"));
+    const batch = writeBatch(db);
+    let migrados = 0;
+    snap.docs.forEach(d => {
+      const p = d.data();
+      if (p.precio_ref_mayorista == null && p.precio_compra != null) {
+        const ref = Number(p.precio_compra) || 0;
+        const mg = Number(p.margen ?? MARGEN_DEFAULT);
+        const pv = calcPrecioVenta(ref, mg);
+        batch.set(d.ref, {
+          precio_ref_mayorista: ref,
+          precio_venta: pv
+        }, { merge: true });
+        migrados++;
+      }
+    });
+    if (migrados > 0) {
+      await batch.commit();
+      console.log(`✓ Migrados ${migrados} precios en ${rondaId}`);
+      toast(`Migrados ${migrados} precios a nuevo formato`, "info");
+    }
+  } catch (e) {
+    console.error("Error migrando precios:", e);
+  }
+}
+
+/* ============================================================================
+   CARGA INICIAL
    ============================================================================ */
 async function cargarConfig() {
   const ref = doc(db, "config", "global");
@@ -1003,9 +1037,6 @@ async function cargarRondas() {
   DB.rondaActiva = DB.config.ronda_activa && DB.rondas[DB.config.ronda_activa] ? DB.config.ronda_activa : (keys[0] || "");
 }
 
-/* ============================================================================
-   CANCELACIÓN DE SUSCRIPCIONES
-   ============================================================================ */
 function cancelarSuscripcionesRonda() {
   unsubscribersRonda.forEach(u => u());
   unsubscribersRonda = [];
@@ -1021,12 +1052,12 @@ function cancelarSuscripciones() {
   cancelarSuscripcionesGlobales();
 }
 
-/* ============================================================================
-   SUSCRIPCIONES EN TIEMPO REAL
-   ============================================================================ */
 function suscribirRonda(rondaId) {
   cancelarSuscripcionesRonda();
   if (!rondaId) return;
+
+  // Migrar al abrir (una sola vez por sesión)
+  migrarPreciosRonda(rondaId);
 
   unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
     DB.precios = snap.docs.map(d => d.data());
@@ -1075,16 +1106,16 @@ function suscribirCatalogo() {
   unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "productos", "items"), snap => {
     DB.productos = snap.docs.map(d => d.data());
     renderTodo();
-  }, err => console.error("Snapshot catálogo productos:", err)));
+  }, err => console.error("Snapshot productos:", err)));
 
   unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "clientes", "items"), snap => {
     DB.clientes = snap.docs.map(d => d.data());
-  }, err => console.error("Snapshot catálogo clientes:", err)));
+  }, err => console.error("Snapshot clientes:", err)));
 
   unsubscribersGlobal.push(onSnapshot(collection(db, "catalogo", "repartidores", "items"), snap => {
     DB.repartidores = snap.docs.map(d => d.data());
     renderTodo();
-  }, err => console.error("Snapshot catálogo repartidores:", err)));
+  }, err => console.error("Snapshot repartidores:", err)));
 }
 
 function suscribirRondas() {
@@ -1104,9 +1135,6 @@ function suscribirRondas() {
   }, err => console.error("Snapshot rondas:", err)));
 }
 
-/* ============================================================================
-   CARGA INICIAL
-   ============================================================================ */
 async function cargarTodo() {
   await cargarConfig();
   await cargarCatalogo();
@@ -1173,7 +1201,7 @@ function renderSemana() {
 }
 
 /* ============================================================================
-   RENDER — NAVEGACIÓN
+   NAVEGACIÓN
    ============================================================================ */
 function mostrarVista(n) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
@@ -1354,7 +1382,18 @@ async function confirmarNuevaRonda() {
       if (snap.size > 0) {
         const batch = writeBatch(db);
         snap.docs.forEach(d => {
-          const nuevo = { ...d.data(), id_ronda: id };
+          const data = d.data();
+          const ref = precioRef(data);
+          const mg = Number(data.margen ?? MARGEN_DEFAULT);
+          const nuevo = {
+            id_ronda: id,
+            codigo_producto: data.codigo_producto,
+            nombre: data.nombre,
+            unidad: data.unidad,
+            precio_ref_mayorista: ref,
+            margen: mg,
+            precio_venta: calcPrecioVenta(ref, mg)
+          };
           batch.set(doc(db, "rondas", id, "precios", d.id), nuevo, { merge: true });
         });
         await batch.commit();
@@ -1497,8 +1536,8 @@ function renderDashboard() {
   const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
   const pmap = precioMapa();
   const items = itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id));
-  const costoEst = items.reduce((s, i) => s + Number(i.cantidad) * Number(pmap[i.codigo_producto]?.precio_compra || 0), 0);
-  const costoReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || c.precio_compra || 0), 0);
+  const costoEst = items.reduce((s, i) => s + Number(i.cantidad) * precioRef(pmap[i.codigo_producto]), 0);
+  const costoReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
   document.getElementById("dashPedidos").textContent = activos.length;
   document.getElementById("dashIngreso").textContent = soles(ingreso);
   document.getElementById("dashCostoEst").textContent = soles(costoEst);
@@ -1522,9 +1561,9 @@ function renderDashboard() {
       <div class="row total"><span>Utilidad neta</span><span>${soles(util)}</span></div>
     </div>
     <div class="info-box" style="margin-top:10px">
-      <strong>Δ compra vs estimado:</strong> <span class="${deltaEst > 0 ? 'delta-pos' : (deltaEst < 0 ? 'delta-neg' : 'delta-zero')}">${soles(deltaEst)}</span>
-      ${deltaEst > 0 ? '<br><span class="small-note">Compraste más barato que el estimado — ganancia extra.</span>' : ''}
-      ${deltaEst < 0 ? '<br><span class="small-note">Compraste más caro — come margen.</span>' : ''}
+      <strong>Δ compra vs referencia:</strong> <span class="${deltaEst > 0 ? 'delta-pos' : (deltaEst < 0 ? 'delta-neg' : 'delta-zero')}">${soles(deltaEst)}</span>
+      ${deltaEst > 0 ? '<br><span class="small-note">Compraste más barato que la referencia — ganancia extra.</span>' : ''}
+      ${deltaEst < 0 ? '<br><span class="small-note">Compraste más caro que la referencia — come margen.</span>' : ''}
     </div>`;
   const top = {};
   items.forEach(i => { top[i.nombre] = (top[i.nombre] || 0) + Number(i.cantidad); });
@@ -1593,7 +1632,7 @@ function botonesPipeline(p) {
 }
 
 /* ============================================================================
-   ACEPTAR
+   ACEPTAR / RETROCEDER
    ============================================================================ */
 function abrirAceptar(id) {
   const p = pedidoPorId(id); if (!p) return;
@@ -1645,9 +1684,6 @@ async function transicionar(id, nuevo) {
   renderTodo();
 }
 
-/* ============================================================================
-   RETROCEDER
-   ============================================================================ */
 function abrirRetroceder(id, destino) {
   const p = pedidoPorId(id); if (!p) return;
   const opciones = {
@@ -1754,8 +1790,7 @@ function verDetalle(id) {
       <div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div>
       <div class="row"><span>Desc. recojo</span><span>−${soles(p.descuento_recojo)}</span></div>
       <div class="row total"><span>TOTAL</span><span>${soles(p.total)}</span></div>
-    </div>
-    <p class="small-note" style="margin-top:10px">Este pedido está en estado terminal. Igual podés retroceder desde el pipeline.</p>`}
+    </div>`}
     `;
   if (edit) recalcEdResumen(id);
   abrirModal("modalDetalle");
@@ -1784,7 +1819,7 @@ async function edAgregarItem(pedidoId) {
   const it = {
     id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"),
     pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad, cantidad: 1,
-    precio_compra_estimado: pr.precio_compra, precio_venta_congelado: pr.precio_venta,
+    precio_compra_estimado: precioRef(pr), precio_venta_congelado: pr.precio_venta,
     subtotal_venta: red2(1 * pr.precio_venta), estado: "pendiente"
   };
   await guardarItem(it);
@@ -1877,7 +1912,7 @@ function calcAgregarProducto() {
   if (!pr || !prod) { toast("Producto sin precio", "err"); return; }
   const ex = calcItems.find(i => i.codigo === cod);
   if (ex) ex.cantidad++;
-  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad, cantidad: 1, precio_compra: pr.precio_compra, precio_venta: pr.precio_venta });
+  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad, cantidad: 1, precio_ref: precioRef(pr), precio_venta: pr.precio_venta });
   document.getElementById("calcProductoSelect").value = "";
   calcRenderItems();
 }
@@ -1973,7 +2008,7 @@ async function calcGuardar() {
       id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(baseItem).padStart(2, "0"),
       pedido_id: pedidoId, codigo_producto: it.codigo, nombre: it.nombre,
       unidad: it.unidad, cantidad: it.cantidad,
-      precio_compra_estimado: it.precio_compra, precio_venta_congelado: it.precio_venta,
+      precio_compra_estimado: it.precio_ref, precio_venta_congelado: it.precio_venta,
       subtotal_venta: red2(it.cantidad * it.precio_venta), estado: "pendiente"
     };
     await guardarItem(item);
@@ -2049,7 +2084,7 @@ async function guardarProducto() {
 }
 
 /* ============================================================================
-   PRECIOS
+   PRECIOS (con precio_ref_mayorista)
    ============================================================================ */
 async function renderPrecios() {
   document.getElementById("preciosRondaLabel").textContent = "· " + labelRonda(DB.rondaActiva);
@@ -2079,10 +2114,12 @@ async function renderPrecios() {
   if (g) prods = prods.filter(p => p.grupo === g);
   body.innerHTML = prods.map(p => {
     const pr = pmap[p.codigo];
-    const pc = pr ? pr.precio_compra : 0, mg = pr ? pr.margen : 0.30, pv = pr ? pr.precio_venta : 0, ref = pr ? pr.precio_minorista_ref : 0;
+    const ref = pr ? precioRef(pr) : 0;
+    const mg = pr ? Number(pr.margen ?? MARGEN_DEFAULT) : MARGEN_DEFAULT;
+    const pv = pr ? pr.precio_venta : calcPrecioVenta(ref, mg);
     const prev = prevMap[p.codigo]; let delta = "";
     if (prev) {
-      const d = red2(pc - prev.precio_compra);
+      const d = red2(ref - precioRef(prev));
       if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
       else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
       else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
@@ -2091,32 +2128,34 @@ async function renderPrecios() {
       <td><strong>${esc(p.codigo)}</strong></td>
       <td>${esc(p.nombre)}</td>
       <td>${esc(p.unidad)}</td>
-      <td><input type="number" step="0.01" value="${pc}" onchange="setPrecio('${p.codigo}','precio_compra',this.value)"></td>
-      <td><input type="number" step="0.01" value="${mg}" onchange="setPrecio('${p.codigo}','margen',this.value)"></td>
+      <td><input type="number" step="0.01" value="${ref}" onchange="setPrecio('${p.codigo}','precio_ref_mayorista',this.value)"></td>
+      <td><input type="number" step="0.01" min="0" max="0.95" value="${mg}" onchange="setPrecio('${p.codigo}','margen',this.value)"></td>
       <td id="pv-${p.codigo}"><strong style="color:var(--verde)">${soles(pv)}</strong></td>
-      <td><input type="number" step="0.01" value="${ref}" onchange="setPrecio('${p.codigo}','precio_minorista_ref',this.value)"></td>
       <td>${delta}</td>
     </tr>`;
   }).join("");
 }
+
 async function setPrecio(codigo, campo, valor) {
   const num = Number(valor) || 0;
   const prod = DB.productos.find(p => p.codigo === codigo); if (!prod) return;
   let pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
   if (!pr) {
     pr = {
-      id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod.nombre, unidad: prod.unidad,
-      precio_compra: 0, margen: 0.30, precio_venta: 0, precio_minorista_ref: 0
+      id_ronda: DB.rondaActiva, codigo_producto: codigo,
+      nombre: prod.nombre, unidad: prod.unidad,
+      precio_ref_mayorista: 0, margen: MARGEN_DEFAULT, precio_venta: 0
     };
   }
   pr[campo] = num;
-  if (campo === "precio_compra" || campo === "margen") {
-    pr.precio_venta = precioVenta(pr.precio_compra, pr.margen);
+  if (campo === "precio_ref_mayorista" || campo === "margen") {
+    pr.precio_venta = calcPrecioVenta(pr.precio_ref_mayorista, pr.margen);
     const el = document.getElementById("pv-" + codigo);
     if (el) el.innerHTML = `<strong style="color:var(--verde)">${soles(pr.precio_venta)}</strong>`;
   }
   await guardarPrecio(pr);
 }
+
 async function copiarPreciosRondaAnterior() {
   const rondas = Object.keys(DB.rondas).sort();
   const idx = rondas.indexOf(DB.rondaActiva);
@@ -2127,13 +2166,25 @@ async function copiarPreciosRondaAnterior() {
   if (snap.size === 0) { toast("La ronda anterior no tiene precios", "warn"); return; }
   const batch = writeBatch(db);
   snap.docs.forEach(d => {
-    const nuevo = { ...d.data(), id_ronda: DB.rondaActiva };
+    const data = d.data();
+    const ref = precioRef(data);
+    const mg = Number(data.margen ?? MARGEN_DEFAULT);
+    const nuevo = {
+      id_ronda: DB.rondaActiva,
+      codigo_producto: data.codigo_producto,
+      nombre: data.nombre,
+      unidad: data.unidad,
+      precio_ref_mayorista: ref,
+      margen: mg,
+      precio_venta: calcPrecioVenta(ref, mg)
+    };
     batch.set(doc(db, "rondas", DB.rondaActiva, "precios", d.id), nuevo, { merge: true });
   });
   await batch.commit();
   renderPrecios().catch(e => console.error("renderPrecios:", e));
   toast("✓ Copiados de " + labelRonda(prev), "ok");
 }
+
 async function publicarPrecios() {
   await fsSetRonda(DB.rondaActiva, { precios_publicados: true });
   DB.rondas[DB.rondaActiva].precios_publicados = true;
@@ -2141,7 +2192,7 @@ async function publicarPrecios() {
 }
 
 /* ============================================================================
-   COMPRA
+   COMPRA (con margen real)
    ============================================================================ */
 function calcularListaCompra() {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
@@ -2157,11 +2208,11 @@ function calcularListaCompra() {
   }
   let costoEst = 0, costoReal = 0;
   filas.forEach(f => {
-    const puEst = pmap[f.codigo] ? pmap[f.codigo].precio_compra : 0;
+    const ref = precioRef(pmap[f.codigo]);
     const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
     const cantReal = aj.cantidad_real != null ? aj.cantidad_real : f.pedida;
-    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : puEst;
-    costoEst += cantReal * puEst; costoReal += cantReal * puReal;
+    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : ref;
+    costoEst += cantReal * ref; costoReal += cantReal * puReal;
   });
   const delta = costoEst - costoReal;
   const confirmados = compras.filter(c => c.confirmado).length;
@@ -2170,42 +2221,60 @@ function calcularListaCompra() {
       <div class="box">Productos<strong>${filas.length}</strong></div>
       <div class="box">Costo estimado<strong>${soles(costoEst)}</strong></div>
       <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
-      <div class="box">Δ vs estimado<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div>
+      <div class="box">Δ vs ref.<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div>
     </div>
-    <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ganancia extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pérdida: ${soles(Math.abs(delta))}` : ""}</div>`;
+    <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}</div>`;
   document.getElementById("listaCompraContenido").innerHTML = `
     <div class="table-scroll"><table>
-      <thead><tr><th>✓</th><th>Producto</th><th>Unidad</th><th>Pedida</th><th>Cant. real</th><th>P. unit. est.</th><th>P. unit. real</th><th>Merma</th><th>Costo real</th><th>Δ vs est.</th></tr></thead>
+      <thead><tr>
+        <th>✓</th>
+        <th>Producto</th>
+        <th>Pedida</th>
+        <th>Cant. real</th>
+        <th>P. ref mayor.</th>
+        <th>P. compra real</th>
+        <th>P. venta</th>
+        <th>Margen real</th>
+        <th>Costo total</th>
+        <th>Δ vs ref.</th>
+      </tr></thead>
       <tbody>${filas.map(f => {
+    const pr = pmap[f.codigo];
     const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
     const cantReal = aj.cantidad_real != null ? aj.cantidad_real : f.pedida;
-    const puEst = pmap[f.codigo] ? pmap[f.codigo].precio_compra : 0;
-    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : puEst;
+    const ref = precioRef(pr);
+    const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : ref;
+    const pv = pr ? pr.precio_venta : 0;
     const mm = aj.merma || 0; const confirmado = aj.confirmado === true;
-    const costoRealItem = cantReal * puReal;
-    const deltaItem = red2(cantReal * (puEst - puReal));
+    const costoTotal = cantReal * puReal;
+    const deltaItem = red2(cantReal * (ref - puReal));
     const cl = deltaItem > 0 ? "delta-pos" : (deltaItem < 0 ? "delta-neg" : "delta-zero");
+    const margenReal = calcMargenReal(pv, puReal);
+    const claseM = aj.precio_unitario_real != null ? claseMargen(margenReal) : "";
+    const margenTxt = aj.precio_unitario_real != null ? fmtMargen(margenReal) : "—";
     return `<tr style="${confirmado ? 'background:var(--verde-claro)' : ''}">
           <td><input type="checkbox" ${confirmado ? "checked" : ""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td>
           <td><strong>${esc(f.nombre)}</strong></td>
-          <td>${esc(f.unidad)}</td>
           <td>${f.pedida.toFixed(2)}</td>
-          <td><input type="number" step="0.01" value="${cantReal}" onchange="setCompraReal('${f.codigo}',this.value)"></td>
-          <td>${soles(puEst)}</td>
-          <td><input type="number" step="0.01" value="${puReal}" onchange="setCompraPrecioReal('${f.codigo}',this.value)"></td>
-          <td><input type="number" step="0.01" value="${mm}" onchange="setCompraMerma('${f.codigo}',this.value)"></td>
-          <td><strong>${soles(costoRealItem)}</strong></td>
+          <td><input type="number" step="0.01" value="${cantReal}" onchange="setCompraReal('${f.codigo}',this.value)" style="max-width:80px"></td>
+          <td>${soles(ref)}</td>
+          <td><input type="number" step="0.01" value="${puReal}" onchange="setCompraPrecioReal('${f.codigo}',this.value)" style="max-width:90px"></td>
+          <td><strong style="color:var(--verde)">${soles(pv)}</strong></td>
+          <td><span class="${claseM}">${margenTxt}</span></td>
+          <td><strong>${soles(costoTotal)}</strong></td>
           <td class="${cl}"><strong>${soles(deltaItem)}</strong></td>
         </tr>`;
   }).join("")}</tbody></table></div>`;
 }
 function asegurarCompraItem(codigo) {
-  const prod = DB.productos.find(p => p.codigo === codigo); const pr = precioMapa()[codigo];
+  const prod = DB.productos.find(p => p.codigo === codigo);
+  const pr = precioMapa()[codigo];
   let c = DB.compras.find(x => x.id_ronda === DB.rondaActiva && x.codigo_producto === codigo);
   if (!c) {
     c = {
-      id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, unidad: prod?.unidad || "",
-      cantidad_real: null, precio_unitario_real: pr ? pr.precio_compra : 0, merma: 0, confirmado: false
+      id_ronda: DB.rondaActiva, codigo_producto: codigo,
+      nombre: prod?.nombre || codigo, unidad: prod?.unidad || "",
+      cantidad_real: null, precio_unitario_real: precioRef(pr), merma: 0, confirmado: false
     };
     DB.compras.push(c);
   }
@@ -2217,7 +2286,7 @@ async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codi
 async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
 
 /* ============================================================================
-   ENTREGAS  (CON DIVISIÓN EN VIAJES)
+   ENTREGAS (con viajes)
    ============================================================================ */
 function renderEntregas() {
   const pedidos = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
@@ -2234,7 +2303,6 @@ function renderEntregas() {
 
   let totalParadas = 0, totalPeso = 0, totalViajes = 0;
 
-  // ---- Resumen general ----
   const resumenZonas = zonas.map(z => {
     const del = pedidos.filter(p => p.zona === z);
     if (!del.length) return "";
@@ -2245,21 +2313,12 @@ function renderEntregas() {
     const orden = optimizarLista(del);
     const viajes = dividirEnViajes(orden, cap, maxParadas);
     const peso = del.reduce((s, p) => s + pesoPedido(p.pedido_id), 0);
-    totalParadas += del.length;
-    totalPeso += peso;
-    totalViajes += viajes.length;
+    totalParadas += del.length; totalPeso += peso; totalViajes += viajes.length;
     return `<div class="box">Zona ${z}<strong>${viajes.length} ${viajes.length === 1 ? "viaje" : "viajes"}</strong></div>`;
   }).join("");
 
-  info.innerHTML = `
-    ${resumenZonas}
-    <div class="box">Total paradas<strong>${totalParadas}</strong></div>
-  `;
+  info.innerHTML = `${resumenZonas}<div class="box">Total paradas<strong>${totalParadas}</strong></div>`;
 
-  // Ajustamos el grid del ruta-info para que muestre 4 columnas con los 4 datos
-  // (Zona A, Zona B, Zona C, Total paradas) → pero puede variar según las zonas existentes.
-
-  // ---- Bloques por zona ----
   cont.innerHTML = zonas.map(z => {
     const del = pedidos.filter(p => p.zona === z);
     if (!del.length) return "";
@@ -2272,12 +2331,11 @@ function renderEntregas() {
     const viajes = dividirEnViajes(orden, cap, maxParadas);
     const pesoZona = del.reduce((s, p) => s + pesoPedido(p.pedido_id), 0);
 
-    // Bloque de cada viaje
     const viajesHTML = viajes.map((v, idxV) => {
       const km = calcularDistanciaTotal(v.paradas);
       const gmapsUrl = armarUrlGoogle(v.paradas, modo);
       const waDisabled = !rep || !rep.celular;
-      const waTitle = waDisabled ? 'Asigná un repartidor con celular para enviar la ruta' : 'Abrir WhatsApp con el mensaje';
+      const waTitle = waDisabled ? 'Asigná un repartidor con celular' : 'Abrir WhatsApp';
 
       const paradasHTML = v.paradas.map((p, i) => {
         const e = DB.entregas.find(x => x.id_ronda === DB.rondaActiva && x.pedido_id === p.pedido_id) || {};
@@ -2353,7 +2411,6 @@ function renderEntregas() {
   }).join("");
 }
 
-/* Orden tipo vecino-más-cercano desde la oficina */
 function optimizarLista(lista) {
   if (lista.length < 2) return lista.slice();
   const conC = lista.filter(p => p.lat && p.lng);
@@ -2383,7 +2440,6 @@ function armarUrlGoogle(orden, modo) {
   return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w ? "&waypoints=" + w : ""}&travelmode=${modo}`;
 }
 
-/* ---- Mensaje WhatsApp por viaje ---- */
 function construirMensajeRuta(zona, viaje, idxViaje, totalViajes, rep){
   const vehiculo = rep ? rep.vehiculo : "Auto";
   const modo = vehiculoAModo(vehiculo);
@@ -2432,7 +2488,7 @@ function previewRuta(zona, idxViaje){
       <button class="btn-ghost" onclick="copiarMensajeRuta()">📋 Copiar</button>
       <button class="btn-wa" onclick="enviarRutaWA('${zona}', ${idxViaje})">📱 Abrir WhatsApp</button>
     </div>
-    ${!rep || !rep.celular ? `<div class="warn-box" style="margin-top:10px"><strong>Ojo:</strong> asigná un repartidor con celular a esta zona para poder enviarlo por WhatsApp.</div>` : ''}
+    ${!rep || !rep.celular ? `<div class="warn-box" style="margin-top:10px"><strong>Ojo:</strong> asigná un repartidor con celular a esta zona.</div>` : ''}
   `;
   abrirModal('modalRutaPreview');
 }
@@ -2706,9 +2762,7 @@ async function calcularReportes() {
     };
 
     const historicos = await Promise.all(rondasKeys.map(async (rid) => {
-      if (rid === rondaActiva) {
-        return { rid, ...datosActivos };
-      }
+      if (rid === rondaActiva) return { rid, ...datosActivos };
       try {
         const [pedSnap, comSnap, gasSnap, recSnap, excSnap] = await Promise.all([
           getDocs(collection(db, "rondas", rid, "pedidos")),
@@ -2734,7 +2788,6 @@ async function calcularReportes() {
     const aceptadosAct = datosActivos.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
     const ingresosAct = aceptadosAct.reduce((s, p) => s + Number(p.total || 0), 0);
     const comprasRealAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
-    const comprasEstAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_compra || 0), 0);
     const gastosAct = datosActivos.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
     const excAct = datosActivos.excedentes.reduce((s, e) => s + Number(e.ingreso || 0), 0);
     const reclAct = datosActivos.reclamos.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
@@ -2743,7 +2796,6 @@ async function calcularReportes() {
     const pt = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
     datosActivos.gastos.forEach(g => { pt[g.tipo] = (pt[g.tipo] || 0) + Number(g.monto || 0); });
     const cl = un >= 0 ? "good" : "bad";
-    const delta = comprasEstAct - comprasRealAct;
 
     const rAct = rondaActual();
     const nomAct = (rAct.nombre || "").trim();
@@ -2759,7 +2811,6 @@ async function calcularReportes() {
         </div>
         <div class="fin-col"><h4>Costos</h4>
           <div class="fin-row"><span>Compra real</span><span class="val">${soles(comprasRealAct)}</span></div>
-          <div class="fin-row"><span>Compra est.</span><span class="val">${soles(comprasEstAct)}</span></div>
           <div class="fin-row"><span>Transporte</span><span class="val">${soles(pt.transporte)}</span></div>
           <div class="fin-row"><span>Empaque</span><span class="val">${soles(pt.empaque)}</span></div>
           <div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div>
@@ -2769,7 +2820,6 @@ async function calcularReportes() {
         </div>
         <div class="fin-col"><h4>Resultado</h4>
           <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div>
-          <div class="fin-row"><span>Δ compra vs est.</span><span class="val ${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</span></div>
           <div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastosAct)}</span></div>
           <div class="fin-row"><span>Reclamos</span><span class="val">−${soles(reclAct)}</span></div>
           <div class="fin-row"><span>Excedentes</span><span class="val">+${soles(excAct)}</span></div>
@@ -2790,9 +2840,7 @@ async function calcularReportes() {
           const ut = ing - cr - ga + ex - rc;
           const meta = DB.rondas[h.rid] || {};
           const nom = (meta.nombre || "").trim();
-          const labelHist = nom
-            ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(h.rid)}</span>`
-            : `<strong>${esc(h.rid)}</strong>`;
+          const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(h.rid)}</span>` : `<strong>${esc(h.rid)}</strong>`;
           return `<tr>
             <td>${labelHist}</td>
             <td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td>
@@ -2803,7 +2851,7 @@ async function calcularReportes() {
       </table></div>`;
   } catch (e) {
     console.error("Error en calcularReportes:", e);
-    cont.innerHTML = `<div class="error-box">Error al calcular reportes: ${esc(e.message)}</div>`;
+    cont.innerHTML = `<div class="error-box">Error: ${esc(e.message)}</div>`;
   }
 }
 
@@ -2830,7 +2878,7 @@ function renderConfig() {
     </div>
 
     <h3 style="margin-top:24px">🚚 Capacidad de reparto</h3>
-    <p class="section-sub">Con estos valores el admin divide automáticamente los pedidos de cada zona en viajes. Se corta por peso o por máximo de paradas (lo que se alcance primero).</p>
+    <p class="section-sub">Con estos valores el admin divide automáticamente los pedidos de cada zona en viajes.</p>
     <div class="config-cap-grid">
       <div><label>A pie / carrito (kg)</label><input type="number" step="1" value="${esc(caps["A pie"] ?? CAP_DEFAULT["A pie"])}" onchange="updCapVehiculo('A pie',this.value)"></div>
       <div><label>Bici (kg)</label><input type="number" step="1" value="${esc(caps["Bici"] ?? CAP_DEFAULT["Bici"])}" onchange="updCapVehiculo('Bici',this.value)"></div>
@@ -2843,9 +2891,6 @@ function renderConfig() {
     <div class="info-box" style="margin-top:16px">
       <strong>Zonas y mínimos:</strong><br>
       ${Object.entries(ZONAS).map(([z, i]) => `<strong>Zona ${z}</strong>: ${i.distritos.join(", ")} · Mínimo ${soles(i.min)} · Recojo −${soles(i.desc_recojo)}`).join("<br>")}
-    </div>
-    <div class="warn-box" style="margin-top:12px">
-      <strong>Nota:</strong> 9 paradas es el límite que Google Maps acepta por link. Si subís este número, los viajes con más paradas pueden no abrir bien en Maps.
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -2888,43 +2933,15 @@ async function exportarJSON() {
           excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
           reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
         };
-      } else {
-        try {
-          const [pSnap, prSnap, iSnap, cSnap, eSnap, gSnap, xSnap, rSnap] = await Promise.all([
-            getDocs(collection(db, "rondas", rid, "pedidos")),
-            getDocs(collection(db, "rondas", rid, "precios")),
-            getDocs(collection(db, "rondas", rid, "items")),
-            getDocs(collection(db, "rondas", rid, "compras")),
-            getDocs(collection(db, "rondas", rid, "entregas")),
-            getDocs(collection(db, "rondas", rid, "gastos")),
-            getDocs(collection(db, "rondas", rid, "excedentes")),
-            getDocs(collection(db, "rondas", rid, "reclamos"))
-          ]);
-          data.rondas[rid] = {
-            meta: DB.rondas[rid],
-            precios: prSnap.docs.map(d => d.data()),
-            pedidos: pSnap.docs.map(d => d.data()),
-            items: iSnap.docs.map(d => d.data()),
-            compras: cSnap.docs.map(d => d.data()),
-            entregas: eSnap.docs.map(d => d.data()),
-            gastos: gSnap.docs.map(d => d.data()),
-            excedentes: xSnap.docs.map(d => d.data()),
-            reclamos: rSnap.docs.map(d => d.data())
-          };
-        } catch (e) {
-          console.error("Error exportando ronda " + rid, e);
-          data.rondas[rid] = { meta: DB.rondas[rid], precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
-        }
       }
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v13_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v14_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
 
-/* ---- IMPORTAR JSON ---- */
 function importarJSON() {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
   inp.onchange = e => {
@@ -2964,7 +2981,6 @@ function importarJSON() {
   inp.click();
 }
 
-/* ---- Serialización helpers (Excel) ---- */
 function serializeObj(o) {
   const out = {};
   for (const k in o) {
@@ -2990,15 +3006,12 @@ function deserializeRow(row) {
   return out;
 }
 
-/* ---- EXPORTAR EXCEL ---- */
 async function exportarExcel() {
   try {
-    if (typeof XLSX === "undefined") { toast("SheetJS no cargado. Revisá la conexión.", "err"); return; }
+    if (typeof XLSX === "undefined") { toast("SheetJS no cargado.", "err"); return; }
     toast("Preparando Excel…", "warn");
-
     const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
     const data = { precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
-
     const rids = Object.keys(DB.rondas);
     for (const rid of rids) {
       for (const sub of subcols) {
@@ -3009,20 +3022,16 @@ async function exportarExcel() {
           try {
             const snap = await getDocs(collection(db, "rondas", rid, sub));
             snap.docs.forEach(d => data[sub].push({ id_ronda: rid, ...d.data() }));
-          } catch (e) {
-            console.error("Excel export ronda " + rid + "/" + sub, e);
-          }
+          } catch (e) { console.error(e); }
         }
       }
     }
-
     const wb = XLSX.utils.book_new();
     const add = (name, arr) => {
       const rows = (arr || []).map(serializeObj);
       const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([["(sin datos)"]]);
       XLSX.utils.book_append_sheet(wb, ws, name);
     };
-
     const rondasArr = rids.map(rid => ({ id_ronda: rid, ...DB.rondas[rid] }));
     add("Rondas", rondasArr);
     add("Pedidos", data.pedidos);
@@ -3036,8 +3045,7 @@ async function exportarExcel() {
     add("Productos", DB.productos);
     add("Clientes", DB.clientes);
     add("Repartidores", DB.repartidores);
-
-    XLSX.writeFile(wb, "misti_v13_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v14_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) {
     console.error("exportarExcel:", e);
@@ -3045,7 +3053,6 @@ async function exportarExcel() {
   }
 }
 
-/* ---- IMPORTAR EXCEL ---- */
 async function commitBatches(pathArr, items) {
   if (!items || !items.length) return;
   const chunks = [];
@@ -3072,19 +3079,15 @@ async function importarExcel() {
         const wb = XLSX.read(data, { type: "array" });
         const names = wb.SheetNames;
         if (!names.length) { toast("Excel vacío", "err"); return; }
-        if (!confirm(`Hojas detectadas:\n${names.join(", ")}\n\n¿Importar estos datos a Firestore? Se sobrescribirán documentos existentes con el mismo ID.`)) return;
-        if (!confirm("⚠️ Última confirmación: ¿continuar con la importación?")) return;
-
+        if (!confirm(`Hojas: ${names.join(", ")}\n\n¿Importar a Firestore?`)) return;
+        if (!confirm("⚠️ Última confirmación")) return;
         cancelarSuscripciones();
-        toast("Importando Excel…", "warn");
-
+        toast("Importando…", "warn");
         const getRows = name => {
           const sh = wb.Sheets[name];
           if (!sh) return [];
           return XLSX.utils.sheet_to_json(sh, { defval: "" }).map(deserializeRow);
         };
-
-        // 1. Rondas
         const rondasRows = getRows("Rondas");
         const rondasItems = [];
         for (const r of rondasRows) {
@@ -3094,8 +3097,6 @@ async function importarExcel() {
           rondasItems.push({ id: rid, data: { ...meta, id_ronda: rid } });
         }
         await commitBatches(["rondas"], rondasItems);
-
-        // 2. Subcolecciones
         const subs = [
           { sheet: "Precios", col: "precios", idField: "codigo_producto" },
           { sheet: "Pedidos", col: "pedidos", idField: "pedido_id" },
@@ -3123,22 +3124,17 @@ async function importarExcel() {
             await commitBatches(["rondas", rid, s.col], grouped[rid]);
           }
         }
-
-        // 3. Catálogo
         const prodItems = getRows("Productos").map(r => ({ id: String(r.codigo || "").trim(), data: r })).filter(x => x.id);
         await commitBatches(["catalogo", "productos", "items"], prodItems);
-
         const cliItems = getRows("Clientes").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id);
         await commitBatches(["catalogo", "clientes", "items"], cliItems);
-
         const repItems = getRows("Repartidores").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id);
         await commitBatches(["catalogo", "repartidores", "items"], repItems);
-
-        toast("✓ Importación completada. Recargando…", "ok");
+        toast("✓ Importado. Recargando…", "ok");
         setTimeout(() => location.reload(), 1500);
       } catch (err) {
         console.error("importarExcel:", err);
-        toast("Error al importar: " + err.message, "err");
+        toast("Error: " + err.message, "err");
       }
     };
     reader.readAsArrayBuffer(f);
@@ -3146,7 +3142,6 @@ async function importarExcel() {
   inp.click();
 }
 
-/* ---- Helpers RESET optimizado ---- */
 async function deleteDocsInBatches(refs) {
   if (!refs || !refs.length) return;
   const chunks = [];
@@ -3167,9 +3162,9 @@ function mostrarProgresoReset() {
     el = document.createElement("div");
     el.id = "resetProgress";
     el.style.cssText = "position:fixed;inset:0;background:rgba(43,43,43,.6);display:flex;align-items:center;justify-content:center;z-index:4000;padding:20px";
-    el.innerHTML = `<div style="background:#fff;border-radius:20px;padding:26px;max-width:380px;width:100%;text-align:center;box-shadow:0 8px 18px rgba(43,43,43,.08)">
+    el.innerHTML = `<div style="background:#fff;border-radius:20px;padding:26px;max-width:380px;width:100%;text-align:center">
       <div style="font-size:14px;font-weight:700;color:#2E9E5B;margin-bottom:8px">🗑️ Reset en progreso</div>
-      <div id="resetMsg" style="font-size:13px;color:#2B2B2B">Iniciando…</div>
+      <div id="resetMsg" style="font-size:13px">Iniciando…</div>
     </div>`;
     document.body.appendChild(el);
   }
@@ -3180,13 +3175,11 @@ function mostrarProgresoReset() {
 }
 
 async function resetTotal() {
-  if (!confirm("¿Borrar TODO en Firestore y reiniciar? Esta acción no se puede deshacer.")) return;
-  if (!confirm("⚠️ ÚLTIMA CONFIRMACIÓN: se borrarán TODAS las rondas, subcolecciones, catálogo y config.")) return;
-
+  if (!confirm("¿Borrar TODO en Firestore y reiniciar?")) return;
+  if (!confirm("⚠️ ÚLTIMA CONFIRMACIÓN")) return;
   const progress = mostrarProgresoReset();
   try {
     cancelarSuscripciones();
-
     progress.update("Leyendo rondas…");
     const rondasSnap = await getDocs(collection(db, "rondas"));
     const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
@@ -3198,17 +3191,14 @@ async function resetTotal() {
       await Promise.all(subcols.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
       await deleteDoc(rDoc.ref);
     }
-
     progress.update("Borrando catálogo…");
     await Promise.all([
       deleteCollectionInBatches(["catalogo", "productos", "items"]),
       deleteCollectionInBatches(["catalogo", "clientes", "items"]),
       deleteCollectionInBatches(["catalogo", "repartidores", "items"])
     ]);
-
     progress.update("Borrando config…");
     await deleteDoc(doc(db, "config", "global"));
-
     progress.update("✓ Reset completado. Recargando…");
     toast("✓ Reset completado", "ok");
     setTimeout(() => location.reload(), 1200);
@@ -3251,7 +3241,7 @@ function iniciarSesion() {
   signInWithPopup(auth, provider).catch(e => {
     document.getElementById("loginSpinner").style.display = "none";
     document.getElementById("loginBtn").style.display = "block";
-    document.getElementById("loginError").textContent = "Error al iniciar sesión: " + e.message;
+    document.getElementById("loginError").textContent = "Error: " + e.message;
   });
 }
 
@@ -3263,7 +3253,7 @@ onAuthStateChanged(auth, async user => {
 
   if (user) {
     if (user.uid !== UID_AUTORIZADO) {
-      err.textContent = "Cuenta no autorizada. Contactá al administrador.";
+      err.textContent = "Cuenta no autorizada.";
       spinner.style.display = "none";
       btn.style.display = "block";
       await signOut(auth);
@@ -3297,7 +3287,7 @@ onAuthStateChanged(auth, async user => {
 });
 
 /* ============================================================================
-   EXPONER FUNCIONES A WINDOW
+   EXPONER A WINDOW
    ============================================================================ */
 Object.assign(window, {
   mostrarVista, abrirModal, cerrarModal,
