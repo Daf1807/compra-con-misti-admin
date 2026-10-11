@@ -2920,18 +2920,39 @@ async function exportarJSON() {
       rondas: {},
       catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores }
     };
+    const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
     for (const rid of Object.keys(DB.rondas)) {
-      if (rid === DB.rondaActiva) {
+      try {
+        if (rid === DB.rondaActiva) {
+          data.rondas[rid] = {
+            meta: DB.rondas[rid],
+            precios: DB.precios.filter(p => p.id_ronda === rid),
+            pedidos: DB.pedidos.filter(p => p.id_ronda === rid),
+            items: DB.items.filter(i => i.id_ronda === rid),
+            compras: DB.compras.filter(c => c.id_ronda === rid),
+            entregas: DB.entregas.filter(e => e.id_ronda === rid),
+            gastos: DB.gastos.filter(g => g.id_ronda === rid),
+            excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
+            reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
+          };
+        } else {
+          const out = {
+            meta: DB.rondas[rid],
+            precios: [], pedidos: [], items: [], compras: [],
+            entregas: [], gastos: [], excedentes: [], reclamos: []
+          };
+          await Promise.all(subcols.map(async (sub) => {
+            const snap = await getDocs(collection(db, "rondas", rid, sub));
+            out[sub] = snap.docs.map(d => d.data());
+          }));
+          data.rondas[rid] = out;
+        }
+      } catch (e) {
+        console.error("Error exportando ronda " + rid + ":", e);
         data.rondas[rid] = {
-          meta: DB.rondas[rid],
-          precios: DB.precios.filter(p => p.id_ronda === rid),
-          pedidos: DB.pedidos.filter(p => p.id_ronda === rid),
-          items: DB.items.filter(i => i.id_ronda === rid),
-          compras: DB.compras.filter(c => c.id_ronda === rid),
-          entregas: DB.entregas.filter(e => e.id_ronda === rid),
-          gastos: DB.gastos.filter(g => g.id_ronda === rid),
-          excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
-          reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
+          meta: DB.rondas[rid] || {},
+          precios: [], pedidos: [], items: [], compras: [],
+          entregas: [], gastos: [], excedentes: [], reclamos: []
         };
       }
     }
@@ -2953,7 +2974,22 @@ function importarJSON() {
         if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
         if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
         if (!confirm("⚠️ Última confirmación: ¿continuar con la importación?")) return;
+        const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?\n\nAceptar = reemplazar todo\nCancelar = merge con lo existente");
         cancelarSuscripciones();
+        if (wipe) {
+          toast("Borrando datos previos…", "warn");
+          const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+          const rondasSnap = await getDocs(collection(db, "rondas"));
+          for (const rDoc of rondasSnap.docs) {
+            await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
+            await deleteDoc(rDoc.ref);
+          }
+          await Promise.all([
+            deleteCollectionInBatches(["catalogo", "productos", "items"]),
+            deleteCollectionInBatches(["catalogo", "clientes", "items"]),
+            deleteCollectionInBatches(["catalogo", "repartidores", "items"])
+          ]);
+        }
         toast("Importando JSON…", "warn");
         const b1 = writeBatch(db);
         (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }));
@@ -2966,9 +3002,10 @@ function importarJSON() {
           const colMap = { precios: "codigo_producto", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
           for (const [col, idField] of Object.entries(colMap)) {
             const arr = rd[col] || [];
-            for (const item of arr) {
-              await fsSet(["rondas", rid, col], item[idField], item);
-            }
+            const payload = arr
+              .map(item => ({ id: item[idField], data: item }))
+              .filter(x => x.id);
+            await commitBatches(["rondas", rid, col], payload);
           }
         }
         if (d.config) await fsSetConfig(d.config);
@@ -2991,6 +3028,13 @@ function serializeObj(o) {
   }
   return out;
 }
+const NULLABLE_FIELDS = new Set([
+  "cantidad_real", "precio_unitario_real", "merma",
+  "lat", "lng",
+  "codigo_yape", "verificado_por", "fecha_verificacion",
+  "fecha_entrega", "fecha_cierre", "fecha_compra",
+  "recibido_por", "repartidor_id", "notas"
+]);
 function deserializeRow(row) {
   const out = {};
   for (const k in row) {
@@ -2999,6 +3043,10 @@ function deserializeRow(row) {
       const t = v.trim();
       if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
         try { out[k] = JSON.parse(t); continue; } catch (e) { /* dejo string */ }
+      }
+      if (t === "" && NULLABLE_FIELDS.has(k)) {
+        out[k] = null;
+        continue;
       }
     }
     out[k] = v;
@@ -3045,6 +3093,7 @@ async function exportarExcel() {
     add("Productos", DB.productos);
     add("Clientes", DB.clientes);
     add("Repartidores", DB.repartidores);
+    add("Config", [serializeObj({ ...DB.config })]);
     XLSX.writeFile(wb, "misti_v14_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) {
@@ -3081,7 +3130,22 @@ async function importarExcel() {
         if (!names.length) { toast("Excel vacío", "err"); return; }
         if (!confirm(`Hojas: ${names.join(", ")}\n\n¿Importar a Firestore?`)) return;
         if (!confirm("⚠️ Última confirmación")) return;
+        const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?\n\nAceptar = reemplazar todo\nCancelar = merge con lo existente");
         cancelarSuscripciones();
+        if (wipe) {
+          toast("Borrando datos previos…", "warn");
+          const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+          const rondasSnap = await getDocs(collection(db, "rondas"));
+          for (const rDoc of rondasSnap.docs) {
+            await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
+            await deleteDoc(rDoc.ref);
+          }
+          await Promise.all([
+            deleteCollectionInBatches(["catalogo", "productos", "items"]),
+            deleteCollectionInBatches(["catalogo", "clientes", "items"]),
+            deleteCollectionInBatches(["catalogo", "repartidores", "items"])
+          ]);
+        }
         toast("Importando…", "warn");
         const getRows = name => {
           const sh = wb.Sheets[name];
@@ -3130,6 +3194,21 @@ async function importarExcel() {
         await commitBatches(["catalogo", "clientes", "items"], cliItems);
         const repItems = getRows("Repartidores").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id);
         await commitBatches(["catalogo", "repartidores", "items"], repItems);
+
+        const cfgRows = getRows("Config");
+        if (cfgRows.length) {
+          const cfg = cfgRows[0];
+          // cap_vehiculo puede venir como objeto (JSON ya parseado por deserializeRow)
+          // o como string; normalizamos por las dudas.
+          if (typeof cfg.cap_vehiculo === "string") {
+            try { cfg.cap_vehiculo = JSON.parse(cfg.cap_vehiculo); } catch (e) { delete cfg.cap_vehiculo; }
+          }
+          // Quitar campos vacíos que no aportan
+          Object.keys(cfg).forEach(k => { if (cfg[k] === "") delete cfg[k]; });
+          await fsSetConfig(cfg);
+          DB.config = { ...DB.config, ...cfg };
+        }
+
         toast("✓ Importado. Recargando…", "ok");
         setTimeout(() => location.reload(), 1500);
       } catch (err) {
