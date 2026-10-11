@@ -24,6 +24,8 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:grayscale(.
 .btn-warn{background:linear-gradient(180deg,var(--naranja-2),var(--naranja));box-shadow:0 3px 0 #C4601F}
 .btn-reject,.btn-delete{background:linear-gradient(180deg,var(--coral-2),var(--coral));box-shadow:0 3px 0 #C93A3F}
 .btn-back{background:linear-gradient(180deg,#B8B8B8,#8F8F8F);box-shadow:0 3px 0 #6B6B6B}
+.btn-wa{background:linear-gradient(180deg,#4CE07A,#25D366);box-shadow:0 3px 0 #158A3E}
+.btn-dark{background:linear-gradient(180deg,#4A4A4A,#2B2B2B);box-shadow:0 3px 0 #000}
 .btn-delete{padding:5px 9px;min-height:28px;font-size:11px}
 .btn-sm{padding:6px 11px;min-height:32px;font-size:12px}
 .section{background:#fff;border-radius:var(--radio);padding:20px;box-shadow:var(--sombra-sm);border:1px solid var(--borde);margin-bottom:16px}
@@ -128,21 +130,41 @@ tbody tr:hover{background:#F4FBF6}
 .pipe-card .acts{display:flex;gap:4px;flex-wrap:wrap}
 .pipe-card .acts button{padding:5px 9px;min-height:28px;font-size:11px}
 .pipe-empty{color:var(--texto-2);font-size:11px;text-align:center;padding:14px 0}
-.ruta-bloque{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);padding:14px;margin-bottom:14px;box-shadow:var(--sombra-sm)}
-.ruta-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.ruta-head .title{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
+.ruta-bloque{background:#fff;border:1px solid var(--borde);border-radius:var(--radio);padding:14px;margin-bottom:16px;box-shadow:var(--sombra-sm)}
+.ruta-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--borde)}
+.ruta-head .title{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ruta-zona-A{border-left:6px solid var(--verde)}
 .ruta-zona-B{border-left:6px solid var(--miel)}
 .ruta-zona-C{border-left:6px solid var(--coral)}
 .ruta-modo{font-size:10px;padding:3px 9px;border-radius:999px;background:var(--crema);color:var(--texto-2);font-weight:700;text-transform:uppercase}
-.parada-item{display:grid;grid-template-columns:36px minmax(180px,2fr) 120px 120px 140px 70px;gap:8px;align-items:center;padding:9px;background:var(--crema);border:1px solid var(--borde);border-radius:var(--radio-sm);margin-bottom:6px}
-.parada-num{width:30px;height:30px;border-radius:50%;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+/* ----- NUEVO: cards de viaje ----- */
+.viaje-card{background:var(--crema);border:1.5px solid var(--borde);border-radius:var(--radio-sm);padding:12px;margin-bottom:10px}
+.viaje-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.viaje-card-title{font-weight:800;font-size:14px;color:var(--texto);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.viaje-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:var(--texto);color:#fff}
+.viaje-card-meta{font-size:11px;color:var(--texto-2);margin-top:3px}
+.viaje-card-actions{display:flex;gap:6px;flex-wrap:wrap}
+/* ----- NUEVO: paradas reordenadas ----- */
+.parada-item{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:10px 12px;margin-bottom:6px}
+.parada-row-1{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.parada-row-2{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center}
+.parada-num{width:28px;height:28px;border-radius:50%;background:var(--verde);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;margin-top:2px}
 .parada-num.fallido{background:var(--coral)}
 .parada-num.entregado{background:var(--cielo)}
+.parada-info{flex:1;min-width:0}
+.parada-info strong{font-size:13px;font-weight:700;color:var(--texto)}
+.parada-info .parada-dir{font-size:11px;color:var(--texto-2);margin-top:2px;line-height:1.4}
+.parada-peso{font-size:11px;font-weight:800;color:var(--texto);background:var(--crema);padding:4px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0}
 .zona-chip{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase}
 .zona-A{background:var(--verde-claro);color:var(--verde)}
 .zona-B{background:var(--miel-2);color:#7A5500}
 .zona-C{background:#FFE0E1;color:#C93A3F}
+.msg-preview{background:var(--crema);border:1.5px solid var(--borde);border-radius:12px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;line-height:1.6;color:var(--texto);max-height:400px;overflow-y:auto}
+.config-cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:8px}
+.config-cap-grid label{display:block;font-size:11px;color:var(--texto-2);text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-bottom:5px}
+.resumen-viajes{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--texto-2);margin-bottom:8px}
+.resumen-viajes .pill{background:var(--crema);border:1px solid var(--borde);padding:3px 10px;border-radius:999px;font-weight:600}
+.resumen-viajes .pill strong{color:var(--texto)}
 #toast{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{padding:11px 16px;border-radius:12px;background:#2B2B2B;color:#fff;font-size:12px;font-weight:600;box-shadow:var(--sombra-md);animation:slideIn .3s ease;max-width:340px}
 .toast.ok{background:var(--verde)}
@@ -181,8 +203,9 @@ tbody tr:hover{background:#F4FBF6}
 #syncIndicator.saving{background:#FFF3CD;color:#7A5500}
 #syncIndicator.saved{background:var(--verde-claro);color:var(--verde)}
 .aviso-semana{background:#FFF6DE;border-left:4px solid var(--miel);border-radius:8px;padding:6px 10px;font-size:11px;color:#7A5500;font-weight:600}
-@media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.parada-item{grid-template-columns:36px 1fr;gap:6px}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.parada-row-2{grid-template-columns:1fr}}
 @media(max-width:600px){.dash-row,.ruta-info,.pipeline{grid-template-columns:1fr}.container{padding:12px}header h1{font-size:20px}.section{padding:14px}.item-row{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -370,7 +393,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-entregas">
         <div class="section">
           <h2 class="section-head">🗺️ Entregas por zona</h2>
-          <p class="section-sub">3 rutas separadas: A (a pie/bici), B (moto/auto), C (auto+consolidación). El modo de viaje viene del vehículo del repartidor asignado.</p>
+          <p class="section-sub">Cada zona se divide en viajes según la capacidad del vehículo del repartidor. Máximo 9 paradas por viaje (límite de Google Maps). Asigná un repartidor a cada zona para calcular las idas.</p>
           <div class="ruta-info" id="rutaInfo"></div>
           <div id="rutasContenido"></div>
         </div>
@@ -379,7 +402,7 @@ tbody tr:hover{background:#F4FBF6}
       <section class="view" id="view-repartidores">
         <div class="section">
           <h2 class="section-head">🛵 Repartidores</h2>
-          <p class="section-sub">CRUD completo. El vehículo define el modo de viaje en Google Maps (A pie→walking, Bici→bicycling, Moto/Auto/Combi→driving).</p>
+          <p class="section-sub">CRUD completo. El vehículo define el modo de viaje en Google Maps (A pie→walking, Bici→bicycling, Moto/Auto/Combi→driving) y la capacidad de carga por viaje.</p>
           <button class="btn-add btn-sm" onclick="abrirModalRepartidor(null)">＋ Agregar repartidor</button>
           <div class="table-scroll" style="margin-top:12px"><table>
             <thead><tr><th>ID</th><th>Nombre</th><th>Celular</th><th>Zona</th><th>Vehículo</th><th>Modo</th><th>Cap kg</th><th>Activo</th><th></th></tr></thead>
@@ -534,6 +557,12 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div></div>
 
+<!-- MODAL PREVIEW MENSAJE AL REPARTIDOR -->
+<div class="modal" id="modalRutaPreview"><div class="modal-content">
+  <div class="modal-header"><h3 id="modalRutaPreviewTitle">Mensaje al repartidor</h3><button class="close" onclick="cerrarModal('modalRutaPreview')">×</button></div>
+  <div id="modalRutaPreviewContenido"></div>
+</div></div>
+
 <!-- OVERLAY LOGIN -->
 <div id="loginOverlay">
   <div class="box">
@@ -663,6 +692,10 @@ const DISTRITOS = [
 
 const OFICINA = { lat: -12.0700, lng: -77.0180, direccion: "Eduardo Bello 385, Santa Catalina, La Victoria" };
 
+/* Capacidades por defecto según vehículo (kg) */
+const CAP_DEFAULT = { "A pie": 45, "Bici": 25, "Moto": 60, "Auto": 150, "Combi": 300 };
+const MAX_PARADAS_VIAJE_DEFAULT = 9;
+
 /* ============================================================================
    HELPERS
    ============================================================================ */
@@ -684,6 +717,37 @@ function toast(msg, tipo) {
 }
 function vehiculoAModo(v) { if (v === "A pie") return "walking"; if (v === "Bici") return "bicycling"; return "driving"; }
 function modoIcono(m) { if (m === "walking") return "🚶 A pie"; if (m === "bicycling") return "🚲 Bici"; return "🚗 Vehículo"; }
+
+/* Capacidad configurable por vehículo */
+function capacidadVehiculo(vehiculo) {
+  const caps = (DB.config && DB.config.cap_vehiculo) || {};
+  return Number(caps[vehiculo]) || CAP_DEFAULT[vehiculo] || 45;
+}
+function maxParadasViaje() {
+  return Number(DB.config && DB.config.max_paradas_viaje) || MAX_PARADAS_VIAJE_DEFAULT;
+}
+/* Peso total de un pedido = suma de cantidades de sus items */
+function pesoPedido(pedidoId) {
+  return itemsDePedido(pedidoId).reduce((s, i) => s + Number(i.cantidad || 0), 0);
+}
+/* Divide una lista de pedidos en viajes según peso y número máximo de paradas */
+function dividirEnViajes(pedidosOrdenados, capKg, maxParadas) {
+  const viajes = [];
+  let actual = { paradas: [], peso: 0 };
+  for (const p of pedidosOrdenados) {
+    const pesoP = pesoPedido(p.pedido_id);
+    const excedePeso = actual.peso + pesoP > capKg;
+    const excedeParadas = actual.paradas.length + 1 > maxParadas;
+    if (actual.paradas.length && (excedePeso || excedeParadas)) {
+      viajes.push(actual);
+      actual = { paradas: [], peso: 0 };
+    }
+    actual.paradas.push(p);
+    actual.peso += pesoP;
+  }
+  if (actual.paradas.length) viajes.push(actual);
+  return viajes;
+}
 
 function showSync(estado) {
   const el = document.getElementById("syncIndicator");
@@ -857,7 +921,12 @@ function crearDBInicial() {
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
     productos, clientes, repartidores, precios, pedidos, items, compras,
     entregas: [], gastos: [], excedentes: [], reclamos: [],
-    config: { oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng, costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1 }
+    config: {
+      oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
+      costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1,
+      cap_vehiculo: { ...CAP_DEFAULT },
+      max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT
+    }
   };
 }
 
@@ -902,10 +971,14 @@ async function cargarConfig() {
   const snap = await getDoc(ref);
   if (snap.exists()) {
     DB.config = snap.data();
+    if (!DB.config.cap_vehiculo) DB.config.cap_vehiculo = { ...CAP_DEFAULT };
+    if (!DB.config.max_paradas_viaje) DB.config.max_paradas_viaje = MAX_PARADAS_VIAJE_DEFAULT;
   } else {
     const cfg = {
       oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
-      costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1, ronda_activa: ""
+      costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1, ronda_activa: "",
+      cap_vehiculo: { ...CAP_DEFAULT },
+      max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT
     };
     await fsSetConfig(cfg);
     DB.config = cfg;
@@ -2145,7 +2218,7 @@ async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codi
 async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
 
 /* ============================================================================
-   ENTREGAS
+   ENTREGAS  (CON DIVISIÓN EN VIAJES)
    ============================================================================ */
 function renderEntregas() {
   const pedidos = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
@@ -2156,69 +2229,134 @@ function renderEntregas() {
     cont.innerHTML = `<div class="warn-box">Sin pedidos aceptados en esta ronda.</div>`; return;
   }
   const zonas = ["A", "B", "C"];
-  let totalParadas = 0, totalKm = 0, totalPeso = 0;
   const repActivos = DB.repartidores.filter(r => r.activo);
   const asignaciones = rondaActual().repartidor_zona || {};
-  const bloques = zonas.map(z => {
+  const maxParadas = maxParadasViaje();
+
+  let totalParadas = 0, totalPeso = 0, totalViajes = 0;
+
+  // ---- Resumen general ----
+  const resumenZonas = zonas.map(z => {
     const del = pedidos.filter(p => p.zona === z);
     if (!del.length) return "";
+    const repId = asignaciones[z];
+    const rep = repId ? repActivos.find(r => r.id === repId) : repActivos.find(r => r.zona === z);
+    const vehiculo = rep ? rep.vehiculo : "Auto";
+    const cap = capacidadVehiculo(vehiculo);
+    const orden = optimizarLista(del);
+    const viajes = dividirEnViajes(orden, cap, maxParadas);
+    const peso = del.reduce((s, p) => s + pesoPedido(p.pedido_id), 0);
     totalParadas += del.length;
+    totalPeso += peso;
+    totalViajes += viajes.length;
+    return `<div class="box">Zona ${z}<strong>${viajes.length} ${viajes.length === 1 ? "viaje" : "viajes"}</strong></div>`;
+  }).join("");
+
+  info.innerHTML = `
+    ${resumenZonas}
+    <div class="box">Total paradas<strong>${totalParadas}</strong></div>
+  `;
+
+  // Ajustamos el grid del ruta-info para que muestre 4 columnas con los 4 datos
+  // (Zona A, Zona B, Zona C, Total paradas) → pero puede variar según las zonas existentes.
+
+  // ---- Bloques por zona ----
+  cont.innerHTML = zonas.map(z => {
+    const del = pedidos.filter(p => p.zona === z);
+    if (!del.length) return "";
     const repId = asignaciones[z];
     const rep = repId ? repActivos.find(r => r.id === repId) : repActivos.find(r => r.zona === z);
     const vehiculo = rep ? rep.vehiculo : "Auto";
     const modo = vehiculoAModo(vehiculo);
+    const cap = capacidadVehiculo(vehiculo);
     const orden = optimizarLista(del);
-    const km = calcularDistanciaTotal(orden);
-    const peso = del.reduce((s, p) => s + itemsDePedido(p.pedido_id).reduce((ss, i) => ss + Number(i.cantidad || 0), 0), 0);
-    totalKm += km; totalPeso += peso;
-    const gmapsUrl = armarUrlGoogle(orden, modo);
+    const viajes = dividirEnViajes(orden, cap, maxParadas);
+    const pesoZona = del.reduce((s, p) => s + pesoPedido(p.pedido_id), 0);
+
+    // Bloque de cada viaje
+    const viajesHTML = viajes.map((v, idxV) => {
+      const km = calcularDistanciaTotal(v.paradas);
+      const gmapsUrl = armarUrlGoogle(v.paradas, modo);
+      const waDisabled = !rep || !rep.celular;
+      const waTitle = waDisabled ? 'Asigná un repartidor con celular para enviar la ruta' : 'Abrir WhatsApp con el mensaje';
+
+      const paradasHTML = v.paradas.map((p, i) => {
+        const e = DB.entregas.find(x => x.id_ronda === DB.rondaActiva && x.pedido_id === p.pedido_id) || {};
+        const est = e.estado || "pendiente";
+        const cl = est === "entregado" ? "entregado" : (est === "fallido" ? "fallido" : "");
+        const gmaps = p.lat && p.lng
+          ? `<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=${modo}">📍</a>`
+          : "";
+        const pesoP = pesoPedido(p.pedido_id);
+        const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(" · ");
+        return `<div class="parada-item">
+          <div class="parada-row-1">
+            <div class="parada-num ${cl}">${i + 1}</div>
+            <div class="parada-info">
+              <strong>${esc(p.cliente_nombre)}</strong>
+              <div class="parada-dir">${esc(dirTxt)}</div>
+            </div>
+            <div class="parada-peso">${pesoP.toFixed(1)} kg</div>
+          </div>
+          <div class="parada-row-2">
+            <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por || "")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)">
+            <select onchange="updEntrega('${p.pedido_id}','estado',this.value)">
+              <option value="pendiente" ${est === "pendiente" ? "selected" : ""}>Pendiente</option>
+              <option value="entregado" ${est === "entregado" ? "selected" : ""}>Entregado</option>
+              <option value="fallido" ${est === "fallido" ? "selected" : ""}>Fallido</option>
+            </select>
+            <select onchange="updEntrega('${p.pedido_id}','repartidor_id',this.value)">
+              <option value="">Repartidor...</option>
+              ${repActivos.filter(r => r.zona === z).map(r => `<option value="${r.id}" ${e.repartidor_id === r.id ? "selected" : ""}>${esc(r.nombre)}</option>`).join("")}
+            </select>
+            <div>${gmaps}</div>
+          </div>
+        </div>`;
+      }).join("");
+
+      return `<div class="viaje-card">
+        <div class="viaje-card-head">
+          <div>
+            <div class="viaje-card-title">
+              <span class="viaje-badge">Viaje ${idxV + 1} de ${viajes.length}</span>
+              ${v.paradas.length} paradas · ${v.peso.toFixed(1)} kg · ~${km.toFixed(2)} km
+            </div>
+            <div class="viaje-card-meta">
+              ${rep ? esc(rep.nombre) + ' · ' + esc(rep.vehiculo) + ' · cap ' + cap + ' kg' : 'Sin repartidor asignado · cap ' + cap + ' kg'}
+            </div>
+          </div>
+          <div class="viaje-card-actions">
+            <button class="btn-wa btn-sm" ${waDisabled ? 'disabled' : ''} title="${esc(waTitle)}" onclick="enviarRutaWA('${z}', ${idxV})">📱 WhatsApp</button>
+            <button class="btn-dark btn-sm" onclick="previewRuta('${z}', ${idxV})">👁 Vista previa</button>
+            <a class="btn-info btn-sm" style="text-decoration:none;color:#fff;padding:6px 11px;border-radius:999px;font-weight:700;font-size:12px;min-height:32px;display:inline-flex;align-items:center" target="_blank" href="${gmapsUrl}">📍 Maps</a>
+          </div>
+        </div>
+        ${paradasHTML}
+      </div>`;
+    }).join("");
+
     return `<div class="ruta-bloque ruta-zona-${z}">
       <div class="ruta-head">
         <div class="title">
           <span class="zona-chip zona-${z}">Zona ${z}</span>
-          ${del.length} paradas · ${km.toFixed(2)} km · ${peso.toFixed(1)} kg
+          ${del.length} pedidos · ${pesoZona.toFixed(1)} kg → ${viajes.length} ${viajes.length === 1 ? "viaje" : "viajes"}
         </div>
         <div class="actions">
-          <select onchange="asignarRepartidor('${z}',this.value)" style="max-width:200px">
+          <select onchange="asignarRepartidor('${z}',this.value)" style="max-width:220px">
             <option value="">— Repartidor —</option>
             ${repActivos.map(r => `<option value="${r.id}" ${repId === r.id ? "selected" : ""}>${esc(r.nombre)} (${esc(r.vehiculo)})</option>`).join("")}
           </select>
           <span class="ruta-modo">${modoIcono(modo)}</span>
-          <a class="btn-info btn-sm" style="text-decoration:none;color:#fff;display:inline-block;padding:7px 12px;border-radius:999px;font-weight:700;font-size:12px" target="_blank" href="${gmapsUrl}">📍 Abrir en Google Maps</a>
         </div>
       </div>
-      ${orden.map((p, i) => {
-      const e = DB.entregas.find(x => x.id_ronda === DB.rondaActiva && x.pedido_id === p.pedido_id) || {};
-      const est = e.estado || "pendiente";
-      const cl = est === "entregado" ? "entregado" : (est === "fallido" ? "fallido" : "");
-      const gmaps = p.lat && p.lng ? `<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=${modo}">📍</a>` : "";
-      return `<div class="parada-item">
-          <div class="parada-num ${cl}">${i + 1}</div>
-          <div><strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)}<br><small class="muted">${esc(p.direccion || "")}${p.distrito ? " · " + esc(p.distrito) : ""}</small></div>
-          <input type="text" placeholder="Recibido por" value="${esc(e.recibido_por || "")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)">
-          <select onchange="updEntrega('${p.pedido_id}','estado',this.value)">
-            <option value="pendiente" ${est === "pendiente" ? "selected" : ""}>Pendiente</option>
-            <option value="entregado" ${est === "entregado" ? "selected" : ""}>Entregado</option>
-            <option value="fallido" ${est === "fallido" ? "selected" : ""}>Fallido</option>
-          </select>
-          <select onchange="updEntrega('${p.pedido_id}','repartidor_id',this.value)">
-            <option value="">Repartidor...</option>
-            ${repActivos.filter(r => r.zona === z).map(r => `<option value="${r.id}" ${e.repartidor_id === r.id ? "selected" : ""}>${esc(r.nombre)}</option>`).join("")}
-          </select>
-          <div>${gmaps}</div>
-        </div>`;
-    }).join("")}
+      ${viajesHTML}
     </div>`;
   }).join("");
-  info.innerHTML = `
-    <div class="box">Paradas<strong>${totalParadas}</strong></div>
-    <div class="box">Distancia<strong>${totalKm.toFixed(2)} km</strong></div>
-    <div class="box">Peso<strong>${totalPeso.toFixed(1)} kg</strong></div>
-    <div class="box">Rutas<strong>${zonas.filter(z => pedidos.some(p => p.zona === z)).length}</strong></div>`;
-  cont.innerHTML = bloques;
 }
+
+/* Orden tipo vecino-más-cercano desde la oficina */
 function optimizarLista(lista) {
-  if (lista.length < 2) return lista;
+  if (lista.length < 2) return lista.slice();
   const conC = lista.filter(p => p.lat && p.lng);
   const sinC = lista.filter(p => !p.lat || !p.lng);
   const noV = [...conC], orden = [];
@@ -2245,6 +2383,83 @@ function armarUrlGoogle(orden, modo) {
   const w = cs.slice(0, -1).map(p => `${p.lat},${p.lng}`).join("|");
   return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w ? "&waypoints=" + w : ""}&travelmode=${modo}`;
 }
+
+/* ---- Mensaje WhatsApp por viaje ---- */
+function construirMensajeRuta(zona, viaje, idxViaje, totalViajes, rep){
+  const vehiculo = rep ? rep.vehiculo : "Auto";
+  const modo = vehiculoAModo(vehiculo);
+  const url = armarUrlGoogle(viaje.paradas, modo);
+  const lineas = [];
+  lineas.push(`🛵 RUTA ZONA ${zona} — Viaje ${idxViaje + 1} de ${totalViajes}`);
+  if (rep) lineas.push(`Repartidor: ${rep.nombre} (${vehiculo})`);
+  lineas.push(`${viaje.paradas.length} paradas · ${viaje.peso.toFixed(1)} kg`);
+  lineas.push('');
+  lineas.push('📍 Abrir navegación en Google Maps:');
+  lineas.push(url);
+  lineas.push('');
+  lineas.push('━━━━━━━━━━━━━━━━━━━━');
+  lineas.push('');
+  viaje.paradas.forEach((p, i) => {
+    lineas.push(`${i + 1}. ${p.cliente_nombre}`);
+    const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(", ");
+    if (dirTxt) lineas.push(`   ${dirTxt}`);
+    lineas.push('');
+  });
+  lineas.push('━━━━━━━━━━━━━━━━━━━━');
+  lineas.push('');
+  lineas.push('✅ Todos ya pagados. Solo entregar.');
+  lineas.push('');
+  lineas.push('Al terminar avisar por este chat.');
+  return lineas.join('\n');
+}
+function previewRuta(zona, idxViaje){
+  const asignaciones = rondaActual().repartidor_zona || {};
+  const repId = asignaciones[zona];
+  const rep = repId ? DB.repartidores.find(r => r.id === repId) : DB.repartidores.find(r => r.activo && r.zona === zona);
+  const pedidos = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado) && p.zona === zona);
+  if (!pedidos.length){ toast('Sin pedidos en zona ' + zona, 'err'); return; }
+  const cap = capacidadVehiculo(rep ? rep.vehiculo : "Auto");
+  const maxP = maxParadasViaje();
+  const orden = optimizarLista(pedidos);
+  const viajes = dividirEnViajes(orden, cap, maxP);
+  const viaje = viajes[idxViaje];
+  if (!viaje){ toast('Viaje no encontrado', 'err'); return; }
+  const msg = construirMensajeRuta(zona, viaje, idxViaje, viajes.length, rep);
+  const repTxt = rep ? ` (${rep.nombre})` : '';
+  document.getElementById('modalRutaPreviewTitle').textContent = `Mensaje — Zona ${zona} · Viaje ${idxViaje+1}${repTxt}`;
+  document.getElementById('modalRutaPreviewContenido').innerHTML = `
+    <div class="msg-preview">${esc(msg)}</div>
+    <div class="actions" style="justify-content:flex-end;margin-top:14px">
+      <button class="btn-ghost" onclick="copiarMensajeRuta()">📋 Copiar</button>
+      <button class="btn-wa" onclick="enviarRutaWA('${zona}', ${idxViaje})">📱 Abrir WhatsApp</button>
+    </div>
+    ${!rep || !rep.celular ? `<div class="warn-box" style="margin-top:10px"><strong>Ojo:</strong> asigná un repartidor con celular a esta zona para poder enviarlo por WhatsApp.</div>` : ''}
+  `;
+  abrirModal('modalRutaPreview');
+}
+function copiarMensajeRuta(){
+  const txt = document.querySelector('#modalRutaPreviewContenido .msg-preview').textContent;
+  navigator.clipboard.writeText(txt).then(() => toast('✓ Mensaje copiado', 'ok')).catch(() => toast('No se pudo copiar', 'err'));
+}
+function enviarRutaWA(zona, idxViaje){
+  const asignaciones = rondaActual().repartidor_zona || {};
+  const repId = asignaciones[zona];
+  const rep = repId ? DB.repartidores.find(r => r.id === repId) : DB.repartidores.find(r => r.activo && r.zona === zona);
+  if (!rep || !rep.celular){ toast('Asigná un repartidor con celular a la zona ' + zona, 'err'); return; }
+  const pedidos = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado) && p.zona === zona);
+  if (!pedidos.length){ toast('Sin pedidos en zona ' + zona, 'err'); return; }
+  const cap = capacidadVehiculo(rep.vehiculo);
+  const maxP = maxParadasViaje();
+  const orden = optimizarLista(pedidos);
+  const viajes = dividirEnViajes(orden, cap, maxP);
+  const viaje = viajes[idxViaje];
+  if (!viaje){ toast('Viaje no encontrado', 'err'); return; }
+  const msg = construirMensajeRuta(zona, viaje, idxViaje, viajes.length, rep);
+  const cel = String(rep.celular).replace(/\D/g, '');
+  const url = `https://wa.me/51${cel}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
 async function asignarRepartidor(zona, repId) {
   const r = rondaActual(); if (!r.repartidor_zona) r.repartidor_zona = {};
   r.repartidor_zona[zona] = repId || null;
@@ -2606,20 +2821,49 @@ function renderConfig() {
     ["costo_transporte", "Costo transporte", "number"],
     ["costo_empaque", "Costo empaque por pedido", "number"]
   ];
+  const caps = c.cap_vehiculo || { ...CAP_DEFAULT };
+  const maxP = c.max_paradas_viaje || MAX_PARADAS_VIAJE_DEFAULT;
   document.getElementById("configContenido").innerHTML = `
+    <h3 style="margin-top:0">Datos generales</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
       ${campos.map(([k, lbl, t]) => `<div><label class="small-note">${lbl}</label>
         <input type="${t}" step="0.01" value="${esc(c[k] ?? '')}" onchange="updConfig('${k}',this.value,${t === 'number'})"></div>`).join("")}
     </div>
+
+    <h3 style="margin-top:24px">🚚 Capacidad de reparto</h3>
+    <p class="section-sub">Con estos valores el admin divide automáticamente los pedidos de cada zona en viajes. Se corta por peso o por máximo de paradas (lo que se alcance primero).</p>
+    <div class="config-cap-grid">
+      <div><label>A pie / carrito (kg)</label><input type="number" step="1" value="${esc(caps["A pie"] ?? CAP_DEFAULT["A pie"])}" onchange="updCapVehiculo('A pie',this.value)"></div>
+      <div><label>Bici (kg)</label><input type="number" step="1" value="${esc(caps["Bici"] ?? CAP_DEFAULT["Bici"])}" onchange="updCapVehiculo('Bici',this.value)"></div>
+      <div><label>Moto (kg)</label><input type="number" step="1" value="${esc(caps["Moto"] ?? CAP_DEFAULT["Moto"])}" onchange="updCapVehiculo('Moto',this.value)"></div>
+      <div><label>Auto (kg)</label><input type="number" step="1" value="${esc(caps["Auto"] ?? CAP_DEFAULT["Auto"])}" onchange="updCapVehiculo('Auto',this.value)"></div>
+      <div><label>Combi (kg)</label><input type="number" step="1" value="${esc(caps["Combi"] ?? CAP_DEFAULT["Combi"])}" onchange="updCapVehiculo('Combi',this.value)"></div>
+      <div><label>Máx paradas por viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
+    </div>
+
     <div class="info-box" style="margin-top:16px">
       <strong>Zonas y mínimos:</strong><br>
       ${Object.entries(ZONAS).map(([z, i]) => `<strong>Zona ${z}</strong>: ${i.distritos.join(", ")} · Mínimo ${soles(i.min)} · Recojo −${soles(i.desc_recojo)}`).join("<br>")}
+    </div>
+    <div class="warn-box" style="margin-top:12px">
+      <strong>Nota:</strong> 9 paradas es el límite que Google Maps acepta por link. Si subís este número, los viajes con más paradas pueden no abrir bien en Maps.
     </div>`;
 }
 async function updConfig(k, v, isNum) {
   DB.config[k] = isNum ? (Number(v) || 0) : v;
   await fsSetConfig({ [k]: DB.config[k] });
   toast("Actualizado", "ok");
+}
+async function updCapVehiculo(vehiculo, valor) {
+  if (!DB.config.cap_vehiculo) DB.config.cap_vehiculo = { ...CAP_DEFAULT };
+  DB.config.cap_vehiculo[vehiculo] = Number(valor) || 0;
+  await fsSetConfig({ cap_vehiculo: DB.config.cap_vehiculo });
+  toast("Capacidad " + vehiculo + " = " + DB.config.cap_vehiculo[vehiculo] + " kg", "ok");
+}
+async function updMaxParadas(valor) {
+  DB.config.max_paradas_viaje = Number(valor) || MAX_PARADAS_VIAJE_DEFAULT;
+  await fsSetConfig({ max_paradas_viaje: DB.config.max_paradas_viaje });
+  toast("Máx paradas = " + DB.config.max_paradas_viaje, "ok");
 }
 
 /* ============================================================================
@@ -3070,12 +3314,13 @@ Object.assign(window, {
   setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
   calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado,
   asignarRepartidor, updEntrega,
+  previewRuta, enviarRutaWA, copiarMensajeRuta,
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
   agregarGasto, updGasto, delGasto,
   agregarExcedente, updExc, delExc,
   agregarReclamo, updReclamo, delReclamo,
   calcularReportes,
-  updConfig,
+  updConfig, updCapVehiculo, updMaxParadas,
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
   iniciarSesion,
   renderPipeline, renderProductos, renderPrecios
