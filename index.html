@@ -185,6 +185,7 @@ tbody tr:hover{background:#F4FBF6}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.dash-row,.ruta-info,.pipeline{grid-template-columns:1fr}.container{padding:12px}header h1{font-size:20px}.section{padding:14px}.item-row{grid-template-columns:1fr}}
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -233,8 +234,10 @@ tbody tr:hover{background:#F4FBF6}
       <div class="topbar">
         <div class="crumb">Ronda activa: <strong id="crumbRonda">—</strong></div>
         <div class="actions">
-          <button class="btn-ghost btn-sm" onclick="exportarJSON()">⬇️ Exportar</button>
-          <button class="btn-ghost btn-sm" onclick="importarJSON()">⬆️ Importar</button>
+          <button class="btn-ghost btn-sm" onclick="exportarJSON()">⬇️ JSON</button>
+          <button class="btn-ghost btn-sm" onclick="exportarExcel()">⬇️ Excel</button>
+          <button class="btn-ghost btn-sm" onclick="importarJSON()">⬆️ JSON</button>
+          <button class="btn-ghost btn-sm" onclick="importarExcel()">⬆️ Excel</button>
           <button class="btn-ghost btn-sm" onclick="resetTotal()">🗑️ Reset</button>
         </div>
       </div>
@@ -712,7 +715,6 @@ function proximoLunes() {
 function lunesSemanaActual() {
   return normalizarALunes(hoy());
 }
-// Devuelve el label visible de una ronda: "Nombre · R-YYYY-MM-DD" o solo el ID
 function labelRonda(rid) {
   const r = DB.rondas[rid] || {};
   const nom = (r.nombre || "").trim();
@@ -1128,7 +1130,6 @@ function refrescarSelector() {
   const sel = document.getElementById("rondaSelector");
   const keys = Object.keys(DB.rondas).sort().reverse();
 
-  // Agrupar por estado
   const grupos = { abierta: [], cerrada: [], entregada: [], otro: [] };
   keys.forEach(k => {
     const est = (DB.rondas[k].estado || "abierta");
@@ -1148,7 +1149,6 @@ function refrescarSelector() {
   const est = document.getElementById("rondaEstado");
   est.textContent = r.estado || "abierta"; est.className = "estado-ronda estado-" + (r.estado || "abierta");
 
-  // Crumb: nombre grande + ID chiquito
   const nom = (r.nombre || "").trim();
   document.getElementById("crumbRonda").innerHTML = nom
     ? `${esc(nom)} <span class="muted" style="font-weight:500;text-transform:none">(${esc(DB.rondaActiva)})</span>`
@@ -1156,10 +1156,8 @@ function refrescarSelector() {
 
   document.getElementById("rondaMeta").textContent = "Apertura: " + (r.fecha_apertura ? new Date(r.fecha_apertura).toLocaleDateString("es-PE") : "—") + " · Precios publicados: " + (r.precios_publicados ? "Sí" : "No");
 
-  // Título del documento
   document.title = `Compra con Misti — ${nom || DB.rondaActiva || "Admin"}`;
 
-  // Aviso semana
   const aviso = document.getElementById("avisoSemana");
   if (!DB.rondaActiva) { aviso.innerHTML = ""; return; }
   const lunesActivo = DB.rondaActiva.startsWith("R-") ? DB.rondaActiva.slice(2) : "";
@@ -1195,7 +1193,6 @@ async function cambiarRondaActiva(r) {
   renderTodo();
 }
 
-/* ---- MODAL NUEVA RONDA ---- */
 function abrirModalNuevaRonda() {
   document.getElementById("nrFecha").value = proximoLunes();
   document.getElementById("nrNombre").value = "";
@@ -1313,7 +1310,6 @@ async function confirmarNuevaRonda() {
   }
 }
 
-/* ---- RENOMBRAR RONDA ---- */
 function abrirModalNombreRonda() {
   if (!DB.rondaActiva) { toast("Sin ronda activa", "err"); return; }
   const r = rondaActual();
@@ -1346,7 +1342,6 @@ async function guardarNombreRonda() {
   toast(nombre ? "✓ Nombre guardado" : "Nombre borrado", "ok");
 }
 
-/* ---- BORRAR RONDA ---- */
 async function borrarRonda(id) {
   if (!id) { toast("No hay ronda activa", "err"); return; }
   if (!DB.rondas[id]) { toast("Ronda no encontrada", "err"); return; }
@@ -2685,6 +2680,8 @@ async function exportarJSON() {
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
+
+/* ---- IMPORTAR JSON ---- */
 function importarJSON() {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
   inp.onchange = e => {
@@ -2695,7 +2692,9 @@ function importarJSON() {
         const d = JSON.parse(ev.target.result);
         if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
         if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
+        if (!confirm("⚠️ Última confirmación: ¿continuar con la importación?")) return;
         cancelarSuscripciones();
+        toast("Importando JSON…", "warn");
         const b1 = writeBatch(db);
         (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }));
         (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }));
@@ -2721,31 +2720,260 @@ function importarJSON() {
   };
   inp.click();
 }
+
+/* ---- Serialización helpers (Excel) ---- */
+function serializeObj(o) {
+  const out = {};
+  for (const k in o) {
+    const v = o[k];
+    if (v === null || v === undefined) out[k] = "";
+    else if (typeof v === "object") out[k] = JSON.stringify(v);
+    else out[k] = v;
+  }
+  return out;
+}
+function deserializeRow(row) {
+  const out = {};
+  for (const k in row) {
+    const v = row[k];
+    if (typeof v === "string") {
+      const t = v.trim();
+      if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+        try { out[k] = JSON.parse(t); continue; } catch (e) { /* dejo string */ }
+      }
+    }
+    out[k] = v;
+  }
+  return out;
+}
+
+/* ---- EXPORTAR EXCEL ---- */
+async function exportarExcel() {
+  try {
+    if (typeof XLSX === "undefined") { toast("SheetJS no cargado. Revisá la conexión.", "err"); return; }
+    toast("Preparando Excel…", "warn");
+
+    const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+    const data = { precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
+
+    const rids = Object.keys(DB.rondas);
+    for (const rid of rids) {
+      for (const sub of subcols) {
+        if (rid === DB.rondaActiva) {
+          const arr = DB[sub].filter(x => x.id_ronda === rid);
+          arr.forEach(x => data[sub].push({ id_ronda: rid, ...x }));
+        } else {
+          try {
+            const snap = await getDocs(collection(db, "rondas", rid, sub));
+            snap.docs.forEach(d => data[sub].push({ id_ronda: rid, ...d.data() }));
+          } catch (e) {
+            console.error("Excel export ronda " + rid + "/" + sub, e);
+          }
+        }
+      }
+    }
+
+    const wb = XLSX.utils.book_new();
+    const add = (name, arr) => {
+      const rows = (arr || []).map(serializeObj);
+      const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([["(sin datos)"]]);
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    };
+
+    const rondasArr = rids.map(rid => ({ id_ronda: rid, ...DB.rondas[rid] }));
+    add("Rondas", rondasArr);
+    add("Pedidos", data.pedidos);
+    add("Items", data.items);
+    add("Precios", data.precios);
+    add("Compras", data.compras);
+    add("Gastos", data.gastos);
+    add("Entregas", data.entregas);
+    add("Excedentes", data.excedentes);
+    add("Reclamos", data.reclamos);
+    add("Productos", DB.productos);
+    add("Clientes", DB.clientes);
+    add("Repartidores", DB.repartidores);
+
+    XLSX.writeFile(wb, "misti_v13_" + hoy() + ".xlsx");
+    toast("✓ Excel exportado", "ok");
+  } catch (e) {
+    console.error("exportarExcel:", e);
+    toast("Error al exportar Excel: " + e.message, "err");
+  }
+}
+
+/* ---- IMPORTAR EXCEL ---- */
+async function commitBatches(pathArr, items) {
+  if (!items || !items.length) return;
+  const chunks = [];
+  for (let i = 0; i < items.length; i += 400) chunks.push(items.slice(i, i + 400));
+  for (const chunk of chunks) {
+    const batch = writeBatch(db);
+    chunk.forEach(({ id, data }) => {
+      batch.set(doc(db, ...pathArr, id), data, { merge: true });
+    });
+    await batch.commit();
+  }
+}
+
+async function importarExcel() {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".xlsx,.xls";
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      try {
+        if (typeof XLSX === "undefined") { toast("SheetJS no cargado", "err"); return; }
+        const data = new Uint8Array(ev.target.result);
+        const wb = XLSX.read(data, { type: "array" });
+        const names = wb.SheetNames;
+        if (!names.length) { toast("Excel vacío", "err"); return; }
+        if (!confirm(`Hojas detectadas:\n${names.join(", ")}\n\n¿Importar estos datos a Firestore? Se sobrescribirán documentos existentes con el mismo ID.`)) return;
+        if (!confirm("⚠️ Última confirmación: ¿continuar con la importación?")) return;
+
+        cancelarSuscripciones();
+        toast("Importando Excel…", "warn");
+
+        const getRows = name => {
+          const sh = wb.Sheets[name];
+          if (!sh) return [];
+          return XLSX.utils.sheet_to_json(sh, { defval: "" }).map(deserializeRow);
+        };
+
+        // 1. Rondas
+        const rondasRows = getRows("Rondas");
+        const rondasItems = [];
+        for (const r of rondasRows) {
+          const rid = String(r.id_ronda || r.id || "").trim();
+          if (!rid) continue;
+          const { id_ronda, id, ...meta } = r;
+          rondasItems.push({ id: rid, data: { ...meta, id_ronda: rid } });
+        }
+        await commitBatches(["rondas"], rondasItems);
+
+        // 2. Subcolecciones
+        const subs = [
+          { sheet: "Precios", col: "precios", idField: "codigo_producto" },
+          { sheet: "Pedidos", col: "pedidos", idField: "pedido_id" },
+          { sheet: "Items", col: "items", idField: "item_id" },
+          { sheet: "Compras", col: "compras", idField: "codigo_producto" },
+          { sheet: "Entregas", col: "entregas", idField: "pedido_id" },
+          { sheet: "Gastos", col: "gastos", idField: "id" },
+          { sheet: "Excedentes", col: "excedentes", idField: "id" },
+          { sheet: "Reclamos", col: "reclamos", idField: "id" }
+        ];
+        for (const s of subs) {
+          const rows = getRows(s.sheet);
+          if (!rows.length) continue;
+          const grouped = {};
+          for (const row of rows) {
+            const rid = String(row.id_ronda || "").trim();
+            if (!rid) continue;
+            const docId = String(row[s.idField] || row.id || "").trim();
+            if (!docId) continue;
+            if (!grouped[rid]) grouped[rid] = [];
+            const { id_ronda, ...rest } = row;
+            grouped[rid].push({ id: docId, data: { ...rest, id_ronda: rid } });
+          }
+          for (const rid of Object.keys(grouped)) {
+            await commitBatches(["rondas", rid, s.col], grouped[rid]);
+          }
+        }
+
+        // 3. Catálogo
+        const prodItems = getRows("Productos").map(r => ({ id: String(r.codigo || "").trim(), data: r })).filter(x => x.id);
+        await commitBatches(["catalogo", "productos", "items"], prodItems);
+
+        const cliItems = getRows("Clientes").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id);
+        await commitBatches(["catalogo", "clientes", "items"], cliItems);
+
+        const repItems = getRows("Repartidores").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id);
+        await commitBatches(["catalogo", "repartidores", "items"], repItems);
+
+        toast("✓ Importación completada. Recargando…", "ok");
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        console.error("importarExcel:", err);
+        toast("Error al importar: " + err.message, "err");
+      }
+    };
+    reader.readAsArrayBuffer(f);
+  };
+  inp.click();
+}
+
+/* ---- Helpers RESET optimizado ---- */
+async function deleteDocsInBatches(refs) {
+  if (!refs || !refs.length) return;
+  const chunks = [];
+  for (let i = 0; i < refs.length; i += 400) chunks.push(refs.slice(i, i + 400));
+  for (const chunk of chunks) {
+    const batch = writeBatch(db);
+    chunk.forEach(ref => batch.delete(ref));
+    await batch.commit();
+  }
+}
+async function deleteCollectionInBatches(pathArr) {
+  const snap = await getDocs(collection(db, ...pathArr));
+  await deleteDocsInBatches(snap.docs.map(d => d.ref));
+}
+function mostrarProgresoReset() {
+  let el = document.getElementById("resetProgress");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "resetProgress";
+    el.style.cssText = "position:fixed;inset:0;background:rgba(43,43,43,.6);display:flex;align-items:center;justify-content:center;z-index:4000;padding:20px";
+    el.innerHTML = `<div style="background:#fff;border-radius:20px;padding:26px;max-width:380px;width:100%;text-align:center;box-shadow:0 8px 18px rgba(43,43,43,.08)">
+      <div style="font-size:14px;font-weight:700;color:#2E9E5B;margin-bottom:8px">🗑️ Reset en progreso</div>
+      <div id="resetMsg" style="font-size:13px;color:#2B2B2B">Iniciando…</div>
+    </div>`;
+    document.body.appendChild(el);
+  }
+  return {
+    update(msg) { const m = document.getElementById("resetMsg"); if (m) m.textContent = msg; },
+    error(msg) { const m = document.getElementById("resetMsg"); if (m) { m.textContent = msg; m.style.color = "#FF5A5F"; } }
+  };
+}
+
 async function resetTotal() {
   if (!confirm("¿Borrar TODO en Firestore y reiniciar? Esta acción no se puede deshacer.")) return;
-  if (!confirm("¿Estás completamente seguro? Se borrarán todas las rondas y catálogo.")) return;
+  if (!confirm("⚠️ ÚLTIMA CONFIRMACIÓN: se borrarán TODAS las rondas, subcolecciones, catálogo y config.")) return;
+
+  const progress = mostrarProgresoReset();
   try {
     cancelarSuscripciones();
-    const colecciones = [
-      ["catalogo", "productos", "items"], ["catalogo", "clientes", "items"], ["catalogo", "repartidores", "items"]
-    ];
-    for (const col of colecciones) {
-      const snap = await getDocs(collection(db, ...col));
-      for (const d of snap.docs) await deleteDoc(d.ref);
-    }
+
+    progress.update("Leyendo rondas…");
     const rondasSnap = await getDocs(collection(db, "rondas"));
+    const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+    const total = rondasSnap.docs.length;
+    let idx = 0;
     for (const rDoc of rondasSnap.docs) {
-      const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
-      for (const sub of subcols) {
-        const subSnap = await getDocs(collection(db, "rondas", rDoc.id, sub));
-        for (const d of subSnap.docs) await deleteDoc(d.ref);
-      }
+      idx++;
+      progress.update(`Borrando ronda ${idx}/${total} (${rDoc.id})…`);
+      await Promise.all(subcols.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
       await deleteDoc(rDoc.ref);
     }
+
+    progress.update("Borrando catálogo…");
+    await Promise.all([
+      deleteCollectionInBatches(["catalogo", "productos", "items"]),
+      deleteCollectionInBatches(["catalogo", "clientes", "items"]),
+      deleteCollectionInBatches(["catalogo", "repartidores", "items"])
+    ]);
+
+    progress.update("Borrando config…");
     await deleteDoc(doc(db, "config", "global"));
-    toast("✓ Reset completado. Recargando…", "ok");
-    setTimeout(() => location.reload(), 1500);
-  } catch (e) { toast("Error en reset: " + e.message, "err"); }
+
+    progress.update("✓ Reset completado. Recargando…");
+    toast("✓ Reset completado", "ok");
+    setTimeout(() => location.reload(), 1200);
+  } catch (e) {
+    console.error("Error en reset:", e);
+    progress.error("Error: " + e.message);
+    toast("Error en reset: " + e.message, "err");
+  }
 }
 
 /* ============================================================================
@@ -2829,42 +3057,27 @@ onAuthStateChanged(auth, async user => {
    EXPONER FUNCIONES A WINDOW
    ============================================================================ */
 Object.assign(window, {
-  // Navegación
   mostrarVista, abrirModal, cerrarModal,
-  // Rondas
   cambiarRondaActiva, marcarRonda,
   abrirModalNuevaRonda, previewNuevaRonda, confirmarNuevaRonda,
   abrirModalNombreRonda, previewNombreRonda, guardarNombreRonda,
   borrarRonda,
-  // Pipeline
   abrirAceptar, confirmarAceptar, transicionar, abrirRetroceder, confirmarRetroceder,
   verDetalle, edCambiarCantidad, edEliminarItem, edAgregarItem, guardarEdicionPedido,
-  // Calculadora
   calcBuscarCliente, calcDistritoChange, calcFiltrarProductos, calcAgregarProducto,
   calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
-  // Productos
   abrirModalProducto, guardarProducto, toggleProducto,
-  // Precios
   setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
-  // Compra
   calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado,
-  // Entregas
   asignarRepartidor, updEntrega,
-  // Repartidores
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
-  // Gastos
   agregarGasto, updGasto, delGasto,
   agregarExcedente, updExc, delExc,
   agregarReclamo, updReclamo, delReclamo,
-  // Reportes
   calcularReportes,
-  // Config
   updConfig,
-  // Exportar/Importar/Reset
-  exportarJSON, importarJSON, resetTotal,
-  // Login
+  exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
   iniciarSesion,
-  // Renders para buscadores
   renderPipeline, renderProductos, renderPrecios
 });
 </script>
