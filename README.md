@@ -1,23 +1,9 @@
 
 # 🛒 Compra con Misti — Panel Admin
 
-Panel de administración para gestionar la operación semanal de **Compra con Misti**: compra colectiva de productos frescos del mercado mayorista, con pedidos por WhatsApp y entrega los domingos.
+Panel de administración para gestionar la operación semanal de **Compra con Misti**.
 
-Este repo contiene **solo el panel de administración**. El catálogo público y el resto del ecosistema viven en otros repos.
-
----
-
-## 🎯 ¿Qué es Compra con Misti?
-
-Un servicio de compra colectiva de productos frescos (papa, cebolla, tomate, ají, hierbas, menestras, etc.) que sale del restaurante familiar **El Misti** (cocina criolla, La Victoria, Lima).
-
-Los clientes piden durante la semana, se compra todo junto el domingo en el mercado mayorista, y se entrega ese mismo día.
-
-**Cómo funciona:**
-1. El cliente arma su canasta en una web pública.
-2. Envía el pedido por WhatsApp.
-3. Un workflow de n8n recibe el mensaje y lo registra automáticamente en Firestore.
-4. El admin (este panel) lo gestiona de punta a punta hasta la entrega.
+Este repo contiene **solo el panel de administración**. El catálogo público y el resto del ecosistema viven en otro repo.
 
 ---
 
@@ -175,19 +161,7 @@ catalogo/
 
 config/
   global/
-```
 
-### Reglas de negocio
-
-- **Ronda:** semana identificada por el lunes (`R-2026-10-05`).
-- **precio_venta** = `precio_ref_mayorista / (1 - margen)`.
-- **margen real** = `(precio_venta − precio_compra_real) / precio_venta`.
-- **Descuento por recojo:** S/2 (A), S/3 (B), S/5 (C).
-- **Mínimo de compra:** S/30 (A), S/40 (B), S/50 (C).
-- **Cierre:** viernes 17:00.
-- **Compra y entrega:** domingo.
-
----
 
 ## 🔄 Flujo completo del sistema
 
