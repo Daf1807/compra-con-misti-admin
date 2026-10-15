@@ -1651,7 +1651,6 @@ const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.est
 const esc3Map = verFinales ? calcularEsc3Map() : {};
 const hist = (p.historial_estados || []).map(h => `<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo || "")}</span></div>`).join("");
 
-// Bloque editable de datos del cliente (solo si NO es terminal)
 const bloqueEditar = edit ? `
 <h3 style="margin-top:14px">Editar pedido</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -1667,7 +1666,6 @@ const bloqueEditar = edit ? `
 <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
 </div>` : "";
 
-// Tabla de items: si verFinales, muestra cantidades ajustadas; si no, input editable
 const tituloItems = verFinales
   ? "Items (cantidades finales)"
   : "Items (precio congelado — no editable)";
@@ -1695,14 +1693,12 @@ const filasHTML = its.map(i => {
   </tr>`;
 }).join("");
 
-// Bloque de agregar item (solo si editable)
 const bloqueAgregarItem = edit ? `
 <div style="display:flex;gap:8px;margin-top:10px">
 <select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select>
 <button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button>
 </div>` : "";
 
-// Botón + checkbox boleta (solo si está entregado)
 let bloqueBoleta = "";
 if (p.estado === "entregado") {
   const enviada = !!p.boleta_enviada;
@@ -1718,7 +1714,6 @@ if (p.estado === "entregado") {
   </div>`;
 }
 
-// Botones de acción final
 const botonesFinal = edit
   ? `<div class="actions" style="justify-content:flex-end;margin-top:14px">
       <button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button>
@@ -1760,26 +1755,28 @@ function enviarBoletaWhatsApp(pedidoId) {
   if (!cel || cel.length < 9) { toast("El cliente no tiene celular registrado", "err"); return; }
   const its = itemsDePedido(pedidoId);
   const esc3Map = calcularEsc3Map();
+  let huboAjuste = false;
   const lineas = [];
-  lineas.push(`Hola ${p.cliente_nombre}, te compartimos el detalle de tu pedido 🧡`);
+  lineas.push("BOLETA · COMPRA CON MISTI");
   lineas.push("");
-  lineas.push(`*Pedido ${p.pedido_id}*`);
-  lineas.push(`Modalidad: ${p.modalidad === "recojo" ? "Recojo en local" : "Delivery"}`);
-  if (p.modalidad !== "recojo") lineas.push(`Dirección: ${[p.direccion, p.distrito].filter(Boolean).join(", ")}`);
+  lineas.push(`Cliente: ${p.cliente_nombre}`);
+  lineas.push(`Pedido: ${p.pedido_id}`);
   lineas.push("");
-  lineas.push("*Detalle:*");
+  lineas.push("DETALLE:");
   its.forEach(i => {
     const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
     const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-    const txt = e3.esc3Activo
-      ? `${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad} (pediste ${i.cantidad}, ajustado)`
-      : `${i.nombre}: ${i.cantidad} ${i.unidad}`;
-    lineas.push(`• ${txt}`);
+    if (e3.esc3Activo) huboAjuste = true;
+    lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
   });
   lineas.push("");
-  lineas.push(`*TOTAL: ${soles(p.total)}*`);
+  if (huboAjuste) {
+    lineas.push("Nota: algunos pedidos fueron ajustados según el acuerdo de la ronda.");
+    lineas.push("");
+  }
+  lineas.push(`TOTAL: ${soles(p.total)}`);
   lineas.push("");
-  lineas.push("Gracias por tu compra 🧡");
+  lineas.push("¡Gracias por tu compra!");
   const texto = lineas.join("\n");
   const numero = cel.startsWith("51") ? cel : "51" + cel;
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, "_blank");
@@ -1796,28 +1793,31 @@ function copiarReportePedido(pedidoId) {
   const p = pedidoPorId(pedidoId); if (!p) return;
   const its = itemsDePedido(pedidoId);
   const esc3Map = calcularEsc3Map();
+  let huboAjuste = false;
   const lineas = [];
-  lineas.push(`*Pedido ${p.pedido_id}*`);
-  lineas.push(`Cliente: ${p.cliente_nombre}`);
-  lineas.push(`Modalidad: ${p.modalidad === "recojo" ? "Recojo en local" : "Delivery"}`);
-  if (p.modalidad !== "recojo") lineas.push(`Dirección: ${[p.direccion, p.distrito].filter(Boolean).join(", ")}`);
+  lineas.push("BOLETA · COMPRA CON MISTI");
   lineas.push("");
-  lineas.push("*Detalle de tu pedido:*");
+  lineas.push(`Cliente: ${p.cliente_nombre}`);
+  lineas.push(`Pedido: ${p.pedido_id}`);
+  lineas.push("");
+  lineas.push("DETALLE:");
   its.forEach(i => {
     const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
     const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-    const txt = e3.esc3Activo
-      ? `${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad} (pediste ${i.cantidad}, ajustado)`
-      : `${i.nombre}: ${i.cantidad} ${i.unidad}`;
-    lineas.push(`• ${txt}`);
+    if (e3.esc3Activo) huboAjuste = true;
+    lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
   });
   lineas.push("");
-  lineas.push(`*TOTAL: ${soles(p.total)}*`);
+  if (huboAjuste) {
+    lineas.push("Nota: algunos pedidos fueron ajustados según el acuerdo de la ronda.");
+    lineas.push("");
+  }
+  lineas.push(`TOTAL: ${soles(p.total)}`);
   lineas.push("");
-  lineas.push("Gracias por tu compra 🧡");
+  lineas.push("¡Gracias por tu compra!");
   const texto = lineas.join("\n");
   navigator.clipboard.writeText(texto)
-    .then(() => toast("✓ Boleta copiada — pégala en WhatsApp", "ok"))
+    .then(() => toast("✓ Boleta copiada", "ok"))
     .catch(() => {
       const ta = document.createElement("textarea");
       ta.value = texto; document.body.appendChild(ta); ta.select();
@@ -3278,12 +3278,9 @@ await commitBatches(["catalogo", "repartidores", "items"], repItems);
 const cfgRows = getRows("Config");
 if (cfgRows.length) {
 const cfg = cfgRows[0];
-// cap_vehiculo puede venir como objeto (JSON ya parseado por deserializeRow)
-// o como string; normalizamos por las dudas.
 if (typeof cfg.cap_vehiculo === "string") {
 try { cfg.cap_vehiculo = JSON.parse(cfg.cap_vehiculo); } catch (e) { delete cfg.cap_vehiculo; }
 }
-// Quitar campos vacíos que no aportan
 Object.keys(cfg).forEach(k => { if (cfg[k] === "") delete cfg[k]; });
 await fsSetConfig(cfg);
 DB.config = { ...DB.config, ...cfg };
