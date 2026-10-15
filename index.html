@@ -1461,7 +1461,7 @@ let arr = pedidosDeRonda();
 if (q) arr = arr.filter(p => String(p.cliente_nombre || "").toLowerCase().includes(q) || String(p.cliente_celular || "").includes(q));
 if (z) arr = arr.filter(p => p.zona === z);
 const cols = [
-{ key: "pendiente", label: "Pendiente pago", cls: "pend", estados: ["pendiente_pago_yape", "pendiente_pago_efectivo"] },
+{ key: "pendiente", label: "Pendiente pago", cls: "pend", estados: ["pendiente", "pendiente_pago_yape", "pendiente_pago_efectivo"] },
 { key: "aceptado", label: "Aceptado", cls: "acep", estados: ["aceptado"] },
 { key: "empacado", label: "Empacado", cls: "empa", estados: ["empacado"] },
 { key: "entregado", label: "Entregado", cls: "entr", estados: ["entregado"] },
