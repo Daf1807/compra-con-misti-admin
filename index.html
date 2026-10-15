@@ -201,6 +201,8 @@ tbody tr:hover{background:#F4FBF6}
 #syncIndicator.saving{background:#FFF3CD;color:#7A5500}
 #syncIndicator.saved{background:var(--verde-claro);color:var(--verde)}
 .aviso-semana{background:#FFF6DE;border-left:4px solid var(--miel);border-radius:8px;padding:6px 10px;font-size:11px;color:#7A5500;font-weight:600}
+.esc3-row{background:#FFF6DE !important}
+.esc3-row:hover{background:#FFF0C0 !important}
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}}
@@ -2061,6 +2063,14 @@ document.getElementById("listaCompraContenido").innerHTML = ""; return;
 }
 let costoEst = 0, costoReal = 0;
 
+// Contador de productos en Escenario 3
+const nEsc3 = filas.filter(f => {
+const pv = pmap[f.codigo]?.precio_venta || 0;
+const pMax = red2(pv * 0.86);
+const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
+return aj.precio_mayorista_viernes != null && Number(aj.precio_mayorista_viernes) > pMax;
+}).length;
+
 // Cálculo previo para los totales del resumen
 filas.forEach(f => {
 const ref = precioRef(pmap[f.codigo]);
@@ -2085,17 +2095,18 @@ document.getElementById("compraResumen").innerHTML = `
 <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
 <div class="box">Δ vs ref.<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div>
 </div>
-<div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}</div>`;
+<div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}${nEsc3 > 0 ? `<br><span style="color:var(--coral);font-weight:700">⚠️ ${nEsc3} producto(s) en escenario 3</span>` : ""}</div>`;
 
 document.getElementById("listaCompraContenido").innerHTML = `
 <div class="table-scroll"><table>
 <thead><tr>
 <th>✓</th>
 <th>Producto</th>
-<th>P. máx compra</th>
-<th>P. mayorista viernes</th>
-<th>Escenario 3</th>
-<th>Cant. esc. 3</th>
+<th>P. venta</th>
+<th>P. máx</th>
+<th>P. viernes</th>
+<th>Esc.3</th>
+<th>Cant.Esc3</th>
 <th>Pedida</th>
 <th>Cant. real</th>
 <th>P. ref mayor.</th>
@@ -2129,17 +2140,18 @@ const margenTxt = aj.precio_unitario_real != null ? fmtMargen(margenReal) : "—
 // Lógica de visualización de la columna "Pedida"
 let pedidaHtml = '';
 if (esc3 && cantEsc3 != null) {
-  pedidaHtml = `<div style="color:var(--coral);font-weight:700">${cantEsc3.toFixed(2)}</div><div style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${f.pedida.toFixed(2)}</div>`;
+pedidaHtml = `<div style="color:var(--coral);font-weight:700">${cantEsc3.toFixed(2)}</div><div style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${f.pedida.toFixed(2)}</div>`;
 } else {
-  pedidaHtml = f.pedida.toFixed(2);
+pedidaHtml = f.pedida.toFixed(2);
 }
 
-return `<tr style="${confirmado ? 'background:var(--verde-claro)' : ''}">
+return `<tr class="${esc3 ? 'esc3-row' : ''}" style="${confirmado ? 'background:var(--verde-claro)' : ''}">
 <td><input type="checkbox" ${confirmado ? "checked" : ""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td>
 <td><strong>${esc(f.nombre)}</strong></td>
+<td><strong style="color:var(--verde)">${soles(pv)}</strong></td>
 <td><strong>${soles(pMax)}</strong></td>
-<td><input type="number" step="0.01" value="${pViernes != null ? pViernes : ''}" onchange="setCompraPrecioViernes('${f.codigo}',this.value)" style="max-width:90px"></td>
-<td><span style="color:${esc3 ? 'var(--coral)' : 'var(--verde)'};font-weight:700">${esc3 ? 'SÍ' : 'NO'}</span></td>
+<td><input type="number" step="0.01" value="${pViernes != null ? pViernes : ''}" onchange="setCompraViernes('${f.codigo}',this.value)" style="max-width:90px"></td>
+<td><span class="${esc3 ? 'margen-malo' : 'margen-bueno'}">${esc3 ? 'SÍ' : 'NO'}</span></td>
 <td><input type="number" step="0.01" value="${cantEsc3 != null ? cantEsc3 : ''}" onchange="setCompraCantEsc3('${f.codigo}',this.value)" style="max-width:80px" ${!esc3 ? 'disabled' : ''}></td>
 <td>${pedidaHtml}</td>
 <td><input type="number" step="0.01" value="${cantReal}" onchange="setCompraReal('${f.codigo}',this.value)" style="max-width:80px"></td>
@@ -2174,18 +2186,18 @@ async function setCompraPrecioReal(codigo, precio) { const c = asegurarCompraIte
 async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codigo); c.merma = Number(merma) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
 
-async function setCompraPrecioViernes(codigo, valor) { 
-  const c = asegurarCompraItem(codigo); 
-  c.precio_mayorista_viernes = valor.trim() === '' ? null : Number(valor); 
-  await guardarCompra(c); 
-  calcularListaCompra(); 
+async function setCompraViernes(codigo, val) { 
+const c = asegurarCompraItem(codigo); 
+c.precio_mayorista_viernes = val === "" ? null : (Number(val) || 0); 
+await guardarCompra(c); 
+calcularListaCompra(); 
 }
 
-async function setCompraCantEsc3(codigo, valor) { 
-  const c = asegurarCompraItem(codigo); 
-  c.cantidad_esc3 = valor.trim() === '' ? null : Number(valor); 
-  await guardarCompra(c); 
-  calcularListaCompra(); 
+async function setCompraCantEsc3(codigo, val) { 
+const c = asegurarCompraItem(codigo); 
+c.cantidad_esc3 = val === "" ? null : (Number(val) || 0); 
+await guardarCompra(c); 
+calcularListaCompra(); 
 }
 
 /* ============================================================================
@@ -2834,6 +2846,7 @@ entregas: [], gastos: [], excedentes: [], reclamos: []
 };
 }
 }
+}
 const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
 const url = URL.createObjectURL(blob);
 const a = document.createElement("a"); a.href = url; a.download = "misti_v14_" + hoy() + ".json"; a.click();
@@ -3242,7 +3255,7 @@ calcBuscarCliente, calcDistritoChange, calcFiltrarProductos, calcAgregarProducto
 calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
 abrirModalProducto, guardarProducto, toggleProducto,
 setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
-calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado, setCompraPrecioViernes, setCompraCantEsc3,
+calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado, setCompraViernes, setCompraCantEsc3,
 asignarRepartidor, updEntrega,
 previewRuta, enviarRutaWA, copiarMensajeRuta,
 abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
