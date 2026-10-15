@@ -1635,18 +1635,12 @@ function verDetalle(id) {
 const p = pedidoPorId(id); if (!p) return;
 const its = itemsDePedido(id);
 const edit = !esTerminal(p.estado);
+const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.estado);
+const esc3Map = verFinales ? calcularEsc3Map() : {};
 const hist = (p.historial_estados || []).map(h => `<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo || "")}</span></div>`).join("");
-document.getElementById("detalleContenido").innerHTML = `
-<div class="info-box">
-<strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
-<span class="status status-${p.estado}">${esc(p.estado)}</span>
-${p.verificado_por ? ` · Verificado por ${esc(p.verificado_por)}` : ""}
-${p.codigo_yape ? ` · Yape ${esc(p.codigo_yape)}` : ""}
-${p.lat && p.lng ? `<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>` : ""}
-</div>
-<h4 style="margin-top:14px">Historial de estados</h4>
-${hist || '<div class="small-note">Sin historial.</div>'}
-${edit ? `
+
+// Bloque editable de datos del cliente (solo si NO es terminal)
+const bloqueEditar = edit ? `
 <h3 style="margin-top:14px">Editar pedido</h3>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <div><label class="small-note">Nombre</label><input id="edNombre" value="${esc(p.cliente_nombre)}"></div>
@@ -1659,70 +1653,90 @@ ${edit ? `
 <div><label class="small-note">Lat</label><input id="edLat" type="number" step="0.0000001" value="${p.lat || ""}"></div>
 <div><label class="small-note">Lng</label><input id="edLng" type="number" step="0.0000001" value="${p.lng || ""}"></div>
 <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
-</div>
-${(() => {
-  const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.estado);
-  const esc3Map = verFinales ? calcularEsc3Map() : {};
-  const titulo = verFinales
-    ? "Items (cantidades finales)"
-    : "Items (precio congelado — no editable)";
-  const filasHTML = its.map(i => {
-    let cantHTML;
-    if (verFinales) {
-      const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
-      const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-      cantHTML = e3.esc3Activo
-        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span>
-           <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong>
-           <span class="small-note">${esc(i.unidad)}</span>
-           <br><span class="small-note" style="color:var(--coral)">Esc.3 · ×${e3.factor.toFixed(3)}</span>`
-        : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
-    } else {
-      cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
-    }
-    return `<tr>
-      <td>${esc(i.nombre)}</td>
-      <td>${cantHTML}</td>
-      <td>${soles(i.precio_venta_congelado)}</td>
-      <td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td>
-      <td><button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button></td>
-    </tr>`;
-  }).join("");
-  let extra = "";
-  if (p.estado === "entregado") {
-    const enviada = !!p.boleta_enviada;
-    extra = `<div class="info-box" style="margin-top:12px">
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn-wa btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📱 Copiar boleta para WhatsApp</button>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px">
-          <input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaEnviada('${p.pedido_id}',this.checked)" style="width:auto">
-          ${enviada ? "✅ Boleta enviada al cliente" : "Marcar como boleta enviada"}
-        </label>
-      </div>
-    </div>`;
+</div>` : "";
+
+// Tabla de items: si verFinales, muestra cantidades ajustadas; si no, input editable
+const tituloItems = verFinales
+  ? "Items (cantidades finales)"
+  : "Items (precio congelado — no editable)";
+
+const filasHTML = its.map(i => {
+  let cantHTML;
+  if (verFinales) {
+    const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
+    const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
+    cantHTML = e3.esc3Activo
+      ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span>
+         <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong>
+         <span class="small-note">${esc(i.unidad)}</span>
+         <br><span class="small-note" style="color:var(--coral)">Esc.3 · ×${e3.factor.toFixed(3)}</span>`
+      : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
+  } else {
+    cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
   }
-  return `<h4 style="margin-top:14px">${titulo}</h4>
-    <table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead>
-    <tbody id="edItemsBody">${filasHTML}</tbody></table>
-    ${extra}`;
-})()}
+  return `<tr>
+    <td>${esc(i.nombre)}</td>
+    <td>${cantHTML}</td>
+    <td>${soles(i.precio_venta_congelado)}</td>
+    <td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td>
+    <td>${edit ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : ""}</td>
+  </tr>`;
+}).join("");
+
+// Bloque de agregar item (solo si editable)
+const bloqueAgregarItem = edit ? `
 <div style="display:flex;gap:8px;margin-top:10px">
 <select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select>
 <button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button>
+</div>` : "";
+
+// Botón + checkbox boleta (solo si está entregado)
+let bloqueBoleta = "";
+if (p.estado === "entregado") {
+  const enviada = !!p.boleta_enviada;
+  bloqueBoleta = `<div class="info-box" style="margin-top:12px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn-wa btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📱 Copiar boleta para WhatsApp</button>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px">
+        <input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaEnviada('${p.pedido_id}',this.checked)" style="width:auto">
+        ${enviada ? "✅ Boleta enviada al cliente" : "Marcar como boleta enviada"}
+      </label>
+    </div>
+  </div>`;
+}
+
+// Botones de acción final
+const botonesFinal = edit
+  ? `<div class="actions" style="justify-content:flex-end;margin-top:14px">
+      <button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button>
+      <button class="btn-save" onclick="guardarEdicionPedido('${p.pedido_id}')">💾 Guardar cambios</button>
+    </div>`
+  : `<div class="actions" style="justify-content:flex-end;margin-top:14px">
+      <button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button>
+    </div>`;
+
+document.getElementById("detalleContenido").innerHTML = `
+<div class="info-box">
+<strong>${esc(p.pedido_id)}</strong> · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br>
+<span class="status status-${p.estado}">${esc(p.estado)}</span>
+${p.verificado_por ? ` · Verificado por ${esc(p.verificado_por)}` : ""}
+${p.codigo_yape ? ` · Yape ${esc(p.codigo_yape)}` : ""}
+${p.lat && p.lng ? `<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>` : ""}
 </div>
-<div class="calc-summary" style="margin-top:12px" id="edResumen"></div>
-<div class="actions" style="justify-content:flex-end;margin-top:14px">
-<button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button>
-<button class="btn-save" onclick="guardarEdicionPedido('${p.pedido_id}')">💾 Guardar cambios</button>
-</div>` : `
-<h3 style="margin-top:14px">Items</h3>
-<table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th></tr></thead>
-<tbody>${its.map(i => `<tr><td>${esc(i.nombre)}</td><td>${i.cantidad} ${esc(i.unidad)}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong>${soles(i.subtotal_venta)}</strong></td></tr>`).join("")}</tbody></table>
-<div class="calc-summary" style="margin-top:12px">
+<h4 style="margin-top:14px">Historial de estados</h4>
+${hist || '<div class="small-note">Sin historial.</div>'}
+${bloqueEditar}
+<h4 style="margin-top:14px">${tituloItems}</h4>
+<table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead>
+<tbody id="edItemsBody">${filasHTML}</tbody></table>
+${bloqueAgregarItem}
+<div class="calc-summary" style="margin-top:12px" id="edResumen">
 <div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div>
 <div class="row"><span>Desc. recojo</span><span>−${soles(p.descuento_recojo)}</span></div>
 <div class="row total"><span>TOTAL</span><span>${soles(p.total)}</span></div>
-</div>`}
+</div>
+${bloqueBoleta}
+${botonesFinal}
 `;
 if (edit) recalcEdResumen(id);
 abrirModal("modalDetalle");
