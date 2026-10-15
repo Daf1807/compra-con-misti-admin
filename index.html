@@ -239,7 +239,6 @@ tbody tr:hover{background:#F4FBF6}
 <button class="nav-btn" data-view="calculadora"  onclick="mostrarVista('calculadora')">🧮 Calculadora</button>
 <button class="nav-btn" data-view="productos"    onclick="mostrarVista('productos')">📦 Productos</button>
 <button class="nav-btn" data-view="precios"      onclick="mostrarVista('precios')">💰 Precios ronda</button>
-<button class="nav-btn" data-view="limites"      onclick="mostrarVista('limites')">🎯 Límites</button>
 <button class="nav-btn" data-view="compra"       onclick="mostrarVista('compra')">🛒 Compra</button>
 <button class="nav-btn" data-view="entregas"     onclick="mostrarVista('entregas')">🗺️ Entregas</button>
 <button class="nav-btn" data-view="repartidores" onclick="mostrarVista('repartidores')">🛵 Repartidores</button>
@@ -373,45 +372,10 @@ tbody tr:hover{background:#F4FBF6}
 </table></div>
 </div>
 </section>
-<section class="view" id="view-limites">
-<div class="section">
-<h2 class="section-head">🎯 Límites de compra por producto</h2>
-<p class="section-sub">
-Define el <strong>% de costo estimado</strong> (ej: 0.14 = 14% del precio venta). 
-El <strong>precio máximo de compra</strong> se calcula solo. 
-Si el <strong>precio mayorista del viernes</strong> supera ese máximo → <strong>escenario 3</strong> → en Compras se usa la <strong>cantidad alternativa</strong>.
-</p>
-<div class="actions" style="margin-bottom:12px">
-<input id="limiteBuscar" placeholder="🔍 Buscar producto..." oninput="renderLimites()" style="max-width:260px">
-<select id="limiteEscFiltro" onchange="renderLimites()" style="max-width:200px">
-<option value="">Todos los escenarios</option>
-<option value="ok">✅ OK (max ≥ viernes)</option>
-<option value="alerta">⚠️ Escenario 3 (max &lt; viernes)</option>
-<option value="sin">— Sin precio viernes</option>
-</select>
-<button class="btn-info btn-sm" onclick="aplicarCostoGlobal()">🌐 Aplicar % costo a todos</button>
-</div>
-<div id="limitesResumen" class="ruta-info"></div>
-<div class="table-scroll"><table>
-<thead><tr>
-<th>Producto</th>
-<th>P. venta</th>
-<th>% costo</th>
-<th>P. máx compra</th>
-<th>P. mayorista viernes</th>
-<th>Escenario</th>
-<th>Cant. pedida</th>
-<th>Cant. alternativa</th>
-<th>Cant. final → Compras</th>
-</tr></thead>
-<tbody id="limitesBody"></tbody>
-</table></div>
-</div>
-</section>
 <section class="view" id="view-compra">
 <div class="section">
 <h2 class="section-head">🛒 Lista de compra consolidada</h2>
-<p class="section-sub">La columna <strong>Pedidos</strong> viene de <strong>🎯 Límites</strong> según el escenario. Ingresá el <strong>P. compra real</strong> pagado el domingo.</p>
+<p class="section-sub">Ingresá el <strong>P. compra real</strong> pagado el domingo. El <strong>margen real</strong> se calcula comparando contra el P. venta congelado.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
 <span class="small-note">Auto-recalcula al cambiar datos ✓</span>
@@ -618,8 +582,7 @@ compras: [],
 entregas: [],
 gastos: [],
 excedentes: [],
-reclamos: [],
-limites: []
+reclamos: []
 };
 let calcItems = [];
 let unsubscribersRonda = [];
@@ -690,7 +653,6 @@ const OFICINA = { lat: -12.0873, lng: -77.0218, direccion: "Eduardo Bello 385, S
 const CAP_DEFAULT = { "A pie": 45, "Bici": 25, "Moto": 60, "Auto": 150, "Combi": 300 };
 const MAX_PARADAS_VIAJE_DEFAULT = 9;
 const MARGEN_DEFAULT = 0.30;
-const COSTO_ESTIMADO_DEFAULT = 0.14;
 /* ============================================================================
 HELPERS
 ============================================================================ */
@@ -702,18 +664,21 @@ const hoy = () => new Date().toISOString().slice(0, 10);
 const ahora = () => new Date().toISOString();
 const uid = p => p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 const distHav = (a, b, c, d) => { const R = 6371, t = x => x * Math.PI / 180; const dLat = t(c - a), dLng = t(b - d); const x = Math.sin(dLat / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dLng / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
+/* Precio de venta = ref / (1 - margen). Si margen no está, usa MARGEN_DEFAULT. */
 function calcPrecioVenta(ref, margen) {
 const r = Number(ref) || 0;
 const m = (margen == null || margen === "") ? MARGEN_DEFAULT : Number(margen);
 if (m >= 1) return roundUp2(r);
 return roundUp2(r / (1 - m));
 }
+/* Lee precio_ref_mayorista con fallback a precio_compra (compatibilidad) */
 function precioRef(pr) {
 if (!pr) return 0;
 if (pr.precio_ref_mayorista != null) return Number(pr.precio_ref_mayorista);
 if (pr.precio_compra != null) return Number(pr.precio_compra);
 return 0;
 }
+/* Margen real = (precio_venta - precio_compra_real) / precio_venta */
 function calcMargenReal(precioVenta, precioCompraReal) {
 const pv = Number(precioVenta) || 0;
 const pc = Number(precioCompraReal) || 0;
@@ -842,145 +807,10 @@ const comprasDeRonda = () => DB.compras.filter(c => c.id_ronda === DB.rondaActiv
 const gastosDeRonda = () => DB.gastos.filter(g => g.id_ronda === DB.rondaActiva);
 const excedentesDeRonda = () => DB.excedentes.filter(e => e.id_ronda === DB.rondaActiva);
 const reclamosDeRonda = () => DB.reclamos.filter(r => r.id_ronda === DB.rondaActiva);
-const limitesDeRonda = () => DB.limites.filter(l => l.id_ronda === DB.rondaActiva);
 const pedidoPorId = id => DB.pedidos.find(p => p.id_ronda === DB.rondaActiva && p.pedido_id === id);
 const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).forEach(p => m[p.codigo_producto] = p); return m; };
 const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
-/* ============================================================================
-LÍMITES — Escenario 3
-============================================================================ */
-function limitePorProducto(codigo) {
-return DB.limites.find(l => l.id_ronda === DB.rondaActiva && l.codigo_producto === codigo);
-}
-function escenarioLimite(limite) {
-if (!limite) return "sin";
-if (limite.precio_mayorista_viernes == null || limite.precio_mayorista_viernes === "" || isNaN(Number(limite.precio_mayorista_viernes))) return "sin";
-const maxC = Number(limite.precio_max_compra) || 0;
-const vier = Number(limite.precio_mayorista_viernes) || 0;
-return maxC >= vier ? "ok" : "alerta";
-}
-function cantidadFinalCompras(codigo, cantPedida) {
-const lim = limitePorProducto(codigo);
-if (!lim) return Number(cantPedida) || 0;
-const esc = escenarioLimite(lim);
-if (esc === "alerta" && lim.cantidad_alternativa != null && lim.cantidad_alternativa !== "" && !isNaN(Number(lim.cantidad_alternativa))) {
-return Number(lim.cantidad_alternativa) || 0;
-}
-return Number(cantPedida) || 0;
-}
-async function asegurarLimite(codigo) {
-const prod = DB.productos.find(p => p.codigo === codigo);
-const pr = precioMapa()[codigo];
-if (!prod || !pr) return null;
-let l = limitePorProducto(codigo);
-if (!l) {
-const pv = Number(pr.precio_venta) || 0;
-l = {
-id_ronda: DB.rondaActiva,
-codigo_producto: codigo,
-nombre: prod.nombre,
-unidad: prod.unidad,
-precio_venta: pv,
-costo_estimado_pct: COSTO_ESTIMADO_DEFAULT,
-precio_max_compra: red2(pv * (1 - COSTO_ESTIMADO_DEFAULT)),
-precio_mayorista_viernes: null,
-cantidad_alternativa: null
-};
-DB.limites.push(l);
-await fsSet(["rondas", DB.rondaActiva, "limites"], codigo, l);
-}
-return l;
-}
-async function setLimiteCostoPct(codigo, val) {
-const l = await asegurarLimite(codigo);
-if (!l) return;
-const pct = Math.max(0, Math.min(0.95, Number(val) || 0));
-l.costo_estimado_pct = pct;
-l.precio_max_compra = red2(Number(l.precio_venta) * (1 - pct));
-await fsSet(["rondas", DB.rondaActiva, "limites"], l.codigo_producto, l);
-renderLimites();
-}
-async function setLimiteViernes(codigo, val) {
-const l = await asegurarLimite(codigo);
-if (!l) return;
-l.precio_mayorista_viernes = val === "" ? null : (Number(val) || 0);
-await fsSet(["rondas", DB.rondaActiva, "limites"], l.codigo_producto, l);
-renderLimites();
-}
-async function setLimiteCantAlt(codigo, val) {
-const l = await asegurarLimite(codigo);
-if (!l) return;
-l.cantidad_alternativa = val === "" ? null : (Number(val) || 0);
-await fsSet(["rondas", DB.rondaActiva, "limites"], l.codigo_producto, l);
-renderLimites();
-}
-async function aplicarCostoGlobal() {
-const val = prompt("Aplicar este % de costo estimado a TODOS los productos (ej: 0.14):", "0.14");
-if (val === null) return;
-const pct = Number(val);
-if (isNaN(pct) || pct < 0 || pct > 0.95) { toast("Valor inválido", "err"); return; }
-for (const prod of DB.productos.filter(p => p.activo)) {
-const l = await asegurarLimite(prod.codigo);
-if (!l) continue;
-l.costo_estimado_pct = pct;
-l.precio_max_compra = red2(Number(l.precio_venta) * (1 - pct));
-await fsSet(["rondas", DB.rondaActiva, "limites"], l.codigo_producto, l);
-}
-toast("✓ % aplicado a todos", "ok");
-renderLimites();
-}
-function renderLimites() {
-const q = (document.getElementById("limiteBuscar").value || "").toLowerCase();
-const f = document.getElementById("limiteEscFiltro").value;
-const pmap = precioMapa();
-const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id));
-const cantPedidaMap = {};
-its.forEach(i => { cantPedidaMap[i.codigo_producto] = (cantPedidaMap[i.codigo_producto] || 0) + Number(i.cantidad); });
-
-let prods = DB.productos.filter(p => p.activo);
-if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
-
-const filas = [];
-let nOk = 0, nAlerta = 0, nSinV = 0;
-prods.forEach(p => {
-const pr = pmap[p.codigo]; if (!pr) return;
-const l = limitePorProducto(p.codigo) || {
-codigo_producto: p.codigo, nombre: p.nombre, precio_venta: pr.precio_venta,
-costo_estimado_pct: COSTO_ESTIMADO_DEFAULT, precio_max_compra: red2(pr.precio_venta * (1 - COSTO_ESTIMADO_DEFAULT)),
-precio_mayorista_viernes: null, cantidad_alternativa: null
-};
-const esc = escenarioLimite(l);
-if (esc === "ok") nOk++; else if (esc === "alerta") nAlerta++; else nSinV++;
-if (f && f !== esc) return;
-const cantPedida = cantPedidaMap[p.codigo] || 0;
-const cantFinal = cantidadFinalCompras(p.codigo, cantPedida);
-const escCls = esc === "ok" ? "margen-bueno" : (esc === "alerta" ? "margen-malo" : "margen-regular");
-const escTxt = esc === "ok" ? "✅ OK" : (esc === "alerta" ? "⚠️ Esc. 3" : "— sin viernes");
-const diff = cantFinal - cantPedida;
-const diffTxt = diff === 0 ? "" : (diff > 0 ? `<span class="delta-pos">+${diff.toFixed(2)}</span>` : `<span class="delta-neg">${diff.toFixed(2)}</span>`);
-filas.push(`<tr style="${esc === 'alerta' ? 'background:#FFF6DE' : ''}">
-<td><strong>${esc(p.nombre)}</strong><br><span class="small-note">${esc(p.codigo)} · ${esc(p.unidad)}</span></td>
-<td><strong style="color:var(--verde)">${soles(l.precio_venta)}</strong></td>
-<td><input type="number" step="0.01" min="0" max="0.95" value="${l.costo_estimado_pct}" onchange="setLimiteCostoPct('${p.codigo}',this.value)" style="max-width:80px"></td>
-<td><strong>${soles(l.precio_max_compra)}</strong></td>
-<td><input type="number" step="0.01" value="${l.precio_mayorista_viernes ?? ''}" onchange="setLimiteViernes('${p.codigo}',this.value)" style="max-width:100px" placeholder="—"></td>
-<td><span class="${escCls}">${escTxt}</span></td>
-<td>${cantPedida.toFixed(2)}</td>
-<td><input type="number" step="0.01" min="0" value="${l.cantidad_alternativa ?? ''}" onchange="setLimiteCantAlt('${p.codigo}',this.value)" style="max-width:90px" placeholder="auto"></td>
-<td><strong style="color:${esc === 'alerta' ? 'var(--coral)' : 'var(--verde)'}">${cantFinal.toFixed(2)}</strong> ${diffTxt}</td>
-</tr>`);
-});
-
-document.getElementById("limitesResumen").innerHTML = `
-<div class="box">✅ OK (max ≥ viernes)<strong>${nOk}</strong></div>
-<div class="box">⚠️ Escenario 3<strong style="color:var(--coral)">${nAlerta}</strong></div>
-<div class="box">Sin precio viernes<strong>${nSinV}</strong></div>
-<div class="box">Productos<strong>${prods.length}</strong></div>
-`;
-document.getElementById("limitesBody").innerHTML = filas.join("") || `<tr><td colspan="9" class="small-note">Sin productos.</td></tr>`;
-}
 /* ============================================================================
 SEMILLA INICIAL (auto-seed) — con valores GMML
 ============================================================================ */
@@ -1020,6 +850,7 @@ const repartidores = [
 { id: "R-02", nombre: "Marco Salazar Rivas", celular: "976543210", zona: "B", vehiculo: "Moto", capacidad_max_kg: 180, activo: true },
 { id: "R-03", nombre: "Jorge Valdivia Núñez", celular: "965432109", zona: "C", vehiculo: "Auto", capacidad_max_kg: 350, activo: true }
 ];
+// Usa GMML_REF como precio_ref_mayorista, margen 0.30 por default
 const precios = productos.map(prod => {
 const ref = GMML_REF[prod.codigo] ?? 1.00;
 const mg = prod.grupo === "Sazón" ? 0.35 : 0.30;
@@ -1040,7 +871,7 @@ rondaActiva: ronda,
 rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], repartidor_zona: {} } },
 productos, clientes, repartidores, precios,
 pedidos: [], items: [], compras: [],
-entregas: [], gastos: [], excedentes: [], reclamos: [], limites: [],
+entregas: [], gastos: [], excedentes: [], reclamos: [],
 config: {
 oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
 costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1,
@@ -1064,6 +895,9 @@ await batch2.commit();
 await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
 console.log("Auto-seed v14 completado");
 }
+/* ============================================================================
+MIGRACIÓN: precio_compra → precio_ref_mayorista
+============================================================================ */
 async function migrarPreciosRonda(rondaId) {
 if (!rondaId) return;
 try {
@@ -1092,6 +926,9 @@ toast(`Migrados ${migrados} precios a nuevo formato`, "info");
 console.error("Error migrando precios:", e);
 }
 }
+/* ============================================================================
+CARGA INICIAL
+============================================================================ */
 async function cargarConfig() {
 const ref = doc(db, "config", "global");
 const snap = await getDoc(ref);
@@ -1144,6 +981,7 @@ cancelarSuscripcionesGlobales();
 function suscribirRonda(rondaId) {
 cancelarSuscripcionesRonda();
 if (!rondaId) return;
+// Migrar al abrir (una sola vez por sesión)
 migrarPreciosRonda(rondaId);
 unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "precios"), snap => {
 DB.precios = snap.docs.map(d => d.data());
@@ -1175,10 +1013,6 @@ renderTodo();
 }));
 unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "reclamos"), snap => {
 DB.reclamos = snap.docs.map(d => d.data());
-renderTodo();
-}));
-unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, "limites"), snap => {
-DB.limites = snap.docs.map(d => d.data());
 renderTodo();
 }));
 unsubscribersRonda.push(onSnapshot(doc(db, "rondas", rondaId), snap => {
@@ -1289,7 +1123,6 @@ if (n === "pipeline") renderPipeline();
 if (n === "calculadora") renderCalculadora();
 if (n === "productos") renderProductos();
 if (n === "precios") renderPrecios().catch(e => console.error("renderPrecios:", e));
-if (n === "limites") renderLimites();
 if (n === "compra") calcularListaCompra();
 if (n === "entregas") renderEntregas();
 if (n === "repartidores") renderRepartidores();
@@ -1349,7 +1182,6 @@ DB.entregas = [];
 DB.gastos = [];
 DB.excedentes = [];
 DB.reclamos = [];
-DB.limites = [];
 DB.rondaActiva = r;
 DB.config.ronda_activa = r;
 await fsSetConfig({ ronda_activa: r });
@@ -1453,7 +1285,7 @@ await batch.commit();
 }
 }
 DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
-DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = []; DB.limites = [];
+DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
 DB.rondaActiva = id;
 DB.config.ronda_activa = id;
 await fsSetConfig({ ronda_activa: id });
@@ -1506,13 +1338,13 @@ if (!DB.rondas[id]) { toast("Ronda no encontrada", "err"); return; }
 const nombre = (DB.rondas[id].nombre || "").trim();
 const label = nombre ? `${nombre} (${id})` : id;
 if (!confirm(`¿Borrar la ronda ${label} y TODOS sus datos?
-Se eliminarán: precios, pedidos, items, compras, entregas, gastos, excedentes, reclamos y límites.`)) return;
+Se eliminarán: precios, pedidos, items, compras, entregas, gastos, excedentes y reclamos.`)) return;
 if (!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN
 Vas a borrar ${label} de Firestore. Esta acción NO se puede deshacer.`)) return;
 toast("Borrando ronda " + id + "…", "warn");
 try {
 cancelarSuscripcionesRonda();
-const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
+const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
 for (const sub of subcols) {
 const snap = await getDocs(collection(db, "rondas", id, sub));
 const chunks = [];
@@ -1532,14 +1364,14 @@ DB.rondaActiva = nuevaActiva;
 DB.config.ronda_activa = nuevaActiva;
 await fsSetConfig({ ronda_activa: nuevaActiva });
 DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
-DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = []; DB.limites = [];
+DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
 suscribirRonda(nuevaActiva);
 } else {
 DB.rondaActiva = "";
 DB.config.ronda_activa = "";
 await fsSetConfig({ ronda_activa: "" });
 DB.precios = []; DB.pedidos = []; DB.items = []; DB.compras = [];
-DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = []; DB.limites = [];
+DB.entregas = []; DB.gastos = []; DB.excedentes = []; DB.reclamos = [];
 }
 refrescarSelector();
 renderSemana();
@@ -2213,7 +2045,7 @@ DB.rondas[DB.rondaActiva].precios_publicados = true;
 refrescarSelector(); toast("Publicados", "ok");
 }
 /* ============================================================================
-COMPRA (con columna Pedidos desde Límites)
+COMPRA (con margen real y Escenario 3)
 ============================================================================ */
 function calcularListaCompra() {
 const aceptados = pedidosDeRonda().filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
@@ -2228,17 +2060,24 @@ document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin 
 document.getElementById("listaCompraContenido").innerHTML = ""; return;
 }
 let costoEst = 0, costoReal = 0;
+
+// Cálculo previo para los totales del resumen
 filas.forEach(f => {
 const ref = precioRef(pmap[f.codigo]);
 const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
-const cantPedidos = cantidadFinalCompras(f.codigo, f.pedida);
-const cantReal = aj.cantidad_real != null ? aj.cantidad_real : cantPedidos;
+const pv = pmap[f.codigo] ? pmap[f.codigo].precio_venta : 0;
+const pMax = red2(pv * 0.86);
+const pViernes = aj.precio_mayorista_viernes != null ? Number(aj.precio_mayorista_viernes) : null;
+const esc3 = pViernes != null && pViernes > pMax;
+const cantEsc3 = aj.cantidad_esc3 != null ? Number(aj.cantidad_esc3) : null;
+const cantFinal = esc3 && cantEsc3 != null ? cantEsc3 : f.pedida;
+const cantReal = aj.cantidad_real != null ? aj.cantidad_real : cantFinal;
 const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : ref;
 costoEst += cantReal * ref; costoReal += cantReal * puReal;
 });
+
 const delta = costoEst - costoReal;
 const confirmados = compras.filter(c => c.confirmado).length;
-const nAlerta = filas.filter(f => escenarioLimite(limitePorProducto(f.codigo)) === "alerta").length;
 document.getElementById("compraResumen").innerHTML = `
 <div class="ruta-info">
 <div class="box">Productos<strong>${filas.length}</strong></div>
@@ -2246,17 +2085,18 @@ document.getElementById("compraResumen").innerHTML = `
 <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
 <div class="box">Δ vs ref.<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div>
 </div>
-<div class="info-box">
-<strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.
-${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}
-${nAlerta > 0 ? `<br><span style="color:var(--coral);font-weight:700">⚠️ ${nAlerta} producto(s) en escenario 3 → revisa 🎯 Límites</span>` : ""}
-</div>`;
+<div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}</div>`;
+
 document.getElementById("listaCompraContenido").innerHTML = `
 <div class="table-scroll"><table>
 <thead><tr>
 <th>✓</th>
 <th>Producto</th>
-<th>Pedidos</th>
+<th>P. máx compra</th>
+<th>P. mayorista viernes</th>
+<th>Escenario 3</th>
+<th>Cant. esc. 3</th>
+<th>Pedida</th>
 <th>Cant. real</th>
 <th>P. ref mayor.</th>
 <th>P. compra real</th>
@@ -2268,11 +2108,16 @@ document.getElementById("listaCompraContenido").innerHTML = `
 <tbody>${filas.map(f => {
 const pr = pmap[f.codigo];
 const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
-const cantPedidos = cantidadFinalCompras(f.codigo, f.pedida);
-const cantReal = aj.cantidad_real != null ? aj.cantidad_real : cantPedidos;
+const pv = pr ? pr.precio_venta : 0;
+const pMax = red2(pv * 0.86);
+const pViernes = aj.precio_mayorista_viernes != null ? Number(aj.precio_mayorista_viernes) : null;
+const esc3 = pViernes != null && pViernes > pMax;
+const cantEsc3 = aj.cantidad_esc3 != null ? Number(aj.cantidad_esc3) : null;
+const cantFinal = esc3 && cantEsc3 != null ? cantEsc3 : f.pedida;
+const cantReal = aj.cantidad_real != null ? aj.cantidad_real : cantFinal;
+
 const ref = precioRef(pr);
 const puReal = aj.precio_unitario_real != null ? aj.precio_unitario_real : ref;
-const pv = pr ? pr.precio_venta : 0;
 const mm = aj.merma || 0; const confirmado = aj.confirmado === true;
 const costoTotal = cantReal * puReal;
 const deltaItem = red2(cantReal * (ref - puReal));
@@ -2280,15 +2125,23 @@ const cl = deltaItem > 0 ? "delta-pos" : (deltaItem < 0 ? "delta-neg" : "delta-z
 const margenReal = calcMargenReal(pv, puReal);
 const claseM = aj.precio_unitario_real != null ? claseMargen(margenReal) : "";
 const margenTxt = aj.precio_unitario_real != null ? fmtMargen(margenReal) : "—";
-const esc = escenarioLimite(limitePorProducto(f.codigo));
-const escTxt = esc === "alerta" ? `<span class="margen-malo">Esc.3</span>` : (esc === "ok" ? `<span class="margen-bueno">OK</span>` : "");
-const pedidosCell = esc === "alerta"
-? `<strong style="color:var(--coral)">${cantPedidos.toFixed(2)}</strong>${f.pedida !== cantPedidos ? `<br><span class="small-note" style="text-decoration:line-through;color:var(--texto-2)">${f.pedida.toFixed(2)} pedidas</span>` : ''}`
-: `<strong>${cantPedidos.toFixed(2)}</strong>`;
-return `<tr style="${confirmado ? 'background:var(--verde-claro)' : (esc === 'alerta' ? 'background:#FFF6DE' : '')}">
+
+// Lógica de visualización de la columna "Pedida"
+let pedidaHtml = '';
+if (esc3 && cantEsc3 != null) {
+  pedidaHtml = `<div style="color:var(--coral);font-weight:700">${cantEsc3.toFixed(2)}</div><div style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${f.pedida.toFixed(2)}</div>`;
+} else {
+  pedidaHtml = f.pedida.toFixed(2);
+}
+
+return `<tr style="${confirmado ? 'background:var(--verde-claro)' : ''}">
 <td><input type="checkbox" ${confirmado ? "checked" : ""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td>
-<td><strong>${esc_html(f.nombre)}</strong> ${escTxt}</td>
-<td>${pedidosCell}</td>
+<td><strong>${esc(f.nombre)}</strong></td>
+<td><strong>${soles(pMax)}</strong></td>
+<td><input type="number" step="0.01" value="${pViernes != null ? pViernes : ''}" onchange="setCompraPrecioViernes('${f.codigo}',this.value)" style="max-width:90px"></td>
+<td><span style="color:${esc3 ? 'var(--coral)' : 'var(--verde)'};font-weight:700">${esc3 ? 'SÍ' : 'NO'}</span></td>
+<td><input type="number" step="0.01" value="${cantEsc3 != null ? cantEsc3 : ''}" onchange="setCompraCantEsc3('${f.codigo}',this.value)" style="max-width:80px" ${!esc3 ? 'disabled' : ''}></td>
+<td>${pedidaHtml}</td>
 <td><input type="number" step="0.01" value="${cantReal}" onchange="setCompraReal('${f.codigo}',this.value)" style="max-width:80px"></td>
 <td>${soles(ref)}</td>
 <td><input type="number" step="0.01" value="${puReal}" onchange="setCompraPrecioReal('${f.codigo}',this.value)" style="max-width:90px"></td>
@@ -2299,7 +2152,7 @@ return `<tr style="${confirmado ? 'background:var(--verde-claro)' : (esc === 'al
 </tr>`;
 }).join("")}</tbody></table></div>`;
 }
-function esc_html(s) { return esc(s); }
+
 function asegurarCompraItem(codigo) {
 const prod = DB.productos.find(p => p.codigo === codigo);
 const pr = precioMapa()[codigo];
@@ -2308,16 +2161,33 @@ if (!c) {
 c = {
 id_ronda: DB.rondaActiva, codigo_producto: codigo,
 nombre: prod?.nombre || codigo, unidad: prod?.unidad || "",
-cantidad_real: null, precio_unitario_real: precioRef(pr), merma: 0, confirmado: false
+cantidad_real: null, precio_unitario_real: precioRef(pr), merma: 0, confirmado: false,
+precio_mayorista_viernes: null, cantidad_esc3: null
 };
 DB.compras.push(c);
 }
 return c;
 }
+
 async function setCompraReal(codigo, cant) { const c = asegurarCompraItem(codigo); c.cantidad_real = Number(cant) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function setCompraPrecioReal(codigo, precio) { const c = asegurarCompraItem(codigo); c.precio_unitario_real = Number(precio) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codigo); c.merma = Number(merma) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
+
+async function setCompraPrecioViernes(codigo, valor) { 
+  const c = asegurarCompraItem(codigo); 
+  c.precio_mayorista_viernes = valor.trim() === '' ? null : Number(valor); 
+  await guardarCompra(c); 
+  calcularListaCompra(); 
+}
+
+async function setCompraCantEsc3(codigo, valor) { 
+  const c = asegurarCompraItem(codigo); 
+  c.cantidad_esc3 = valor.trim() === '' ? null : Number(valor); 
+  await guardarCompra(c); 
+  calcularListaCompra(); 
+}
+
 /* ============================================================================
 ENTREGAS (con viajes)
 ============================================================================ */
@@ -2928,7 +2798,7 @@ config: DB.config,
 rondas: {},
 catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores }
 };
-const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
+const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
 for (const rid of Object.keys(DB.rondas)) {
 try {
 if (rid === DB.rondaActiva) {
@@ -2941,14 +2811,13 @@ compras: DB.compras.filter(c => c.id_ronda === rid),
 entregas: DB.entregas.filter(e => e.id_ronda === rid),
 gastos: DB.gastos.filter(g => g.id_ronda === rid),
 excedentes: DB.excedentes.filter(e => e.id_ronda === rid),
-reclamos: DB.reclamos.filter(r => r.id_ronda === rid),
-limites: DB.limites.filter(l => l.id_ronda === rid)
+reclamos: DB.reclamos.filter(r => r.id_ronda === rid)
 };
 } else {
 const out = {
 meta: DB.rondas[rid],
 precios: [], pedidos: [], items: [], compras: [],
-entregas: [], gastos: [], excedentes: [], reclamos: [], limites: []
+entregas: [], gastos: [], excedentes: [], reclamos: []
 };
 await Promise.all(subcols.map(async (sub) => {
 const snap = await getDocs(collection(db, "rondas", rid, sub));
@@ -2961,7 +2830,7 @@ console.error("Error exportando ronda " + rid + ":", e);
 data.rondas[rid] = {
 meta: DB.rondas[rid] || {},
 precios: [], pedidos: [], items: [], compras: [],
-entregas: [], gastos: [], excedentes: [], reclamos: [], limites: []
+entregas: [], gastos: [], excedentes: [], reclamos: []
 };
 }
 }
@@ -2986,7 +2855,7 @@ const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?\nAcep
 cancelarSuscripciones();
 if (wipe) {
 toast("Borrando datos previos…", "warn");
-const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
+const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
 const rondasSnap = await getDocs(collection(db, "rondas"));
 for (const rDoc of rondasSnap.docs) {
 await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
@@ -3007,7 +2876,7 @@ await b1.commit();
 for (const rid of Object.keys(d.rondas)) {
 const rd = d.rondas[rid];
 await fsSetRonda(rid, rd.meta);
-const colMap = { precios: "codigo_producto", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id", limites: "codigo_producto" };
+const colMap = { precios: "codigo_producto", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
 for (const [col, idField] of Object.entries(colMap)) {
 const arr = rd[col] || [];
 const payload = arr
@@ -3041,7 +2910,7 @@ const NULLABLE_FIELDS = new Set([
 "codigo_yape", "verificado_por", "fecha_verificacion",
 "fecha_entrega", "fecha_cierre", "fecha_compra",
 "recibido_por", "repartidor_id", "notas",
-"precio_mayorista_viernes", "cantidad_alternativa"
+"precio_mayorista_viernes", "cantidad_esc3"
 ]);
 function deserializeRow(row) {
 const out = {};
@@ -3065,8 +2934,8 @@ async function exportarExcel() {
 try {
 if (typeof XLSX === "undefined") { toast("SheetJS no cargado.", "err"); return; }
 toast("Preparando Excel…", "warn");
-const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
-const data = { precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [], limites: [] };
+const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
+const data = { precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
 const rids = Object.keys(DB.rondas);
 for (const rid of rids) {
 for (const sub of subcols) {
@@ -3097,7 +2966,6 @@ add("Gastos", data.gastos);
 add("Entregas", data.entregas);
 add("Excedentes", data.excedentes);
 add("Reclamos", data.reclamos);
-add("Limites", data.limites);
 add("Productos", DB.productos);
 add("Clientes", DB.clientes);
 add("Repartidores", DB.repartidores);
@@ -3140,7 +3008,7 @@ const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?\nAcep
 cancelarSuscripciones();
 if (wipe) {
 toast("Borrando datos previos…", "warn");
-const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
+const subcolsWipe = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
 const rondasSnap = await getDocs(collection(db, "rondas"));
 for (const rDoc of rondasSnap.docs) {
 await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub])));
@@ -3175,8 +3043,7 @@ const subs = [
 { sheet: "Entregas", col: "entregas", idField: "pedido_id" },
 { sheet: "Gastos", col: "gastos", idField: "id" },
 { sheet: "Excedentes", col: "excedentes", idField: "id" },
-{ sheet: "Reclamos", col: "reclamos", idField: "id" },
-{ sheet: "Limites", col: "limites", idField: "codigo_producto" }
+{ sheet: "Reclamos", col: "reclamos", idField: "id" }
 ];
 for (const s of subs) {
 const rows = getRows(s.sheet);
@@ -3261,7 +3128,7 @@ try {
 cancelarSuscripciones();
 progress.update("Leyendo rondas…");
 const rondasSnap = await getDocs(collection(db, "rondas"));
-const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos", "limites"];
+const subcols = ["precios", "pedidos", "items", "compras", "entregas", "gastos", "excedentes", "reclamos"];
 const total = rondasSnap.docs.length;
 let idx = 0;
 for (const rDoc of rondasSnap.docs) {
@@ -3300,7 +3167,6 @@ if (id === "pipeline") renderPipeline();
 if (id === "calculadora") renderCalculadora();
 if (id === "productos") renderProductos();
 if (id === "precios") renderPrecios().catch(e => console.error("renderPrecios:", e));
-if (id === "limites") renderLimites();
 if (id === "compra") calcularListaCompra();
 if (id === "entregas") renderEntregas();
 if (id === "repartidores") renderRepartidores();
@@ -3353,7 +3219,7 @@ DB = {
 config: {}, rondas: {}, rondaActiva: "",
 productos: [], clientes: [], repartidores: [],
 precios: [], pedidos: [], items: [], compras: [],
-entregas: [], gastos: [], excedentes: [], reclamos: [], limites: []
+entregas: [], gastos: [], excedentes: [], reclamos: []
 };
 overlay.style.display = "flex";
 spinner.style.display = "none";
@@ -3376,8 +3242,7 @@ calcBuscarCliente, calcDistritoChange, calcFiltrarProductos, calcAgregarProducto
 calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
 abrirModalProducto, guardarProducto, toggleProducto,
 setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
-renderLimites, setLimiteCostoPct, setLimiteViernes, setLimiteCantAlt, aplicarCostoGlobal,
-calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado,
+calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado, setCompraPrecioViernes, setCompraCantEsc3,
 asignarRepartidor, updEntrega,
 previewRuta, enviarRutaWA, copiarMensajeRuta,
 abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
