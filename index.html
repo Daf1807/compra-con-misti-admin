@@ -42,7 +42,7 @@ td{font-size:13px}
 tbody tr:hover{background:#F4FBF6}
 .table-scroll{overflow-x:auto;border-radius:var(--radio-sm)}
 .status{padding:4px 10px;border-radius:999px;font-size:10px;font-weight:700;text-transform:uppercase;display:inline-block;white-space:nowrap}
-.status-pendiente_pago_yape,.status-pendiente_pago_efectivo{background:#FFF3CD;color:#7A5500}
+.status-pendiente_pago_yape,.status-pendiente_pago_efectivo,.status-pendiente{background:#FFF3CD;color:#7A5500}
 .status-aceptado{background:var(--verde-claro);color:var(--verde)}
 .status-empacado{background:#E0F2FE;color:#0369A1}
 .status-entregado{background:#DCFCE7;color:#166534}
@@ -1608,6 +1608,29 @@ renderTodo();
 /* ============================================================================
 DETALLE / EDITAR PEDIDO
 ============================================================================ */
+function calcularEsc3Map() {
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
+  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id));
+  const pmap = precioMapa();
+  const compras = comprasDeRonda();
+  const porCod = {};
+  its.forEach(i => { porCod[i.codigo_producto] = (porCod[i.codigo_producto] || 0) + Number(i.cantidad); });
+  const map = {};
+  Object.entries(porCod).forEach(([cod, pedidaTotal]) => {
+    const pr = pmap[cod]; if (!pr) return;
+    const precioVenta = Number(pr.precio_venta) || 0;
+    const precioMax = red2(precioVenta * FACTOR_COSTO_MAX);
+    const aj = compras.find(x => x.codigo_producto === cod) || {};
+    const pv = aj.precio_mayorista_viernes != null ? Number(aj.precio_mayorista_viernes) : null;
+    const activo = pv != null && pv > precioMax && precioMax > 0;
+    if (!activo) { map[cod] = { esc3Activo: false, factor: 1 }; return; }
+    const cantEsc3 = red2((pedidaTotal * precioMax) / pv);
+    const cantFinalTotal = aj.cantidad_real != null ? Number(aj.cantidad_real) : cantEsc3;
+    const factor = pedidaTotal > 0 ? cantFinalTotal / pedidaTotal : 1;
+    map[cod] = { esc3Activo: true, factor };
+  });
+  return map;
+}
 function verDetalle(id) {
 const p = pedidoPorId(id); if (!p) return;
 const its = itemsDePedido(id);
@@ -1637,17 +1660,52 @@ ${edit ? `
 <div><label class="small-note">Lng</label><input id="edLng" type="number" step="0.0000001" value="${p.lng || ""}"></div>
 <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
 </div>
-<h4 style="margin-top:14px">Items (precio congelado — no editable)</h4>
-<table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead>
-<tbody id="edItemsBody">
-${its.map(i => `<tr>
-<td>${esc(i.nombre)}</td>
-<td><input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)"></td>
-<td>${soles(i.precio_venta_congelado)}</td>
-<td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td>
-<td><button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button></td>
-</tr>`).join("")}
-</tbody></table>
+${(() => {
+  const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.estado);
+  const esc3Map = verFinales ? calcularEsc3Map() : {};
+  const titulo = verFinales
+    ? "Items (cantidades finales)"
+    : "Items (precio congelado — no editable)";
+  const filasHTML = its.map(i => {
+    let cantHTML;
+    if (verFinales) {
+      const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
+      const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
+      cantHTML = e3.esc3Activo
+        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span>
+           <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong>
+           <span class="small-note">${esc(i.unidad)}</span>
+           <br><span class="small-note" style="color:var(--coral)">Esc.3 · ×${e3.factor.toFixed(3)}</span>`
+        : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
+    } else {
+      cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
+    }
+    return `<tr>
+      <td>${esc(i.nombre)}</td>
+      <td>${cantHTML}</td>
+      <td>${soles(i.precio_venta_congelado)}</td>
+      <td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td>
+      <td><button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button></td>
+    </tr>`;
+  }).join("");
+  let extra = "";
+  if (p.estado === "entregado") {
+    const enviada = !!p.boleta_enviada;
+    extra = `<div class="info-box" style="margin-top:12px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn-wa btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📱 Copiar boleta para WhatsApp</button>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px">
+          <input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaEnviada('${p.pedido_id}',this.checked)" style="width:auto">
+          ${enviada ? "✅ Boleta enviada al cliente" : "Marcar como boleta enviada"}
+        </label>
+      </div>
+    </div>`;
+  }
+  return `<h4 style="margin-top:14px">${titulo}</h4>
+    <table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead>
+    <tbody id="edItemsBody">${filasHTML}</tbody></table>
+    ${extra}`;
+})()}
 <div style="display:flex;gap:8px;margin-top:10px">
 <select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select>
 <button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button>
@@ -1668,6 +1726,47 @@ ${its.map(i => `<tr>
 `;
 if (edit) recalcEdResumen(id);
 abrirModal("modalDetalle");
+}
+function copiarReportePedido(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  const its = itemsDePedido(pedidoId);
+  const esc3Map = calcularEsc3Map();
+  const lineas = [];
+  lineas.push(`*Pedido ${p.pedido_id}*`);
+  lineas.push(`Cliente: ${p.cliente_nombre}`);
+  lineas.push(`Modalidad: ${p.modalidad === "recojo" ? "Recojo en local" : "Delivery"}`);
+  if (p.modalidad !== "recojo") lineas.push(`Dirección: ${[p.direccion, p.distrito].filter(Boolean).join(", ")}`);
+  lineas.push("");
+  lineas.push("*Detalle de tu pedido:*");
+  its.forEach(i => {
+    const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
+    const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
+    const txt = e3.esc3Activo
+      ? `${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad} (pediste ${i.cantidad}, ajustado)`
+      : `${i.nombre}: ${i.cantidad} ${i.unidad}`;
+    lineas.push(`• ${txt}`);
+  });
+  lineas.push("");
+  lineas.push(`*TOTAL: ${soles(p.total)}*`);
+  lineas.push("");
+  lineas.push("Gracias por tu compra 🧡");
+  const texto = lineas.join("\n");
+  navigator.clipboard.writeText(texto)
+    .then(() => toast("✓ Boleta copiada — pégala en WhatsApp", "ok"))
+    .catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = texto; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+      toast("✓ Boleta copiada", "ok");
+    });
+}
+async function toggleBoletaEnviada(pedidoId, val) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  p.boleta_enviada = !!val;
+  p.boleta_enviada_fecha = val ? ahora() : null;
+  await guardarPedido(p);
+  toast(val ? "✅ Boleta marcada como enviada" : "Boleta desmarcada", val ? "ok" : "warn");
+  verDetalle(pedidoId);
 }
 async function edCambiarCantidad(itemId, val) {
 const it = DB.items.find(i => i.item_id === itemId); if (!it) return;
@@ -2923,7 +3022,7 @@ const NULLABLE_FIELDS = new Set([
 "codigo_yape", "verificado_por", "fecha_verificacion",
 "fecha_entrega", "fecha_cierre", "fecha_compra",
 "recibido_por", "repartidor_id", "notas",
-"precio_mayorista_viernes"
+"precio_mayorista_viernes", "boleta_enviada_fecha"
 ]);
 function deserializeRow(row) {
 const out = {};
@@ -3248,6 +3347,7 @@ EXPONER A WINDOW
 ============================================================================ */
 Object.assign(window, {
 mostrarVista, abrirModal, cerrarModal,
+copiarReportePedido, toggleBoletaEnviada,
 cambiarRondaActiva, marcarRonda,
 abrirModalNuevaRonda, previewNuevaRonda, confirmarNuevaRonda,
 abrirModalNombreRonda, previewNombreRonda, guardarNombreRonda,
