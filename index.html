@@ -1415,7 +1415,7 @@ const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
 const pmap = precioMapa();
 const items = itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id));
 const costoEst = items.reduce((s, i) => s + Number(i.cantidad) * precioRef(pmap[i.codigo_producto]), 0);
-const costoReal = comprasDeRonda().reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+const costoReal = comprasDeRonda().reduce((s, c) => s + cantidadRealDeCompra(c) * precioRealDeCompra(c), 0);
 document.getElementById("dashPedidos").textContent = activos.length;
 document.getElementById("dashIngreso").textContent = soles(ingreso);
 document.getElementById("dashCostoEst").textContent = soles(costoEst);
@@ -2349,10 +2349,40 @@ DB.compras.push(c);
 }
 return c;
 }
+function cantidadRealDeCompra(c) {
+  if (c.cantidad_real != null) return Number(c.cantidad_real);
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
+  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === c.codigo_producto);
+  const pedidaTotal = its.reduce((s, i) => s + Number(i.cantidad), 0);
+  const pr = precioMapa()[c.codigo_producto];
+  if (!pr) return 0;
+  const precioVenta = Number(pr.precio_venta) || 0;
+  const precioMax = red2(precioVenta * FACTOR_COSTO_MAX);
+  const pv = c.precio_mayorista_viernes != null ? Number(c.precio_mayorista_viernes) : null;
+  const esc3Activo = pv != null && pv > precioMax && precioMax > 0;
+  if (esc3Activo) return red2((pedidaTotal * precioMax) / pv);
+  return pedidaTotal;
+}
+function precioRealDeCompra(c) {
+  if (c.precio_unitario_real != null) return Number(c.precio_unitario_real);
+  const pr = precioMapa()[c.codigo_producto];
+  return pr ? precioRef(pr) : 0;
+}
 async function setCompraReal(codigo, cant) { const c = asegurarCompraItem(codigo); c.cantidad_real = Number(cant) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function setCompraPrecioReal(codigo, precio) { const c = asegurarCompraItem(codigo); c.precio_unitario_real = Number(precio) || 0; await guardarCompra(c); calcularListaCompra(); }
 async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codigo); c.merma = Number(merma) || 0; await guardarCompra(c); calcularListaCompra(); }
-async function toggleConfirmado(codigo, val) { const c = asegurarCompraItem(codigo); c.confirmado = val; await guardarCompra(c); calcularListaCompra(); }
+async function toggleConfirmado(codigo, val) {
+  const c = asegurarCompraItem(codigo);
+  c.confirmado = val;
+  if (val && c.cantidad_real == null) {
+    c.cantidad_real = cantidadRealDeCompra(c);
+  }
+  if (val && c.precio_unitario_real == null) {
+    c.precio_unitario_real = precioRealDeCompra(c);
+  }
+  await guardarCompra(c);
+  calcularListaCompra();
+}
 async function setCompraViernes(codigo, valor) {
 const c = asegurarCompraItem(codigo);
 const strVal = String(valor).trim();
@@ -2843,7 +2873,7 @@ return { rid, pedidos: [], compras: [], gastos: [], reclamos: [], excedentes: []
 }));
 const aceptadosAct = datosActivos.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
 const ingresosAct = aceptadosAct.reduce((s, p) => s + Number(p.total || 0), 0);
-const comprasRealAct = datosActivos.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+const comprasRealAct = datosActivos.compras.reduce((s, c) => s + cantidadRealDeCompra(c) * precioRealDeCompra(c), 0);
 const gastosAct = datosActivos.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
 const excAct = datosActivos.excedentes.reduce((s, e) => s + Number(e.ingreso || 0), 0);
 const reclAct = datosActivos.reclamos.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
