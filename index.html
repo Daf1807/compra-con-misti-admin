@@ -2917,7 +2917,10 @@ cont.innerHTML = `
 <tbody>${historicos.map(h => {
 const pd = h.pedidos.filter(p => ["aceptado", "empacado", "entregado"].includes(p.estado));
 const ing = pd.reduce((s, p) => s + Number(p.total || 0), 0);
-const cr = h.compras.reduce((s, c) => s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0), 0);
+const cr = h.compras.reduce((s, c) => {
+  if (h.rid === rondaActiva) return s + cantidadRealDeCompra(c) * precioRealDeCompra(c);
+  return s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0);
+}, 0);
 const ga = h.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
 const rc = h.reclamos.reduce((s, x) => s + Number(x.costo_solucion || 0), 0);
 const ex = h.excedentes.reduce((s, x) => s + Number(x.ingreso || 0), 0);
