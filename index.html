@@ -1501,7 +1501,19 @@ html += `<button class="btn-accept" onclick="transicionar('${p.pedido_id}','entr
 html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','aceptado')">↩ Aceptado</button>`;
 html += `<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','fallido')">Fallar</button>`;
 }
-if (e === "entregado" || e === "rechazado" || e === "fallido") {
+if (e === "entregado") {
+html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','retroceder')">↩ Retroceder</button>`;
+html += `<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
+html += `</div><div class="acts" style="margin-top:8px;align-items:center;gap:6px;flex-wrap:nowrap">`;
+html += `<button class="btn-wa" style="flex:1" onclick="enviarBoletaWhatsApp('${p.pedido_id}')">📲 Enviar boleta</button>`;
+const enviada = !!p.boleta_enviada;
+html += `<label style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;cursor:pointer;padding:5px 9px;border-radius:999px;border:1.5px solid ${enviada ? 'var(--verde)' : 'var(--borde)'};background:${enviada ? 'var(--verde-claro)' : '#fff'};color:${enviada ? 'var(--verde)' : 'var(--texto-2)'};white-space:nowrap;flex-shrink:0" title="Confirmar envío de boleta">
+<input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaPipeline('${p.pedido_id}',this.checked)" style="width:auto;margin:0;cursor:pointer">
+${enviada ? "✅" : "☐"} Enviada
+</label>`;
+return html;
+}
+if (e === "rechazado" || e === "fallido") {
 html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','retroceder')">↩ Retroceder</button>`;
 }
 html += `<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
@@ -1696,7 +1708,8 @@ if (p.estado === "entregado") {
   const enviada = !!p.boleta_enviada;
   bloqueBoleta = `<div class="info-box" style="margin-top:12px">
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn-wa btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📱 Copiar boleta para WhatsApp</button>
+      <button class="btn-wa btn-sm" onclick="enviarBoletaWhatsApp('${p.pedido_id}')">📲 Enviar boleta por WhatsApp</button>
+      <button class="btn-ghost btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📋 Copiar</button>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px">
         <input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaEnviada('${p.pedido_id}',this.checked)" style="width:auto">
         ${enviada ? "✅ Boleta enviada al cliente" : "Marcar como boleta enviada"}
@@ -1740,6 +1753,44 @@ ${botonesFinal}
 `;
 if (edit) recalcEdResumen(id);
 abrirModal("modalDetalle");
+}
+function enviarBoletaWhatsApp(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  const cel = String(p.cliente_celular || "").replace(/\D/g, "");
+  if (!cel || cel.length < 9) { toast("El cliente no tiene celular registrado", "err"); return; }
+  const its = itemsDePedido(pedidoId);
+  const esc3Map = calcularEsc3Map();
+  const lineas = [];
+  lineas.push(`Hola ${p.cliente_nombre}, te compartimos el detalle de tu pedido 🧡`);
+  lineas.push("");
+  lineas.push(`*Pedido ${p.pedido_id}*`);
+  lineas.push(`Modalidad: ${p.modalidad === "recojo" ? "Recojo en local" : "Delivery"}`);
+  if (p.modalidad !== "recojo") lineas.push(`Dirección: ${[p.direccion, p.distrito].filter(Boolean).join(", ")}`);
+  lineas.push("");
+  lineas.push("*Detalle:*");
+  its.forEach(i => {
+    const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
+    const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
+    const txt = e3.esc3Activo
+      ? `${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad} (pediste ${i.cantidad}, ajustado)`
+      : `${i.nombre}: ${i.cantidad} ${i.unidad}`;
+    lineas.push(`• ${txt}`);
+  });
+  lineas.push("");
+  lineas.push(`*TOTAL: ${soles(p.total)}*`);
+  lineas.push("");
+  lineas.push("Gracias por tu compra 🧡");
+  const texto = lineas.join("\n");
+  const numero = cel.startsWith("51") ? cel : "51" + cel;
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, "_blank");
+}
+async function toggleBoletaPipeline(pedidoId, val) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  p.boleta_enviada = !!val;
+  p.boleta_enviada_fecha = val ? ahora() : null;
+  await guardarPedido(p);
+  toast(val ? "✅ Boleta marcada como enviada" : "Boleta desmarcada", val ? "ok" : "warn");
+  renderPipeline();
 }
 function copiarReportePedido(pedidoId) {
   const p = pedidoPorId(pedidoId); if (!p) return;
@@ -3361,7 +3412,7 @@ EXPONER A WINDOW
 ============================================================================ */
 Object.assign(window, {
 mostrarVista, abrirModal, cerrarModal,
-copiarReportePedido, toggleBoletaEnviada,
+copiarReportePedido, toggleBoletaEnviada, enviarBoletaWhatsApp, toggleBoletaPipeline,
 cambiarRondaActiva, marcarRonda,
 abrirModalNuevaRonda, previewNuevaRonda, confirmarNuevaRonda,
 abrirModalNombreRonda, previewNombreRonda, guardarNombreRonda,
