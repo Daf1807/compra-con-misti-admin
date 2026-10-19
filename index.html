@@ -296,6 +296,7 @@ tbody tr:hover{background:#F4FBF6}
 <option value="">Todas las zonas</option>
 <option value="A">Zona A</option><option value="B">Zona B</option><option value="C">Zona C</option>
 </select>
+<button class="btn-dark btn-sm" onclick="generarChecklistEmpaque()" title="Imprimir checklist de pedidos empacados">🖨️ Checklist empaque</button>
 </div>
 <div class="pipeline" id="pipelineGrid"></div>
 </div>
@@ -1518,6 +1519,155 @@ html += `<button class="btn-back" onclick="abrirRetroceder('${p.pedido_id}','ret
 }
 html += `<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
 return html;
+}
+/* ============================================================================
+CHECKLIST DE EMPAQUE — impresión PDF (3 columnas masonry)
+Solo pedidos en estado "empacado". Usa calcularEsc3Map() para
+mostrar cantidades finales en rojo cuando aplica Escenario 3.
+============================================================================ */
+function generarChecklistEmpaque() {
+  const empacados = pedidosDeRonda().filter(p => p.estado === "empacado");
+  if (!empacados.length) {
+    toast("No hay pedidos en estado 'empacado' para imprimir", "warn");
+    return;
+  }
+
+  // Orden: zona A→B→C, luego ID
+  empacados.sort((a, b) => {
+    if (a.zona !== b.zona) return String(a.zona).localeCompare(String(b.zona));
+    return String(a.pedido_id).localeCompare(String(b.pedido_id));
+  });
+
+  const esc3Map = calcularEsc3Map();
+  const ronda = rondaActual();
+  const nomRonda = (ronda.nombre || "").trim() || DB.rondaActiva;
+  const fecha = new Date().toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
+
+  // Helpers locales (no dependemos del scope por si acaso)
+  const solesF = v => "S/ " + Number(v || 0).toFixed(2);
+  const escF = s => String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  const redF = v => Math.round((Number(v) || 0) * 100) / 100;
+
+  let totalItems = 0;
+  const tarjetas = empacados.map(p => {
+    const its = itemsDePedido(p.pedido_id);
+    totalItems += its.length;
+    const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(", ");
+
+    const filas = its.map(i => {
+      const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
+      const cantFinal = e3.esc3Activo ? redF(i.cantidad * e3.factor) : (Number(i.cantidad) || 0);
+      return `<tr>
+        <td class="chk">☐</td>
+        <td class="prod">${escF(i.nombre)}</td>
+        <td class="cant${e3.esc3Activo ? ' esc3' : ''}">${cantFinal.toFixed(2)}</td>
+        <td class="und">${escF(i.unidad)}</td>
+        <td class="prec">${solesF(i.precio_venta_congelado)}</td>
+      </tr>`;
+    }).join("");
+
+    return `<div class="tarjeta">
+      <div class="tarjeta-head">
+        <div>
+          <span class="id">${escF(p.pedido_id)}</span><span class="sep">·</span><span class="nom">${escF(p.cliente_nombre)}</span>
+        </div>
+        <div class="meta">${escF(p.cliente_celular)}<span class="sep">·</span>${escF(dirTxt || "—")}</div>
+      </div>
+      <div class="tarjeta-items">
+        <table>
+          <thead><tr>
+            <th class="c">✓</th><th>Producto</th>
+            <th class="r">Cant.</th><th>Und.</th><th class="r">Precio</th>
+          </tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join("");
+
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Checklist de Empaque — ${escF(nomRonda)}</title>
+<style>
+:root{--verde:#2E9E5B;--verde-claro:#E8F5EC;--coral:#FF5A5F;--texto:#2B2B2B}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#F2EFE8;color:var(--texto);font-size:14px;line-height:1.4}
+.container{max-width:1200px;margin:auto;padding:20px}
+.doc-header{border-bottom:2px solid var(--verde);padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.doc-header h1{color:var(--verde);font-size:13pt;margin:0;font-weight:800}
+.doc-header .meta{color:#555;font-size:8.5pt;text-align:right;line-height:1.35}
+.masonry{column-count:3;column-gap:4mm}
+.tarjeta{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid;display:inline-block;width:100%;margin-bottom:4mm;border:1px solid #888;border-radius:2px;overflow:hidden;background:#fff}
+.tarjeta-head{background:var(--verde-claro);padding:3px 5px;border-bottom:1px solid #888;line-height:1.25}
+.tarjeta-head .id{font-weight:800;color:var(--verde);font-size:8.5pt}
+.tarjeta-head .nom{font-weight:700;color:var(--texto);font-size:8.5pt}
+.tarjeta-head .sep{color:#999;margin:0 3px;font-weight:400}
+.tarjeta-head .meta{color:#444;font-size:7.5pt;font-weight:600;margin-top:1px}
+.tarjeta-items table{width:100%;border-collapse:collapse;font-size:7.5pt}
+.tarjeta-items th{background:#F0F0F0;color:#555;font-size:6.5pt;text-transform:uppercase;padding:2px 4px;text-align:left;letter-spacing:.02em;border-bottom:1px solid #CCC;font-weight:700}
+.tarjeta-items th.r{text-align:right}
+.tarjeta-items th.c{text-align:center}
+.tarjeta-items td{padding:1.5px 4px;border-bottom:1px solid #EEE;line-height:1.2;vertical-align:middle}
+.tarjeta-items tr:last-child td{border-bottom:0}
+.tarjeta-items td.chk{text-align:center;width:14px;font-size:11pt;color:#555;line-height:1}
+.tarjeta-items td.prod{color:var(--texto)}
+.tarjeta-items td.cant{width:32px;text-align:right;font-weight:700}
+.tarjeta-items td.cant.esc3{color:var(--coral)}
+.tarjeta-items td.und{width:26px;color:#888;font-size:6.5pt}
+.tarjeta-items td.prec{width:42px;text-align:right;color:#555;font-size:7pt}
+@page{size:A4 portrait;margin:8mm}
+@media print{
+  body{background:#fff;font-size:8pt}
+  .container{padding:0;max-width:none}
+  .doc-header{margin-bottom:4mm;padding-bottom:2mm}
+  .doc-header h1{font-size:11pt}
+  .doc-header .meta{font-size:7.5pt}
+  .masonry{column-count:3;column-gap:3mm}
+  .tarjeta{margin-bottom:3mm}
+  .tarjeta-head{padding:2px 4px}
+  .tarjeta-head .id,.tarjeta-head .nom{font-size:8pt}
+  .tarjeta-head .meta{font-size:7pt}
+  .tarjeta-items table{font-size:7.5pt}
+  .tarjeta-items th{font-size:6pt;padding:1.5px 3px}
+  .tarjeta-items td{padding:1px 3px}
+  .tarjeta-items td.chk{font-size:10pt}
+  .tarjeta-items td.cant{width:28px}
+  .tarjeta-items td.und{width:22px;font-size:6pt}
+  .tarjeta-items td.prec{width:38px;font-size:6.5pt}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="doc-header">
+    <h1>✓ Checklist de Empaque — Compra con Misti</h1>
+    <div class="meta">
+      <strong>Ronda:</strong> ${escF(nomRonda)}<br>
+      ${empacados.length} pedidos · ${totalItems} items · ${escF(fecha)}
+    </div>
+  </div>
+  <div class="masonry">${tarjetas}</div>
+</div>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if (!win) {
+    toast("Habilitá ventanas emergentes para imprimir el checklist", "err");
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+
+  // Auto-print (con pequeño delay para que el browser pinte)
+  setTimeout(() => {
+    try { win.focus(); win.print(); } catch (e) { console.error("print:", e); }
+  }, 500);
 }
 /* ============================================================================
 ACEPTAR / RETROCEDER
@@ -3464,7 +3614,8 @@ calcularReportes,
 updConfig, updCapVehiculo, updMaxParadas,
 exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
 iniciarSesion,
-renderPipeline, renderProductos, renderPrecios
+renderPipeline, renderProductos, renderPrecios,
+generarChecklistEmpaque
 });
 </script>
 </body>
