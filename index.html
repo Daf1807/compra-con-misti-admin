@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.9 (Fix undefined Firestore)</title>
+<title>Compra con Misti — Admin v17.0 (Prellenar viernes)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -225,7 +225,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.9 · Modelo 1Día · Fix undefined Firestore</p>
+<p>Panel Admin v17.0 · Modelo 1Día · Prellenar viernes</p>
 </div>
 </header>
 <div class="container">
@@ -263,6 +263,8 @@ tbody tr:hover{background:#F4FBF6}
 <div class="crumb">Ronda activa: <strong id="crumbRonda">—</strong></div>
 <div class="actions">
 <button class="btn-add btn-sm" onclick="importarSoloPedidos()" title="Solo agrega/actualiza pedidos e items (NO BORRA NADA)">📥 Importar pedidos</button>
+<button class="btn-add btn-sm" onclick="importarComprasViernes()" title="Importar C_viernes, Q_comprada y Q_recibida (merge, NO BORRA NADA)">📥 Importar compras</button>
+<button class="btn-ghost btn-sm" onclick="exportarComprasViernes()" title="Exportar la tabla de compras del viernes">📤 Exportar compras</button>
 <button class="btn-ghost btn-sm" onclick="exportarSoloPedidos()" title="Exportar solo pedidos e items de la ronda activa">📤 Exportar pedidos</button>
 <button class="btn-ghost btn-sm" onclick="descargarPlantillaPedidos()" title="Descargar plantilla JSON en blanco">📋 Plantilla</button>
 <button class="btn-ghost btn-sm" onclick="exportarJSON()">⬇️ JSON</button>
@@ -476,6 +478,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
+<button class="btn-add btn-sm" onclick="prellenarComprasViernes()" title="Llena Q_comprada = Q_recibida = Q_pedida, y C_viernes = C_L/kg. Solo vacíos, respeta lo que ya cargaste.">✨ Prellenar viernes</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
 </div>
 <div id="compraResumen"></div>
@@ -650,7 +653,7 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.9</p>
+<p>Panel Admin · Modelo 1Día · v17.0</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -736,7 +739,7 @@ const claseMargen = m => {
   return "margen-malo";
 };
 
-/* ============ SANITIZADOR FIRESTORE (fix undefined) ============ */
+/* ============ SANITIZADOR FIRESTORE ============ */
 function limpiarUndefined(obj) {
   if (obj === null || obj === undefined) return null;
   if (Array.isArray(obj)) return obj.map(limpiarUndefined);
@@ -852,7 +855,7 @@ const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).for
 const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
-/* ============ CÁLCULOS MODELO 1DÍA (v16.8) ============ */
+/* ============ CÁLCULOS MODELO 1DÍA ============ */
 function getEquivKg(codigo) {
   const p = DB.productos.find(x => x.codigo === codigo);
   if (!p) return 1;
@@ -1192,7 +1195,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 169, rondaActiva: ronda,
+    version: 170, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1223,7 +1226,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.9 completado");
+  console.log("Auto-seed v17.0 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -2570,6 +2573,144 @@ function pedidoClienteTxt(prod, qPed_kg, qPed_un) {
   if (modo === "unidad") return `${qPed_un.toFixed(0)} unidad${qPed_un !== 1 ? "es" : ""}`;
   return `${qPed_un.toFixed(2)} u`;
 }
+
+/* ============ PRELLENAR VIERNES ============ */
+async function prellenarComprasViernes() {
+  const pmap = precioMapa();
+  const codigos = Object.keys(pmap);
+  if (!codigos.length) { toast("Sin precios cargados en esta ronda", "warn"); return; }
+
+  const propuesta = [];
+  codigos.forEach(cod => {
+    const calc = calcularCompraProducto(cod);
+    if (!calc) return;
+    const prod = DB.productos.find(p => p.codigo === cod);
+    const equivC = getEquivKgCompra(cod);
+    const Qped = calc.Qped_kg;
+    const CvSug = (equivC > 0 && calc.CL_kg > 0) ? calc.CL_kg : null;
+
+    const actual = comprasDeRonda().find(c => c.codigo_producto === cod) || {};
+    const yaCv = actual.C_viernes != null;
+    const yaQc = actual.Q_comprada_kg != null;
+    const yaQr = actual.Q_recibida_kg != null;
+
+    propuesta.push({
+      codigo: cod,
+      nombre: prod?.nombre || cod,
+      C_viernes:       yaCv ? actual.C_viernes       : CvSug,
+      Q_comprada_kg:   yaQc ? actual.Q_comprada_kg   : red2(Qped),
+      Q_recibida_kg:   yaQr ? actual.Q_recibida_kg   : red2(Qped),
+      _yaCv: yaCv, _yaQc: yaQc, _yaQr: yaQr
+    });
+  });
+
+  const conDatos = propuesta.filter(p => p.C_viernes != null || p.Q_comprada_kg != null || p.Q_recibida_kg != null);
+  if (!conDatos.length) { toast("Sin datos para prellenar", "warn"); return; }
+
+  const nuevos = propuesta.filter(p => !p._yaCv || !p._yaQc || !p._yaQr).length;
+  const respetados = propuesta.length - nuevos;
+
+  let msg = "✨ PRELLENAR COMPRAS DEL VIERNES\n\n";
+  msg += "Ronda: " + DB.rondaActiva + "\n";
+  msg += "Productos: " + propuesta.length + "\n\n";
+  msg += "Se van a completar SOLO los campos vacíos:\n";
+  msg += "• C_viernes    ← C_L convertido a S//kg\n";
+  msg += "• Q_comprada   ← Q_pedida (lo que pidieron los clientes)\n";
+  msg += "• Q_recibida   ← Q_pedida (asumimos que llegó todo)\n\n";
+  msg += "✅ " + respetados + " productos ya tenían datos → NO se tocan\n";
+  msg += "✨ " + nuevos + " productos se van a completar\n\n";
+  msg += "Después podés corregir C_viernes a mano donde subió/bajó el precio.\n\n¿Continuar?";
+
+  if (!confirm(msg)) return;
+
+  let ok = 0, errs = 0;
+  for (const p of propuesta) {
+    try {
+      if (p._yaCv && p._yaQc && p._yaQr) continue;
+      const prod = DB.productos.find(x => x.codigo === p.codigo);
+      const merge = {
+        id_ronda: DB.rondaActiva,
+        codigo_producto: p.codigo,
+        nombre: prod?.nombre || p.nombre,
+        C_viernes: p.C_viernes,
+        Q_comprada_kg: p.Q_comprada_kg,
+        Q_recibida_kg: p.Q_recibida_kg
+      };
+      await guardarCompra(merge);
+      ok++;
+    } catch (err) { errs++; console.error("Error prellenando:", p, err); }
+  }
+
+  toast("✓ Prellenados " + ok + " productos" + (errs ? " (" + errs + " errores)" : ""), errs ? "warn" : "ok");
+  calcularListaCompra();
+}
+
+/* ============ IMPORTAR/EXPORTAR COMPRAS ============ */
+function importarComprasViernes() {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = ".json";
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = async ev => {
+      try {
+        const raw = JSON.parse(ev.target.result);
+        const arr = Array.isArray(raw) ? raw
+          : Array.isArray(raw.compras) ? raw.compras
+          : (raw && typeof raw === "object") ? Object.keys(raw).filter(k => /^PR-/.test(k)).map(k => ({ codigo_producto: k, ...raw[k] }))
+          : [];
+        if (!arr.length) { toast("JSON sin compras reconocibles", "warn"); return; }
+        if (!confirm(`📥 Importar ${arr.length} compras a ${DB.rondaActiva}?\n\nNO se borra nada.`)) return;
+        let ok = 0, errs = 0;
+        for (const c of arr) {
+          if (!c || !c.codigo_producto) continue;
+          try {
+            const act = comprasDeRonda().find(x => x.codigo_producto === c.codigo_producto) || {};
+            const prod = DB.productos.find(p => p.codigo === c.codigo_producto);
+            await guardarCompra({
+              id_ronda: DB.rondaActiva,
+              codigo_producto: c.codigo_producto,
+              nombre: prod?.nombre || c.nombre || c.codigo_producto,
+              C_viernes: c.C_viernes !== undefined ? c.C_viernes : (act.C_viernes ?? null),
+              Q_comprada_kg: c.Q_comprada_kg !== undefined ? c.Q_comprada_kg : (act.Q_comprada_kg ?? null),
+              Q_recibida_kg: c.Q_recibida_kg !== undefined ? c.Q_recibida_kg : (act.Q_recibida_kg ?? null)
+            });
+            ok++;
+          } catch (err) { errs++; console.error(err); }
+        }
+        toast(`✓ ${ok} compras importadas${errs ? ` (${errs} errores)` : ""}`, errs ? "warn" : "ok");
+        if (document.getElementById("view-compra").classList.contains("active")) calcularListaCompra();
+      } catch (err) { toast("Error: " + err.message, "err"); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+function exportarComprasViernes() {
+  const compras = comprasDeRonda();
+  if (!compras.length) { toast("Sin compras en esta ronda", "warn"); return; }
+  const data = {
+    _formato: "compras-viernes-v1",
+    _ronda: DB.rondaActiva,
+    _exportado: ahora(),
+    compras: compras.map(c => ({
+      codigo_producto: c.codigo_producto,
+      nombre: c.nombre || (DB.productos.find(p => p.codigo === c.codigo_producto)?.nombre) || c.codigo_producto,
+      C_viernes: c.C_viernes ?? null,
+      Q_comprada_kg: c.Q_comprada_kg ?? null,
+      Q_recibida_kg: c.Q_recibida_kg ?? null
+    }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `compras_${DB.rondaActiva}_${hoy()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast(`✓ Exportadas ${compras.length} compras`, "ok");
+}
+
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
@@ -3060,7 +3201,7 @@ function renderConfig() {
     </div>
 
     <h3 style="margin-top:24px">🎲 Escalones de escenarios (globales)</h3>
-    <p class="section-sub">Estos son los 10 escalones que definen Cij_kg = C_L_kg + escalón. <strong>v16.8:</strong> los escalones están en <strong>S//kg</strong> (no en S/por unidad mayorista). Así el desvío es comparable entre productos con distinto tamaño de bulto. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
+    <p class="section-sub">Estos son los 10 escalones que definen Cij_kg = C_L_kg + escalón. <strong>v16.8:</strong> los escalones están en <strong>S//kg</strong>. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
     <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px">
       ${escalones.map((e, i) => `<div><label class="small-note">#${i+1}</label><input type="number" step="0.01" value="${e}" onchange="updEscalon(${i},this.value)"></div>`).join("")}
     </div>
@@ -3071,14 +3212,15 @@ function renderConfig() {
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
 
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v16.9):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.0):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
     • F_domingo se recalcula con N pedidos aceptados actuales<br>
     • P_L_final se fija el lunes y NO se toca el viernes<br>
     • Escalones en S//kg: Cij_kg = C_L_kg + escalón<br>
-    • <strong>Sanitización Firestore:</strong> campos undefined se eliminan automáticamente antes de guardar
+    • <strong>Sanitización Firestore:</strong> campos undefined se eliminan automáticamente antes de guardar<br>
+    • <strong>Prellenar viernes:</strong> botón ✨ en Compra llena Q_comprada = Q_recibida = Q_pedida, C_viernes = C_L/kg
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -3134,12 +3276,11 @@ async function exportarJSON() {
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v16_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v17_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
 
-/* ---- IMPORTACIÓN SEGURA (MERGE, nunca borra) ---- */
 function importarJSON() {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
   inp.onchange = e => {
@@ -3223,7 +3364,6 @@ function importarJSON() {
   inp.click();
 }
 
-/* ---- IMPORTAR SOLO PEDIDOS (safe, merge) ---- */
 function importarSoloPedidos() {
   const inp = document.createElement("input");
   inp.type = "file";
@@ -3266,7 +3406,6 @@ function importarSoloPedidos() {
   inp.click();
 }
 
-/* ---- Helper: quita la propiedad items de un objeto pedido (sin dejar undefined) ---- */
 function sinItems(obj) {
   const { items, ...rest } = obj;
   return rest;
@@ -3477,7 +3616,7 @@ async function exportarExcel() {
     add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
     add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
     add("Config", [JSON.parse(JSON.stringify(DB.config))]);
-    XLSX.writeFile(wb, "misti_v16_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v17_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
@@ -3582,6 +3721,8 @@ Object.assign(window, {
   aplicarMObjetivo, aplicarPProb, aplicarGMin,
   recalcularYPubicar, renderSemaforoLunes, renderResumenLunes,
   calcularListaCompra, setCompra, exportarCierreViernes,
+  prellenarComprasViernes,
+  importarComprasViernes, exportarComprasViernes,
   asignarRepartidorPedido, updEntrega,
   previewRuta, enviarRutaWA, copiarMensajeRuta,
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
