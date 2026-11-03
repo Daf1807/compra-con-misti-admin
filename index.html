@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v15</title>
+<title>Compra con Misti — Admin v16 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -54,6 +54,8 @@ tbody tr:hover{background:#F4FBF6}
 .badge-inactivo{background:#EFE6DA;color:var(--texto-2)}
 .badge-b2b{background:#EDE9FE;color:#5B21B6;font-size:9px;padding:2px 6px}
 .badge-b2c{background:#F3F4F6;color:#4B5563;font-size:9px;padding:2px 6px}
+.badge-sirve{background:var(--verde-claro);color:var(--verde);padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700}
+.badge-nosirve{background:#FFE0E1;color:#C93A3F;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700}
 .actions{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .muted{color:var(--texto-2)}
 .small-note{font-size:11px;color:var(--texto-2);line-height:1.5}
@@ -65,6 +67,7 @@ tbody tr:hover{background:#F4FBF6}
 .modal-content{background:#fff;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;border-radius:var(--radio);padding:22px}
 .modal-content.wide{max-width:1040px}
 .modal-content.narrow{max-width:480px}
+.modal-content.xwide{max-width:1280px}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .close{border-radius:50%;width:34px;height:34px;min-height:34px;padding:0;background:var(--crema);color:var(--texto);font-size:18px;box-shadow:none}
 .roundbar{background:#fff;border-radius:var(--radio);padding:12px 16px;box-shadow:var(--sombra-sm);margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--borde)}
@@ -196,12 +199,19 @@ tbody tr:hover{background:#F4FBF6}
 #syncIndicator.saving{background:#FFF3CD;color:#7A5500}
 #syncIndicator.saved{background:var(--verde-claro);color:var(--verde)}
 .aviso-semana{background:#FFF6DE;border-left:4px solid var(--miel);border-radius:8px;padding:6px 10px;font-size:11px;color:#7A5500;font-weight:600}
-.fila-esc3{background:#FFFBEA !important}
-.fila-esc3:hover{background:#FFF5D6 !important}
-.pedida-esc3{color:var(--coral);font-weight:800;font-size:14px}
-.pedida-original{text-decoration:line-through;color:var(--texto-2);font-size:10px;display:block;margin-top:2px}
-.cant-esc3{color:var(--coral);font-weight:800;font-size:13px}
 .b2b-fields{background:#F5F3FF;border:1px solid #DDD6FE;border-radius:12px;padding:12px;margin:10px 0}
+/* escenarios */
+.esc-acordeon{border:1px solid var(--borde);border-radius:var(--radio-sm);margin-bottom:8px;background:#fff;overflow:hidden}
+.esc-head{padding:10px 12px;background:var(--crema);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:700;font-size:13px}
+.esc-head:hover{background:#F4FBF6}
+.esc-head .info{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--texto-2);font-weight:600}
+.esc-head .info b{color:var(--texto)}
+.esc-body{display:none;padding:12px}
+.esc-acordeon.open .esc-body{display:block}
+.esc-tabla{width:100%;border-collapse:collapse;font-size:12px}
+.esc-tabla th{background:var(--verde-claro);padding:6px 8px;text-align:left;font-size:10px}
+.esc-tabla td{padding:4px 8px;border-bottom:1px solid var(--borde)}
+.esc-tabla input{padding:5px 8px;font-size:12px}
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}}
@@ -214,7 +224,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v15 · Firestore · mínimo S/ 20 (B2C) · sin zonas · B2B con crédito</p>
+<p>Panel Admin v16 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -262,8 +272,8 @@ tbody tr:hover{background:#F4FBF6}
 <div class="dash-hero">
 <div><div class="label">Pedidos activos</div><div class="big" id="dashPedidos">0</div></div>
 <div><div class="label">Ingreso esperado</div><div class="mid" id="dashIngreso">S/ 0.00</div></div>
-<div><div class="label">Costo compra estimado</div><div class="mid" id="dashCostoEst">S/ 0.00</div></div>
-<div><div class="label">Costo compra real</div><div class="mid" id="dashCostoReal">S/ 0.00</div></div>
+<div><div class="label">Costo esperado (C_esp)</div><div class="mid" id="dashCostoEst">S/ 0.00</div></div>
+<div><div class="label">Costo real (C_viernes)</div><div class="mid" id="dashCostoReal">S/ 0.00</div></div>
 </div>
 <div class="dash-row">
 <div class="dash-tile"><div class="t-label">Pendientes pago</div><div class="t-value" id="dashPendientes">0</div></div>
@@ -273,7 +283,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 <div class="section">
 <h2 class="section-head">Ganancia real de la ronda</h2>
-<p class="section-sub">Venta congelada − costo compra real − gastos − reclamos + excedentes.</p>
+<p class="section-sub">Ventas congeladas − costo real (Q_recibida × C_viernes) − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
 <div id="dashGanancia"></div>
 </div>
 <div class="section">
@@ -337,6 +347,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-productos">
 <div class="section">
 <h2>Productos (maestro — nunca se borran)</h2>
+<p class="section-sub">Cargá <strong>unidad de venta</strong>, <strong>unidad de compra</strong> y <strong>equivalencia kg</strong> (cuántos kg pesa 1 unidad nominal). Esos son los datos que el modelo 1Día usa para convertir todo a kg.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-add btn-sm" onclick="abrirModalProducto(null)">＋ Agregar</button>
 <input id="prodBuscar" placeholder="🔍 Buscar..." oninput="renderProductos()" style="max-width:260px">
@@ -346,18 +357,18 @@ tbody tr:hover{background:#F4FBF6}
 </select>
 </div>
 <div class="table-scroll"><table>
-<thead><tr><th>Código</th><th>Nombre</th><th>Grupo</th><th>Unidad</th><th>Activo</th><th></th></tr></thead>
+<thead><tr><th>Código</th><th>Nombre</th><th>Grupo</th><th>Unidad venta</th><th>Unidad compra</th><th>Equiv kg</th><th>Activo</th><th></th></tr></thead>
 <tbody id="productosBody"></tbody>
 </table></div>
 </div>
 </section>
 <section class="view" id="view-precios">
 <div class="section">
-<h2>Precios de ronda <span id="preciosRondaLabel" class="muted"></span></h2>
-<p class="section-sub">Editá <strong>P. mayorista ref</strong> (del boletín GMML) y <strong>Margen</strong>. El <strong>P. venta</strong> se calcula solo y es lo que ve el cliente.</p>
+<h2>💰 Diagnóstico lunes — fijar precio de la semana</h2>
+<p class="section-sub">Cargá <strong>P. mercado</strong> y <strong>Costo lunes (C_L)</strong> por producto. Ajustá los <strong>10 escenarios (Pij)</strong> de cada producto. El sistema calcula <strong>P_L_final</strong> y lo usa el resto de la semana. Este precio NO se toca el viernes.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-info btn-sm" onclick="copiarPreciosRondaAnterior()">📋 Copiar ronda anterior</button>
-<button class="btn-save btn-sm" onclick="publicarPrecios()">📢 Publicar</button>
+<button class="btn-save btn-sm" onclick="publicarPrecios()">📢 Publicar P_L_final</button>
 <input id="precioBuscar" placeholder="🔍 Buscar producto..." oninput="renderPrecios()" style="max-width:260px">
 <select id="precioGrupoFiltro" onchange="renderPrecios()" style="max-width:160px">
 <option value="">Todos los grupos</option>
@@ -369,31 +380,41 @@ tbody tr:hover{background:#F4FBF6}
 <th>Código</th>
 <th>Producto</th>
 <th>Unidad</th>
-<th>P. mayorista ref</th>
-<th>Margen</th>
-<th>P. venta</th>
+<th>P. mercado</th>
+<th>C_L</th>
+<th>C_esp</th>
+<th>M_ref</th>
+<th>¿Sirve?</th>
+<th>P_L_final</th>
+<th>C_max</th>
 <th>Δ vs ronda ant.</th>
 </tr></thead>
 <tbody id="preciosBody"></tbody>
 </table></div>
+<div style="margin-top:24px">
+<h3>🎲 Escenarios por producto (Pij editables)</h3>
+<p class="section-sub">Cada producto tiene 10 escenarios de costo (escalones fijos). Ajustá la probabilidad <strong>Pij</strong> de cada uno. <strong>Cij</strong> y <strong>P_cola</strong> se calculan solos.</p>
+<div id="escenariosContenido"></div>
+</div>
 </div>
 </section>
 <section class="view" id="view-compra">
 <div class="section">
-<h2 class="section-head">🛒 Lista de compra consolidada</h2>
-<p class="section-sub">Ingresá el <strong>P. viernes</strong> del mercado mayorista. Si supera el <strong>P. max</strong> (venta × 0.86), se activa el <strong>Escenario 3</strong> y se reduce la cantidad a comprar manteniendo el presupuesto.</p>
+<h2 class="section-head">🛒 Cierre viernes — compra real</h2>
+<p class="section-sub">Cargá <strong>C_viernes</strong> (precio real del mercado), <strong>Q_comprada_kg</strong> (lo que pediste al proveedor) y <strong>Q_recibida_kg</strong> (lo que realmente llegó y pesaste). El sistema calcula <code>C_max</code>, recorta <code>Q_final</code>, y muestra el cierre real de la ronda.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
-<span class="small-note">Auto-recalcula al cambiar datos ✓</span>
+<button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
 </div>
 <div id="compraResumen"></div>
 <div id="listaCompraContenido" style="margin-top:12px"></div>
+<div id="cierreViernesContenido" style="margin-top:20px"></div>
 </div>
 </section>
 <section class="view" id="view-entregas">
 <div class="section">
 <h2 class="section-head">🗺️ Entregas por repartidor</h2>
-<p class="section-sub">Cada pedido se asigna a un repartidor. Los viajes se dividen según la capacidad del vehículo. Máximo 9 paradas por viaje (límite de Google Maps).</p>
+<p class="section-sub">Cada pedido se asigna a un repartidor. Los viajes se dividen según la capacidad del vehículo y el peso real (kg equivalentes). Máximo 9 paradas por viaje.</p>
 <div class="ruta-info" id="rutaInfo"></div>
 <div id="rutasContenido"></div>
 </div>
@@ -411,7 +432,12 @@ tbody tr:hover{background:#F4FBF6}
 </section>
 <section class="view" id="view-gastos">
 <div class="section">
-<h2 class="section-head">💸 Gastos</h2>
+<h2 class="section-head">💸 Costos fijos del domingo (calculado)</h2>
+<p class="section-sub">Se calculan desde Config (alquiler, higiene, seguro, empaque, delivery, N pedidos). No los cargues en la tabla de gastos manuales.</p>
+<div id="fijosDomingoContenido"></div>
+</div>
+<div class="section">
+<h2 class="section-head">💸 Gastos variables manuales</h2>
 <button class="btn-add btn-sm" onclick="agregarGasto()">＋ Agregar gasto</button>
 <div id="gastosContenido" style="margin-top:12px"></div>
 </div>
@@ -453,7 +479,15 @@ tbody tr:hover{background:#F4FBF6}
 <input type="hidden" id="prodEditCodigo">
 <p><label class="small-note">Nombre</label><input id="prodNombreInput"></p>
 <p><label class="small-note">Grupo</label><select id="prodGrupoInput"><option>Básico</option><option>Sazón</option><option>Especial</option></select></p>
-<p><label class="small-note">Unidad</label><select id="prodUnidadInput"><option>kg</option><option>unidad</option><option>atado</option></select></p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div><label class="small-note">Unidad de venta</label><select id="prodUnidadVentaInput">
+<option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option>
+</select></div>
+<div><label class="small-note">Unidad de compra</label><select id="prodUnidadCompraInput">
+<option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option>
+</select></div>
+</div>
+<p><label class="small-note">Equivalencia kg (cuántos kg pesa 1 unidad nominal)</label><input id="prodEquivKgInput" type="number" step="0.01" value="1" placeholder="1"></p>
 <div class="actions" style="justify-content:flex-end">
 <button class="btn-ghost" onclick="cerrarModal('modalProducto')">Cancelar</button>
 <button class="btn-save" onclick="guardarProducto()">Guardar</button>
@@ -501,7 +535,7 @@ tbody tr:hover{background:#F4FBF6}
 </select>
 </p>
 <div class="warn-box" style="margin-top:12px">
-<strong>Ojo:</strong> la nueva ronda arranca vacía de pedidos, items, compras, gastos, entregas, excedentes y reclamos. Solo se copian precios.
+<strong>Ojo:</strong> la nueva ronda arranca vacía de pedidos, items, compras, gastos, entregas, excedentes y reclamos. Solo se copian precios (P_L_mercado, C_L) y escenarios (Pij).
 </div>
 <div class="actions" style="justify-content:flex-end;margin-top:14px">
 <button class="btn-ghost" onclick="cerrarModal('modalNuevaRonda')">Cancelar</button>
@@ -527,7 +561,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Firestore</p>
+<p>Panel Admin · Modelo 1Día · v16</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -554,7 +588,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let DB = {config:{},rondas:{},rondaActiva:"",productos:[],clientes:[],repartidores:[],precios:[],pedidos:[],items:[],compras:[],entregas:[],gastos:[],excedentes:[],reclamos:[]};
+let DB = {config:{},rondas:{},rondaActiva:"",productos:[],clientes:[],repartidores:[],precios:[],escenarios:[],pedidos:[],items:[],compras:[],entregas:[],gastos:[],excedentes:[],reclamos:[]};
 let calcItems = [];
 let unsubscribersRonda = [];
 let unsubscribersGlobal = [];
@@ -585,45 +619,36 @@ const DISTRITOS = [
 const OFICINA = { lat: -12.0873, lng: -77.0218, direccion: "Eduardo Bello 385, Santa Catalina, La Victoria" };
 const CAP_DEFAULT = { "A pie": 45, "Bici": 25, "Moto": 60, "Auto": 150, "Combi": 300 };
 const MAX_PARADAS_VIAJE_DEFAULT = 9;
-const MARGEN_DEFAULT = 0.25;
 const MINIMO_B2C = 20;
-const FACTOR_COSTO_MAX = 0.86;
+const ESCALONES_DEFAULT = [-0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1.0];
+const P_DEFAULT = 0.10;
+const M_OBJETIVO_DEFAULT = 0.35;
+const G_MIN_DEFAULT = 0;
+const COMISION_YAPE_DEFAULT = 0.0295;
+const FIJOS_DOMINGO_DEFAULT = {
+  alquiler_hub: 150, insumos_higiene: 15, seguro_rc: 80,
+  costo_transporte: 15, empaque_por_pedido: 0, delivery_por_pedido: 0
+};
+const UNIDADES_DEFAULT = ["Kilogramo","Cajón","Cajón Chico","Ciento","Saco Chico","Atado","Atado Grande","Unidad"];
 
 /* ============ HELPERS ============ */
 const soles = v => "S/ " + Number(v || 0).toFixed(2);
 const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 const red2 = v => Math.round((Number(v) || 0) * 100) / 100;
+const red4 = v => Math.round((Number(v) || 0) * 10000) / 10000;
 const roundUp2 = v => Math.ceil((Number(v) || 0) * 100) / 100;
 const hoy = () => { const d = new Date(); return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-'); };
 const ahora = () => new Date().toISOString();
 const uid = p => p + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 const distHav = (a, b, c, d) => { const R = 6371, t = x => x * Math.PI / 180; const dLat = t(c - a), dLng = t(b - d); const x = Math.sin(dLat / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dLng / 2) ** 2; return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)); };
-
-function calcPrecioVenta(ref, margen) {
-  const r = Number(ref) || 0;
-  const m = (margen == null || margen === "") ? MARGEN_DEFAULT : Number(margen);
-  if (m >= 1) return roundUp2(r);
-  return roundUp2(r / (1 - m));
-}
-function precioRef(pr) {
-  if (!pr) return 0;
-  if (pr.precio_ref_mayorista != null) return Number(pr.precio_ref_mayorista);
-  if (pr.precio_compra != null) return Number(pr.precio_compra);
-  return 0;
-}
-function calcMargenReal(precioVenta, precioCompraReal) {
-  const pv = Number(precioVenta) || 0;
-  const pc = Number(precioCompraReal) || 0;
-  if (pv <= 0) return 0;
-  return (pv - pc) / pv;
-}
-function fmtMargen(m) { return ((Number(m) || 0) * 100).toFixed(1) + "%"; }
-function claseMargen(m) {
+const fmtPct = m => ((Number(m) || 0) * 100).toFixed(1) + "%";
+const claseMargen = m => {
   const pct = (Number(m) || 0) * 100;
   if (pct >= 25) return "margen-bueno";
   if (pct >= 15) return "margen-regular";
   return "margen-malo";
-}
+};
+
 function toast(msg, tipo) {
   const c = document.getElementById("toast");
   const t = document.createElement("div");
@@ -637,19 +662,6 @@ function capacidadVehiculo(vehiculo) {
   return Number(caps[vehiculo]) || CAP_DEFAULT[vehiculo] || 45;
 }
 function maxParadasViaje() { return Number(DB.config && DB.config.max_paradas_viaje) || MAX_PARADAS_VIAJE_DEFAULT; }
-function pesoPedido(pedidoId) { return itemsDePedido(pedidoId).reduce((s, i) => s + Number(i.cantidad || 0), 0); }
-function dividirEnViajes(pedidosOrdenados, capKg, maxParadas) {
-  const viajes = []; let actual = { paradas: [], peso: 0 };
-  for (const p of pedidosOrdenados) {
-    const pesoP = pesoPedido(p.pedido_id);
-    const excedePeso = actual.peso + pesoP > capKg;
-    const excedeParadas = actual.paradas.length + 1 > maxParadas;
-    if (actual.paradas.length && (excedePeso || excedeParadas)) { viajes.push(actual); actual = { paradas: [], peso: 0 }; }
-    actual.paradas.push(p); actual.peso += pesoP;
-  }
-  if (actual.paradas.length) viajes.push(actual);
-  return viajes;
-}
 function showSync(estado) {
   const el = document.getElementById("syncIndicator");
   el.className = "visible " + estado;
@@ -678,6 +690,17 @@ function labelRonda(rid) {
   return nom ? `${nom} · ${rid}` : rid;
 }
 
+/* ============ HELPERS MODELO 1DÍA ============ */
+function getModeloConfig() {
+  return DB.config.modelo || {};
+}
+function getMObjetivo() { return Number(getModeloConfig().M_objetivo ?? M_OBJETIVO_DEFAULT); }
+function getP() { return Number(getModeloConfig().p ?? P_DEFAULT); }
+function getGMin() { return Number(getModeloConfig().G_min ?? G_MIN_DEFAULT); }
+function getComisionYape() { return Number(getModeloConfig().comision_yape_pct ?? COMISION_YAPE_DEFAULT); }
+function getFijosDomingo() { return { ...FIJOS_DOMINGO_DEFAULT, ...(getModeloConfig().fijos_domingo || {}) }; }
+function getEscalones() { return getModeloConfig().escalones || ESCALONES_DEFAULT; }
+
 /* ============ FIRESTORE ============ */
 async function fsSet(colPath, id, data) {
   try { showSync("saving"); await setDoc(doc(db, ...colPath, id), data, { merge: true }); showSync("saved"); }
@@ -699,6 +722,7 @@ async function fsSetConfig(data) {
 /* ============ ACCESOS ============ */
 const rondaActual = () => DB.rondas[DB.rondaActiva] || {};
 const preciosDeRonda = (r = DB.rondaActiva) => DB.precios.filter(p => p.id_ronda === r);
+const escenariosDeRonda = (r = DB.rondaActiva) => DB.escenarios.filter(e => e.id_ronda === r);
 const pedidosDeRonda = () => DB.pedidos.filter(p => p.id_ronda === DB.rondaActiva);
 const itemsDeRonda = () => DB.items.filter(i => i.id_ronda === DB.rondaActiva);
 const itemsDePedido = id => DB.items.filter(i => i.id_ronda === DB.rondaActiva && i.pedido_id === id);
@@ -711,6 +735,170 @@ const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).for
 const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
+/* ============ CÁLCULOS MODELO 1DÍA ============ */
+function getEquivKg(codigo) {
+  const p = DB.productos.find(x => x.codigo === codigo);
+  return Number(p?.equiv_kg) || 1;
+}
+function pesoPedidoKg(pedidoId) {
+  return itemsDePedido(pedidoId).reduce((s, i) => s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto), 0);
+}
+function qPedidaKgPorProducto(codigoProducto) {
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
+  return itemsDeRonda()
+    .filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === codigoProducto)
+    .reduce((s, i) => s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto), 0);
+}
+function qPedidaUnidadPorProducto(codigoProducto) {
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
+  return itemsDeRonda()
+    .filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === codigoProducto)
+    .reduce((s, i) => s + Number(i.cantidad || 0), 0);
+}
+function escenariosDeProducto(codigo) {
+  return escenariosDeRonda().filter(e => e.codigo_producto === codigo);
+}
+function calcularEscenariosProducto(codigo) {
+  const pr = precioMapa()[codigo];
+  const C_L = Number(pr?.C_L) || 0;
+  const escs = escenariosDeProducto(codigo).slice().sort((a, b) => a.escalon - b.escalon);
+  if (!escs.length) return [];
+  // Cij = C_L + escalon
+  const enriched = escs.map(e => ({
+    escalon: Number(e.escalon) || 0,
+    Pij: Number(e.Pij) || 0,
+    Cij: C_L + (Number(e.escalon) || 0)
+  }));
+  // P_cola = suma de Pij donde Cij es mayor a este
+  enriched.forEach((e, i) => {
+    let cola = 0;
+    for (let j = i + 1; j < enriched.length; j++) cola += enriched[j].Pij;
+    e.P_cola = red4(cola);
+  });
+  return enriched;
+}
+function calcularC_esp(codigo) {
+  const enr = calcularEscenariosProducto(codigo);
+  if (!enr.length) return 0;
+  const sumP = enr.reduce((s, e) => s + e.Pij, 0);
+  const sumCP = enr.reduce((s, e) => s + e.Cij * e.Pij, 0);
+  return sumP > 0 ? sumCP / sumP : 0;
+}
+function calcularC_min(codigo) {
+  const enr = calcularEscenariosProducto(codigo);
+  if (!enr.length) return 0;
+  const p = getP();
+  const candidatos = enr.filter(e => e.P_cola <= p);
+  if (!candidatos.length) return enr[enr.length - 1].Cij; // si ninguno cumple, el más alto
+  return Math.min(...candidatos.map(e => e.Cij));
+}
+function calcularDiagnosticoProducto(codigo) {
+  const pr = precioMapa()[codigo];
+  if (!pr) return null;
+  const PL = Number(pr.P_L_mercado) || 0;
+  const CL = Number(pr.C_L) || 0;
+  const Cesp = calcularC_esp(codigo);
+  const ML = PL > 0 ? 1 - CL / PL : 0;
+  const Mideal = PL > 0 ? 1 - Cesp / PL : 0;
+  const Mref = Math.max(ML, Mideal);
+  const Mob = getMObjetivo();
+  const sirve = Mref >= Mob;
+  const base = Math.min(CL > 0 ? CL : Infinity, Cesp > 0 ? Cesp : Infinity);
+  const baseSafe = isFinite(base) ? base : PL;
+  const PLsugerido = Mob < 1 ? baseSafe / (1 - Mob) : baseSafe;
+  const PLfinal = Math.max(PL, PLsugerido);
+  const Cmin = calcularC_min(codigo);
+  const Mmin = PLfinal > 0 ? 1 - Cmin / PLfinal : 0;
+  return { PL, CL, Cesp, ML, Mideal, Mref, Mob, sirve, PLsugerido, PLfinal, Cmin, Mmin };
+}
+function calcularUmbralProducto(codigo) {
+  const diag = calcularDiagnosticoProducto(codigo);
+  if (!diag) return null;
+  const V_esperado = calcularVEsperado();
+  const F = calcularFDomingo();
+  const Gmin = getGMin();
+  const Mreq = V_esperado > 0 ? (F + Gmin) / V_esperado : 0;
+  const Mumbral = Math.max(Mreq, diag.Mmin);
+  const Cmax = Math.max(diag.PLfinal * (1 - Mumbral), diag.CL);
+  return { ...diag, V_esperado, F, Gmin, Mreq, Mumbral, Cmax };
+}
+function calcularVEsperado() {
+  // Σ Q_pedida_kg × P_L_final de todos los productos con modelo
+  let total = 0;
+  const pm = precioMapa();
+  Object.keys(pm).forEach(codigo => {
+    const diag = calcularDiagnosticoProducto(codigo);
+    if (!diag) return;
+    const q = qPedidaKgPorProducto(codigo);
+    total += q * diag.PLfinal;
+  });
+  return total;
+}
+function calcularFDomingo() {
+  const f = getFijosDomingo();
+  const N = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado)).length;
+  return Number(f.alquiler_hub || 0) + Number(f.insumos_higiene || 0) + Number(f.seguro_rc || 0)
+    + Number(f.costo_transporte || 0)
+    + Number(f.empaque_por_pedido || 0) * N
+    + Number(f.delivery_por_pedido || 0) * N;
+}
+function calcularCompraProducto(codigo) {
+  const umbral = calcularUmbralProducto(codigo);
+  if (!umbral) return null;
+  const compra = comprasDeRonda().find(c => c.codigo_producto === codigo) || {};
+  const Cv = compra.C_viernes != null ? Number(compra.C_viernes) : null;
+  const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;
+  const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;
+  const Qped_kg = qPedidaKgPorProducto(codigo);
+  const Qped_un = qPedidaUnidadPorProducto(codigo);
+  const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
+  const Qfinal_kg = Math.min(Qped_kg, Qprima_kg);
+  const Qfinal_un = Qfinal_kg / getEquivKg(codigo);
+  const dif_kg = Qrecib != null ? Qrecib - Qfinal_kg : null;
+  const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
+  const ventas = Qfinal_kg * umbral.PLfinal;
+  const margenBruto = costoReal != null ? ventas - costoReal : null;
+  return {
+    ...umbral,
+    C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: Qcomp,
+    Qped_kg, Qped_un, Qprima_kg, Qfinal_kg, Qfinal_un, dif_kg,
+    costoReal, ventas, margenBruto
+  };
+}
+function calcularCierreViernes() {
+  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
+  const productos = precioMapa();
+  const filas = [];
+  Object.keys(productos).forEach(codigo => {
+    const calc = calcularCompraProducto(codigo);
+    if (calc) filas.push({ codigo, ...calc });
+  });
+  const ventas = filas.reduce((s, f) => s + (f.ventas || 0), 0);
+  const costoReal = filas.reduce((s, f) => s + (f.costoReal || 0), 0);
+  const F = calcularFDomingo();
+  const comision = ventas * getComisionYape();
+  const gastosVar = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
+  const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
+  const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
+  const utilidad = ventas - costoReal - F - comision - gastosVar + exc - recl;
+  const margen = ventas > 0 ? utilidad / ventas : 0;
+  return { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados };
+}
+function calcularRecorteMap() {
+  // Devuelve { codigo: { factor, Cmax, Cv } } para mostrar cantidad final por item
+  const map = {};
+  Object.keys(precioMapa()).forEach(codigo => {
+    const c = calcularCompraProducto(codigo);
+    if (!c) return;
+    if (c.C_viernes != null && c.C_viernes > c.Cmax && c.C_viernes > 0) {
+      map[codigo] = { activo: true, factor: c.Cmax / c.C_viernes, Cmax: c.Cmax, Cv: c.C_viernes };
+    } else {
+      map[codigo] = { activo: false, factor: 1, Cmax: c.Cmax, Cv: c.C_viernes };
+    }
+  });
+  return map;
+}
+
 /* ============ SEED ============ */
 const GMML_REF = {
   "PR-001": 3.73, "PR-002": 1.08, "PR-003": 2.20, "PR-004": 3.19,
@@ -718,26 +906,47 @@ const GMML_REF = {
   "PR-009": 1.88, "PR-010": 1.85, "PR-011": 2.13, "PR-012": 1.53,
   "PR-013": 4.13, "PR-014": 3.38, "PR-015": 4.20, "PR-016": 14.63,
   "PR-017": 16.63, "PR-018": 4.65, "PR-019": 3.38, "PR-020": 5.50,
-  "PR-021": 2.88, "PR-022": 5.58, "PR-023": 3.37, "PR-024": 4.28
+  "PR-021": 2.88, "PR-022": 5.58, "PR-023": 3.37, "PR-024": 4.28,
+  "PR-025": 5.15, "PR-026": 2.50, "PR-027": 2.83, "PR-028": 5.58
 };
-const MARGEN_POR_GRUPO = { "Básico": 0.25, "Sazón": 0.35, "Especial": 0.30 };
 
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
+  // Productos con equiv_kg por defecto (usuario los ajusta manualmente)
   const productos = [
-    ["PR-001","Papa amarilla","Básico","kg"],["PR-002","Papa blanca","Básico","kg"],
-    ["PR-003","Papa canchán","Básico","kg"],["PR-004","Tomate","Básico","kg"],
-    ["PR-005","Cebolla roja","Básico","kg"],["PR-006","Zanahoria","Básico","kg"],
-    ["PR-007","Choclo","Básico","unidad"],["PR-008","Camote amarillo","Básico","kg"],
-    ["PR-009","Yuca amarilla","Sazón","kg"],["PR-010","Zapallo macre","Sazón","kg"],
-    ["PR-011","Papa huayro","Sazón","kg"],["PR-012","Papa negra andina","Sazón","kg"],
-    ["PR-013","Cebolla china","Sazón","atado"],["PR-014","Ajo criollo","Sazón","kg"],
-    ["PR-015","Kion","Sazón","kg"],["PR-016","Ají amarillo","Sazón","kg"],
-    ["PR-017","Ají panca","Especial","kg"],["PR-018","Ají rocoto","Especial","kg"],
-    ["PR-019","Huacatay","Especial","atado"],["PR-020","Culantro","Especial","atado"],
-    ["PR-021","Perejil","Especial","atado"],["PR-022","Apio","Especial","atado"],
-    ["PR-023","Poro","Especial","atado"],["PR-024","Maíz morado","Especial","kg"]
-  ].map(p => ({ codigo: p[0], nombre: p[1], grupo: p[2], unidad: p[3], activo: true }));
+    ["PR-001","Papa amarilla","Básico","Kilogramo","Kilogramo",1],
+    ["PR-002","Papa blanca","Básico","Kilogramo","Kilogramo",1],
+    ["PR-003","Papa canchán","Básico","Kilogramo","Kilogramo",1],
+    ["PR-004","Tomate Katia","Básico","Cajón Chico","Cajón Chico",27],
+    ["PR-005","Cebolla cabeza roja","Básico","Kilogramo","Kilogramo",1],
+    ["PR-006","Zanahoria","Básico","Saco Chico","Saco Chico",65],
+    ["PR-007","Choclo serrano","Básico","Ciento","Ciento",42],
+    ["PR-008","Camote amarillo","Básico","Kilogramo","Kilogramo",1],
+    ["PR-009","Yuca amarilla","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-010","Zapallo macre","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-011","Papa huayro","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-012","Papa negra andina","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-013","Cebolla china","Sazón","Atado Grande","Atado Grande",1],
+    ["PR-014","Ajo criollo","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-015","Kion","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-016","Ají amarillo","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-017","Ají panca","Especial","Kilogramo","Kilogramo",1],
+    ["PR-018","Ají rocoto","Especial","Cajón","Cajón",18],
+    ["PR-019","Huacatay","Especial","Atado","Atado",1],
+    ["PR-020","Culantro","Especial","Atado","Atado",1.5],
+    ["PR-021","Perejil","Especial","Atado","Atado",1],
+    ["PR-022","Apio","Especial","Atado","Atado",3],
+    ["PR-023","Poro","Especial","Atado","Atado",2.6],
+    ["PR-024","Maíz morado","Especial","Kilogramo","Kilogramo",1],
+    ["PR-025","Ají escabeche","Especial","Kilogramo","Kilogramo",1],
+    ["PR-026","Limón cítrico cajón","Especial","Cajón","Cajón",23],
+    ["PR-027","Vainita","Especial","Kilogramo","Kilogramo",1],
+    ["PR-028","Zapallo loche","Especial","Unidad","Unidad",1.5]
+  ].map(p => ({
+    codigo: p[0], nombre: p[1], grupo: p[2],
+    unidad_venta: p[3], unidad_compra: p[4],
+    equiv_kg: p[5], activo: true
+  }));
 
   const clientes = [
     { id:"C-0001", nombre:"Luis Delgado Ortiz", telefono:"960214584", distrito:"Pueblo Libre", direccion:"Av. Aviación 512", referencia:"Frente al parque", tipo_cliente:"B2C", lat:-12.0716, lng:-77.0588 },
@@ -753,22 +962,49 @@ function crearDBInicial() {
     { id:"R-03", nombre:"Jorge Valdivia Núñez", celular:"965432109", vehiculo:"Auto", capacidad_max_kg:350, activo:true }
   ];
 
+  // Precios iniciales: P_L_mercado = ref + 2, C_L = ref
   const precios = productos.map(prod => {
-    const ref = GMML_REF[prod.codigo] ?? 1.00;
-    const mg = MARGEN_POR_GRUPO[prod.grupo] ?? MARGEN_DEFAULT;
-    const pv = calcPrecioVenta(ref, mg);
-    return { id_ronda: ronda, codigo_producto: prod.codigo, nombre: prod.nombre, unidad: prod.unidad, precio_ref_mayorista: ref, margen: mg, precio_venta: pv };
+    const CL = GMML_REF[prod.codigo] ?? 1.00;
+    const PL = CL + 2;
+    return {
+      id_ronda: ronda, codigo_producto: prod.codigo, nombre: prod.nombre,
+      unidad_venta: prod.unidad_venta, unidad_compra: prod.unidad_compra,
+      equiv_kg: prod.equiv_kg,
+      P_L_mercado: red2(PL), C_L: red2(CL),
+      C_esp: 0, M_L: 0, M_ideal: 0, M_ref: 0, sirve: false,
+      P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
+    };
+  });
+
+  // Escenarios iniciales uniformes (0.1 cada uno)
+  const escenarios = [];
+  productos.forEach(prod => {
+    ESCALONES_DEFAULT.forEach((esc, i) => {
+      escenarios.push({
+        id_ronda: ronda, codigo_producto: prod.codigo,
+        esc_id: prod.codigo + "-" + i,
+        escalon: esc, Pij: 0.1, Cij: 0, P_cola: 0
+      });
+    });
   });
 
   return {
-    version: 15, rondaActiva: ronda,
+    version: 16, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
-    productos, clientes, repartidores, precios,
+    productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
     config: {
       oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
       costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1,
-      cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT
+      cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT,
+      modelo: {
+        M_objetivo: M_OBJETIVO_DEFAULT,
+        p: P_DEFAULT,
+        G_min: G_MIN_DEFAULT,
+        comision_yape_pct: COMISION_YAPE_DEFAULT,
+        fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT },
+        escalones: [...ESCALONES_DEFAULT]
+      }
     }
   };
 }
@@ -784,27 +1020,10 @@ async function autoSeed() {
   await fsSetRonda(rondaId, seed.rondas[rondaId]);
   const batch2 = writeBatch(db);
   seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p, { merge: true }); });
+  seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v15 completado");
-}
-
-/* Limpieza de productos huérfanos (PR-025+, "extra", duplicados) */
-async function limpiarProductosHuerfanos() {
-  try {
-    const validos = new Set(Object.keys(GMML_REF));
-    const snap = await getDocs(collection(db, "catalogo", "productos", "items"));
-    const batch = writeBatch(db);
-    let borrados = 0;
-    snap.docs.forEach(d => {
-      const p = d.data();
-      const codigo = String(p.codigo || "");
-      const nombre = String(p.nombre || "");
-      const esHuerfano = !validos.has(codigo) || /\(extra\)/i.test(nombre) || /copia|duplicad/i.test(nombre);
-      if (esHuerfano) { batch.delete(d.ref); borrados++; }
-    });
-    if (borrados > 0) { await batch.commit(); toast(`🧹 ${borrados} producto(s) huérfano(s) eliminado(s)`, "info"); }
-  } catch (e) { console.error("limpiarProductosHuerfanos:", e); }
+  console.log("Auto-seed v16 completado");
 }
 
 /* Migración precios */
@@ -815,15 +1034,45 @@ async function migrarPreciosRonda(rondaId) {
     const batch = writeBatch(db); let migrados = 0;
     snap.docs.forEach(d => {
       const p = d.data();
-      if (p.precio_ref_mayorista == null && p.precio_compra != null) {
-        const ref = Number(p.precio_compra) || 0;
-        const mg = Number(p.margen ?? MARGEN_DEFAULT);
-        batch.set(d.ref, { precio_ref_mayorista: ref, precio_venta: calcPrecioVenta(ref, mg) }, { merge: true });
+      const cambios = {};
+      if (p.P_L_mercado == null && p.precio_ref_mayorista != null) {
+        cambios.P_L_mercado = Number(p.precio_ref_mayorista) + 2;
+      }
+      if (p.C_L == null && p.precio_ref_mayorista != null) {
+        cambios.C_L = Number(p.precio_ref_mayorista);
+      }
+      if (p.unidad_venta == null) cambios.unidad_venta = p.unidad || "Kilogramo";
+      if (p.unidad_compra == null) cambios.unidad_compra = p.unidad || "Kilogramo";
+      if (p.equiv_kg == null) cambios.equiv_kg = 1;
+      if (Object.keys(cambios).length) {
+        batch.set(d.ref, cambios, { merge: true });
         migrados++;
       }
     });
-    if (migrados > 0) { await batch.commit(); console.log(`✓ Migrados ${migrados} precios en ${rondaId}`); }
+    if (migrados > 0) { await batch.commit(); console.log(`✓ Migrados ${migrados} precios`); }
   } catch (e) { console.error("Error migrando precios:", e); }
+}
+async function migrarEscenariosRonda(rondaId) {
+  if (!rondaId) return;
+  try {
+    const snap = await getDocs(collection(db, "rondas", rondaId, "escenarios"));
+    if (snap.size > 0) return;
+    const prSnap = await getDocs(collection(db, "rondas", rondaId, "precios"));
+    if (prSnap.size === 0) return;
+    const batch = writeBatch(db);
+    prSnap.docs.forEach(pd => {
+      const codigo = pd.id;
+      ESCALONES_DEFAULT.forEach((esc, i) => {
+        const escId = codigo + "-" + i;
+        batch.set(doc(db, "rondas", rondaId, "escenarios", escId), {
+          id_ronda: rondaId, codigo_producto: codigo, esc_id: escId,
+          escalon: esc, Pij: 0.1, Cij: 0, P_cola: 0
+        }, { merge: true });
+      });
+    });
+    await batch.commit();
+    console.log("✓ Escenarios iniciales creados");
+  } catch (e) { console.error("Error migrando escenarios:", e); }
 }
 
 /* ============ CARGA ============ */
@@ -834,8 +1083,22 @@ async function cargarConfig() {
     DB.config = snap.data();
     if (!DB.config.cap_vehiculo) DB.config.cap_vehiculo = { ...CAP_DEFAULT };
     if (!DB.config.max_paradas_viaje) DB.config.max_paradas_viaje = MAX_PARADAS_VIAJE_DEFAULT;
+    if (!DB.config.modelo) DB.config.modelo = {
+      M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
+      comision_yape_pct: COMISION_YAPE_DEFAULT,
+      fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
+    };
   } else {
-    const cfg = { oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng, costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1, ronda_activa: "", cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT };
+    const cfg = {
+      oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
+      costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1,
+      ronda_activa: "", cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT,
+      modelo: {
+        M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
+        comision_yape_pct: COMISION_YAPE_DEFAULT,
+        fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
+      }
+    };
     await fsSetConfig(cfg); DB.config = cfg;
   }
 }
@@ -864,7 +1127,8 @@ function suscribirRonda(rondaId) {
   cancelarSuscripcionesRonda();
   if (!rondaId) return;
   migrarPreciosRonda(rondaId);
-  ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(sub => {
+  migrarEscenariosRonda(rondaId);
+  ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(sub => {
     unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, sub), snap => {
       const key = sub; DB[key] = snap.docs.map(d => d.data());
       renderTodo();
@@ -900,7 +1164,6 @@ async function cargarTodo() {
     await autoSeed();
     await cargarConfig(); await cargarCatalogo(); await cargarRondas();
   }
-  await limpiarProductosHuerfanos();
   suscribirRonda(DB.rondaActiva);
   suscribirCatalogo();
   suscribirRondas();
@@ -913,6 +1176,7 @@ async function guardarPedido(p) { await fsSet(["rondas", DB.rondaActiva, "pedido
 async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it); }
 async function eliminarItem(itemId) { await fsDel(["rondas", DB.rondaActiva, "items"], itemId); }
 async function guardarPrecio(pr) { await fsSet(["rondas", DB.rondaActiva, "precios"], pr.codigo_producto, pr); }
+async function guardarEscenario(e) { await fsSet(["rondas", DB.rondaActiva, "escenarios"], e.esc_id, e); }
 async function guardarCompra(c) { await fsSet(["rondas", DB.rondaActiva, "compras"], c.codigo_producto, c); }
 async function guardarEntrega(e) { await fsSet(["rondas", DB.rondaActiva, "entregas"], e.pedido_id, e); }
 async function guardarGasto(g) { await fsSet(["rondas", DB.rondaActiva, "gastos"], g.id, g); }
@@ -939,8 +1203,9 @@ function renderSemana() {
     const d = new Date(lunes); d.setDate(lunes.getDate() + i);
     const ds = d.toISOString().slice(0, 10); const isHoy = ds === hoyStr;
     let cls = "semana-dia", nota = "";
-    if (i === 4) { cls += " hito"; nota = "17:00 cierre"; }
-    if (i === 6) { cls += " hito"; nota = "04:00 compra · 16:00 entrega"; }
+    if (i === 0) nota = "fijar precio";
+    if (i === 4) { cls += " hito"; nota = "compra real"; }
+    if (i === 6) { cls += " hito"; nota = "entrega"; }
     if (isHoy) cls += " hoy";
     html += `<div class="${cls}"><span class="d">${nombres[i]}</span><span class="f">${d.getDate()}/${d.getMonth() + 1}</span><span class="d">${nota}</span></div>`;
     if (i < 6) html += '<span class="semana-arrow">›</span>';
@@ -962,7 +1227,7 @@ function mostrarVista(n) {
   if (n === "compra") calcularListaCompra();
   if (n === "entregas") renderEntregas();
   if (n === "repartidores") renderRepartidores();
-  if (n === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
+  if (n === "gastos") { renderFijosDomingo(); renderGastos(); renderExcedentes(); renderReclamos(); }
   if (n === "cierre") calcularReportes().catch(e => console.error(e));
   if (n === "config") renderConfig();
 }
@@ -1004,7 +1269,7 @@ function refrescarSelector() {
 
 async function cambiarRondaActiva(r) {
   if (!r || !DB.rondas[r]) { toast("Ronda no encontrada: " + r, "err"); refrescarSelector(); return; }
-  ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
+  ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
   DB.rondaActiva = r; DB.config.ronda_activa = r;
   await fsSetConfig({ ronda_activa: r });
   suscribirRonda(r); refrescarSelector(); renderSemana(); renderTodo();
@@ -1035,7 +1300,7 @@ function previewNuevaRonda() {
   if (existe) { box.className = "error-box"; box.innerHTML = `⚠️ La ronda <strong>${esc(id)}</strong> ya existe.`; btn.disabled = true; return; }
   btn.disabled = false;
   box.className = "info-box";
-  box.innerHTML = `Se creará <strong>${esc(id)}</strong>${nombre ? ` · <strong>${esc(nombre)}</strong>` : ""}<br><span class="small-note">Semana del ${esc(fechaTxt)}</span><br><span class="small-note">${copiarDe ? "Copiando precios de <strong>" + esc(labelRonda(copiarDe)) + "</strong>" : "Sin copiar precios"}</span>`;
+  box.innerHTML = `Se creará <strong>${esc(id)}</strong>${nombre ? ` · <strong>${esc(nombre)}</strong>` : ""}<br><span class="small-note">Semana del ${esc(fechaTxt)}</span><br><span class="small-note">${copiarDe ? "Copiando precios y escenarios de <strong>" + esc(labelRonda(copiarDe)) + "</strong>" : "Sin copiar precios"}</span>`;
 }
 async function confirmarNuevaRonda() {
   const raw = document.getElementById("nrFecha").value;
@@ -1052,18 +1317,30 @@ async function confirmarNuevaRonda() {
     await fsSetRonda(id, meta);
     DB.rondas[id] = meta;
     if (copiarDe) {
-      const snap = await getDocs(collection(db, "rondas", copiarDe, "precios"));
-      if (snap.size > 0) {
+      const [precSnap, escSnap] = await Promise.all([
+        getDocs(collection(db, "rondas", copiarDe, "precios")),
+        getDocs(collection(db, "rondas", copiarDe, "escenarios"))
+      ]);
+      if (precSnap.size > 0) {
         const batch = writeBatch(db);
-        snap.docs.forEach(d => {
-          const data = d.data(); const ref = precioRef(data); const mg = Number(data.margen ?? MARGEN_DEFAULT);
-          const nuevo = { id_ronda: id, codigo_producto: data.codigo_producto, nombre: data.nombre, unidad: data.unidad, precio_ref_mayorista: ref, margen: mg, precio_venta: calcPrecioVenta(ref, mg) };
+        precSnap.docs.forEach(d => {
+          const data = d.data();
+          const nuevo = { ...data, id_ronda: id };
           batch.set(doc(db, "rondas", id, "precios", d.id), nuevo, { merge: true });
         });
         await batch.commit();
       }
+      if (escSnap.size > 0) {
+        const batch = writeBatch(db);
+        escSnap.docs.forEach(d => {
+          const data = d.data();
+          const nuevo = { ...data, id_ronda: id };
+          batch.set(doc(db, "rondas", id, "escenarios", d.id), nuevo, { merge: true });
+        });
+        await batch.commit();
+      }
     }
-    ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
+    ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
     DB.rondaActiva = id; DB.config.ronda_activa = id;
     await fsSetConfig({ ronda_activa: id });
     suscribirRonda(id); refrescarSelector(); renderSemana(); renderTodo();
@@ -1103,7 +1380,7 @@ async function borrarRonda(id) {
   toast("Borrando ronda…", "warn");
   try {
     cancelarSuscripcionesRonda();
-    const subcols = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    const subcols = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
     for (const sub of subcols) {
       const snap = await getDocs(collection(db, "rondas", id, sub));
       const chunks = []; for (let i = 0; i < snap.docs.length; i += 400) chunks.push(snap.docs.slice(i, i + 400));
@@ -1116,7 +1393,7 @@ async function borrarRonda(id) {
     const nuevaActiva = (activaAntes !== id && DB.rondas[activaAntes]) ? activaAntes : (keys[0] || "");
     DB.rondaActiva = nuevaActiva; DB.config.ronda_activa = nuevaActiva;
     await fsSetConfig({ ronda_activa: nuevaActiva });
-    ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
+    ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
     if (nuevaActiva) suscribirRonda(nuevaActiva);
     refrescarSelector(); renderSemana(); renderTodo();
     toast("✓ Ronda " + id + " eliminada", "ok");
@@ -1141,10 +1418,20 @@ function renderDashboard() {
   const empacados = pedidos.filter(p => p.estado === "empacado");
   const entregados = pedidos.filter(p => p.estado === "entregado");
   const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
-  const pmap = precioMapa();
-  const items = itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id));
-  const costoEst = items.reduce((s, i) => s + Number(i.cantidad) * precioRef(pmap[i.codigo_producto]), 0);
-  const costoReal = comprasDeRonda().reduce((s, c) => s + cantidadRealDeCompra(c) * precioRealDeCompra(c), 0);
+  // Costo estimado: C_esp por producto
+  let costoEst = 0;
+  Object.keys(precioMapa()).forEach(codigo => {
+    const diag = calcularDiagnosticoProducto(codigo);
+    if (!diag) return;
+    costoEst += diag.Cesp * qPedidaKgPorProducto(codigo);
+  });
+  // Costo real: Q_recibida × C_viernes
+  let costoReal = 0;
+  comprasDeRonda().forEach(c => {
+    if (c.Q_recibida_kg != null && c.C_viernes != null) {
+      costoReal += Number(c.Q_recibida_kg) * Number(c.C_viernes);
+    }
+  });
   document.getElementById("dashPedidos").textContent = activos.length;
   document.getElementById("dashIngreso").textContent = soles(ingreso);
   document.getElementById("dashCostoEst").textContent = soles(costoEst);
@@ -1153,23 +1440,23 @@ function renderDashboard() {
   document.getElementById("dashAceptados").textContent = aceptados.length;
   document.getElementById("dashEmpacados").textContent = empacados.length;
   document.getElementById("dashEntregados").textContent = entregados.length;
-  const gastos = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
-  const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
-  const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const util = ingreso - costoReal - gastos + exc - recl;
-  const deltaEst = costoEst - costoReal;
+  const cierre = calcularCierreViernes();
   document.getElementById("dashGanancia").innerHTML = `
     <div class="calc-summary">
-      <div class="row"><span>Ingreso (ventas congeladas)</span><span><strong>${soles(ingreso)}</strong></span></div>
-      <div class="row"><span>Costo compra real</span><span>−${soles(costoReal)}</span></div>
-      <div class="row"><span>Gastos</span><span>−${soles(gastos)}</span></div>
-      <div class="row"><span>Reclamos</span><span>−${soles(recl)}</span></div>
-      <div class="row"><span>Excedentes</span><span>+${soles(exc)}</span></div>
-      <div class="row total"><span>Utilidad neta</span><span>${soles(util)}</span></div>
+      <div class="row"><span>Ventas (Q_final × P_L_final)</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Costo real (Q_recibida × C_viernes)</span><span>−${soles(cierre.costoReal)}</span></div>
+      <div class="row"><span>Fijos del domingo</span><span>−${soles(cierre.F)}</span></div>
+      <div class="row"><span>Comisión Yape</span><span>−${soles(cierre.comision)}</span></div>
+      <div class="row"><span>Gastos variables</span><span>−${soles(cierre.gastosVar)}</span></div>
+      <div class="row"><span>Reclamos</span><span>−${soles(cierre.recl)}</span></div>
+      <div class="row"><span>Excedentes</span><span>+${soles(cierre.exc)}</span></div>
+      <div class="row total"><span>Utilidad neta</span><span>${soles(cierre.utilidad)}</span></div>
     </div>
-    <div class="info-box" style="margin-top:10px"><strong>Δ compra vs referencia:</strong> <span class="${deltaEst > 0 ? 'delta-pos' : (deltaEst < 0 ? 'delta-neg' : 'delta-zero')}">${soles(deltaEst)}</span></div>`;
+    <div class="info-box" style="margin-top:10px"><strong>Margen neto real:</strong> <span class="${cierre.margen >= 0 ? 'delta-pos' : 'delta-neg'}">${fmtPct(cierre.margen)}</span></div>`;
   const top = {};
-  items.forEach(i => { top[i.nombre] = (top[i.nombre] || 0) + Number(i.cantidad); });
+  itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id)).forEach(i => {
+    top[i.nombre] = (top[i.nombre] || 0) + Number(i.cantidad);
+  });
   const arr = Object.entries(top).sort((a, b) => b[1] - a[1]).slice(0, 8);
   document.getElementById("dashTopProductos").innerHTML = arr.length
     ? `<div class="table-scroll"><table><thead><tr><th>Producto</th><th>Cantidad</th></tr></thead><tbody>${arr.map(([n, c]) => `<tr><td>${esc(n)}</td><td><strong>${c.toFixed(2)}</strong></td></tr>`).join("")}</tbody></table></div>`
@@ -1245,7 +1532,7 @@ function generarChecklistEmpaque() {
   const empacados = pedidosDeRonda().filter(p => p.estado === "empacado");
   if (!empacados.length) { toast("No hay pedidos en estado 'empacado'", "warn"); return; }
   empacados.sort((a, b) => String(a.pedido_id).localeCompare(String(b.pedido_id)));
-  const esc3Map = calcularEsc3Map();
+  const recMap = calcularRecorteMap();
   const ronda = rondaActual();
   const nomRonda = (ronda.nombre || "").trim() || DB.rondaActiva;
   const fecha = new Date().toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
@@ -1257,9 +1544,9 @@ function generarChecklistEmpaque() {
     const its = itemsDePedido(p.pedido_id); totalItems += its.length;
     const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(", ");
     const filas = its.map(i => {
-      const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
-      const cantFinal = e3.esc3Activo ? redF(i.cantidad * e3.factor) : (Number(i.cantidad) || 0);
-      return `<tr><td class="chk">☐</td><td class="prod">${escF(i.nombre)}</td><td class="cant${e3.esc3Activo ? ' esc3' : ''}">${cantFinal.toFixed(2)}</td><td class="und">${escF(i.unidad)}</td><td class="prec">${solesF(i.precio_venta_congelado)}</td></tr>`;
+      const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+      const cantFinal = r.activo ? redF(i.cantidad * r.factor) : (Number(i.cantidad) || 0);
+      return `<tr><td class="chk">☐</td><td class="prod">${escF(i.nombre)}</td><td class="cant${r.activo ? ' esc3' : ''}">${cantFinal.toFixed(2)}</td><td class="und">${escF(i.unidad)}</td><td class="prec">${solesF(i.precio_venta_congelado)}</td></tr>`;
     }).join("");
     return `<div class="tarjeta"><div class="tarjeta-head"><div><span class="id">${escF(p.pedido_id)}</span><span class="sep">·</span><span class="nom">${escF(p.cliente_nombre)}</span></div><div class="meta">${escF(p.cliente_celular)}<span class="sep">·</span>${escF(dirTxt || "—")}</div></div><div class="tarjeta-items"><table><thead><tr><th class="c">✓</th><th>Producto</th><th class="r">Cant.</th><th>Und.</th><th class="r">Precio</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
   }).join("");
@@ -1332,33 +1619,12 @@ async function confirmarRetroceder(id) {
 }
 
 /* ============ DETALLE ============ */
-function calcularEsc3Map() {
-  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id));
-  const pmap = precioMapa(); const compras = comprasDeRonda(); const porCod = {};
-  its.forEach(i => { porCod[i.codigo_producto] = (porCod[i.codigo_producto] || 0) + Number(i.cantidad); });
-  const map = {};
-  Object.entries(porCod).forEach(([cod, pedidaTotal]) => {
-    const pr = pmap[cod]; if (!pr) return;
-    const precioVenta = Number(pr.precio_venta) || 0;
-    const precioMax = red2(precioVenta * FACTOR_COSTO_MAX);
-    const aj = compras.find(x => x.codigo_producto === cod) || {};
-    const pv = aj.precio_mayorista_viernes != null ? Number(aj.precio_mayorista_viernes) : null;
-    const activo = pv != null && pv > precioMax && precioMax > 0;
-    if (!activo) { map[cod] = { esc3Activo: false, factor: 1 }; return; }
-    const cantEsc3 = red2((pedidaTotal * precioMax) / pv);
-    const cantFinalTotal = aj.cantidad_real != null ? Number(aj.cantidad_real) : cantEsc3;
-    const factor = pedidaTotal > 0 ? cantFinalTotal / pedidaTotal : 1;
-    map[cod] = { esc3Activo: true, factor };
-  });
-  return map;
-}
 function verDetalle(id) {
   const p = pedidoPorId(id); if (!p) return;
   const its = itemsDePedido(id);
   const edit = !esTerminal(p.estado);
   const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.estado);
-  const esc3Map = verFinales ? calcularEsc3Map() : {};
+  const recMap = verFinales ? calcularRecorteMap() : {};
   const hist = (p.historial_estados || []).map(h => `<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo || "")}</span></div>`).join("");
   const bloqueEditar = edit ? `
     <h3 style="margin-top:14px">Editar pedido</h3>
@@ -1377,21 +1643,21 @@ function verDetalle(id) {
       <div><label class="small-note">Crédito días (B2B)</label><input id="edCreditoDias" type="number" value="${p.credito_dias || 0}" min="0"></div>
       <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
     </div>` : "";
-  const tituloItems = verFinales ? "Items (cantidades finales)" : "Items (precio congelado — no editable)";
+  const tituloItems = verFinales ? "Items (cantidades finales tras recorte de C_max)" : "Items (precio congelado — no editable)";
   const filasHTML = its.map(i => {
     let cantHTML;
     if (verFinales) {
-      const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
-      const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-      cantHTML = e3.esc3Activo
-        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Esc.3 · ×${e3.factor.toFixed(3)}</span>`
+      const r = recMap[i.codigo_producto] || { activo: false, factor: 1, Cmax: 0, Cv: 0 };
+      const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+      cantHTML = r.activo
+        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Recorte · C_max ${soles(r.Cmax)} / C_v ${soles(r.Cv)} · ×${r.factor.toFixed(3)}</span>`
         : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
     } else {
       cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
     }
     return `<tr><td>${esc(i.nombre)}</td><td>${cantHTML}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td><td>${edit ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : ""}</td></tr>`;
   }).join("");
-  const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.precio_venta)}</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
+  const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.P_L_final)}</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
   let bloqueBoleta = "";
   if (p.estado === "entregado") {
     const enviada = !!p.boleta_enviada;
@@ -1419,13 +1685,13 @@ function enviarBoletaWhatsApp(pedidoId) {
   const cel = String(p.cliente_celular || "").replace(/\D/g, "");
   if (!cel || cel.length < 9) { toast("El cliente no tiene celular registrado", "err"); return; }
   const its = itemsDePedido(pedidoId);
-  const esc3Map = calcularEsc3Map();
+  const recMap = calcularRecorteMap();
   let huboAjuste = false;
   const lineas = ["BOLETA · COMPRA CON MISTI","",`Cliente: ${p.cliente_nombre}`,`Pedido: ${p.pedido_id}`,"","DETALLE:"];
   its.forEach(i => {
-    const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
-    const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-    if (e3.esc3Activo) huboAjuste = true;
+    const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+    const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+    if (r.activo) huboAjuste = true;
     lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
   });
   lineas.push("");
@@ -1441,13 +1707,13 @@ async function toggleBoletaPipeline(pedidoId, val) {
 }
 function copiarReportePedido(pedidoId) {
   const p = pedidoPorId(pedidoId); if (!p) return;
-  const its = itemsDePedido(pedidoId); const esc3Map = calcularEsc3Map();
+  const its = itemsDePedido(pedidoId); const recMap = calcularRecorteMap();
   let huboAjuste = false;
   const lineas = ["BOLETA · COMPRA CON MISTI","",`Cliente: ${p.cliente_nombre}`,`Pedido: ${p.pedido_id}`,"","DETALLE:"];
   its.forEach(i => {
-    const e3 = esc3Map[i.codigo_producto] || { esc3Activo: false, factor: 1 };
-    const cantFinal = e3.esc3Activo ? red2(i.cantidad * e3.factor) : i.cantidad;
-    if (e3.esc3Activo) huboAjuste = true;
+    const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+    const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+    if (r.activo) huboAjuste = true;
     lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
   });
   lineas.push("");
@@ -1479,7 +1745,7 @@ async function edAgregarItem(pedidoId) {
   const existentes = DB.items.filter(i => i.pedido_id === pedidoId);
   const nums = existentes.map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(n => !isNaN(n));
   const n = Math.max(0, ...nums) + 1;
-  const it = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad, cantidad: 1, precio_compra_estimado: precioRef(pr), precio_venta_congelado: pr.precio_venta, subtotal_venta: red2(1 * pr.precio_venta), estado: "pendiente" };
+  const it = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad_venta, cantidad: 1, precio_compra_estimado: pr.C_L, precio_venta_congelado: pr.P_L_final, subtotal_venta: red2(1 * pr.P_L_final), estado: "pendiente" };
   await guardarItem(it); verDetalle(pedidoId);
 }
 async function recalcEdResumen(pedidoId) {
@@ -1542,7 +1808,8 @@ function calcFiltrarProductos() {
   const prods = DB.productos.filter(p => p.activo && (!q || p.nombre.toLowerCase().includes(q)));
   document.getElementById("calcProductoSelect").innerHTML = `<option value="">— Elegir producto —</option>` + prods.map(p => {
     const pr = pmap[p.codigo];
-    return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad)}) — ${soles(pr?.precio_venta || 0)}</option>`;
+    const pvf = pr?.P_L_final || 0;
+    return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad_venta || 'kg')}) — ${soles(pvf)}</option>`;
   }).join("");
 }
 function calcBuscarCliente() {
@@ -1569,7 +1836,7 @@ function calcAgregarProducto() {
   if (!pr || !prod) { toast("Producto sin precio", "err"); return; }
   const ex = calcItems.find(i => i.codigo === cod);
   if (ex) ex.cantidad++;
-  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad, cantidad: 1, precio_ref: precioRef(pr), precio_venta: pr.precio_venta });
+  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad_venta, cantidad: 1, precio_ref: pr.C_L, precio_venta: pr.P_L_final });
   document.getElementById("calcProductoSelect").value = "";
   calcRenderItems();
 }
@@ -1663,8 +1930,10 @@ function renderProductos() {
   document.getElementById("productosBody").innerHTML = arr.map(p => `<tr>
     <td><strong>${esc(p.codigo)}</strong></td>
     <td>${esc(p.nombre)}</td>
-    <td><span class="badge badge-${p.grupo.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${esc(p.grupo)}</span></td>
-    <td>${esc(p.unidad)}</td>
+    <td><span class="badge badge-${(p.grupo||'').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${esc(p.grupo)}</span></td>
+    <td>${esc(p.unidad_venta || p.unidad || 'kg')}</td>
+    <td>${esc(p.unidad_compra || p.unidad || 'kg')}</td>
+    <td><strong style="color:var(--verde)">${Number(p.equiv_kg || 1).toFixed(2)} kg</strong></td>
     <td>${p.activo ? '<span class="badge badge-basico">Sí</span>' : '<span class="badge badge-inactivo">No</span>'}</td>
     <td><div class="actions"><button class="btn-ghost btn-sm" onclick="abrirModalProducto('${p.codigo}')">Editar</button><button class="btn-ghost btn-sm" onclick="toggleProducto('${p.codigo}')">${p.activo ? "Desactivar" : "Activar"}</button></div></td>
   </tr>`).join("");
@@ -1680,11 +1949,15 @@ function abrirModalProducto(cod) {
     const p = DB.productos.find(x => x.codigo === cod);
     document.getElementById("prodNombreInput").value = p.nombre;
     document.getElementById("prodGrupoInput").value = p.grupo;
-    document.getElementById("prodUnidadInput").value = p.unidad;
+    document.getElementById("prodUnidadVentaInput").value = p.unidad_venta || p.unidad || "Kilogramo";
+    document.getElementById("prodUnidadCompraInput").value = p.unidad_compra || p.unidad || "Kilogramo";
+    document.getElementById("prodEquivKgInput").value = p.equiv_kg ?? 1;
   } else {
     document.getElementById("prodNombreInput").value = "";
     document.getElementById("prodGrupoInput").value = "Básico";
-    document.getElementById("prodUnidadInput").value = "kg";
+    document.getElementById("prodUnidadVentaInput").value = "Kilogramo";
+    document.getElementById("prodUnidadCompraInput").value = "Kilogramo";
+    document.getElementById("prodEquivKgInput").value = "1";
   }
   abrirModal("modalProducto");
 }
@@ -1692,22 +1965,27 @@ async function guardarProducto() {
   const cod = document.getElementById("prodEditCodigo").value;
   const nombre = document.getElementById("prodNombreInput").value.trim();
   if (!nombre) { toast("Falta nombre", "err"); return; }
+  const unidadVenta = document.getElementById("prodUnidadVentaInput").value;
+  const unidadCompra = document.getElementById("prodUnidadCompraInput").value;
+  const equivKg = Number(document.getElementById("prodEquivKgInput").value) || 1;
   if (cod) {
     const p = DB.productos.find(x => x.codigo === cod);
     p.nombre = nombre;
     p.grupo = document.getElementById("prodGrupoInput").value;
-    p.unidad = document.getElementById("prodUnidadInput").value;
+    p.unidad_venta = unidadVenta;
+    p.unidad_compra = unidadCompra;
+    p.equiv_kg = equivKg;
     await guardarProductoGlobal(p);
   } else {
     const nums = DB.productos.map(p => parseInt(String(p.codigo).replace("PR-", ""), 10)).filter(n => !isNaN(n));
     const n = Math.max(0, ...nums) + 1;
-    const nuevo = { codigo: "PR-" + String(n).padStart(3, "0"), nombre, grupo: document.getElementById("prodGrupoInput").value, unidad: document.getElementById("prodUnidadInput").value, activo: true };
+    const nuevo = { codigo: "PR-" + String(n).padStart(3, "0"), nombre, grupo: document.getElementById("prodGrupoInput").value, unidad_venta: unidadVenta, unidad_compra: unidadCompra, equiv_kg: equivKg, activo: true };
     await guardarProductoGlobal(nuevo);
   }
   cerrarModal("modalProducto"); renderProductos(); toast("Producto guardado", "ok");
 }
 
-/* ============ PRECIOS ============ */
+/* ============ PRECIOS (Diagnóstico lunes) ============ */
 async function renderPrecios() {
   document.getElementById("preciosRondaLabel").textContent = "· " + labelRonda(DB.rondaActiva);
   const q = (document.getElementById("precioBuscar").value || "").toLowerCase();
@@ -1722,148 +2000,279 @@ async function renderPrecios() {
   if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
   if (g) prods = prods.filter(p => p.grupo === g);
   document.getElementById("preciosBody").innerHTML = prods.map(p => {
-    const pr = pmap[p.codigo]; const ref = pr ? precioRef(pr) : 0;
-    const mg = pr ? Number(pr.margen ?? MARGEN_DEFAULT) : MARGEN_DEFAULT;
-    const pv = pr ? pr.precio_venta : calcPrecioVenta(ref, mg);
-    const prev = prevMap[p.codigo]; let delta = "";
-    if (prev) { const d = red2(ref - precioRef(prev)); if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>'; else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`; else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`; }
-    else delta = '<span class="small-note">nuevo</span>';
-    return `<tr><td><strong>${esc(p.codigo)}</strong></td><td>${esc(p.nombre)}</td><td>${esc(p.unidad)}</td><td><input type="number" step="0.01" value="${ref}" onchange="setPrecio('${p.codigo}','precio_ref_mayorista',this.value)"></td><td><input type="number" step="0.01" min="0" max="0.95" value="${mg}" onchange="setPrecio('${p.codigo}','margen',this.value)"></td><td id="pv-${p.codigo}"><strong style="color:var(--verde)">${soles(pv)}</strong></td><td>${delta}</td></tr>`;
+    const pr = pmap[p.codigo];
+    const diag = calcularDiagnosticoProducto(p.codigo);
+    const umbral = calcularUmbralProducto(p.codigo);
+    const PLm = Number(pr?.P_L_mercado) || 0;
+    const CL = Number(pr?.C_L) || 0;
+    const prev = prevMap[p.codigo];
+    let delta = '<span class="small-note">nuevo</span>';
+    if (prev) {
+      const d = red2(PLm - (Number(prev.P_L_mercado) || 0));
+      if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
+      else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
+      else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
+    }
+    const sirveBadge = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
+    const PLfinal = diag?.PLfinal || 0;
+    const Cmax = umbral?.Cmax || 0;
+    return `<tr>
+      <td><strong>${esc(p.codigo)}</strong></td>
+      <td>${esc(p.nombre)}</td>
+      <td class="small-note">${esc(p.unidad_venta || 'kg')}<br>${esc(p.equiv_kg)} kg</td>
+      <td><input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)"></td>
+      <td><input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)"></td>
+      <td>${soles(diag?.Cesp || 0)}</td>
+      <td><span class="${claseMargen(diag?.Mref || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
+      <td style="text-align:center">${sirveBadge}</td>
+      <td><strong style="color:var(--verde);font-size:14px">${soles(PLfinal)}</strong></td>
+      <td><strong>${soles(Cmax)}</strong></td>
+      <td>${delta}</td>
+    </tr>`;
   }).join("");
+
+  // Render escenarios
+  const escCont = document.getElementById("escenariosContenido");
+  let escHTML = "";
+  prods.forEach(p => {
+    const escs = calcularEscenariosProducto(p.codigo);
+    const diag = calcularDiagnosticoProducto(p.codigo);
+    if (!escs.length) {
+      escHTML += `<div class="esc-acordeon"><div class="esc-head"><span>${esc(p.codigo)} · ${esc(p.nombre)}</span><span class="small-note">Sin escenarios cargados</span></div></div>`;
+      return;
+    }
+    const escRows = escs.map((e, idx) => {
+      const escDb = escenariosDeProducto(p.codigo).slice().sort((a, b) => a.escalon - b.escalon)[idx];
+      return `<tr>
+        <td>${e.escalon > 0 ? '+' : ''}${e.escalon.toFixed(2)}</td>
+        <td>${soles(e.Cij)}</td>
+        <td><input type="number" step="0.0001" min="0" max="1" value="${e.Pij}" onchange="setPij('${escDb?.esc_id || ''}',this.value)" style="max-width:100px"></td>
+        <td>${(e.P_cola * 100).toFixed(2)}%</td>
+      </tr>`;
+    }).join("");
+    const badgeSirve = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
+    escHTML += `<div class="esc-acordeon">
+      <div class="esc-head" onclick="this.parentElement.classList.toggle('open')">
+        <span>${esc(p.codigo)} · ${esc(p.nombre)}</span>
+        <span class="info">
+          <span>C_esp <b>${soles(diag?.Cesp || 0)}</b></span>
+          <span>M_ref <b>${fmtPct(diag?.Mref || 0)}</b></span>
+          <span>Sirve ${badgeSirve}</span>
+          <span>P_L_final <b>${soles(diag?.PLfinal || 0)}</b></span>
+          <span>▸</span>
+        </span>
+      </div>
+      <div class="esc-body">
+        <table class="esc-tabla">
+          <thead><tr><th>Escalón</th><th>Cij</th><th>Pij</th><th>P_cola &gt; Cij</th></tr></thead>
+          <tbody>${escRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+  escCont.innerHTML = escHTML;
 }
 async function setPrecio(codigo, campo, valor) {
   const num = Number(valor) || 0;
   const prod = DB.productos.find(p => p.codigo === codigo); if (!prod) return;
   let pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
-  if (!pr) pr = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod.nombre, unidad: prod.unidad, precio_ref_mayorista: 0, margen: MARGEN_DEFAULT, precio_venta: 0 };
+  if (!pr) pr = {
+    id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod.nombre,
+    unidad_venta: prod.unidad_venta, unidad_compra: prod.unidad_compra, equiv_kg: prod.equiv_kg,
+    P_L_mercado: 0, C_L: 0, C_esp: 0, M_L: 0, M_ideal: 0, M_ref: 0, sirve: false,
+    P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
+  };
   pr[campo] = num;
-  if (campo === "precio_ref_mayorista" || campo === "margen") {
-    pr.precio_venta = calcPrecioVenta(pr.precio_ref_mayorista, pr.margen);
-    const el = document.getElementById("pv-" + codigo);
-    if (el) el.innerHTML = `<strong style="color:var(--verde)">${soles(pr.precio_venta)}</strong>`;
+  // Recalcular derivados
+  const diag = calcularDiagnosticoProducto(codigo);
+  if (diag) {
+    pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+    pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
+    pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
   }
   await guardarPrecio(pr);
+  renderPrecios().catch(e => console.error(e));
+}
+async function setPij(escId, valor) {
+  if (!escId) return;
+  const e = DB.escenarios.find(x => x.esc_id === escId);
+  if (!e) return;
+  e.Pij = Math.max(0, Number(valor) || 0);
+  await guardarEscenario(e);
+  // Recalcular todos los derivados del producto
+  const codigo = e.codigo_producto;
+  const pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
+  if (pr) {
+    const diag = calcularDiagnosticoProducto(codigo);
+    if (diag) {
+      pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
+      pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
+      await guardarPrecio(pr);
+    }
+  }
+  renderPrecios().catch(e => console.error(e));
 }
 async function copiarPreciosRondaAnterior() {
   const rondas = Object.keys(DB.rondas).sort();
   const idx = rondas.indexOf(DB.rondaActiva);
   if (idx <= 0) { toast("No hay ronda anterior", "warn"); return; }
   const prev = rondas[idx - 1];
-  if (!confirm(`¿Copiar precios de ${labelRonda(prev)}?`)) return;
-  const snap = await getDocs(collection(db, "rondas", prev, "precios"));
-  if (snap.size === 0) { toast("La ronda anterior no tiene precios", "warn"); return; }
+  if (!confirm(`¿Copiar precios y escenarios de ${labelRonda(prev)}?`)) return;
+  const [precSnap, escSnap] = await Promise.all([
+    getDocs(collection(db, "rondas", prev, "precios")),
+    getDocs(collection(db, "rondas", prev, "escenarios"))
+  ]);
+  if (precSnap.size === 0) { toast("La ronda anterior no tiene precios", "warn"); return; }
   const batch = writeBatch(db);
-  snap.docs.forEach(d => {
-    const data = d.data(); const ref = precioRef(data); const mg = Number(data.margen ?? MARGEN_DEFAULT);
-    const nuevo = { id_ronda: DB.rondaActiva, codigo_producto: data.codigo_producto, nombre: data.nombre, unidad: data.unidad, precio_ref_mayorista: ref, margen: mg, precio_venta: calcPrecioVenta(ref, mg) };
+  precSnap.docs.forEach(d => {
+    const data = d.data();
+    const nuevo = { ...data, id_ronda: DB.rondaActiva };
     batch.set(doc(db, "rondas", DB.rondaActiva, "precios", d.id), nuevo, { merge: true });
+  });
+  escSnap.docs.forEach(d => {
+    const data = d.data();
+    const nuevo = { ...data, id_ronda: DB.rondaActiva };
+    batch.set(doc(db, "rondas", DB.rondaActiva, "escenarios", d.id), nuevo, { merge: true });
   });
   await batch.commit();
   renderPrecios().catch(e => console.error(e));
   toast("✓ Copiados de " + labelRonda(prev), "ok");
 }
 async function publicarPrecios() {
+  // Recalcular todos los precios y guardarlos
+  for (const pr of DB.precios.filter(p => p.id_ronda === DB.rondaActiva)) {
+    const diag = calcularDiagnosticoProducto(pr.codigo_producto);
+    if (diag) {
+      pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
+      pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
+      await guardarPrecio(pr);
+    }
+  }
   await fsSetRonda(DB.rondaActiva, { precios_publicados: true });
   DB.rondas[DB.rondaActiva].precios_publicados = true;
-  refrescarSelector(); toast("Publicados", "ok");
+  refrescarSelector(); toast("✓ P_L_final publicado", "ok");
 }
 
-/* ============ COMPRA ============ */
+/* ============ COMPRA (Cierre viernes) ============ */
 function calcularListaCompra() {
-  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id));
-  const pmap = precioMapa(); const compras = comprasDeRonda(); const c = {};
-  its.forEach(i => { const k = i.codigo_producto; if (!c[k]) c[k] = { codigo: k, nombre: i.nombre, unidad: i.unidad, pedida: 0 }; c[k].pedida += Number(i.cantidad); });
-  const filas = Object.values(c).sort((a, b) => b.pedida - a.pedida);
-  if (!filas.length) { document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados.</div>`; document.getElementById("listaCompraContenido").innerHTML = ""; return; }
-  let costoEst = 0, costoReal = 0, contadorEsc3 = 0;
-  const filasConDatos = filas.map(f => {
-    const pr = pmap[f.codigo]; const aj = compras.find(x => x.codigo_producto === f.codigo) || {};
-    const precioVenta = pr ? (Number(pr.precio_venta) || 0) : 0;
-    const precioMax = red2(precioVenta * FACTOR_COSTO_MAX);
-    const precioViernes = aj.precio_mayorista_viernes != null ? Number(aj.precio_mayorista_viernes) : null;
-    const esc3Activo = precioViernes != null && precioViernes > precioMax && precioMax > 0;
-    let cantidadEsc3 = 0;
-    if (esc3Activo && precioViernes > 0) { cantidadEsc3 = red2((f.pedida * precioMax) / precioViernes); }
-    const cantidadFinal = esc3Activo ? cantidadEsc3 : f.pedida;
-    const cantReal = aj.cantidad_real != null ? Number(aj.cantidad_real) : cantidadFinal;
-    const ref = precioRef(pr);
-    const puReal = aj.precio_unitario_real != null ? Number(aj.precio_unitario_real) : ref;
-    costoEst += cantReal * ref; costoReal += cantReal * puReal;
-    if (esc3Activo) contadorEsc3++;
-    return { ...f, precioVenta, precioMax, precioViernes, esc3Activo, cantidadEsc3, cantidadFinal, cantReal, ref, puReal, confirmado: aj.confirmado === true, merma: aj.merma || 0 };
-  });
-  const delta = costoEst - costoReal;
-  const confirmados = filasConDatos.filter(f => f.confirmado).length;
-  let resumenHTML = `<div class="ruta-info"><div class="box">Productos<strong>${filas.length}</strong></div><div class="box">Costo estimado<strong>${soles(costoEst)}</strong></div><div class="box">Costo real<strong>${soles(costoReal)}</strong></div><div class="box">Δ vs ref.<strong class="${delta > 0 ? 'delta-pos' : (delta < 0 ? 'delta-neg' : '')}">${soles(delta)}</strong></div></div><div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} confirmados.${delta > 0 ? `<br>Ahorro extra: ${soles(delta)}` : ""}${delta < 0 ? `<br>Pagaste más: ${soles(Math.abs(delta))}` : ""}</div>`;
-  if (contadorEsc3 > 0) resumenHTML += `<div class="error-box" style="margin-top:10px"><strong>⚠️ Escenario 3 activo en ${contadorEsc3} producto${contadorEsc3 > 1 ? 's' : ''}:</strong> el precio del viernes supera el máximo (venta × 0.86). Se redujo cantidad manteniendo presupuesto.</div>`;
+  const cierre = calcularCierreViernes();
+  const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
+  if (!filas.length) {
+    document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados. Cargá pedidos primero.</div>`;
+    document.getElementById("listaCompraContenido").innerHTML = "";
+    document.getElementById("cierreViernesContenido").innerHTML = "";
+    return;
+  }
+  const confirmados = filas.filter(f => f.C_viernes != null && f.Q_recibida_kg != null).length;
+  let resumenHTML = `<div class="ruta-info">
+    <div class="box">Productos<strong>${filas.length}</strong></div>
+    <div class="box">Ventas congeladas<strong>${soles(ventas)}</strong></div>
+    <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
+    <div class="box">Margen bruto<strong class="${ventas - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ventas - costoReal)}</strong></div>
+  </div>
+  <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.</div>`;
   document.getElementById("compraResumen").innerHTML = resumenHTML;
+
   document.getElementById("listaCompraContenido").innerHTML = `
-    <div class="table-scroll"><table><thead><tr><th>✓</th><th>Producto</th><th>P. venta</th><th>P. max</th><th>P. viernes</th><th>Esc.3</th><th>Cant.Esc3</th><th>Pedida</th><th>Cant. real</th><th>P. ref mayor.</th><th>P. compra real</th><th>P. venta</th><th>Margen real</th><th>Costo total</th><th>Δ vs ref.</th></tr></thead><tbody>${filasConDatos.map(f => {
-      const pv = f.precioVenta;
-      const claseFila = f.esc3Activo ? 'fila-esc3' : '';
-      const esc3Badge = f.esc3Activo ? '<span class="margen-malo">SI</span>' : '<span class="margen-bueno">NO</span>';
-      const cantEsc3Txt = f.esc3Activo ? `<span class="cant-esc3">${f.cantidadEsc3.toFixed(2)}</span>` : '<span class="muted">—</span>';
-      const pedidaHTML = f.esc3Activo ? `<span class="pedida-esc3">${f.cantidadEsc3.toFixed(2)}</span><span class="pedida-original">orig: ${f.pedida.toFixed(2)}</span>` : `<strong>${f.pedida.toFixed(2)}</strong>`;
-      const costoTotal = f.cantReal * f.puReal;
-      const deltaItem = red2(f.cantReal * (f.ref - f.puReal));
-      const cl = deltaItem > 0 ? "delta-pos" : (deltaItem < 0 ? "delta-neg" : "delta-zero");
-      const margenReal = calcMargenReal(pv, f.puReal);
-      const claseM = ajHasReal(f.codigo) ? claseMargen(margenReal) : "";
-      const margenTxt = ajHasReal(f.codigo) ? fmtMargen(margenReal) : "—";
-      return `<tr class="${claseFila}" style="${f.confirmado ? 'background:var(--verde-claro)' : ''}"><td><input type="checkbox" ${f.confirmado ? "checked" : ""} onchange="toggleConfirmado('${f.codigo}',this.checked)" style="width:auto"></td><td><strong>${esc(f.nombre)}</strong></td><td><strong style="color:var(--verde)">${soles(pv)}</strong></td><td><strong>${soles(f.precioMax)}</strong></td><td><input type="number" step="0.01" value="${f.precioViernes != null ? f.precioViernes : ''}" onchange="setCompraViernes('${f.codigo}',this.value)" style="max-width:90px" placeholder="—"></td><td style="text-align:center">${esc3Badge}</td><td style="text-align:center">${cantEsc3Txt}</td><td>${pedidaHTML}</td><td><input type="number" step="0.01" value="${f.cantReal}" onchange="setCompraReal('${f.codigo}',this.value)" style="max-width:80px"></td><td>${soles(f.ref)}</td><td><input type="number" step="0.01" value="${f.puReal}" onchange="setCompraPrecioReal('${f.codigo}',this.value)" style="max-width:90px"></td><td><strong style="color:var(--verde)">${soles(pv)}</strong></td><td><span class="${claseM}">${margenTxt}</span></td><td><strong>${soles(costoTotal)}</strong></td><td class="${cl}"><strong>${soles(deltaItem)}</strong></td></tr>`;
+    <div class="table-scroll"><table><thead><tr>
+      <th>Producto</th>
+      <th>Unidad</th>
+      <th>Q_pedida (kg)</th>
+      <th>P_L_final</th>
+      <th>C_max</th>
+      <th>C_viernes</th>
+      <th>Q_comprada_kg</th>
+      <th>Q_recibida_kg</th>
+      <th>Q_final_kg</th>
+      <th>Q_final (unidad)</th>
+      <th>Δ kg</th>
+      <th>Costo real</th>
+      <th>Ventas</th>
+      <th>Margen bruto</th>
+    </tr></thead><tbody>${filas.map(f => {
+      const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+      const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
+      const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
+      return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
+        <td><strong>${esc(prod.nombre || f.codigo)}</strong></td>
+        <td class="small-note">${esc(prod.unidad_venta || 'kg')}<br>${esc(f.equiv_kg || 1)} kg/u</td>
+        <td><strong>${f.Qped_kg.toFixed(2)}</strong><br><span class="small-note">${f.Qped_un.toFixed(2)} u</span></td>
+        <td><strong style="color:var(--verde)">${soles(f.PLfinal)}</strong></td>
+        <td><strong style="color:${recortado?'var(--coral)':'var(--verde)'}">${soles(f.Cmax)}</strong></td>
+        <td><input type="number" step="0.01" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
+        <td>${f.Qfinal_un.toFixed(2)}</td>
+        <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
+        <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
+        <td>${soles(f.ventas)}</td>
+        <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
+      </tr>`;
     }).join("")}</tbody></table></div>`;
+
+  const claseUtil = utilidad >= 0 ? 'good' : 'bad';
+  document.getElementById("cierreViernesContenido").innerHTML = `
+    <h3>📊 Cierre real de la ronda</h3>
+    <div class="fin-grid">
+      <div class="fin-col">
+        <h4>Ingresos</h4>
+        <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(ventas)}</span></div>
+        <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ventas + exc)}</span></div>
+      </div>
+      <div class="fin-col">
+        <h4>Costos</h4>
+        <div class="fin-row"><span>Costo real (Q_recibida × C_viernes)</span><span class="val">${soles(costoReal)}</span></div>
+        <div class="fin-row"><span>Fijos del domingo</span><span class="val">${soles(F)}</span></div>
+        <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(comision)}</span></div>
+        <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(gastosVar)}</span></div>
+        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(costoReal + F + comision + gastosVar + recl)}</span></div>
+      </div>
+      <div class="fin-col">
+        <h4>Resultado</h4>
+        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(ventas - costoReal)}</span></div>
+        <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(utilidad)}</strong></span></div>
+        <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(margen)}</span></div>
+        <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${aceptados.length}</span></div>
+      </div>
+    </div>
+    <div class="fin-result ${claseUtil}">
+      <div class="lbl">Utilidad neta real</div>
+      <div class="num">${soles(utilidad)}</div>
+    </div>`;
 }
-function ajHasReal(codigo) {
-  const aj = DB.compras.find(x => x.id_ronda === DB.rondaActiva && x.codigo_producto === codigo);
-  return aj && aj.precio_unitario_real != null;
-}
-function asegurarCompraItem(codigo) {
+async function setCompra(codigo, campo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   const pr = precioMapa()[codigo];
-  let c = DB.compras.find(x => x.id_ronda === DB.rondaActiva && x.codigo_producto === codigo);
-  if (!c) { c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, unidad: prod?.unidad || "", cantidad_real: null, precio_unitario_real: precioRef(pr), merma: 0, confirmado: false, precio_mayorista_viernes: null }; DB.compras.push(c); }
-  return c;
-}
-function cantidadRealDeCompra(c) {
-  if (c.cantidad_real != null) return Number(c.cantidad_real);
-  const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-  const its = itemsDeRonda().filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === c.codigo_producto);
-  const pedidaTotal = its.reduce((s, i) => s + Number(i.cantidad), 0);
-  const pr = precioMapa()[c.codigo_producto];
-  if (!pr) return 0;
-  const precioVenta = Number(pr.precio_venta) || 0;
-  const precioMax = red2(precioVenta * FACTOR_COSTO_MAX);
-  const pv = c.precio_mayorista_viernes != null ? Number(c.precio_mayorista_viernes) : null;
-  const esc3Activo = pv != null && pv > precioMax && precioMax > 0;
-  if (esc3Activo) return red2((pedidaTotal * precioMax) / pv);
-  return pedidaTotal;
-}
-function precioRealDeCompra(c) {
-  if (c.precio_unitario_real != null) return Number(c.precio_unitario_real);
-  const pr = precioMapa()[c.codigo_producto];
-  return pr ? precioRef(pr) : 0;
-}
-async function setCompraReal(codigo, cant) { const c = asegurarCompraItem(codigo); c.cantidad_real = Number(cant) || 0; await guardarCompra(c); calcularListaCompra(); }
-async function setCompraPrecioReal(codigo, precio) { const c = asegurarCompraItem(codigo); c.precio_unitario_real = Number(precio) || 0; await guardarCompra(c); calcularListaCompra(); }
-async function setCompraMerma(codigo, merma) { const c = asegurarCompraItem(codigo); c.merma = Number(merma) || 0; await guardarCompra(c); calcularListaCompra(); }
-async function toggleConfirmado(codigo, val) {
-  const c = asegurarCompraItem(codigo); c.confirmado = val;
-  if (val && c.cantidad_real == null) c.cantidad_real = cantidadRealDeCompra(c);
-  if (val && c.precio_unitario_real == null) c.precio_unitario_real = precioRealDeCompra(c);
-  await guardarCompra(c); calcularListaCompra();
-}
-async function setCompraViernes(codigo, valor) {
-  const c = asegurarCompraItem(codigo);
-  const strVal = String(valor).trim();
-  const nuevo = strVal === "" ? null : (Number(strVal) || 0);
-  if (nuevo !== c.precio_mayorista_viernes) {
-    c.cantidad_real = null;
-    c.precio_unitario_real = null;
-    c.confirmado = false;
+  let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
+  if (!c) {
+    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
+      C_viernes: null, Q_comprada_kg: null, Q_recibida_kg: null };
+    DB.compras.push(c);
   }
-  c.precio_mayorista_viernes = nuevo;
-  await guardarCompra(c); calcularListaCompra();
+  const strVal = String(valor).trim();
+  c[campo] = strVal === "" ? null : (Number(strVal) || 0);
+  await guardarCompra(c);
+  calcularListaCompra();
+}
+function exportarCierreViernes() {
+  const cierre = calcularCierreViernes();
+  if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
+  const rows = [["codigo","producto","unidad","equiv_kg","Q_pedida_kg","P_L_final","C_max","C_viernes","Q_comprada_kg","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
+  cierre.filas.forEach(f => {
+    const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, f.Qped_kg, f.PLfinal, f.Cmax, f.C_viernes ?? "", f.Q_comprada_kg ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
+  });
+  const csv = rows.map(r => r.map(v => typeof v === 'string' && (v.includes(',')||v.includes('"')) ? '"'+v.replace(/"/g,'""')+'"' : v).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "cierre_viernes_" + hoy() + ".csv"; a.click();
+  URL.revokeObjectURL(url);
+  toast("✓ CSV exportado", "ok");
 }
 
 /* ============ ENTREGAS ============ */
@@ -1885,7 +2294,8 @@ function renderEntregas() {
   if (sinAsignar.length) {
     html += `<div class="ruta-bloque" style="border-left-color:var(--coral)"><div class="ruta-head"><div class="title">⚠️ Sin repartidor asignado (${sinAsignar.length})</div></div>${sinAsignar.map(p => {
       const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(" · ");
-      return `<div class="parada-item"><div class="parada-row-1"><div class="parada-info"><strong>${esc(p.cliente_nombre)}</strong><div class="parada-dir">${esc(dirTxt)}</div></div><div class="parada-peso">${pesoPedido(p.pedido_id).toFixed(1)} kg</div></div><div class="parada-row-2" style="grid-template-columns:1fr"><select onchange="asignarRepartidorPedido('${p.pedido_id}',this.value)"><option value="">— Asignar repartidor —</option>${repActivos.map(r => `<option value="${r.id}">${esc(r.nombre)} (${esc(r.vehiculo)})</option>`).join("")}</select></div></div>`;
+      const peso = pesoPedidoKg(p.pedido_id);
+      return `<div class="parada-item"><div class="parada-row-1"><div class="parada-info"><strong>${esc(p.cliente_nombre)}</strong><div class="parada-dir">${esc(dirTxt)}</div></div><div class="parada-peso">${peso.toFixed(1)} kg</div></div><div class="parada-row-2" style="grid-template-columns:1fr"><select onchange="asignarRepartidorPedido('${p.pedido_id}',this.value)"><option value="">— Asignar repartidor —</option>${repActivos.map(r => `<option value="${r.id}">${esc(r.nombre)} (${esc(r.vehiculo)})</option>`).join("")}</select></div></div>`;
     }).join("")}</div>`;
   }
   repActivos.forEach(rep => {
@@ -1895,7 +2305,7 @@ function renderEntregas() {
     const modo = vehiculoAModo(rep.vehiculo);
     const orden = optimizarLista(pedidosRep);
     const viajes = dividirEnViajes(orden, cap, maxParadas);
-    const pesoTotal = pedidosRep.reduce((s, p) => s + pesoPedido(p.pedido_id), 0);
+    const pesoTotal = pedidosRep.reduce((s, p) => s + pesoPedidoKg(p.pedido_id), 0);
     html += `<div class="ruta-bloque"><div class="ruta-head"><div class="title">${esc(rep.nombre)} · ${esc(rep.vehiculo)} · cap ${cap} kg</div><div class="actions"><span class="ruta-modo">${modoIcono(modo)}</span><span class="small-note">${pedidosRep.length} pedidos · ${pesoTotal.toFixed(1)} kg · ${viajes.length} ${viajes.length === 1 ? "viaje" : "viajes"}</span></div></div>${viajes.map((v, idxV) => {
       const km = calcularDistanciaTotal(v.paradas);
       const gmapsUrl = armarUrlGoogle(v.paradas, modo);
@@ -1904,9 +2314,9 @@ function renderEntregas() {
         const est = e.estado || "pendiente";
         const cl = est === "entregado" ? "entregado" : (est === "fallido" ? "fallido" : "");
         const gmaps = p.lat && p.lng ? `<a class="btn-info btn-sm" style="text-decoration:none;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=${modo}">📍</a>` : "";
-        const pesoP = pesoPedido(p.pedido_id);
+        const peso = pesoPedidoKg(p.pedido_id);
         const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(" · ");
-        return `<div class="parada-item"><div class="parada-row-1"><div class="parada-num ${cl}">${i + 1}</div><div class="parada-info"><strong>${esc(p.cliente_nombre)}</strong><div class="parada-dir">${esc(dirTxt)}</div></div><div class="parada-peso">${pesoP.toFixed(1)} kg</div></div><div class="parada-row-2"><input type="text" placeholder="Recibido por" value="${esc(e.recibido_por || "")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)"><select onchange="updEntrega('${p.pedido_id}','estado',this.value)"><option value="pendiente" ${est === "pendiente" ? "selected" : ""}>Pendiente</option><option value="entregado" ${est === "entregado" ? "selected" : ""}>Entregado</option><option value="fallido" ${est === "fallido" ? "selected" : ""}>Fallido</option></select><select onchange="asignarRepartidorPedido('${p.pedido_id}',this.value)"><option value="">— Repartidor —</option>${repActivos.map(r => `<option value="${r.id}" ${r.id === rep.id ? "selected" : ""}>${esc(r.nombre)}</option>`).join("")}</select><div>${gmaps}</div></div></div>`;
+        return `<div class="parada-item"><div class="parada-row-1"><div class="parada-num ${cl}">${i + 1}</div><div class="parada-info"><strong>${esc(p.cliente_nombre)}</strong><div class="parada-dir">${esc(dirTxt)}</div></div><div class="parada-peso">${peso.toFixed(1)} kg</div></div><div class="parada-row-2"><input type="text" placeholder="Recibido por" value="${esc(e.recibido_por || "")}" onchange="updEntrega('${p.pedido_id}','recibido_por',this.value)"><select onchange="updEntrega('${p.pedido_id}','estado',this.value)"><option value="pendiente" ${est === "pendiente" ? "selected" : ""}>Pendiente</option><option value="entregado" ${est === "entregado" ? "selected" : ""}>Entregado</option><option value="fallido" ${est === "fallido" ? "selected" : ""}>Fallido</option></select><select onchange="asignarRepartidorPedido('${p.pedido_id}',this.value)"><option value="">— Repartidor —</option>${repActivos.map(r => `<option value="${r.id}" ${r.id === rep.id ? "selected" : ""}>${esc(r.nombre)}</option>`).join("")}</select><div>${gmaps}</div></div></div>`;
       }).join("");
       return `<div class="viaje-card"><div class="viaje-card-head"><div><div class="viaje-card-title"><span class="viaje-badge">Viaje ${idxV + 1} de ${viajes.length}</span>${v.paradas.length} paradas · ${v.peso.toFixed(1)} kg · ~${km.toFixed(2)} km</div></div><div class="viaje-card-actions"><button class="btn-wa btn-sm" ${!rep.celular ? 'disabled' : ''} onclick="enviarRutaWA('${rep.id}',${idxV})">📱 WhatsApp</button><button class="btn-dark btn-sm" onclick="previewRuta('${rep.id}',${idxV})">👁 Vista previa</button><a class="btn-info btn-sm" style="text-decoration:none;color:#fff;padding:6px 11px;border-radius:999px;font-weight:700;font-size:12px;min-height:32px;display:inline-flex;align-items:center" target="_blank" href="${gmapsUrl}">📍 Maps</a></div></div>${paradasHTML}</div>`;
     }).join("")}</div>`;
@@ -1932,6 +2342,18 @@ function armarUrlGoogle(orden, modo) {
   const o = `${OFICINA.lat},${OFICINA.lng}`; const d = `${cs[cs.length - 1].lat},${cs[cs.length - 1].lng}`;
   const w = cs.slice(0, -1).map(p => `${p.lat},${p.lng}`).join("|");
   return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}${w ? "&waypoints=" + w : ""}&travelmode=${modo}`;
+}
+function dividirEnViajes(pedidosOrdenados, capKg, maxParadas) {
+  const viajes = []; let actual = { paradas: [], peso: 0 };
+  for (const p of pedidosOrdenados) {
+    const pesoP = pesoPedidoKg(p.pedido_id);
+    const excedePeso = actual.peso + pesoP > capKg;
+    const excedeParadas = actual.paradas.length + 1 > maxParadas;
+    if (actual.paradas.length && (excedePeso || excedeParadas)) { viajes.push(actual); actual = { paradas: [], peso: 0 }; }
+    actual.paradas.push(p); actual.peso += pesoP;
+  }
+  if (actual.paradas.length) viajes.push(actual);
+  return viajes;
 }
 function getViajesDeRepartidor(repId) {
   const rep = DB.repartidores.find(r => r.id === repId); if (!rep) return { rep: null, viajes: [] };
@@ -2049,12 +2471,31 @@ async function borrarRepartidor(id) {
 }
 
 /* ============ GASTOS / EXCEDENTES / RECLAMOS ============ */
+function renderFijosDomingo() {
+  const f = getFijosDomingo();
+  const N = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado)).length;
+  const F = calcularFDomingo();
+  document.getElementById("fijosDomingoContenido").innerHTML = `
+    <div class="table-scroll"><table>
+      <thead><tr><th>Concepto</th><th>Valor</th><th>Multiplicador</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr><td>Alquiler Hub</td><td>${soles(f.alquiler_hub)}</td><td>—</td><td><strong>${soles(f.alquiler_hub)}</strong></td></tr>
+        <tr><td>Insumos higiene</td><td>${soles(f.insumos_higiene)}</td><td>—</td><td><strong>${soles(f.insumos_higiene)}</strong></td></tr>
+        <tr><td>Seguro RC</td><td>${soles(f.seguro_rc)}</td><td>—</td><td><strong>${soles(f.seguro_rc)}</strong></td></tr>
+        <tr><td>Costo transporte</td><td>${soles(f.costo_transporte)}</td><td>—</td><td><strong>${soles(f.costo_transporte)}</strong></td></tr>
+        <tr><td>Empaque por pedido</td><td>${soles(f.empaque_por_pedido)}</td><td>× ${N} pedidos</td><td><strong>${soles(f.empaque_por_pedido * N)}</strong></td></tr>
+        <tr><td>Delivery por pedido</td><td>${soles(f.delivery_por_pedido)}</td><td>× ${N} pedidos</td><td><strong>${soles(f.delivery_por_pedido * N)}</strong></td></tr>
+        <tr style="background:var(--verde-claro)"><td colspan="3"><strong>F_domingo total</strong></td><td><strong style="color:var(--verde);font-size:16px">${soles(F)}</strong></td></tr>
+      </tbody>
+    </table></div>
+    <p class="small-note" style="margin-top:8px">Estos costos se calculan desde <a href="#" onclick="mostrarVista('config');return false" style="color:var(--verde);text-decoration:underline">Config → Fijos del domingo</a>.</p>`;
+}
 function renderGastos() {
   const arr = gastosDeRonda(); const cont = document.getElementById("gastosContenido");
   if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin gastos.</div>`; return; }
   const tipos = ["transporte","empaque","sueldo","otro"], medios = ["yape","efectivo","otro"];
   const total = arr.reduce((s, g) => s + Number(g.monto || 0), 0);
-  cont.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Medio</th><th></th></tr></thead><tbody>${arr.map(g => `<tr><td><input type="date" value="${esc(g.fecha)}" onchange="updGasto('${g.id}','fecha',this.value)"></td><td><select onchange="updGasto('${g.id}','tipo',this.value)">${tipos.map(t => `<option ${g.tipo === t ? "selected" : ""}>${t}</option>`).join("")}</select></td><td><input value="${esc(g.descripcion)}" onchange="updGasto('${g.id}','descripcion',this.value)"></td><td><input type="number" step="0.01" value="${g.monto || 0}" onchange="updGasto('${g.id}','monto',this.value)"></td><td><select onchange="updGasto('${g.id}','medio_pago',this.value)">${medios.map(m => `<option ${g.medio_pago === m ? "selected" : ""}>${m}</option>`).join("")}</select></td><td><button class="btn-delete" onclick="delGasto('${g.id}')">×</button></td></tr>`).join("")}</tbody></table></div><p style="text-align:right;margin-top:8px"><strong>Total: ${soles(total)}</strong></p>`;
+  cont.innerHTML = `<div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th>Medio</th><th></th></tr></thead><tbody>${arr.map(g => `<tr><td><input type="date" value="${esc(g.fecha)}" onchange="updGasto('${g.id}','fecha',this.value)"></td><td><select onchange="updGasto('${g.id}','tipo',this.value)">${tipos.map(t => `<option ${g.tipo === t ? "selected" : ""}>${t}</option>`).join("")}</select></td><td><input value="${esc(g.descripcion)}" onchange="updGasto('${g.id}','descripcion',this.value)"></td><td><input type="number" step="0.01" value="${g.monto || 0}" onchange="updGasto('${g.id}','monto',this.value)"></td><td><select onchange="updGasto('${g.id}','medio_pago',this.value)">${medios.map(m => `<option ${g.medio_pago === m ? "selected" : ""}>${m}</option>`).join("")}</select></td><td><button class="btn-delete" onclick="delGasto('${g.id}')">×</button></td></tr>`).join("")}</tbody></table></div><p style="text-align:right;margin-top:8px"><strong>Total gastos variables: ${soles(total)}</strong></p>`;
 }
 async function agregarGasto() { await guardarGasto({ id: uid("G"), id_ronda: DB.rondaActiva, fecha: hoy(), tipo: "transporte", descripcion: "", monto: 0, medio_pago: "efectivo" }); renderGastos(); }
 async function updGasto(id, c, v) { const t = DB.gastos.find(x => x.id === id); if (!t) return; t[c] = c === "monto" ? (Number(v) || 0) : v; await guardarGasto(t); if (c === "monto") renderGastos(); }
@@ -2086,48 +2527,51 @@ async function calcularReportes() {
   try {
     const rondaActiva = DB.rondaActiva;
     const rondasKeys = Object.keys(DB.rondas).sort().reverse();
-    const datosActivos = { pedidos: DB.pedidos.filter(p => p.id_ronda === rondaActiva), compras: DB.compras.filter(c => c.id_ronda === rondaActiva), gastos: DB.gastos.filter(g => g.id_ronda === rondaActiva), reclamos: DB.reclamos.filter(r => r.id_ronda === rondaActiva), excedentes: DB.excedentes.filter(e => e.id_ronda === rondaActiva) };
-    const historicos = await Promise.all(rondasKeys.map(async (rid) => {
-      if (rid === rondaActiva) return { rid, ...datosActivos };
-      try {
-        const [pedSnap, comSnap, gasSnap, recSnap, excSnap] = await Promise.all([getDocs(collection(db, "rondas", rid, "pedidos")), getDocs(collection(db, "rondas", rid, "compras")), getDocs(collection(db, "rondas", rid, "gastos")), getDocs(collection(db, "rondas", rid, "reclamos")), getDocs(collection(db, "rondas", rid, "excedentes"))]);
-        return { rid, pedidos: pedSnap.docs.map(d => d.data()), compras: comSnap.docs.map(d => d.data()), gastos: gasSnap.docs.map(d => d.data()), reclamos: recSnap.docs.map(d => d.data()), excedentes: excSnap.docs.map(d => d.data()) };
-      } catch (e) { return { rid, pedidos: [], compras: [], gastos: [], reclamos: [], excedentes: [] }; }
-    }));
-    const aceptadosAct = datosActivos.pedidos.filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-    const ingresosAct = aceptadosAct.reduce((s, p) => s + Number(p.total || 0), 0);
-    const comprasRealAct = datosActivos.compras.reduce((s, c) => s + cantidadRealDeCompra(c) * precioRealDeCompra(c), 0);
-    const gastosAct = datosActivos.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
-    const excAct = datosActivos.excedentes.reduce((s, e) => s + Number(e.ingreso || 0), 0);
-    const reclAct = datosActivos.reclamos.reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-    const mb = ingresosAct - comprasRealAct;
-    const un = mb - gastosAct + excAct - reclAct;
-    const pt = { transporte: 0, empaque: 0, sueldo: 0, otro: 0 };
-    datosActivos.gastos.forEach(g => { pt[g.tipo] = (pt[g.tipo] || 0) + Number(g.monto || 0); });
-    const cl = un >= 0 ? "good" : "bad";
+    const cierre = calcularCierreViernes();
     const rAct = rondaActual();
     const nomAct = (rAct.nombre || "").trim();
     const labelAct = nomAct ? `${esc(nomAct)} <span class="small-note">(${esc(rondaActiva)})</span>` : esc(rondaActiva);
-    cont.innerHTML = `<div class="info-box"><strong>Ronda:</strong> ${labelAct} · ${rAct.estado}<br>${new Date().toLocaleString("es-PE")} · ${aceptadosAct.length} pedidos activos</div>
+    const claseUtil = cierre.utilidad >= 0 ? 'good' : 'bad';
+    cont.innerHTML = `<div class="info-box"><strong>Ronda:</strong> ${labelAct} · ${rAct.estado}<br>${new Date().toLocaleString("es-PE")} · ${cierre.aceptados.length} pedidos activos</div>
       <div class="fin-grid">
-        <div class="fin-col"><h4>Ingresos</h4><div class="fin-row"><span>Pedidos</span><span class="val">${soles(ingresosAct)}</span></div><div class="fin-row"><span>Excedentes</span><span class="val">${soles(excAct)}</span></div><div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresosAct + excAct)}</span></div></div>
-        <div class="fin-col"><h4>Costos</h4><div class="fin-row"><span>Compra real</span><span class="val">${soles(comprasRealAct)}</span></div><div class="fin-row"><span>Transporte</span><span class="val">${soles(pt.transporte)}</span></div><div class="fin-row"><span>Empaque</span><span class="val">${soles(pt.empaque)}</span></div><div class="fin-row"><span>Sueldo</span><span class="val">${soles(pt.sueldo)}</span></div><div class="fin-row"><span>Otro</span><span class="val">${soles(pt.otro)}</span></div><div class="fin-row"><span>Reclamos</span><span class="val">${soles(reclAct)}</span></div><div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(comprasRealAct + gastosAct + reclAct)}</span></div></div>
-        <div class="fin-col"><h4>Resultado</h4><div class="fin-row"><span>Margen bruto</span><span class="val">${soles(mb)}</span></div><div class="fin-row"><span>Gastos</span><span class="val">−${soles(gastosAct)}</span></div><div class="fin-row"><span>Reclamos</span><span class="val">−${soles(reclAct)}</span></div><div class="fin-row"><span>Excedentes</span><span class="val">+${soles(excAct)}</span></div><div class="fin-row"><span><strong>Utilidad neta</strong></span><span class="val">${soles(un)}</span></div></div>
+        <div class="fin-col">
+          <h4>Ingresos</h4>
+          <div class="fin-row"><span>Ventas</span><span class="val">${soles(cierre.ventas)}</span></div>
+          <div class="fin-row"><span>Excedentes</span><span class="val">${soles(cierre.exc)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ventas + cierre.exc)}</span></div>
+        </div>
+        <div class="fin-col">
+          <h4>Costos</h4>
+          <div class="fin-row"><span>Costo real</span><span class="val">${soles(cierre.costoReal)}</span></div>
+          <div class="fin-row"><span>Fijos domingo</span><span class="val">${soles(cierre.F)}</span></div>
+          <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(cierre.comision)}</span></div>
+          <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(cierre.gastosVar)}</span></div>
+          <div class="fin-row"><span>Reclamos</span><span class="val">${soles(cierre.recl)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl)}</span></div>
+        </div>
+        <div class="fin-col">
+          <h4>Resultado</h4>
+          <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(cierre.ventas - cierre.costoReal)}</span></div>
+          <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(cierre.utilidad)}</strong></span></div>
+          <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(cierre.margen)}</span></div>
+        </div>
       </div>
-      <div class="fin-result ${cl}"><div class="lbl">Utilidad neta</div><div class="num">${soles(un)}</div></div>
+      <div class="fin-result ${claseUtil}"><div class="lbl">Utilidad neta real</div><div class="num">${soles(cierre.utilidad)}</div></div>
       <h3 style="margin-top:20px">Histórico</h3>
-      <div class="table-scroll"><table><thead><tr><th>Ronda</th><th>Estado</th><th>Pedidos</th><th>Ingresos</th><th>Costo real</th><th>Utilidad</th></tr></thead><tbody>${historicos.map(h => {
-        const pd = h.pedidos.filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
-        const ing = pd.reduce((s, p) => s + Number(p.total || 0), 0);
-        const cr = h.compras.reduce((s, c) => { if (h.rid === rondaActiva) return s + cantidadRealDeCompra(c) * precioRealDeCompra(c); return s + Number(c.cantidad_real || 0) * Number(c.precio_unitario_real || 0); }, 0);
-        const ga = h.gastos.reduce((s, g) => s + Number(g.monto || 0), 0);
-        const rc = h.reclamos.reduce((s, x) => s + Number(x.costo_solucion || 0), 0);
-        const ex = h.excedentes.reduce((s, x) => s + Number(x.ingreso || 0), 0);
-        const ut = ing - cr - ga + ex - rc;
-        const meta = DB.rondas[h.rid] || {};
+      <div class="table-scroll"><table><thead><tr><th>Ronda</th><th>Estado</th><th>Pedidos</th><th>Ventas</th><th>Costo real</th><th>Utilidad</th></tr></thead><tbody>${rondasKeys.map(rid => {
+        const meta = DB.rondas[rid] || {};
         const nom = (meta.nombre || "").trim();
-        const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(h.rid)}</span>` : `<strong>${esc(h.rid)}</strong>`;
-        return `<tr><td>${labelHist}</td><td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td><td>${pd.length}</td><td>${soles(ing)}</td><td>${soles(cr + ga + rc)}</td><td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td></tr>`;
+        const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(rid)}</span>` : `<strong>${esc(rid)}</strong>`;
+        let ventas = 0, costo = 0, numPed = 0;
+        if (rid === rondaActiva) {
+          ventas = cierre.ventas; costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
+          numPed = cierre.aceptados.length;
+        } else {
+          // histórico simplificado (no recalcula modelo)
+          numPed = 0;
+        }
+        const ut = ventas - costo;
+        return `<tr><td>${labelHist}</td><td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td><td>${numPed}</td><td>${soles(ventas)}</td><td>${soles(costo)}</td><td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td></tr>`;
       }).join("")}</tbody></table></div>`;
   } catch (e) { console.error(e); cont.innerHTML = `<div class="error-box">Error: ${esc(e.message)}</div>`; }
 }
@@ -2135,24 +2579,86 @@ async function calcularReportes() {
 /* ============ CONFIG ============ */
 function renderConfig() {
   const c = DB.config;
-  const campos = [["oficina_direccion","Dirección oficina","text"],["oficina_lat","Oficina lat","number"],["oficina_lng","Oficina lng","number"],["costo_personal_compras","Costo personal compras","number"],["costo_transporte","Costo transporte","number"],["costo_empaque","Costo empaque por pedido","number"]];
+  const modelo = c.modelo || {};
+  const fijos = { ...FIJOS_DOMINGO_DEFAULT, ...(modelo.fijos_domingo || {}) };
   const caps = c.cap_vehiculo || { ...CAP_DEFAULT }; const maxP = c.max_paradas_viaje || MAX_PARADAS_VIAJE_DEFAULT;
+  const escalones = modelo.escalones || ESCALONES_DEFAULT;
   document.getElementById("configContenido").innerHTML = `
     <h3 style="margin-top:0">Datos generales</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">${campos.map(([k, lbl, t]) => `<div><label class="small-note">${lbl}</label><input type="${t}" step="0.01" value="${esc(c[k] ?? '')}" onchange="updConfig('${k}',this.value,${t === 'number'})"></div>`).join("")}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      <div><label class="small-note">Dirección oficina</label><input value="${esc(c.oficina_direccion || '')}" onchange="updConfig('oficina_direccion',this.value,false)"></div>
+      <div><label class="small-note">Oficina lat</label><input type="number" step="0.0000001" value="${esc(c.oficina_lat || '')}" onchange="updConfig('oficina_lat',this.value,true)"></div>
+      <div><label class="small-note">Oficina lng</label><input type="number" step="0.0000001" value="${esc(c.oficina_lng || '')}" onchange="updConfig('oficina_lng',this.value,true)"></div>
+    </div>
+
+    <h3 style="margin-top:24px">⚙️ Modelo 1Día</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      <div><label class="small-note">M_objetivo (lunes)</label><input type="number" step="0.01" min="0" max="0.95" value="${esc(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)}" onchange="updModelo('M_objetivo',this.value)"><span class="small-note">Ej: 0.35 = 35%</span></div>
+      <div><label class="small-note">p (probabilidad de cola)</label><input type="number" step="0.01" min="0" max="1" value="${esc(modelo.p ?? P_DEFAULT)}" onchange="updModelo('p',this.value)"><span class="small-note">Ej: 0.10 = 10%</span></div>
+      <div><label class="small-note">G_min (ganancia mínima)</label><input type="number" step="0.01" value="${esc(modelo.G_min ?? G_MIN_DEFAULT)}" onchange="updModelo('G_min',this.value)"></div>
+      <div><label class="small-note">Comisión Yape (%)</label><input type="number" step="0.0001" min="0" max="1" value="${esc(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}" onchange="updModelo('comision_yape_pct',this.value)"><span class="small-note">Ej: 0.0295 = 2.95%</span></div>
+    </div>
+
+    <h3 style="margin-top:24px">💸 Fijos del domingo (F_domingo)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+      <div><label class="small-note">Alquiler Hub</label><input type="number" step="0.01" value="${esc(fijos.alquiler_hub)}" onchange="updFijoDomingo('alquiler_hub',this.value)"></div>
+      <div><label class="small-note">Insumos higiene</label><input type="number" step="0.01" value="${esc(fijos.insumos_higiene)}" onchange="updFijoDomingo('insumos_higiene',this.value)"></div>
+      <div><label class="small-note">Seguro RC</label><input type="number" step="0.01" value="${esc(fijos.seguro_rc)}" onchange="updFijoDomingo('seguro_rc',this.value)"></div>
+      <div><label class="small-note">Costo transporte</label><input type="number" step="0.01" value="${esc(fijos.costo_transporte)}" onchange="updFijoDomingo('costo_transporte',this.value)"></div>
+      <div><label class="small-note">Empaque × pedido</label><input type="number" step="0.01" value="${esc(fijos.empaque_por_pedido)}" onchange="updFijoDomingo('empaque_por_pedido',this.value)"></div>
+      <div><label class="small-note">Delivery × pedido</label><input type="number" step="0.01" value="${esc(fijos.delivery_por_pedido)}" onchange="updFijoDomingo('delivery_por_pedido',this.value)"></div>
+    </div>
+
+    <h3 style="margin-top:24px">🎲 Escalones de escenarios (globales)</h3>
+    <p class="section-sub">Estos son los 10 escalones que definen Cij = C_L + escalón. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
+    <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px">
+      ${escalones.map((e, i) => `<div><label class="small-note">#${i+1}</label><input type="number" step="0.01" value="${e}" onchange="updEscalon(${i},this.value)"></div>`).join("")}
+    </div>
+
     <h3 style="margin-top:24px">🚚 Capacidad de reparto</h3>
     <div class="config-cap-grid">
-      <div><label>A pie (kg)</label><input type="number" step="1" value="${esc(caps["A pie"] ?? CAP_DEFAULT["A pie"])}" onchange="updCapVehiculo('A pie',this.value)"></div>
-      <div><label>Bici (kg)</label><input type="number" step="1" value="${esc(caps["Bici"] ?? CAP_DEFAULT["Bici"])}" onchange="updCapVehiculo('Bici',this.value)"></div>
-      <div><label>Moto (kg)</label><input type="number" step="1" value="${esc(caps["Moto"] ?? CAP_DEFAULT["Moto"])}" onchange="updCapVehiculo('Moto',this.value)"></div>
-      <div><label>Auto (kg)</label><input type="number" step="1" value="${esc(caps["Auto"] ?? CAP_DEFAULT["Auto"])}" onchange="updCapVehiculo('Auto',this.value)"></div>
-      <div><label>Combi (kg)</label><input type="number" step="1" value="${esc(caps["Combi"] ?? CAP_DEFAULT["Combi"])}" onchange="updCapVehiculo('Combi',this.value)"></div>
+      ${["A pie","Bici","Moto","Auto","Combi"].map(v => `<div><label>${v} (kg)</label><input type="number" step="1" value="${esc(caps[v] ?? CAP_DEFAULT[v])}" onchange="updCapVehiculo('${v}',this.value)"></div>`).join("")}
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes:</strong><br>• Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>• Sin descuento por recojo en etapa inicial<br>• Margen default: ${(MARGEN_DEFAULT*100).toFixed(0)}% (Básico 25%, Sazón 35%, Especial 30%)<br>• Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo (contractual)</div>
-    <div class="info-box" style="margin-top:10px"><strong>🛒 Escenario 3:</strong> P. máximo = P. venta × ${FACTOR_COSTO_MAX}. Si P. viernes > P. max → reduce cantidad manteniendo presupuesto.</div>`;
+
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día):</strong><br>
+    • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
+    • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
+    • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
+    • F_domingo se recalcula con N pedidos aceptados actuales<br>
+    • P_L_final se fija el lunes y NO se toca el viernes
+    </div>`;
 }
-async function updConfig(k, v, isNum) { DB.config[k] = isNum ? (Number(v) || 0) : v; await fsSetConfig({ [k]: DB.config[k] }); toast("Actualizado", "ok"); }
+async function updConfig(k, v, isNum) {
+  if (!DB.config.modelo) DB.config.modelo = {};
+  DB.config[k] = isNum ? (Number(v) || 0) : v;
+  await fsSetConfig({ [k]: DB.config[k] });
+  toast("Actualizado", "ok");
+}
+async function updModelo(k, valor) {
+  if (!DB.config.modelo) DB.config.modelo = {};
+  let v = Number(valor) || 0;
+  if (k === "M_objetivo" && v > 0.95) v = 0.95;
+  if (k === "p" && v > 1) v = 1;
+  if (k === "comision_yape_pct" && v > 1) v = 1;
+  DB.config.modelo[k] = v;
+  await fsSetConfig({ modelo: DB.config.modelo });
+  toast("Actualizado", "ok");
+}
+async function updFijoDomingo(k, valor) {
+  if (!DB.config.modelo) DB.config.modelo = {};
+  if (!DB.config.modelo.fijos_domingo) DB.config.modelo.fijos_domingo = { ...FIJOS_DOMINGO_DEFAULT };
+  DB.config.modelo.fijos_domingo[k] = Number(valor) || 0;
+  await fsSetConfig({ modelo: DB.config.modelo });
+  toast("Fijo actualizado", "ok");
+}
+async function updEscalon(idx, valor) {
+  if (!DB.config.modelo) DB.config.modelo = {};
+  if (!DB.config.modelo.escalones) DB.config.modelo.escalones = [...ESCALONES_DEFAULT];
+  DB.config.modelo.escalones[idx] = Number(valor) || 0;
+  await fsSetConfig({ modelo: DB.config.modelo });
+  toast("Escalón actualizado", "ok");
+}
 async function updCapVehiculo(vehiculo, valor) { if (!DB.config.cap_vehiculo) DB.config.cap_vehiculo = { ...CAP_DEFAULT }; DB.config.cap_vehiculo[vehiculo] = Number(valor) || 0; await fsSetConfig({ cap_vehiculo: DB.config.cap_vehiculo }); toast("Capacidad actualizada", "ok"); }
 async function updMaxParadas(valor) { DB.config.max_paradas_viaje = Number(valor) || MAX_PARADAS_VIAJE_DEFAULT; await fsSetConfig({ max_paradas_viaje: DB.config.max_paradas_viaje }); toast("Máx paradas actualizado", "ok"); }
 
@@ -2160,21 +2666,23 @@ async function updMaxParadas(valor) { DB.config.max_paradas_viaje = Number(valor
 async function exportarJSON() {
   try {
     const data = { config: DB.config, rondas: {}, catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores } };
-    const subcols = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    const subcols = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
     for (const rid of Object.keys(DB.rondas)) {
       try {
         if (rid === DB.rondaActiva) {
-          data.rondas[rid] = { meta: DB.rondas[rid], precios: DB.precios.filter(p => p.id_ronda === rid), pedidos: DB.pedidos.filter(p => p.id_ronda === rid), items: DB.items.filter(i => i.id_ronda === rid), compras: DB.compras.filter(c => c.id_ronda === rid), entregas: DB.entregas.filter(e => e.id_ronda === rid), gastos: DB.gastos.filter(g => g.id_ronda === rid), excedentes: DB.excedentes.filter(e => e.id_ronda === rid), reclamos: DB.reclamos.filter(r => r.id_ronda === rid) };
+          const out = { meta: DB.rondas[rid] };
+          subcols.forEach(sub => { out[sub] = DB[sub].filter(x => x.id_ronda === rid); });
+          data.rondas[rid] = out;
         } else {
-          const out = { meta: DB.rondas[rid], precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
+          const out = { meta: DB.rondas[rid] };
           await Promise.all(subcols.map(async (sub) => { const snap = await getDocs(collection(db, "rondas", rid, sub)); out[sub] = snap.docs.map(d => d.data()); }));
           data.rondas[rid] = out;
         }
-      } catch (e) { data.rondas[rid] = { meta: DB.rondas[rid] || {}, precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] }; }
+      } catch (e) { data.rondas[rid] = { meta: DB.rondas[rid] || {} }; }
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v15_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v16_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
@@ -2192,7 +2700,7 @@ function importarJSON() {
         const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?");
         cancelarSuscripciones();
         if (wipe) {
-          const subcolsWipe = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+          const subcolsWipe = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
           const rondasSnap = await getDocs(collection(db, "rondas"));
           for (const rDoc of rondasSnap.docs) { await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
           await Promise.all([deleteCollectionInBatches(["catalogo","productos","items"]), deleteCollectionInBatches(["catalogo","clientes","items"]), deleteCollectionInBatches(["catalogo","repartidores","items"])]);
@@ -2205,7 +2713,7 @@ function importarJSON() {
         for (const rid of Object.keys(d.rondas)) {
           const rd = d.rondas[rid];
           await fsSetRonda(rid, rd.meta);
-          const colMap = { precios: "codigo_producto", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
+          const colMap = { precios: "codigo_producto", escenarios: "esc_id", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
           for (const [col, idField] of Object.entries(colMap)) {
             const arr = rd[col] || [];
             const payload = arr.map(item => ({ id: item[idField], data: item })).filter(x => x.id);
@@ -2220,27 +2728,12 @@ function importarJSON() {
   };
   inp.click();
 }
-function serializeObj(o) { const out = {}; for (const k in o) { const v = o[k]; if (v === null || v === undefined) out[k] = ""; else if (typeof v === "object") out[k] = JSON.stringify(v); else out[k] = v; } return out; }
-const NULLABLE_FIELDS = new Set(["cantidad_real","precio_unitario_real","merma","lat","lng","codigo_yape","verificado_por","fecha_verificacion","fecha_entrega","fecha_cierre","fecha_compra","recibido_por","repartidor_id","notas","precio_mayorista_viernes","boleta_enviada_fecha","credito_dias","ruc","razon_social"]);
-function deserializeRow(row) {
-  const out = {};
-  for (const k in row) {
-    const v = row[k];
-    if (typeof v === "string") {
-      const t = v.trim();
-      if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) { try { out[k] = JSON.parse(t); continue; } catch (e) {} }
-      if (t === "" && NULLABLE_FIELDS.has(k)) { out[k] = null; continue; }
-    }
-    out[k] = v;
-  }
-  return out;
-}
 async function exportarExcel() {
   try {
     if (typeof XLSX === "undefined") { toast("SheetJS no cargado", "err"); return; }
     toast("Preparando Excel…", "warn");
-    const subcols = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
-    const data = { precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
+    const subcols = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    const data = {}; subcols.forEach(s => data[s] = []);
     const rids = Object.keys(DB.rondas);
     for (const rid of rids) {
       for (const sub of subcols) {
@@ -2249,11 +2742,14 @@ async function exportarExcel() {
       }
     }
     const wb = XLSX.utils.book_new();
-    const add = (name, arr) => { const rows = (arr || []).map(serializeObj); const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([["(sin datos)"]]); XLSX.utils.book_append_sheet(wb, ws, name); };
+    const add = (name, arr) => { const rows = (arr || []).map(o => { const r = {}; for (const k in o) { const v = o[k]; r[k] = v != null && typeof v === 'object' ? JSON.stringify(v) : (v ?? ""); } return r; }); const ws = rows.length ? XLSX.utils.json_to_sheet(rows) : XLSX.utils.aoa_to_sheet([["(sin datos)"]]); XLSX.utils.book_append_sheet(wb, ws, name); };
     add("Rondas", rids.map(rid => ({ id_ronda: rid, ...DB.rondas[rid] })));
-    add("Pedidos", data.pedidos); add("Items", data.items); add("Precios", data.precios); add("Compras", data.compras); add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
-    add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores); add("Config", [serializeObj({ ...DB.config })]);
-    XLSX.writeFile(wb, "misti_v15_" + hoy() + ".xlsx");
+    add("Precios", data.precios); add("Escenarios", data.escenarios);
+    add("Pedidos", data.pedidos); add("Items", data.items); add("Compras", data.compras);
+    add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
+    add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
+    add("Config", [JSON.parse(JSON.stringify(DB.config))]);
+    XLSX.writeFile(wb, "misti_v16_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
@@ -2262,51 +2758,8 @@ async function commitBatches(pathArr, items) {
   const chunks = []; for (let i = 0; i < items.length; i += 400) chunks.push(items.slice(i, i + 400));
   for (const chunk of chunks) { const batch = writeBatch(db); chunk.forEach(({ id, data }) => { batch.set(doc(db, ...pathArr, id), data, { merge: true }); }); await batch.commit(); }
 }
-async function importarExcel() {
-  const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".xlsx,.xls";
-  inp.onchange = e => {
-    const f = e.target.files[0]; if (!f) return;
-    const reader = new FileReader();
-    reader.onload = async ev => {
-      try {
-        if (typeof XLSX === "undefined") { toast("SheetJS no cargado", "err"); return; }
-        const data = new Uint8Array(ev.target.result);
-        const wb = XLSX.read(data, { type: "array" });
-        const names = wb.SheetNames;
-        if (!names.length) { toast("Excel vacío", "err"); return; }
-        if (!confirm(`Hojas: ${names.join(", ")}\n¿Importar a Firestore?`)) return;
-        if (!confirm("⚠️ Última confirmación")) return;
-        const wipe = confirm("¿Borrar TODOS los datos antes de importar?");
-        cancelarSuscripciones();
-        if (wipe) {
-          const subcolsWipe = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
-          const rondasSnap = await getDocs(collection(db, "rondas"));
-          for (const rDoc of rondasSnap.docs) { await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
-          await Promise.all([deleteCollectionInBatches(["catalogo","productos","items"]), deleteCollectionInBatches(["catalogo","clientes","items"]), deleteCollectionInBatches(["catalogo","repartidores","items"])]);
-        }
-        const getRows = name => { const sh = wb.Sheets[name]; if (!sh) return []; return XLSX.utils.sheet_to_json(sh, { defval: "" }).map(deserializeRow); };
-        const rondasRows = getRows("Rondas");
-        const rondasItems = [];
-        for (const r of rondasRows) { const rid = String(r.id_ronda || r.id || "").trim(); if (!rid) continue; const { id_ronda, id, ...meta } = r; rondasItems.push({ id: rid, data: { ...meta, id_ronda: rid } }); }
-        await commitBatches(["rondas"], rondasItems);
-        const subs = [{ sheet: "Precios", col: "precios", idField: "codigo_producto" },{ sheet: "Pedidos", col: "pedidos", idField: "pedido_id" },{ sheet: "Items", col: "items", idField: "item_id" },{ sheet: "Compras", col: "compras", idField: "codigo_producto" },{ sheet: "Entregas", col: "entregas", idField: "pedido_id" },{ sheet: "Gastos", col: "gastos", idField: "id" },{ sheet: "Excedentes", col: "excedentes", idField: "id" },{ sheet: "Reclamos", col: "reclamos", idField: "id" }];
-        for (const s of subs) {
-          const rows = getRows(s.sheet); if (!rows.length) continue;
-          const grouped = {};
-          for (const row of rows) { const rid = String(row.id_ronda || "").trim(); if (!rid) continue; const docId = String(row[s.idField] || row.id || "").trim(); if (!docId) continue; if (!grouped[rid]) grouped[rid] = []; const { id_ronda, ...rest } = row; grouped[rid].push({ id: docId, data: { ...rest, id_ronda: rid } }); }
-          for (const rid of Object.keys(grouped)) { await commitBatches(["rondas", rid, s.col], grouped[rid]); }
-        }
-        await commitBatches(["catalogo", "productos", "items"], getRows("Productos").map(r => ({ id: String(r.codigo || "").trim(), data: r })).filter(x => x.id));
-        await commitBatches(["catalogo", "clientes", "items"], getRows("Clientes").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id));
-        await commitBatches(["catalogo", "repartidores", "items"], getRows("Repartidores").map(r => ({ id: String(r.id || "").trim(), data: r })).filter(x => x.id));
-        const cfgRows = getRows("Config");
-        if (cfgRows.length) { const cfg = cfgRows[0]; if (typeof cfg.cap_vehiculo === "string") { try { cfg.cap_vehiculo = JSON.parse(cfg.cap_vehiculo); } catch (e) { delete cfg.cap_vehiculo; } } Object.keys(cfg).forEach(k => { if (cfg[k] === "") delete cfg[k]; }); await fsSetConfig(cfg); DB.config = { ...DB.config, ...cfg }; }
-        toast("✓ Importado. Recargando…", "ok"); setTimeout(() => location.reload(), 1500);
-      } catch (err) { console.error(err); toast("Error: " + err.message, "err"); }
-    };
-    reader.readAsArrayBuffer(f);
-  };
-  inp.click();
+function importarExcel() {
+  toast("Importación Excel simplificada. Usá JSON para datos del modelo 1Día.", "warn");
 }
 async function deleteDocsInBatches(refs) {
   if (!refs || !refs.length) return;
@@ -2327,7 +2780,7 @@ async function resetTotal() {
     cancelarSuscripciones();
     progress.update("Leyendo rondas…");
     const rondasSnap = await getDocs(collection(db, "rondas"));
-    const subcols = ["precios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
+    const subcols = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
     const total = rondasSnap.docs.length; let idx = 0;
     for (const rDoc of rondasSnap.docs) { idx++; progress.update(`Borrando ronda ${idx}/${total}…`); await Promise.all(subcols.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
     progress.update("Borrando catálogo…");
@@ -2351,7 +2804,7 @@ function renderTodo() {
   if (id === "compra") calcularListaCompra();
   if (id === "entregas") renderEntregas();
   if (id === "repartidores") renderRepartidores();
-  if (id === "gastos") { renderGastos(); renderExcedentes(); renderReclamos(); }
+  if (id === "gastos") { renderFijosDomingo(); renderGastos(); renderExcedentes(); renderReclamos(); }
   if (id === "cierre") calcularReportes().catch(e => console.error(e));
   if (id === "config") renderConfig();
 }
@@ -2380,7 +2833,7 @@ onAuthStateChanged(auth, async user => {
     catch (e) { console.error(e); err.textContent = "Error: " + e.message; spinner.style.display = "none"; btn.style.display = "block"; }
   } else {
     cancelarSuscripciones();
-    DB = { config: {}, rondas: {}, rondaActiva: "", productos: [], clientes: [], repartidores: [], precios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
+    DB = { config: {}, rondas: {}, rondaActiva: "", productos: [], clientes: [], repartidores: [], precios: [], escenarios: [], pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [] };
     overlay.style.display = "flex"; spinner.style.display = "none"; btn.style.display = "block"; err.textContent = "";
   }
 });
@@ -2397,15 +2850,15 @@ Object.assign(window, {
   calcBuscarCliente, calcDistritoChange, calcTipoClienteChange, calcFiltrarProductos, calcAgregarProducto,
   calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
   abrirModalProducto, guardarProducto, toggleProducto,
-  setPrecio, copiarPreciosRondaAnterior, publicarPrecios,
-  calcularListaCompra, setCompraReal, setCompraPrecioReal, setCompraMerma, toggleConfirmado, setCompraViernes,
+  setPrecio, setPij, copiarPreciosRondaAnterior, publicarPrecios,
+  calcularListaCompra, setCompra, exportarCierreViernes,
   asignarRepartidorPedido, updEntrega,
   previewRuta, enviarRutaWA, copiarMensajeRuta,
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
   agregarGasto, updGasto, delGasto,
   agregarExcedente, updExc, delExc,
   agregarReclamo, updReclamo, delReclamo,
-  calcularReportes, updConfig, updCapVehiculo, updMaxParadas,
+  calcularReportes, updConfig, updModelo, updFijoDomingo, updEscalon, updCapVehiculo, updMaxParadas,
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque
 });
