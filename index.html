@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.3 (Modelo 1Día)</title>
+<title>Compra con Misti — Admin v16.4 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -223,7 +223,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.3 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
+<p>Panel Admin v16.4 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -346,7 +346,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-productos">
 <div class="section">
 <h2>Productos (maestro — nunca se borran)</h2>
-<p class="section-sub">Cargá <strong>unidad de venta</strong> (lo que pide el cliente) con <strong>su peso en kg</strong>, y <strong>unidad de compra</strong> (lo que vende el mayorista) con <strong>su peso en kg</strong>. Ejemplo culantro: cliente pide "ataditos" (0.15 kg c/u), mayorista vende "Atado" (1.5 kg c/u).</p>
+<p class="section-sub"><strong>Cliente pide en:</strong> kg · atadito · unidad. <strong>Mayorista vende en:</strong> Kilogramo, Ciento, Cajón, Saco, Atado, etc. Cargá el peso de <strong>1 unidad de venta</strong> y <strong>1 unidad de compra</strong> — todo es editable.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-add btn-sm" onclick="abrirModalProducto(null)">＋ Agregar</button>
 <input id="prodBuscar" placeholder="🔍 Buscar..." oninput="renderProductos()" style="max-width:260px">
@@ -486,7 +486,9 @@ tbody tr:hover{background:#F4FBF6}
 <p><label class="small-note">Grupo</label><select id="prodGrupoInput"><option>Básico</option><option>Sazón</option><option>Especial</option></select></p>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
 <div><label class="small-note">Unidad de venta (lo que pide el cliente)</label><select id="prodUnidadVentaInput">
-<option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option>
+<option value="kg">Kilogramo (kg)</option>
+<option value="atadito">Atadito</option>
+<option value="unidad">Unidad</option>
 </select></div>
 <div><label class="small-note">Unidad de compra (lo que vende el mayorista)</label><select id="prodUnidadCompraInput">
 <option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option>
@@ -577,7 +579,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.3</p>
+<p>Panel Admin · Modelo 1Día · v16.4</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -750,13 +752,11 @@ const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === Stri
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
 /* ============ CÁLCULOS MODELO 1DÍA ============ */
-/* Peso de 1 unidad de VENTA (lo que pide el cliente). Fallback a equiv_kg legacy. */
 function getEquivKg(codigo) {
   const p = DB.productos.find(x => x.codigo === codigo);
   if (!p) return 1;
   return Number(p.equiv_kg_venta != null ? p.equiv_kg_venta : (p.equiv_kg ?? 1)) || 1;
 }
-/* Peso de 1 unidad de COMPRA (lo que vende el mayorista). Fallback a equiv_kg legacy. */
 function getEquivKgCompra(codigo) {
   const p = DB.productos.find(x => x.codigo === codigo);
   if (!p) return 1;
@@ -991,36 +991,37 @@ const GMML_REF = {
 
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
-  // Cada producto: [codigo, nombre, grupo, unidad_venta, unidad_compra, equiv_kg_venta, equiv_kg_compra]
+  // [codigo, nombre, grupo, unidad_venta, unidad_compra, equiv_kg_venta, equiv_kg_compra]
+  // Venta SOLO puede ser "kg" | "atadito" | "unidad"
   const productos = [
-    ["PR-001","Papa amarilla","Básico","Kilogramo","Kilogramo",1,1],
-    ["PR-002","Papa blanca","Básico","Kilogramo","Kilogramo",1,1],
-    ["PR-003","Papa canchán","Básico","Kilogramo","Kilogramo",1,1],
-    ["PR-004","Tomate Katia","Básico","Cajón Chico","Cajón Chico",27,27],
-    ["PR-005","Cebolla cabeza roja","Básico","Kilogramo","Kilogramo",1,1],
-    ["PR-006","Zanahoria","Básico","Saco Chico","Saco Chico",65,65],
-    ["PR-007","Choclo serrano","Básico","Ciento","Ciento",42,42],
-    ["PR-008","Camote amarillo","Básico","Kilogramo","Kilogramo",1,1],
-    ["PR-009","Yuca amarilla","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-010","Zapallo macre","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-011","Papa huayro","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-012","Papa negra andina","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-013","Cebolla china","Sazón","Atado Grande","Atado Grande",1,1],
-    ["PR-014","Ajo criollo","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-015","Kion","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-016","Ají amarillo","Sazón","Kilogramo","Kilogramo",1,1],
-    ["PR-017","Ají panca","Especial","Kilogramo","Kilogramo",1,1],
-    ["PR-018","Ají rocoto","Especial","Cajón","Cajón",18,18],
-    ["PR-019","Huacatay","Especial","Atado","Atado",1,1],
-    ["PR-020","Culantro","Especial","Atado","Atado",0.15,1.5],
-    ["PR-021","Perejil","Especial","Atado","Atado",0.10,1.0],
-    ["PR-022","Apio","Especial","Atado","Atado",0.30,3.0],
-    ["PR-023","Poro","Especial","Atado","Atado",0.26,2.6],
-    ["PR-024","Maíz morado","Especial","Kilogramo","Kilogramo",1,1],
-    ["PR-025","Ají escabeche","Especial","Kilogramo","Kilogramo",1,1],
-    ["PR-026","Limón cítrico cajón","Especial","Cajón","Cajón",23,23],
-    ["PR-027","Vainita","Especial","Kilogramo","Kilogramo",1,1],
-    ["PR-028","Zapallo loche","Especial","Unidad","Unidad",1.5,1.5]
+    ["PR-001","Papa amarilla","Básico","kg","Kilogramo",1,1],
+    ["PR-002","Papa blanca","Básico","kg","Kilogramo",1,1],
+    ["PR-003","Papa canchán","Básico","kg","Kilogramo",1,1],
+    ["PR-004","Tomate Katia","Básico","kg","Cajón Chico",1,27],
+    ["PR-005","Cebolla cabeza roja","Básico","kg","Kilogramo",1,1],
+    ["PR-006","Zanahoria","Básico","kg","Saco Chico",1,65],
+    ["PR-007","Choclo serrano","Básico","unidad","Ciento",0.42,42],
+    ["PR-008","Camote amarillo","Básico","kg","Kilogramo",1,1],
+    ["PR-009","Yuca amarilla","Sazón","kg","Kilogramo",1,1],
+    ["PR-010","Zapallo macre","Sazón","kg","Kilogramo",1,1],
+    ["PR-011","Papa huayro","Sazón","kg","Kilogramo",1,1],
+    ["PR-012","Papa negra andina","Sazón","kg","Kilogramo",1,1],
+    ["PR-013","Cebolla china","Sazón","atadito","Atado Grande",0.10,1.0],
+    ["PR-014","Ajo criollo","Sazón","kg","Kilogramo",1,1],
+    ["PR-015","Kion","Sazón","kg","Kilogramo",1,1],
+    ["PR-016","Ají amarillo","Sazón","kg","Kilogramo",1,1],
+    ["PR-017","Ají panca","Especial","kg","Kilogramo",1,1],
+    ["PR-018","Ají rocoto","Especial","kg","Cajón",1,18],
+    ["PR-019","Huacatay","Especial","atadito","Atado",0.10,1.0],
+    ["PR-020","Culantro","Especial","atadito","Atado",0.15,1.5],
+    ["PR-021","Perejil","Especial","atadito","Atado",0.10,1.0],
+    ["PR-022","Apio","Especial","atadito","Atado",0.30,3.0],
+    ["PR-023","Poro","Especial","atadito","Atado",0.26,2.6],
+    ["PR-024","Maíz morado","Especial","kg","Kilogramo",1,1],
+    ["PR-025","Ají escabeche","Especial","kg","Kilogramo",1,1],
+    ["PR-026","Limón cítrico cajón","Especial","kg","Cajón",1,23],
+    ["PR-027","Vainita","Especial","kg","Kilogramo",1,1],
+    ["PR-028","Zapallo loche","Especial","unidad","Unidad",1.5,1.5]
   ].map(p => ({
     codigo: p[0], nombre: p[1], grupo: p[2],
     unidad_venta: p[3], unidad_compra: p[4],
@@ -1068,7 +1069,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 163, rondaActiva: ronda,
+    version: 164, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1102,7 +1103,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.3 completado");
+  console.log("Auto-seed v16.4 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1119,7 +1120,7 @@ async function migrarPreciosRonda(rondaId) {
       if (p.C_L == null && p.precio_ref_mayorista != null) {
         cambios.C_L = Number(p.precio_ref_mayorista);
       }
-      if (p.unidad_venta == null) cambios.unidad_venta = p.unidad || "Kilogramo";
+      if (p.unidad_venta == null) cambios.unidad_venta = p.unidad || "kg";
       if (p.unidad_compra == null) cambios.unidad_compra = p.unidad || "Kilogramo";
       if (p.equiv_kg == null) cambios.equiv_kg = 1;
       if (Object.keys(cambios).length) {
@@ -1155,17 +1156,25 @@ async function migrarEscenariosRonda(rondaId) {
 async function migrarProductosEquiv() {
   let migrados = 0;
   for (const p of DB.productos) {
-    if (p.equiv_kg_venta == null || p.equiv_kg_compra == null) {
-      const legacy = Number(p.equiv_kg) || 1;
-      const update = {
-        equiv_kg_venta: p.equiv_kg_venta != null ? p.equiv_kg_venta : legacy,
-        equiv_kg_compra: p.equiv_kg_compra != null ? p.equiv_kg_compra : legacy,
-      };
+    const update = {};
+    let hay = false;
+    if (p.equiv_kg_venta == null) { update.equiv_kg_venta = Number(p.equiv_kg) || 1; hay = true; }
+    if (p.equiv_kg_compra == null) { update.equiv_kg_compra = Number(p.equiv_kg) || 1; hay = true; }
+    // Normalizar unidad_venta vieja → kg / atadito / unidad
+    if (p.unidad_venta) {
+      const uv = String(p.unidad_venta).toLowerCase();
+      let uvNorm = p.unidad_venta;
+      if (uv.includes("kilo")) uvNorm = "kg";
+      else if (uv.includes("atado")) uvNorm = "atadito";
+      else if (uv.includes("unidad")) uvNorm = "unidad";
+      if (uvNorm !== p.unidad_venta) { update.unidad_venta = uvNorm; hay = true; }
+    }
+    if (hay) {
       await fsSet(["catalogo", "productos", "items"], p.codigo, update);
       migrados++;
     }
   }
-  if (migrados > 0) console.log(`✓ Migrados ${migrados} productos con equiv_kg_venta/compra`);
+  if (migrados > 0) console.log(`✓ Migrados ${migrados} productos (equiv y/o unidad_venta)`);
 }
 
 /* ============ CARGA ============ */
@@ -2029,8 +2038,8 @@ function renderProductos() {
       <td><strong>${esc(p.codigo)}</strong></td>
       <td>${esc(p.nombre)}</td>
       <td><span class="badge badge-${(p.grupo||'').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}">${esc(p.grupo)}</span></td>
-      <td>${esc(p.unidad_venta || p.unidad || 'kg')}<br><span class="small-note">${ev.toFixed(3)} kg/u</span></td>
-      <td>${esc(p.unidad_compra || p.unidad || 'kg')}<br><span class="small-note">${ec.toFixed(3)} kg/u</span></td>
+      <td>${esc(p.unidad_venta || 'kg')}<br><span class="small-note">${ev.toFixed(3)} kg/u</span></td>
+      <td>${esc(p.unidad_compra || 'Kilogramo')}<br><span class="small-note">${ec.toFixed(3)} kg/u</span></td>
       <td><strong style="color:var(--verde)">${ev.toFixed(3)} / ${ec.toFixed(3)}</strong></td>
       <td>${p.activo ? '<span class="badge badge-basico">Sí</span>' : '<span class="badge badge-inactivo">No</span>'}</td>
       <td><div class="actions"><button class="btn-ghost btn-sm" onclick="abrirModalProducto('${p.codigo}')">Editar</button><button class="btn-ghost btn-sm" onclick="toggleProducto('${p.codigo}')">${p.activo ? "Desactivar" : "Activar"}</button></div></td>
@@ -2048,7 +2057,13 @@ function abrirModalProducto(cod) {
     const p = DB.productos.find(x => x.codigo === cod);
     document.getElementById("prodNombreInput").value = p.nombre;
     document.getElementById("prodGrupoInput").value = p.grupo;
-    document.getElementById("prodUnidadVentaInput").value = p.unidad_venta || p.unidad || "Kilogramo";
+    // Normaliza valores viejos → kg / atadito / unidad
+    const uv = String(p.unidad_venta || p.unidad || "kg").toLowerCase();
+    let uvNorm = "kg";
+    if (uv.includes("atado")) uvNorm = "atadito";
+    else if (uv.includes("unidad")) uvNorm = "unidad";
+    else if (uv.includes("kilo")) uvNorm = "kg";
+    document.getElementById("prodUnidadVentaInput").value = uvNorm;
     document.getElementById("prodUnidadCompraInput").value = p.unidad_compra || p.unidad || "Kilogramo";
     const ev = p.equiv_kg_venta != null ? p.equiv_kg_venta : (p.equiv_kg ?? 1);
     const ec = p.equiv_kg_compra != null ? p.equiv_kg_compra : (p.equiv_kg ?? 1);
@@ -2057,7 +2072,7 @@ function abrirModalProducto(cod) {
   } else {
     document.getElementById("prodNombreInput").value = "";
     document.getElementById("prodGrupoInput").value = "Básico";
-    document.getElementById("prodUnidadVentaInput").value = "Kilogramo";
+    document.getElementById("prodUnidadVentaInput").value = "kg";
     document.getElementById("prodUnidadCompraInput").value = "Kilogramo";
     document.getElementById("prodEquivKgVentaInput").value = "1";
     document.getElementById("prodEquivKgCompraInput").value = "1";
@@ -2292,29 +2307,21 @@ async function publicarPrecios() {
 }
 
 /* ============ COMPRA ============ */
-/* Helpers para la tabla pedagógica */
 function modoProducto(prod) {
-  const u = String(prod.unidad_venta || "Kilogramo").toLowerCase();
-  if (u.includes("kilo")) return "kg";
-  if (u.includes("atado")) return "atado";
-  if (u.includes("ciento")) return "ciento";
-  if (u.includes("cajón") || u.includes("cajon")) return "cajon";
-  if (u.includes("saco")) return "saco";
+  const u = String(prod.unidad_venta || "kg").toLowerCase();
+  if (u.includes("atado")) return "atadito";
   if (u.includes("unidad")) return "unidad";
   return "kg";
 }
 function sugerenciaMayorista(prod, bultos) {
-  const u = prod.unidad_compra || prod.unidad_venta || "Kilogramo";
+  const u = prod.unidad_compra || "Kilogramo";
   if (bultos === 1) return `1 ${u}`;
   return `${bultos} ${u}`;
 }
 function pedidoClienteTxt(prod, qPed_kg, qPed_un) {
   const modo = modoProducto(prod);
   if (modo === "kg") return `${qPed_kg.toFixed(2)} kg`;
-  if (modo === "ciento") return `${qPed_un.toFixed(0)} ${prod.unidad_venta.toLowerCase()}${qPed_un !== 1 ? "s" : ""}`;
-  if (modo === "atado") return `${qPed_un.toFixed(0)} atadito${qPed_un !== 1 ? "s" : ""}`;
-  if (modo === "cajon") return `${qPed_un.toFixed(0)} cajón${qPed_un !== 1 ? "es" : ""}`;
-  if (modo === "saco") return `${qPed_un.toFixed(0)} saco${qPed_un !== 1 ? "s" : ""}`;
+  if (modo === "atadito") return `${qPed_un.toFixed(0)} atadito${qPed_un !== 1 ? "s" : ""}`;
   if (modo === "unidad") return `${qPed_un.toFixed(0)} unidad${qPed_un !== 1 ? "es" : ""}`;
   return `${qPed_un.toFixed(2)} u`;
 }
