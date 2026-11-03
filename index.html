@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.1 (Modelo 1Día)</title>
+<title>Compra con Misti — Admin v16.2 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -224,7 +224,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.1 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
+<p>Panel Admin v16.2 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -561,7 +561,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.1</p>
+<p>Panel Admin · Modelo 1Día · v16.2</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -897,8 +897,6 @@ function calcularRecorteMap() {
 
 /* =========================================================
    RECALCULA LOS CAMPOS DE SALIDA (derivados)
-   Idempotente. No pisa datos de entrada (P_L_mercado, C_L,
-   Pij, escalon, Q_pedida). Se llama al cargar precios/escenarios.
    ========================================================= */
 function recalcularDerivadosEnMemoria() {
   const M_OBJETIVO = getMObjetivo();
@@ -907,7 +905,6 @@ function recalcularDerivadosEnMemoria() {
   const escenarios = DB.escenarios;
   if (!precios.length) return;
 
-  // ---- 1) ESCENARIOS: Cij = C_L + escalon ; P_cola = Σ Pij con Cij mayor ----
   const escPorProd = {};
   escenarios.forEach(e => {
     const pr = precios.find(p => p.codigo_producto === e.codigo_producto);
@@ -924,7 +921,6 @@ function recalcularDerivadosEnMemoria() {
     });
   });
 
-  // ---- 2) PRECIOS: todos los derivados del lunes ----
   precios.forEach(pr => {
     const PL = Number(pr.P_L_mercado) || 0;
     const CL = Number(pr.C_L) || 0;
@@ -1083,7 +1079,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.1 completado");
+  console.log("Auto-seed v16.2 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1190,7 +1186,6 @@ function suscribirRonda(rondaId) {
   ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(sub => {
     unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, sub), snap => {
       DB[sub] = snap.docs.map(d => d.data());
-      // ✨ RECALCULAR derivados cuando llegan precios o escenarios
       if (sub === "precios" || sub === "escenarios") {
         try { recalcularDerivadosEnMemoria(); } catch (e) { console.error("recalc err", e); }
       }
@@ -2046,92 +2041,117 @@ async function guardarProducto() {
   cerrarModal("modalProducto"); renderProductos(); toast("Producto guardado", "ok");
 }
 
-/* ============ PRECIOS (Diagnóstico lunes) ============ */
+/* ============ PRECIOS ============ */
 async function renderPrecios() {
-  document.getElementById("preciosRondaLabel").textContent = "· " + labelRonda(DB.rondaActiva);
-  const q = (document.getElementById("precioBuscar").value || "").toLowerCase();
-  const g = (document.getElementById("precioGrupoFiltro").value || "");
-  const pmap = precioMapa();
-  const rondas = Object.keys(DB.rondas).sort();
-  const idx = rondas.indexOf(DB.rondaActiva);
-  const prevRonda = idx > 0 ? rondas[idx - 1] : null;
-  const prevMap = {};
-  if (prevRonda) { try { const snap = await getDocs(collection(db, "rondas", prevRonda, "precios")); snap.docs.forEach(d => { const p = d.data(); prevMap[p.codigo_producto] = p; }); } catch (e) {} }
-  let prods = DB.productos.filter(p => p.activo);
-  if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
-  if (g) prods = prods.filter(p => p.grupo === g);
-  document.getElementById("preciosBody").innerHTML = prods.map(p => {
-    const pr = pmap[p.codigo];
-    const diag = calcularDiagnosticoProducto(p.codigo);
-    const umbral = calcularUmbralProducto(p.codigo);
-    const PLm = Number(pr?.P_L_mercado) || 0;
-    const CL = Number(pr?.C_L) || 0;
-    const prev = prevMap[p.codigo];
-    let delta = '<span class="small-note">nuevo</span>';
-    if (prev) {
-      const d = red2(PLm - (Number(prev.P_L_mercado) || 0));
-      if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
-      else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
-      else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
-    }
-    const sirveBadge = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
-    const PLfinal = diag?.PLfinal || 0;
-    const Cmax = umbral?.Cmax || 0;
-    return `<tr>
-      <td><strong>${esc(p.codigo)}</strong></td>
-      <td>${esc(p.nombre)}</td>
-      <td class="small-note">${esc(p.unidad_venta || 'kg')}<br>${esc(p.equiv_kg)} kg</td>
-      <td><input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)"></td>
-      <td><input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)"></td>
-      <td>${soles(diag?.Cesp || 0)}</td>
-      <td><span class="${claseMargen(diag?.Mref || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
-      <td style="text-align:center">${sirveBadge}</td>
-      <td><strong style="color:var(--verde);font-size:14px">${soles(PLfinal)}</strong></td>
-      <td><strong>${soles(Cmax)}</strong></td>
-      <td>${delta}</td>
-    </tr>`;
-  }).join("");
+  try {
+    const body = document.getElementById("preciosBody");
+    if (!body) { console.warn("[renderPrecios] preciosBody no existe"); return; }
 
-  // Render escenarios
-  const escCont = document.getElementById("escenariosContenido");
-  let escHTML = "";
-  prods.forEach(p => {
-    const escs = calcularEscenariosProducto(p.codigo);
-    const diag = calcularDiagnosticoProducto(p.codigo);
-    if (!escs.length) {
-      escHTML += `<div class="esc-acordeon"><div class="esc-head"><span>${esc(p.codigo)} · ${esc(p.nombre)}</span><span class="small-note">Sin escenarios cargados</span></div></div>`;
+    const q = (document.getElementById("precioBuscar")?.value || "").toLowerCase();
+    const g = (document.getElementById("precioGrupoFiltro")?.value || "");
+    const pmap = precioMapa();
+
+    // Ronda anterior (para delta) — no fallar si no hay
+    let prevMap = {};
+    try {
+      const rondas = Object.keys(DB.rondas).sort();
+      const idx = rondas.indexOf(DB.rondaActiva);
+      const prevRonda = idx > 0 ? rondas[idx - 1] : null;
+      if (prevRonda) {
+        const snap = await getDocs(collection(db, "rondas", prevRonda, "precios"));
+        snap.docs.forEach(d => { const p = d.data(); prevMap[p.codigo_producto] = p; });
+      }
+    } catch (e) { console.warn("no se pudo leer ronda anterior:", e); }
+
+    let prods = DB.productos.filter(p => p.activo);
+    if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
+    if (g) prods = prods.filter(p => p.grupo === g);
+
+    if (!prods.length) {
+      body.innerHTML = `<tr><td colspan="11" class="warn-box">No hay productos activos que coincidan con el filtro.</td></tr>`;
+      const escContEmpty = document.getElementById("escenariosContenido");
+      if (escContEmpty) escContEmpty.innerHTML = `<div class="small-note">Sin escenarios para mostrar.</div>`;
       return;
     }
-    const escRows = escs.map((e, idx) => {
-      const escDb = escenariosDeProducto(p.codigo).slice().sort((a, b) => a.escalon - b.escalon)[idx];
+
+    body.innerHTML = prods.map(p => {
+      const pr = pmap[p.codigo] || {};
+      const diag = calcularDiagnosticoProducto(p.codigo);
+      const umbral = calcularUmbralProducto(p.codigo);
+      const PLm = Number(pr.P_L_mercado) || 0;
+      const CL = Number(pr.C_L) || 0;
+      const prev = prevMap[p.codigo];
+      let delta = '<span class="small-note">nuevo</span>';
+      if (prev) {
+        const d = red2(PLm - (Number(prev.P_L_mercado) || 0));
+        if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
+        else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
+        else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
+      }
+      const sirveBadge = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
+      const PLfinal = diag?.PLfinal || 0;
+      const Cmax = umbral?.Cmax || 0;
       return `<tr>
-        <td>${e.escalon > 0 ? '+' : ''}${e.escalon.toFixed(2)}</td>
-        <td>${soles(e.Cij)}</td>
-        <td><input type="number" step="0.0001" min="0" max="1" value="${e.Pij}" onchange="setPij('${escDb?.esc_id || ''}',this.value)" style="max-width:100px"></td>
-        <td>${(e.P_cola * 100).toFixed(2)}%</td>
+        <td><strong>${esc(p.codigo)}</strong></td>
+        <td>${esc(p.nombre)}</td>
+        <td class="small-note">${esc(p.unidad_venta || 'kg')}<br>${esc(p.equiv_kg)} kg</td>
+        <td><input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)"></td>
+        <td><input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)"></td>
+        <td>${soles(diag?.Cesp || 0)}</td>
+        <td><span class="${claseMargen(diag?.Mref || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
+        <td style="text-align:center">${sirveBadge}</td>
+        <td><strong style="color:var(--verde);font-size:14px">${soles(PLfinal)}</strong></td>
+        <td><strong>${soles(Cmax)}</strong></td>
+        <td>${delta}</td>
       </tr>`;
     }).join("");
-    const badgeSirve = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
-    escHTML += `<div class="esc-acordeon">
-      <div class="esc-head" onclick="this.parentElement.classList.toggle('open')">
-        <span>${esc(p.codigo)} · ${esc(p.nombre)}</span>
-        <span class="info">
-          <span>C_esp <b>${soles(diag?.Cesp || 0)}</b></span>
-          <span>M_ref <b>${fmtPct(diag?.Mref || 0)}</b></span>
-          <span>Sirve ${badgeSirve}</span>
-          <span>P_L_final <b>${soles(diag?.PLfinal || 0)}</b></span>
-          <span>▸</span>
-        </span>
-      </div>
-      <div class="esc-body">
-        <table class="esc-tabla">
-          <thead><tr><th>Escalón</th><th>Cij</th><th>Pij</th><th>P_cola &gt; Cij</th></tr></thead>
-          <tbody>${escRows}</tbody>
-        </table>
-      </div>
-    </div>`;
-  });
-  escCont.innerHTML = escHTML;
+
+    // Escenarios
+    const escCont = document.getElementById("escenariosContenido");
+    if (!escCont) return;
+    let escHTML = "";
+    prods.forEach(p => {
+      const escs = calcularEscenariosProducto(p.codigo);
+      const diag = calcularDiagnosticoProducto(p.codigo);
+      if (!escs.length) {
+        escHTML += `<div class="esc-acordeon"><div class="esc-head"><span>${esc(p.codigo)} · ${esc(p.nombre)}</span><span class="small-note">Sin escenarios cargados</span></div></div>`;
+        return;
+      }
+      const escRows = escs.map((e, idx) => {
+        const escDb = escenariosDeProducto(p.codigo).slice().sort((a, b) => a.escalon - b.escalon)[idx];
+        return `<tr>
+          <td>${e.escalon > 0 ? '+' : ''}${e.escalon.toFixed(2)}</td>
+          <td>${soles(e.Cij)}</td>
+          <td><input type="number" step="0.0001" min="0" max="1" value="${e.Pij}" onchange="setPij('${escDb?.esc_id || ''}',this.value)" style="max-width:100px"></td>
+          <td>${(e.P_cola * 100).toFixed(2)}%</td>
+        </tr>`;
+      }).join("");
+      const badgeSirve = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
+      escHTML += `<div class="esc-acordeon">
+        <div class="esc-head" onclick="this.parentElement.classList.toggle('open')">
+          <span>${esc(p.codigo)} · ${esc(p.nombre)}</span>
+          <span class="info">
+            <span>C_esp <b>${soles(diag?.Cesp || 0)}</b></span>
+            <span>M_ref <b>${fmtPct(diag?.Mref || 0)}</b></span>
+            <span>Sirve ${badgeSirve}</span>
+            <span>P_L_final <b>${soles(diag?.PLfinal || 0)}</b></span>
+            <span>▸</span>
+          </span>
+        </div>
+        <div class="esc-body">
+          <table class="esc-tabla">
+            <thead><tr><th>Escalón</th><th>Cij</th><th>Pij</th><th>P_cola &gt; Cij</th></tr></thead>
+            <tbody>${escRows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    });
+    escCont.innerHTML = escHTML;
+  } catch (e) {
+    console.error("[renderPrecios] ERROR:", e);
+    const body = document.getElementById("preciosBody");
+    if (body) body.innerHTML = `<tr><td colspan="11"><div class="error-box"><strong>Error al renderizar Precios:</strong><br>${esc(e.message)}<br><span class="small-note">Ver consola (F12) para el detalle.</span></div></td></tr>`;
+  }
 }
 async function setPrecio(codigo, campo, valor) {
   const num = Number(valor) || 0;
@@ -2213,7 +2233,7 @@ async function publicarPrecios() {
   refrescarSelector(); toast("✓ P_L_final publicado", "ok");
 }
 
-/* ============ COMPRA (Cierre viernes) ============ */
+/* ============ COMPRA ============ */
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
