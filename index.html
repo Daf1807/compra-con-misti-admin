@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.8 (Modelo 1Día · Fix unidades)</title>
+<title>Compra con Misti — Admin v16.9 (Fix undefined Firestore)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -225,7 +225,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.8 · Modelo 1Día · Escenarios normalizados a S//kg</p>
+<p>Panel Admin v16.9 · Modelo 1Día · Fix undefined Firestore</p>
 </div>
 </header>
 <div class="container">
@@ -650,7 +650,7 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.8</p>
+<p>Panel Admin · Modelo 1Día · v16.9</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -736,6 +736,23 @@ const claseMargen = m => {
   return "margen-malo";
 };
 
+/* ============ SANITIZADOR FIRESTORE (fix undefined) ============ */
+function limpiarUndefined(obj) {
+  if (obj === null || obj === undefined) return null;
+  if (Array.isArray(obj)) return obj.map(limpiarUndefined);
+  if (obj instanceof Date) return obj;
+  if (typeof obj === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (v === undefined) continue;
+      out[k] = limpiarUndefined(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
+/* ============ HELPERS UI ============ */
 function toast(msg, tipo) {
   const c = document.getElementById("toast");
   const t = document.createElement("div");
@@ -788,7 +805,12 @@ function getEscalones() { return getModeloConfig().escalones || ESCALONES_DEFAUL
 
 /* ============ FIRESTORE ============ */
 async function fsSet(colPath, id, data) {
-  try { showSync("saving"); await setDoc(doc(db, ...colPath, id), data, { merge: true }); showSync("saved"); }
+  try {
+    showSync("saving");
+    const limpio = limpiarUndefined(data);
+    await setDoc(doc(db, ...colPath, id), limpio, { merge: true });
+    showSync("saved");
+  }
   catch (e) { console.error("fsSet error:", e); toast("Error al guardar: " + e.message, "err"); }
 }
 async function fsDel(colPath, id) {
@@ -796,11 +818,21 @@ async function fsDel(colPath, id) {
   catch (e) { console.error("fsDel error:", e); toast("Error al eliminar: " + e.message, "err"); }
 }
 async function fsSetRonda(rondaId, data) {
-  try { showSync("saving"); await setDoc(doc(db, "rondas", rondaId), data, { merge: true }); showSync("saved"); }
+  try {
+    showSync("saving");
+    const limpio = limpiarUndefined(data);
+    await setDoc(doc(db, "rondas", rondaId), limpio, { merge: true });
+    showSync("saved");
+  }
   catch (e) { console.error("fsSetRonda error:", e); toast("Error al guardar ronda: " + e.message, "err"); }
 }
 async function fsSetConfig(data) {
-  try { showSync("saving"); await setDoc(doc(db, "config", "global"), data, { merge: true }); showSync("saved"); }
+  try {
+    showSync("saving");
+    const limpio = limpiarUndefined(data);
+    await setDoc(doc(db, "config", "global"), limpio, { merge: true });
+    showSync("saved");
+  }
   catch (e) { console.error("fsSetConfig error:", e); toast("Error al guardar config: " + e.message, "err"); }
 }
 
@@ -1160,7 +1192,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 168, rondaActiva: ronda,
+    version: 169, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1181,17 +1213,17 @@ async function autoSeed() {
   const seed = crearDBInicial();
   const rondaId = seed.rondaActiva;
   const batch1 = writeBatch(db);
-  seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }); });
-  seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }); });
-  seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }); });
+  seed.productos.forEach(p => { batch1.set(doc(db, "catalogo", "productos", "items", p.codigo), limpiarUndefined(p), { merge: true }); });
+  seed.clientes.forEach(c => { batch1.set(doc(db, "catalogo", "clientes", "items", c.id), limpiarUndefined(c), { merge: true }); });
+  seed.repartidores.forEach(r => { batch1.set(doc(db, "catalogo", "repartidores", "items", r.id), limpiarUndefined(r), { merge: true }); });
   await batch1.commit();
   await fsSetRonda(rondaId, seed.rondas[rondaId]);
   const batch2 = writeBatch(db);
-  seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), p, { merge: true }); });
-  seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
+  seed.precios.forEach(p => { batch2.set(doc(db, "rondas", rondaId, "precios", p.codigo_producto), limpiarUndefined(p), { merge: true }); });
+  seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.8 completado");
+  console.log("Auto-seed v16.9 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1231,10 +1263,10 @@ async function migrarEscenariosRonda(rondaId) {
       const codigo = pd.id;
       ESCALONES_DEFAULT.forEach((esc, i) => {
         const escId = codigo + "-" + i;
-        batch.set(doc(db, "rondas", rondaId, "escenarios", escId), {
+        batch.set(doc(db, "rondas", rondaId, "escenarios", escId), limpiarUndefined({
           id_ronda: rondaId, codigo_producto: codigo, esc_id: escId,
           escalon: esc, Pij: 0.1, Cij: 0, Cij_kg: 0, P_cola: 0
-        }, { merge: true });
+        }), { merge: true });
       });
     });
     await batch.commit();
@@ -1518,7 +1550,7 @@ async function confirmarNuevaRonda() {
         const batch = writeBatch(db);
         precSnap.docs.forEach(d => {
           const data = d.data();
-          const nuevo = { ...data, id_ronda: id };
+          const nuevo = limpiarUndefined({ ...data, id_ronda: id });
           batch.set(doc(db, "rondas", id, "precios", d.id), nuevo, { merge: true });
         });
         await batch.commit();
@@ -1527,7 +1559,7 @@ async function confirmarNuevaRonda() {
         const batch = writeBatch(db);
         escSnap.docs.forEach(d => {
           const data = d.data();
-          const nuevo = { ...data, id_ronda: id };
+          const nuevo = limpiarUndefined({ ...data, id_ronda: id });
           batch.set(doc(db, "rondas", id, "escenarios", d.id), nuevo, { merge: true });
         });
         await batch.commit();
@@ -2399,12 +2431,12 @@ async function copiarPreciosRondaAnterior() {
   const batch = writeBatch(db);
   precSnap.docs.forEach(d => {
     const data = d.data();
-    const nuevo = { ...data, id_ronda: DB.rondaActiva };
+    const nuevo = limpiarUndefined({ ...data, id_ronda: DB.rondaActiva });
     batch.set(doc(db, "rondas", DB.rondaActiva, "precios", d.id), nuevo, { merge: true });
   });
   escSnap.docs.forEach(d => {
     const data = d.data();
-    const nuevo = { ...data, id_ronda: DB.rondaActiva };
+    const nuevo = limpiarUndefined({ ...data, id_ronda: DB.rondaActiva });
     batch.set(doc(db, "rondas", DB.rondaActiva, "escenarios", d.id), nuevo, { merge: true });
   });
   await batch.commit();
@@ -3039,13 +3071,14 @@ function renderConfig() {
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
 
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v16.8):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v16.9):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
     • F_domingo se recalcula con N pedidos aceptados actuales<br>
     • P_L_final se fija el lunes y NO se toca el viernes<br>
-    • Escalones en S//kg: Cij_kg = C_L_kg + escalón
+    • Escalones en S//kg: Cij_kg = C_L_kg + escalón<br>
+    • <strong>Sanitización Firestore:</strong> campos undefined se eliminan automáticamente antes de guardar
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -3147,9 +3180,9 @@ function importarJSON() {
         cancelarSuscripciones();
         if (tieneCatalogo) {
           const b1 = writeBatch(db);
-          (d.catalogo.productos || []).forEach(p => { if (p.codigo) b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }); });
-          (d.catalogo.clientes || []).forEach(c => { if (c.id) b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }); });
-          (d.catalogo.repartidores || []).forEach(rep => { if (rep.id) b1.set(doc(db, "catalogo", "repartidores", "items", rep.id), rep, { merge: true }); });
+          (d.catalogo.productos || []).forEach(p => { if (p.codigo) b1.set(doc(db, "catalogo", "productos", "items", p.codigo), limpiarUndefined(p), { merge: true }); });
+          (d.catalogo.clientes || []).forEach(c => { if (c.id) b1.set(doc(db, "catalogo", "clientes", "items", c.id), limpiarUndefined(c), { merge: true }); });
+          (d.catalogo.repartidores || []).forEach(rep => { if (rep.id) b1.set(doc(db, "catalogo", "repartidores", "items", rep.id), limpiarUndefined(rep), { merge: true }); });
           await b1.commit();
         }
         if (tieneRondas) {
@@ -3161,16 +3194,16 @@ function importarJSON() {
             const colMap = { precios:"codigo_producto", escenarios:"esc_id", pedidos:"pedido_id", items:"item_id", compras:"codigo_producto", entregas:"pedido_id", gastos:"id", excedentes:"id", reclamos:"id" };
             for (const [col, idField] of Object.entries(colMap)) {
               const arr = rd[col] || [];
-              const payload = arr.map(item => ({ id: item[idField], data: { ...item, id_ronda: rid } })).filter(x => x.id);
+              const payload = arr.map(item => ({ id: item[idField], data: limpiarUndefined({ ...item, id_ronda: rid }) })).filter(x => x.id);
               if (payload.length) await commitBatches(["rondas", rid, col], payload);
             }
           }
         }
         if (Array.isArray(d.pedidos) && d.pedidos.length) {
           const rid = DB.rondaActiva;
-          const payloadP = d.pedidos.map(p => ({ id: p.pedido_id, data: { ...p, id_ronda: rid } })).filter(x => x.id);
+          const payloadP = d.pedidos.map(p => ({ id: p.pedido_id, data: limpiarUndefined({ ...p, id_ronda: rid }) })).filter(x => x.id);
           if (payloadP.length) await commitBatches(["rondas", rid, "pedidos"], payloadP);
-          const payloadI = (d.items || []).map(it => ({ id: it.item_id, data: { ...it, id_ronda: rid } })).filter(x => x.id);
+          const payloadI = (d.items || []).map(it => ({ id: it.item_id, data: limpiarUndefined({ ...it, id_ronda: rid }) })).filter(x => x.id);
           if (payloadI.length) await commitBatches(["rondas", rid, "items"], payloadI);
         }
         if (d.config) {
@@ -3233,6 +3266,12 @@ function importarSoloPedidos() {
   inp.click();
 }
 
+/* ---- Helper: quita la propiedad items de un objeto pedido (sin dejar undefined) ---- */
+function sinItems(obj) {
+  const { items, ...rest } = obj;
+  return rest;
+}
+
 function normalizarJSONPedidos(raw) {
   let sourcePedidos = [];
   let externalItems = [];
@@ -3244,15 +3283,15 @@ function normalizarJSONPedidos(raw) {
       advertencias.push(`El JSON tiene ${keys.length} rondas. Se usarán solo los pedidos de ${usar}.`);
     }
     const rd = raw.rondas[usar] || {};
-    sourcePedidos = (rd.pedidos || []).map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+    sourcePedidos = (rd.pedidos || []).map(p => ({ pedido: sinItems(p), embeddedItems: Array.isArray(p.items) ? p.items : [] }));
     externalItems = rd.items || [];
   } else if (Array.isArray(raw.pedidos)) {
-    sourcePedidos = raw.pedidos.map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+    sourcePedidos = raw.pedidos.map(p => ({ pedido: sinItems(p), embeddedItems: Array.isArray(p.items) ? p.items : [] }));
     externalItems = raw.items || [];
   } else if (Array.isArray(raw)) {
-    sourcePedidos = raw.map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+    sourcePedidos = raw.map(p => ({ pedido: sinItems(p), embeddedItems: Array.isArray(p.items) ? p.items : [] }));
   } else if (raw.pedido && raw.pedido.cliente_nombre) {
-    sourcePedidos = [{ pedido: { ...raw.pedido, items: undefined }, embeddedItems: raw.pedido.items || [] }];
+    sourcePedidos = [{ pedido: sinItems(raw.pedido), embeddedItems: raw.pedido.items || [] }];
   } else {
     throw new Error("Formato JSON no reconocido.\nUsá: export completo, {pedidos:[],items:[]}, array de pedidos, o {pedido:{...}}");
   }
@@ -3260,12 +3299,12 @@ function normalizarJSONPedidos(raw) {
   const nums = existentes.map(id => parseInt(String(id).replace("P-", ""), 10)).filter(n => !isNaN(n));
   let nextNum = Math.max(0, ...nums) + 1;
   const idMap = {};
-  sourcePedidos.forEach(sp => {
+  sourcePedidos.forEach((sp, spIdx) => {
     const idOrig = sp.pedido.pedido_id || null;
     if (!idOrig) {
       sp.pedido.pedido_id = "P-" + String(nextNum).padStart(4, "0");
       nextNum++;
-      idMap[`__nuevo_${sourcePedidos.indexOf(sp)}`] = sp.pedido.pedido_id;
+      idMap[`__nuevo_${spIdx}`] = sp.pedido.pedido_id;
     } else {
       idMap[idOrig] = idOrig;
     }
@@ -3445,7 +3484,7 @@ async function exportarExcel() {
 async function commitBatches(pathArr, items) {
   if (!items || !items.length) return;
   const chunks = []; for (let i = 0; i < items.length; i += 400) chunks.push(items.slice(i, i + 400));
-  for (const chunk of chunks) { const batch = writeBatch(db); chunk.forEach(({ id, data }) => { batch.set(doc(db, ...pathArr, id), data, { merge: true }); }); await batch.commit(); }
+  for (const chunk of chunks) { const batch = writeBatch(db); chunk.forEach(({ id, data }) => { batch.set(doc(db, ...pathArr, id), limpiarUndefined(data), { merge: true }); }); await batch.commit(); }
 }
 function importarExcel() {
   toast("Importación Excel simplificada. Usá JSON para datos del modelo 1Día.", "warn");
@@ -3553,8 +3592,7 @@ Object.assign(window, {
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
   importarSoloPedidos, exportarSoloPedidos, descargarPlantillaPedidos, normalizarJSONPedidos,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
-  recalcularDerivadosEnMemoria,
-  redondearQFinalUnidad
+  recalcularDerivadosEnMemoria, redondearQFinalUnidad, limpiarUndefined
 });
 </script>
 </body>
