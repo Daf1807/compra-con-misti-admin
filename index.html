@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.4 (Modelo 1Día)</title>
+<title>Compra con Misti — Admin v16.5 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -223,7 +223,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.4 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
+<p>Panel Admin v16.5 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -406,7 +406,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-compra">
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
-<p class="section-sub">Paso a paso: Pedido → kg → Bultos mayorista → kg → Faltante → <strong>Compra real editable</strong>. Debajo, tabla técnica con recorte por C_max.</p>
+<p class="section-sub">Tabla única: pedido → kg → bultos mayorista → compra real editable → recorte por C_max. <strong>Editá los campos amarillos y todo se recalcula en la misma fila.</strong></p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
@@ -579,7 +579,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.4</p>
+<p>Panel Admin · Modelo 1Día · v16.5</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -861,6 +861,20 @@ function calcularFDomingo() {
     + Number(f.empaque_por_pedido || 0) * N
     + Number(f.delivery_por_pedido || 0) * N;
 }
+
+/* ===== FIX v16.5: redondeo de Q_final en unidades enteras ===== */
+function redondearQFinalUnidad(codigo, qFinalKg) {
+  const prod = DB.productos.find(x => x.codigo === codigo);
+  if (!prod) return qFinalKg;
+  const equiv = getEquivKg(codigo);
+  const unidad = String(prod.unidad_venta || 'kg').toLowerCase();
+  const qUnidad = equiv > 0 ? qFinalKg / equiv : 0;
+  // kg: permitir decimales. atadito/unidad: redondear hacia abajo (no vender fracciones)
+  if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
+  return Math.floor(qUnidad);
+}
+
+/* ===== FIX v16.5: Qfinal_kg se deriva de Qprima_kg (antes estaba roto) ===== */
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
@@ -870,8 +884,10 @@ function calcularCompraProducto(codigo) {
   const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;
   const Qped_kg = qPedidaKgPorProducto(codigo);
   const Qped_un = qPedidaUnidadPorProducto(codigo);
+  // Recorte por C_max: si C_viernes > C_max, se reduce proporcionalmente
   const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
-  const Qfinal_un = Qfinal_kg / getEquivKg(codigo);
+  const Qfinal_kg = Qprima_kg;
+  // Qfinal_un respeta unidad de venta (ataditos/unidades enteras)
   const Qfinal_un = redondearQFinalUnidad(codigo, Qfinal_kg);
   const dif_kg = Qrecib != null ? Qrecib - Qfinal_kg : null;
   const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
@@ -885,16 +901,6 @@ function calcularCompraProducto(codigo) {
     equiv_kg: getEquivKg(codigo),
     equiv_kg_compra: getEquivKgCompra(codigo)
   };
-}
-  function redondearQFinalUnidad(codigo, qFinalKg) {
-  const prod = DB.productos.find(x => x.codigo === codigo);
-  if (!prod) return qFinalKg;
-  const equiv = getEquivKg(codigo);
-  const unidad = String(prod.unidad_venta || 'kg').toLowerCase();
-  const qUnidad = qFinalKg / equiv;
-  // kg: permitir decimales. atadito/unidad: redondear hacia abajo (no vender fracciones)
-  if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
-  return Math.floor(qUnidad);
 }
 function calcularCierreViernes() {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
@@ -1002,7 +1008,6 @@ const GMML_REF = {
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
   // [codigo, nombre, grupo, unidad_venta, unidad_compra, equiv_kg_venta, equiv_kg_compra]
-  // Venta SOLO puede ser "kg" | "atadito" | "unidad"
   const productos = [
     ["PR-001","Papa amarilla","Básico","kg","Kilogramo",1,1],
     ["PR-002","Papa blanca","Básico","kg","Kilogramo",1,1],
@@ -1079,7 +1084,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 164, rondaActiva: ronda,
+    version: 165, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1113,7 +1118,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.4 completado");
+  console.log("Auto-seed v16.5 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1170,7 +1175,6 @@ async function migrarProductosEquiv() {
     let hay = false;
     if (p.equiv_kg_venta == null) { update.equiv_kg_venta = Number(p.equiv_kg) || 1; hay = true; }
     if (p.equiv_kg_compra == null) { update.equiv_kg_compra = Number(p.equiv_kg) || 1; hay = true; }
-    // Normalizar unidad_venta vieja → kg / atadito / unidad
     if (p.unidad_venta) {
       const uv = String(p.unidad_venta).toLowerCase();
       let uvNorm = p.unidad_venta;
@@ -2067,7 +2071,6 @@ function abrirModalProducto(cod) {
     const p = DB.productos.find(x => x.codigo === cod);
     document.getElementById("prodNombreInput").value = p.nombre;
     document.getElementById("prodGrupoInput").value = p.grupo;
-    // Normaliza valores viejos → kg / atadito / unidad
     const uv = String(p.unidad_venta || p.unidad || "kg").toLowerCase();
     let uvNorm = "kg";
     if (uv.includes("atado")) uvNorm = "atadito";
@@ -2336,6 +2339,7 @@ function pedidoClienteTxt(prod, qPed_kg, qPed_un) {
   return `${qPed_un.toFixed(2)} u`;
 }
 
+/* ===== FIX v16.5: tabla ÚNICA (sin duplicación pedagógica/técnica) ===== */
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
@@ -3079,7 +3083,8 @@ Object.assign(window, {
   calcularReportes, updConfig, updModelo, updFijoDomingo, updEscalon, updCapVehiculo, updMaxParadas,
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
-  recalcularDerivadosEnMemoria
+  recalcularDerivadosEnMemoria,
+  redondearQFinalUnidad
 });
 </script>
 </body>
