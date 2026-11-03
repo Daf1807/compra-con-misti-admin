@@ -262,6 +262,9 @@ tbody tr:hover{background:#F4FBF6}
 <div class="topbar">
 <div class="crumb">Ronda activa: <strong id="crumbRonda">—</strong></div>
 <div class="actions">
+<button class="btn-add btn-sm" onclick="importarSoloPedidos()" title="Solo agrega/actualiza pedidos e items (NO BORRA NADA)">📥 Importar pedidos</button>
+<button class="btn-ghost btn-sm" onclick="exportarSoloPedidos()" title="Exportar solo pedidos e items de la ronda activa">📤 Exportar pedidos</button>
+<button class="btn-ghost btn-sm" onclick="descargarPlantillaPedidos()" title="Descargar plantilla JSON en blanco">📋 Plantilla</button>
 <button class="btn-ghost btn-sm" onclick="exportarJSON()">⬇️ JSON</button>
 <button class="btn-ghost btn-sm" onclick="exportarExcel()">⬇️ Excel</button>
 <button class="btn-ghost btn-sm" onclick="importarJSON()">⬆️ JSON</button>
@@ -373,7 +376,6 @@ tbody tr:hover{background:#F4FBF6}
 <div class="section">
 <h2>💰 Diagnóstico lunes — fijar precio de la semana</h2>
 
-<!-- ============ PANEL DE CONTROL DEL LUNES ============ -->
 <div class="info-box" style="background:#FFF6DE;border-left-color:var(--miel)">
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end">
     <div>
@@ -454,7 +456,6 @@ tbody tr:hover{background:#F4FBF6}
 <tbody id="preciosBody"></tbody>
 </table></div>
 
-<!-- ============ RESUMEN DEL LUNES ============ -->
 <div id="resumenLunes" style="margin-top:16px"></div>
 
 <div style="margin-top:24px">
@@ -848,27 +849,18 @@ function qPedidaUnidadPorProducto(codigoProducto) {
 function escenariosDeProducto(codigo) {
   return escenariosDeRonda().filter(e => e.codigo_producto === codigo);
 }
-
-/* ----------------------------------------------------------------
-   v16.8: los escalones se aplican sobre C_L en S//kg
-   (no sobre la unidad mayorista). Así el ruido de ±0.8 S/ es
-   comparable entre productos, y C_esp se diversifica por producto.
------------------------------------------------------------------ */
 function calcularEscenariosProducto(codigo) {
   const pr = precioMapa()[codigo];
   const eqC = getEquivKgCompra(codigo);
   const C_L_mayorista = Number(pr?.C_L) || 0;
   const C_L_kg = eqC > 0 ? C_L_mayorista / eqC : C_L_mayorista;
-
   const escs = escenariosDeProducto(codigo).slice().sort((a, b) => a.escalon - b.escalon);
   if (!escs.length) return [];
-
   const enriched = escs.map(e => ({
     escalon: Number(e.escalon) || 0,
     Pij: Number(e.Pij) || 0,
     Cij_kg: C_L_kg + (Number(e.escalon) || 0)
   }));
-
   enriched.forEach((e, i) => {
     let cola = 0;
     for (let j = i + 1; j < enriched.length; j++) cola += enriched[j].Pij;
@@ -876,7 +868,6 @@ function calcularEscenariosProducto(codigo) {
   });
   return enriched;
 }
-
 function calcularC_esp_kg(codigo) {
   const enr = calcularEscenariosProducto(codigo);
   if (!enr.length) return 0;
@@ -885,7 +876,6 @@ function calcularC_esp_kg(codigo) {
   const sumCP = enr.reduce((s, e) => s + e.Cij_kg * e.Pij, 0);
   return sumCP / sumP;
 }
-
 function calcularC_min_kg(codigo) {
   const enr = calcularEscenariosProducto(codigo);
   if (!enr.length) return 0;
@@ -893,36 +883,28 @@ function calcularC_min_kg(codigo) {
   const candidatos = enr.filter(e => e.P_cola <= p);
   return candidatos.length ? Math.min(...candidatos.map(e => e.Cij_kg)) : enr[enr.length - 1].Cij_kg;
 }
-
 function calcularDiagnosticoProducto(codigo) {
   const pr = precioMapa()[codigo];
   if (!pr) return null;
   const eqV = getEquivKg(codigo);
   const eqC = getEquivKgCompra(codigo);
-
   const PL_raw = Number(pr.P_L_mercado) || 0;
   const CL_raw = Number(pr.C_L) || 0;
-
   const PL_kg = eqV > 0 ? PL_raw / eqV : PL_raw;
   const CL_kg = eqC > 0 ? CL_raw / eqC : CL_raw;
-
   const Cesp_kg = calcularC_esp_kg(codigo);
   const Cmin_kg = calcularC_min_kg(codigo);
-
   const ML = PL_kg > 0 ? 1 - CL_kg / PL_kg : 0;
   const Mideal = PL_kg > 0 ? 1 - Cesp_kg / PL_kg : 0;
   const Mref = Math.max(ML, Mideal);
   const Mob = getMObjetivo();
   const sirve = Mref >= Mob;
-
   const base_kg = Math.min(CL_kg > 0 ? CL_kg : Infinity, Cesp_kg > 0 ? Cesp_kg : Infinity);
   const baseSafe_kg = isFinite(base_kg) ? base_kg : PL_kg;
   const PLsugerido_kg = Mob < 1 ? baseSafe_kg / (1 - Mob) : baseSafe_kg;
   const PLfinal_kg = Math.max(PL_kg, PLsugerido_kg);
   const PLfinal_cliente = PLfinal_kg * eqV;
-
   const Mmin = PLfinal_kg > 0 ? 1 - Cmin_kg / PLfinal_kg : 0;
-
   return {
     PL: PL_raw, CL: CL_raw,
     PL_kg, CL_kg, Cesp_kg, Cmin_kg, PLsugerido_kg, PLfinal_kg, PLfinal_cliente,
@@ -961,7 +943,6 @@ function calcularFDomingo() {
     + Number(f.empaque_por_pedido || 0) * N
     + Number(f.delivery_por_pedido || 0) * N;
 }
-
 function redondearQFinalUnidad(codigo, qFinalKg) {
   const prod = DB.productos.find(x => x.codigo === codigo);
   if (!prod) return qFinalKg;
@@ -971,7 +952,6 @@ function redondearQFinalUnidad(codigo, qFinalKg) {
   if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
   return Math.floor(qUnidad);
 }
-
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
@@ -1035,7 +1015,6 @@ function recalcularDerivadosEnMemoria() {
   const precios    = DB.precios;
   const escenarios = DB.escenarios;
   if (!precios.length) return;
-
   const escPorProd = {};
   escenarios.forEach(e => {
     const pr = precios.find(p => p.codigo_producto === e.codigo_producto);
@@ -1054,38 +1033,31 @@ function recalcularDerivadosEnMemoria() {
       e.P_cola = red4(cola);
     });
   });
-
   precios.forEach(pr => {
     const codigo = pr.codigo_producto;
     const eqV = getEquivKg(codigo);
     const eqC = getEquivKgCompra(codigo);
-
     const PL_raw = Number(pr.P_L_mercado) || 0;
     const CL_raw = Number(pr.C_L) || 0;
     const PL_kg = eqV > 0 ? PL_raw / eqV : PL_raw;
     const CL_kg = eqC > 0 ? CL_raw / eqC : CL_raw;
-
     const escs = escPorProd[codigo] || [];
     const sumP  = escs.reduce((s, e) => s + Number(e.Pij || 0), 0);
     const sumCP = escs.reduce((s, e) => s + Number(e.Cij_kg || 0) * Number(e.Pij || 0), 0);
     const Cesp_kg = sumP > 0 ? sumCP / sumP : 0;
-
     const ML = PL_kg > 0 ? 1 - CL_kg / PL_kg : 0;
     const Mideal = PL_kg > 0 ? 1 - Cesp_kg / PL_kg : 0;
     const Mref = Math.max(ML, Mideal);
     const sirve = Mref >= M_OBJETIVO;
-
     const base_kg = Math.min(CL_kg > 0 ? CL_kg : Infinity, Cesp_kg > 0 ? Cesp_kg : Infinity);
     const baseSafe_kg = isFinite(base_kg) ? base_kg : PL_kg;
     const PLsug_kg = M_OBJETIVO < 1 ? baseSafe_kg / (1 - M_OBJETIVO) : baseSafe_kg;
     const PLfin_kg = Math.max(PL_kg, PLsug_kg);
-
     const cands = escs.filter(e => Number(e.P_cola) <= P_PROB);
     const Cmin_kg = cands.length
       ? Math.min(...cands.map(e => Number(e.Cij_kg)))
       : (escs.length ? Number(escs[escs.length - 1].Cij_kg) : 0);
     const Mmin = PLfin_kg > 0 ? 1 - Cmin_kg / PLfin_kg : 0;
-
     pr.C_esp        = red4(Cesp_kg);
     pr.M_L          = red4(ML);
     pr.M_ideal      = red4(Mideal);
@@ -2240,8 +2212,6 @@ async function renderPrecios() {
   try {
     const body = document.getElementById("preciosBody");
     if (!body) { console.warn("[renderPrecios] preciosBody no existe"); return; }
-
-    // --- Sincronizar inputs del panel de control ---
     const mObjEl = document.getElementById("mObjetivoInput");
     if (mObjEl) mObjEl.value = getMObjetivo();
     const pEl = document.getElementById("pProbInput");
@@ -2253,12 +2223,9 @@ async function renderPrecios() {
       const M = getMObjetivo();
       mkEl.textContent = M < 1 ? (1 / (1 - M)).toFixed(2) + "×" : "∞";
     }
-
     const q = (document.getElementById("precioBuscar")?.value || "").toLowerCase();
     const g = (document.getElementById("precioGrupoFiltro")?.value || "");
     const pmap = precioMapa();
-
-    // --- Δ vs ronda anterior ---
     let prevMap = {};
     try {
       const rondas = Object.keys(DB.rondas).sort();
@@ -2269,11 +2236,9 @@ async function renderPrecios() {
         snap.docs.forEach(d => { const p = d.data(); prevMap[p.codigo_producto] = p; });
       }
     } catch (e) { console.warn("no se pudo leer ronda anterior:", e); }
-
     let prods = DB.productos.filter(p => p.activo);
     if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
     if (g) prods = prods.filter(p => p.grupo === g);
-
     if (!prods.length) {
       body.innerHTML = `<tr><td colspan="14" class="warn-box">No hay productos activos que coincidan con el filtro.</td></tr>`;
       const escContEmpty = document.getElementById("escenariosContenido");
@@ -2282,8 +2247,6 @@ async function renderPrecios() {
       renderResumenLunes();
       return;
     }
-
-    // --- Filas de la tabla (14 columnas) ---
     body.innerHTML = prods.map(p => {
       const pr = pmap[p.codigo] || {};
       const diag = calcularDiagnosticoProducto(p.codigo);
@@ -2333,8 +2296,6 @@ async function renderPrecios() {
         <td>${delta}</td>
       </tr>`;
     }).join("");
-
-    // --- Acordeones de escenarios ---
     const escCont = document.getElementById("escenariosContenido");
     if (escCont) {
       let escHTML = "";
@@ -2377,7 +2338,6 @@ async function renderPrecios() {
       });
       escCont.innerHTML = escHTML;
     }
-
     renderSemaforoLunes();
     renderResumenLunes();
   } catch (e) {
@@ -2466,7 +2426,7 @@ async function publicarPrecios() {
   refrescarSelector(); toast("✓ P_L_final publicado", "ok");
 }
 
-/* ============ CONTROL PANEL LUNES (v16.8) ============ */
+/* ============ CONTROL PANEL LUNES ============ */
 async function aplicarMObjetivo(valor) {
   let v = Number(valor) || M_OBJETIVO_DEFAULT;
   v = Math.max(0.01, Math.min(0.95, v));
@@ -2478,7 +2438,6 @@ async function aplicarMObjetivo(valor) {
   toast("M_objetivo → " + fmtPct(v), "ok");
   await renderPrecios();
 }
-
 async function aplicarPProb(valor) {
   let v = Number(valor) || P_DEFAULT;
   v = Math.max(0.001, Math.min(1, v));
@@ -2488,7 +2447,6 @@ async function aplicarPProb(valor) {
   toast("p → " + (v * 100).toFixed(1) + "%", "ok");
   await renderPrecios();
 }
-
 async function aplicarGMin(valor) {
   const v = Math.max(0, Number(valor) || 0);
   if (!DB.config.modelo) DB.config.modelo = {};
@@ -2497,13 +2455,11 @@ async function aplicarGMin(valor) {
   toast("G_min → " + soles(v), "ok");
   await renderPrecios();
 }
-
 async function recalcularYPubicar() {
   await publicarPrecios();
   await renderPrecios();
   toast("✓ Recalculado y publicado", "ok");
 }
-
 function renderSemaforoLunes() {
   const cont = document.getElementById("semaforoLunes");
   if (!cont) return;
@@ -2524,7 +2480,6 @@ function renderSemaforoLunes() {
   const M = getMObjetivo();
   cont.innerHTML = `<span class="badge" style="background:${color};color:#fff;font-size:12px;padding:8px 14px;font-weight:800;letter-spacing:.03em">${emoji} ${sirven}/${total} productos sirven (M_ref ≥ ${fmtPct(M)}) — ${txt}</span>`;
 }
-
 function renderResumenLunes() {
   const cont = document.getElementById("resumenLunes");
   if (!cont) return;
@@ -2583,7 +2538,6 @@ function pedidoClienteTxt(prod, qPed_kg, qPed_un) {
   if (modo === "unidad") return `${qPed_un.toFixed(0)} unidad${qPed_un !== 1 ? "es" : ""}`;
   return `${qPed_un.toFixed(2)} u`;
 }
-
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
@@ -2594,7 +2548,6 @@ function calcularListaCompra() {
     return;
   }
   const confirmados = filas.filter(f => f.C_viernes != null && f.Q_recibida_kg != null).length;
-
   document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
@@ -2606,7 +2559,6 @@ function calcularListaCompra() {
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
       <br><span class="small-note">✏️ C_viernes = S/ por kg. Q_comprada y Q_recibida = kg. Q_final (unidad) se redondea abajo para ataditos/unidades.</span>
     </div>`;
-
   document.getElementById("listaCompraContenido").innerHTML = `
     <div class="table-scroll"><table>
       <thead>
@@ -2683,7 +2635,6 @@ function calcularListaCompra() {
       C_viernes se ingresa en <strong>S/ por kg</strong> — si comprás por unidad mayorista, dividí: S/132 por Ciento de 42kg → S/3.14/kg.
       Q_recibida es lo que pesaste al recibir; si es menor a Q_final, Δ kg sale negativo.
     </p>`;
-
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
@@ -3154,6 +3105,8 @@ async function exportarJSON() {
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
+
+/* ---- IMPORTACIÓN SEGURA (MERGE, nunca borra) ---- */
 function importarJSON() {
   const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".json";
   inp.onchange = e => {
@@ -3162,40 +3115,308 @@ function importarJSON() {
     r.onload = async ev => {
       try {
         const d = JSON.parse(ev.target.result);
-        if (!d.rondas || !d.catalogo) throw new Error("JSON no válido");
-        if (!confirm("¿Reemplazar todos los datos actuales en Firestore?")) return;
-        if (!confirm("⚠️ Última confirmación")) return;
-        const wipe = confirm("¿Borrar TODOS los datos actuales antes de importar?");
-        cancelarSuscripciones();
-        if (wipe) {
-          const subcolsWipe = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
-          const rondasSnap = await getDocs(collection(db, "rondas"));
-          for (const rDoc of rondasSnap.docs) { await Promise.all(subcolsWipe.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
-          await Promise.all([deleteCollectionInBatches(["catalogo","productos","items"]), deleteCollectionInBatches(["catalogo","clientes","items"]), deleteCollectionInBatches(["catalogo","repartidores","items"])]);
+        const tieneRondas   = d.rondas && typeof d.rondas === "object";
+        const tieneCatalogo = d.catalogo && typeof d.catalogo === "object";
+        const tienePedidos  = Array.isArray(d.pedidos) ||
+          (tieneRondas && Object.values(d.rondas).some(rr => Array.isArray(rr.pedidos)));
+        if (!tieneRondas && !tieneCatalogo && !tienePedidos) {
+          throw new Error("JSON no válido: no contiene rondas, catálogo ni pedidos.");
         }
-        const b1 = writeBatch(db);
-        (d.catalogo.productos || []).forEach(p => b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }));
-        (d.catalogo.clientes || []).forEach(c => b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }));
-        (d.catalogo.repartidores || []).forEach(r => b1.set(doc(db, "catalogo", "repartidores", "items", r.id), r, { merge: true }));
-        await b1.commit();
-        for (const rid of Object.keys(d.rondas)) {
-          const rd = d.rondas[rid];
-          await fsSetRonda(rid, rd.meta);
-          const colMap = { precios: "codigo_producto", escenarios: "esc_id", pedidos: "pedido_id", items: "item_id", compras: "codigo_producto", entregas: "pedido_id", gastos: "id", excedentes: "id", reclamos: "id" };
-          for (const [col, idField] of Object.entries(colMap)) {
-            const arr = rd[col] || [];
-            const payload = arr.map(item => ({ id: item[idField], data: item })).filter(x => x.id);
-            await commitBatches(["rondas", rid, col], payload);
+        const numRondas       = tieneRondas ? Object.keys(d.rondas).length : 0;
+        const numProductos    = tieneCatalogo && Array.isArray(d.catalogo.productos) ? d.catalogo.productos.length : 0;
+        const numClientes     = tieneCatalogo && Array.isArray(d.catalogo.clientes) ? d.catalogo.clientes.length : 0;
+        const numRepartidores = tieneCatalogo && Array.isArray(d.catalogo.repartidores) ? d.catalogo.repartidores.length : 0;
+        let numPedidos = 0, numItems = 0;
+        if (tieneRondas) {
+          Object.values(d.rondas).forEach(rr => {
+            numPedidos += (rr.pedidos || []).length;
+            numItems   += (rr.items || []).length;
+          });
+        }
+        if (Array.isArray(d.pedidos)) numPedidos += d.pedidos.length;
+        if (Array.isArray(d.items))   numItems   += d.items.length;
+        let msg = "📥 IMPORTAR JSON (MERGE — NO BORRA NADA)\n\n";
+        if (numRondas)       msg += `🔄 ${numRondas} rondas\n`;
+        if (numProductos)    msg += `📦 ${numProductos} productos\n`;
+        if (numClientes)     msg += `👥 ${numClientes} clientes\n`;
+        if (numRepartidores) msg += `🛵 ${numRepartidores} repartidores\n`;
+        if (numPedidos)      msg += `📋 ${numPedidos} pedidos\n`;
+        if (numItems)        msg += `📝 ${numItems} items\n`;
+        msg += "\n✅ Los datos existentes se MANTIENEN.\nSolo se agregan o actualizan los que vienen en el JSON.\n\n¿Continuar?";
+        if (!confirm(msg)) return;
+        cancelarSuscripciones();
+        if (tieneCatalogo) {
+          const b1 = writeBatch(db);
+          (d.catalogo.productos || []).forEach(p => { if (p.codigo) b1.set(doc(db, "catalogo", "productos", "items", p.codigo), p, { merge: true }); });
+          (d.catalogo.clientes || []).forEach(c => { if (c.id) b1.set(doc(db, "catalogo", "clientes", "items", c.id), c, { merge: true }); });
+          (d.catalogo.repartidores || []).forEach(rep => { if (rep.id) b1.set(doc(db, "catalogo", "repartidores", "items", rep.id), rep, { merge: true }); });
+          await b1.commit();
+        }
+        if (tieneRondas) {
+          for (const rid of Object.keys(d.rondas)) {
+            const rd = d.rondas[rid];
+            if (!rd || typeof rd !== "object") continue;
+            if (rd.meta) await fsSetRonda(rid, rd.meta);
+            else if (!DB.rondas[rid]) await fsSetRonda(rid, { id_ronda: rid, estado: "abierta", nombre: "", fecha_apertura: ahora(), precios_publicados: false });
+            const colMap = { precios:"codigo_producto", escenarios:"esc_id", pedidos:"pedido_id", items:"item_id", compras:"codigo_producto", entregas:"pedido_id", gastos:"id", excedentes:"id", reclamos:"id" };
+            for (const [col, idField] of Object.entries(colMap)) {
+              const arr = rd[col] || [];
+              const payload = arr.map(item => ({ id: item[idField], data: { ...item, id_ronda: rid } })).filter(x => x.id);
+              if (payload.length) await commitBatches(["rondas", rid, col], payload);
+            }
           }
         }
-        if (d.config) await fsSetConfig(d.config);
-        toast("✓ Importación completada", "ok"); setTimeout(() => location.reload(), 1500);
-      } catch (err) { toast("Error: " + err.message, "err"); }
+        if (Array.isArray(d.pedidos) && d.pedidos.length) {
+          const rid = DB.rondaActiva;
+          const payloadP = d.pedidos.map(p => ({ id: p.pedido_id, data: { ...p, id_ronda: rid } })).filter(x => x.id);
+          if (payloadP.length) await commitBatches(["rondas", rid, "pedidos"], payloadP);
+          const payloadI = (d.items || []).map(it => ({ id: it.item_id, data: { ...it, id_ronda: rid } })).filter(x => x.id);
+          if (payloadI.length) await commitBatches(["rondas", rid, "items"], payloadI);
+        }
+        if (d.config) {
+          if (confirm("El JSON incluye configuración global.\n¿Aplicarla? (Cancelar = conservar la tuya)")) {
+            await fsSetConfig(d.config);
+          }
+        }
+        toast("✓ Importación completada (sin borrar nada)", "ok");
+        setTimeout(() => location.reload(), 800);
+      } catch (err) {
+        console.error(err);
+        toast("Error: " + err.message, "err");
+      }
     };
     r.readAsText(f);
   };
   inp.click();
 }
+
+/* ---- IMPORTAR SOLO PEDIDOS (safe, merge) ---- */
+function importarSoloPedidos() {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = ".json";
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = async ev => {
+      try {
+        const raw = JSON.parse(ev.target.result);
+        const { pedidos, items, advertencias } = normalizarJSONPedidos(raw);
+        if (!pedidos.length) { toast("No se encontraron pedidos en el JSON", "warn"); return; }
+        const existentes = new Set(pedidosDeRonda().map(p => p.pedido_id));
+        const nuevos = pedidos.filter(p => !existentes.has(p.pedido_id));
+        const actualizados = pedidos.length - nuevos.length;
+        let msg = `📥 IMPORTAR PEDIDOS → ronda ${DB.rondaActiva}\n\n`;
+        msg += `📦 ${pedidos.length} pedidos (${nuevos.length} nuevos, ${actualizados} ya existen)\n`;
+        msg += `📋 ${items.length} items\n`;
+        if (advertencias.length) msg += `\n⚠️ ${advertencias.length} advertencia(s):\n` + advertencias.slice(0, 5).map(a => "  • " + a).join("\n") + (advertencias.length > 5 ? `\n  … y ${advertencias.length - 5} más` : "");
+        msg += "\n✅ NO se borrará nada. Los pedidos con el mismo ID se actualizan (merge).\n\n¿Continuar?";
+        if (!confirm(msg)) return;
+        let nPed = 0, nIt = 0, errs = 0;
+        for (const p of pedidos) {
+          try { await guardarPedido(p); nPed++; }
+          catch (err) { errs++; console.error("Error pedido:", err); }
+        }
+        for (const it of items) {
+          try { await guardarItem(it); nIt++; }
+          catch (err) { errs++; console.error("Error item:", err); }
+        }
+        toast(`✓ Importados ${nPed} pedidos + ${nIt} items${errs ? ` (${errs} errores)` : ""}`, errs ? "warn" : "ok");
+        renderTodo();
+      } catch (err) {
+        console.error(err);
+        toast("Error: " + err.message, "err");
+      }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+function normalizarJSONPedidos(raw) {
+  let sourcePedidos = [];
+  let externalItems = [];
+  const advertencias = [];
+  if (raw.rondas && typeof raw.rondas === "object") {
+    const keys = Object.keys(raw.rondas);
+    const usar = keys.includes(DB.rondaActiva) ? DB.rondaActiva : keys[0];
+    if (keys.length > 1 && !keys.includes(DB.rondaActiva)) {
+      advertencias.push(`El JSON tiene ${keys.length} rondas. Se usarán solo los pedidos de ${usar}.`);
+    }
+    const rd = raw.rondas[usar] || {};
+    sourcePedidos = (rd.pedidos || []).map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+    externalItems = rd.items || [];
+  } else if (Array.isArray(raw.pedidos)) {
+    sourcePedidos = raw.pedidos.map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+    externalItems = raw.items || [];
+  } else if (Array.isArray(raw)) {
+    sourcePedidos = raw.map(p => ({ pedido: { ...p, items: undefined }, embeddedItems: Array.isArray(p.items) ? p.items : [] }));
+  } else if (raw.pedido && raw.pedido.cliente_nombre) {
+    sourcePedidos = [{ pedido: { ...raw.pedido, items: undefined }, embeddedItems: raw.pedido.items || [] }];
+  } else {
+    throw new Error("Formato JSON no reconocido.\nUsá: export completo, {pedidos:[],items:[]}, array de pedidos, o {pedido:{...}}");
+  }
+  const existentes = pedidosDeRonda().map(p => p.pedido_id);
+  const nums = existentes.map(id => parseInt(String(id).replace("P-", ""), 10)).filter(n => !isNaN(n));
+  let nextNum = Math.max(0, ...nums) + 1;
+  const idMap = {};
+  sourcePedidos.forEach(sp => {
+    const idOrig = sp.pedido.pedido_id || null;
+    if (!idOrig) {
+      sp.pedido.pedido_id = "P-" + String(nextNum).padStart(4, "0");
+      nextNum++;
+      idMap[`__nuevo_${sourcePedidos.indexOf(sp)}`] = sp.pedido.pedido_id;
+    } else {
+      idMap[idOrig] = idOrig;
+    }
+    sp.__idOrig = idOrig;
+  });
+  const pmap = precioMapa();
+  const prodsMap = {};
+  DB.productos.forEach(p => { prodsMap[p.codigo] = p; });
+  const pedidosNorm = [];
+  const itemsNorm = [];
+  sourcePedidos.forEach((sp, pIdx) => {
+    const p = { ...sp.pedido };
+    p.id_ronda = DB.rondaActiva;
+    if (!p.cliente_nombre) { advertencias.push(`Pedido #${pIdx + 1}: falta cliente_nombre → saltado`); return; }
+    if (!p.cliente_celular) p.cliente_celular = "";
+    if (!p.estado) p.estado = "pendiente_pago_efectivo";
+    if (!p.fecha) p.fecha = ahora();
+    if (!p.historial_estados) {
+      p.historial_estados = [{ estado: p.estado, fecha: p.fecha, por: "Import", motivo: "Importación JSON" }];
+    }
+    if (!p.modalidad) p.modalidad = "delivery";
+    if (!p.metodo_pago) p.metodo_pago = "Efectivo";
+    if (!p.tipo_cliente) p.tipo_cliente = "B2C";
+    const finalId = p.pedido_id;
+    const itemsExternos = externalItems.filter(it => {
+      if (!it.pedido_id) return false;
+      return it.pedido_id === sp.__idOrig || it.pedido_id === finalId;
+    });
+    const todosItems = [...sp.embeddedItems, ...itemsExternos];
+    let subtotalCalc = 0;
+    todosItems.forEach((itRaw, idx) => {
+      const it = { ...itRaw };
+      it.id_ronda = DB.rondaActiva;
+      it.pedido_id = finalId;
+      if (!it.item_id) it.item_id = finalId + "-" + String(idx + 1).padStart(2, "0");
+      const prod = prodsMap[it.codigo_producto];
+      const pr   = pmap[it.codigo_producto];
+      if (!it.nombre && prod) it.nombre = prod.nombre;
+      if (!it.unidad && prod) it.unidad = prod.unidad_venta;
+      if (it.precio_venta_congelado == null) {
+        if (pr) it.precio_venta_congelado = red2((Number(pr.P_L_final) || 0) * getEquivKg(it.codigo_producto));
+        else { it.precio_venta_congelado = 0; advertencias.push(`Item ${it.item_id}: sin precio (${it.codigo_producto})`); }
+      }
+      if (it.subtotal_venta == null) {
+        it.subtotal_venta = red2(Number(it.cantidad || 0) * Number(it.precio_venta_congelado || 0));
+      }
+      if (!it.estado) it.estado = "pendiente";
+      if (it.cantidad == null) it.cantidad = 0;
+      subtotalCalc += Number(it.subtotal_venta || 0);
+      itemsNorm.push(it);
+    });
+    if (p.subtotal == null) p.subtotal = red2(subtotalCalc);
+    if (p.total == null)    p.total    = red2(subtotalCalc);
+    pedidosNorm.push(p);
+  });
+  return { pedidos: pedidosNorm, items: itemsNorm, advertencias };
+}
+
+function exportarSoloPedidos() {
+  const pedidos = pedidosDeRonda();
+  const items = itemsDeRonda();
+  if (!pedidos.length) { toast("Sin pedidos en esta ronda", "warn"); return; }
+  const data = {
+    _formato: "pedidos-v1",
+    _ronda: DB.rondaActiva,
+    _exportado: ahora(),
+    pedidos: pedidos.map(p => ({
+      pedido_id: p.pedido_id,
+      cliente_nombre: p.cliente_nombre,
+      cliente_celular: p.cliente_celular,
+      direccion: p.direccion || "",
+      distrito: p.distrito || "",
+      lat: p.lat || null, lng: p.lng || null,
+      tipo_cliente: p.tipo_cliente || "B2C",
+      estado: p.estado,
+      metodo_pago: p.metodo_pago,
+      modalidad: p.modalidad,
+      notas: p.notas || "",
+      total: p.total,
+      subtotal: p.subtotal,
+      fecha: p.fecha
+    })),
+    items: items.map(it => ({
+      item_id: it.item_id,
+      pedido_id: it.pedido_id,
+      codigo_producto: it.codigo_producto,
+      nombre: it.nombre,
+      unidad: it.unidad,
+      cantidad: it.cantidad,
+      precio_venta_congelado: it.precio_venta_congelado,
+      subtotal_venta: it.subtotal_venta,
+      estado: it.estado || "pendiente"
+    }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = `pedidos_${DB.rondaActiva}_${hoy()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast(`✓ Exportados ${pedidos.length} pedidos`, "ok");
+}
+
+function descargarPlantillaPedidos() {
+  const pmap = precioMapa();
+  const ejemplos = Object.keys(pmap).slice(0, 3).map(cod => {
+    const pr = pmap[cod];
+    const prod = DB.productos.find(p => p.codigo === cod);
+    return {
+      codigo_producto: cod,
+      nombre: prod?.nombre || cod,
+      cantidad: 1,
+      unidad: prod?.unidad_venta || "kg",
+      precio_venta_congelado: red2((Number(pr.P_L_final) || 0) * getEquivKg(cod))
+    };
+  });
+  const plantilla = {
+    _instrucciones: "Llená el array 'pedidos'. Cada pedido puede tener items embebidos o un array externo 'items' con pedido_id. Si omitís pedido_id/item_id se generan automáticamente. NO borra nada al importar.",
+    _formato: "pedidos-v1",
+    pedidos: [
+      {
+        cliente_nombre: "Cliente de Ejemplo",
+        cliente_celular: "999888777",
+        direccion: "Av. Ejemplo 123",
+        distrito: "Miraflores",
+        tipo_cliente: "B2C",
+        metodo_pago: "Yape",
+        modalidad: "delivery",
+        notas: "Tocar el timbre",
+        items: ejemplos
+      },
+      {
+        cliente_nombre: "Restaurante Ejemplo SAC",
+        cliente_celular: "999111222",
+        direccion: "Calle Comida 456",
+        distrito: "San Isidro",
+        tipo_cliente: "B2B",
+        metodo_pago: "Transferencia",
+        modalidad: "delivery",
+        items: [
+          { codigo_producto: ejemplos[0]?.codigo_producto || "PR-001", cantidad: 5 },
+          { codigo_producto: ejemplos[1]?.codigo_producto || "PR-002", cantidad: 3 }
+        ]
+      }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(plantilla, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = `plantilla_pedidos_${hoy()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast("✓ Plantilla descargada", "ok");
+}
+
 async function exportarExcel() {
   try {
     if (typeof XLSX === "undefined") { toast("SheetJS no cargado", "err"); return; }
@@ -3330,6 +3551,7 @@ Object.assign(window, {
   agregarReclamo, updReclamo, delReclamo,
   calcularReportes, updConfig, updModelo, updFijoDomingo, updEscalon, updCapVehiculo, updMaxParadas,
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
+  importarSoloPedidos, exportarSoloPedidos, descargarPlantillaPedidos, normalizarJSONPedidos,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
   recalcularDerivadosEnMemoria,
   redondearQFinalUnidad
