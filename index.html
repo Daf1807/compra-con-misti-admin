@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16 (Modelo 1Día)</title>
+<title>Compra con Misti — Admin v16.1 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -224,7 +224,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
+<p>Panel Admin v16.1 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -561,7 +561,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16</p>
+<p>Panel Admin · Modelo 1Día · v16.1</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -763,13 +763,11 @@ function calcularEscenariosProducto(codigo) {
   const C_L = Number(pr?.C_L) || 0;
   const escs = escenariosDeProducto(codigo).slice().sort((a, b) => a.escalon - b.escalon);
   if (!escs.length) return [];
-  // Cij = C_L + escalon
   const enriched = escs.map(e => ({
     escalon: Number(e.escalon) || 0,
     Pij: Number(e.Pij) || 0,
     Cij: C_L + (Number(e.escalon) || 0)
   }));
-  // P_cola = suma de Pij donde Cij es mayor a este
   enriched.forEach((e, i) => {
     let cola = 0;
     for (let j = i + 1; j < enriched.length; j++) cola += enriched[j].Pij;
@@ -789,7 +787,7 @@ function calcularC_min(codigo) {
   if (!enr.length) return 0;
   const p = getP();
   const candidatos = enr.filter(e => e.P_cola <= p);
-  if (!candidatos.length) return enr[enr.length - 1].Cij; // si ninguno cumple, el más alto
+  if (!candidatos.length) return enr[enr.length - 1].Cij;
   return Math.min(...candidatos.map(e => e.Cij));
 }
 function calcularDiagnosticoProducto(codigo) {
@@ -823,7 +821,6 @@ function calcularUmbralProducto(codigo) {
   return { ...diag, V_esperado, F, Gmin, Mreq, Mumbral, Cmax };
 }
 function calcularVEsperado() {
-  // Σ Q_pedida_kg × P_L_final de todos los productos con modelo
   let total = 0;
   const pm = precioMapa();
   Object.keys(pm).forEach(codigo => {
@@ -885,7 +882,6 @@ function calcularCierreViernes() {
   return { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados };
 }
 function calcularRecorteMap() {
-  // Devuelve { codigo: { factor, Cmax, Cv } } para mostrar cantidad final por item
   const map = {};
   Object.keys(precioMapa()).forEach(codigo => {
     const c = calcularCompraProducto(codigo);
@@ -897,6 +893,73 @@ function calcularRecorteMap() {
     }
   });
   return map;
+}
+
+/* =========================================================
+   RECALCULA LOS CAMPOS DE SALIDA (derivados)
+   Idempotente. No pisa datos de entrada (P_L_mercado, C_L,
+   Pij, escalon, Q_pedida). Se llama al cargar precios/escenarios.
+   ========================================================= */
+function recalcularDerivadosEnMemoria() {
+  const M_OBJETIVO = getMObjetivo();
+  const P_PROB     = getP();
+  const precios    = DB.precios;
+  const escenarios = DB.escenarios;
+  if (!precios.length) return;
+
+  // ---- 1) ESCENARIOS: Cij = C_L + escalon ; P_cola = Σ Pij con Cij mayor ----
+  const escPorProd = {};
+  escenarios.forEach(e => {
+    const pr = precios.find(p => p.codigo_producto === e.codigo_producto);
+    const CL = Number(pr?.C_L) || 0;
+    e.Cij = red2(CL + (Number(e.escalon) || 0));
+    (escPorProd[e.codigo_producto] = escPorProd[e.codigo_producto] || []).push(e);
+  });
+  Object.values(escPorProd).forEach(arr => {
+    arr.sort((a, b) => a.escalon - b.escalon);
+    arr.forEach((e, i) => {
+      let cola = 0;
+      for (let j = i + 1; j < arr.length; j++) cola += Number(arr[j].Pij) || 0;
+      e.P_cola = red4(cola);
+    });
+  });
+
+  // ---- 2) PRECIOS: todos los derivados del lunes ----
+  precios.forEach(pr => {
+    const PL = Number(pr.P_L_mercado) || 0;
+    const CL = Number(pr.C_L) || 0;
+    const escs = escPorProd[pr.codigo_producto] || [];
+
+    const sumP  = escs.reduce((s, e) => s + Number(e.Pij || 0), 0);
+    const sumCP = escs.reduce((s, e) => s + Number(e.Cij || 0) * Number(e.Pij || 0), 0);
+    const Cesp  = sumP > 0 ? sumCP / sumP : 0;
+
+    const ML     = PL > 0 ? 1 - CL   / PL : 0;
+    const Mideal = PL > 0 ? 1 - Cesp / PL : 0;
+    const Mref   = Math.max(ML, Mideal);
+    const sirve  = Mref >= M_OBJETIVO;
+
+    const base     = Math.min(CL > 0 ? CL : Infinity, Cesp > 0 ? Cesp : Infinity);
+    const baseSafe = isFinite(base) ? base : PL;
+    const PLsug    = M_OBJETIVO < 1 ? baseSafe / (1 - M_OBJETIVO) : baseSafe;
+    const PLfin    = Math.max(PL, PLsug);
+
+    const cands = escs.filter(e => Number(e.P_cola) <= P_PROB);
+    const Cmin  = cands.length
+      ? Math.min(...cands.map(e => Number(e.Cij)))
+      : (escs.length ? escs[escs.length - 1].Cij : 0);
+    const Mmin = PLfin > 0 ? 1 - Cmin / PLfin : 0;
+
+    pr.C_esp        = red2(Cesp);
+    pr.M_L          = red4(ML);
+    pr.M_ideal      = red4(Mideal);
+    pr.M_ref        = red4(Mref);
+    pr.sirve        = sirve;
+    pr.P_L_sugerido = red2(PLsug);
+    pr.P_L_final    = red2(PLfin);
+    pr.C_min        = red2(Cmin);
+    pr.M_min        = red4(Mmin);
+  });
 }
 
 /* ============ SEED ============ */
@@ -912,7 +975,6 @@ const GMML_REF = {
 
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
-  // Productos con equiv_kg por defecto (usuario los ajusta manualmente)
   const productos = [
     ["PR-001","Papa amarilla","Básico","Kilogramo","Kilogramo",1],
     ["PR-002","Papa blanca","Básico","Kilogramo","Kilogramo",1],
@@ -962,7 +1024,6 @@ function crearDBInicial() {
     { id:"R-03", nombre:"Jorge Valdivia Núñez", celular:"965432109", vehiculo:"Auto", capacidad_max_kg:350, activo:true }
   ];
 
-  // Precios iniciales: P_L_mercado = ref + 2, C_L = ref
   const precios = productos.map(prod => {
     const CL = GMML_REF[prod.codigo] ?? 1.00;
     const PL = CL + 2;
@@ -976,7 +1037,6 @@ function crearDBInicial() {
     };
   });
 
-  // Escenarios iniciales uniformes (0.1 cada uno)
   const escenarios = [];
   productos.forEach(prod => {
     ESCALONES_DEFAULT.forEach((esc, i) => {
@@ -1023,10 +1083,9 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16 completado");
+  console.log("Auto-seed v16.1 completado");
 }
 
-/* Migración precios */
 async function migrarPreciosRonda(rondaId) {
   if (!rondaId) return;
   try {
@@ -1130,7 +1189,11 @@ function suscribirRonda(rondaId) {
   migrarEscenariosRonda(rondaId);
   ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(sub => {
     unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, sub), snap => {
-      const key = sub; DB[key] = snap.docs.map(d => d.data());
+      DB[sub] = snap.docs.map(d => d.data());
+      // ✨ RECALCULAR derivados cuando llegan precios o escenarios
+      if (sub === "precios" || sub === "escenarios") {
+        try { recalcularDerivadosEnMemoria(); } catch (e) { console.error("recalc err", e); }
+      }
       renderTodo();
     }));
   });
@@ -1418,14 +1481,12 @@ function renderDashboard() {
   const empacados = pedidos.filter(p => p.estado === "empacado");
   const entregados = pedidos.filter(p => p.estado === "entregado");
   const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
-  // Costo estimado: C_esp por producto
   let costoEst = 0;
   Object.keys(precioMapa()).forEach(codigo => {
     const diag = calcularDiagnosticoProducto(codigo);
     if (!diag) return;
     costoEst += diag.Cesp * qPedidaKgPorProducto(codigo);
   });
-  // Costo real: Q_recibida × C_viernes
   let costoReal = 0;
   comprasDeRonda().forEach(c => {
     if (c.Q_recibida_kg != null && c.C_viernes != null) {
@@ -2083,7 +2144,6 @@ async function setPrecio(codigo, campo, valor) {
     P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
   };
   pr[campo] = num;
-  // Recalcular derivados
   const diag = calcularDiagnosticoProducto(codigo);
   if (diag) {
     pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
@@ -2099,7 +2159,6 @@ async function setPij(escId, valor) {
   if (!e) return;
   e.Pij = Math.max(0, Number(valor) || 0);
   await guardarEscenario(e);
-  // Recalcular todos los derivados del producto
   const codigo = e.codigo_producto;
   const pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
   if (pr) {
@@ -2140,7 +2199,6 @@ async function copiarPreciosRondaAnterior() {
   toast("✓ Copiados de " + labelRonda(prev), "ok");
 }
 async function publicarPrecios() {
-  // Recalcular todos los precios y guardarlos
   for (const pr of DB.precios.filter(p => p.id_ronda === DB.rondaActiva)) {
     const diag = calcularDiagnosticoProducto(pr.codigo_producto);
     if (diag) {
@@ -2247,7 +2305,6 @@ function calcularListaCompra() {
 }
 async function setCompra(codigo, campo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
-  const pr = precioMapa()[codigo];
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
   if (!c) {
     c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
@@ -2566,9 +2623,6 @@ async function calcularReportes() {
         if (rid === rondaActiva) {
           ventas = cierre.ventas; costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
           numPed = cierre.aceptados.length;
-        } else {
-          // histórico simplificado (no recalcula modelo)
-          numPed = 0;
         }
         const ut = ventas - costo;
         return `<tr><td>${labelHist}</td><td><span class="estado-ronda estado-${meta.estado || 'abierta'}">${esc(meta.estado || 'abierta')}</span></td><td>${numPed}</td><td>${soles(ventas)}</td><td>${soles(costo)}</td><td><strong class="${ut >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ut)}</strong></td></tr>`;
@@ -2860,7 +2914,8 @@ Object.assign(window, {
   agregarReclamo, updReclamo, delReclamo,
   calcularReportes, updConfig, updModelo, updFijoDomingo, updEscalon, updCapVehiculo, updMaxParadas,
   exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
-  iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque
+  iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
+  recalcularDerivadosEnMemoria
 });
 </script>
 </body>
