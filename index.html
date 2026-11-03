@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v16.5 (Modelo 1Día)</title>
+<title>Compra con Misti — Admin v16.6 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -211,6 +211,8 @@ tbody tr:hover{background:#F4FBF6}
 .esc-tabla th{background:var(--verde-claro);padding:6px 8px;text-align:left;font-size:10px}
 .esc-tabla td{padding:4px 8px;border-bottom:1px solid var(--borde)}
 .esc-tabla input{padding:5px 8px;font-size:12px}
+.unidad-badge{display:inline-block;font-size:9px;color:var(--texto-2);background:var(--crema);border:1px solid var(--borde);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:3px}
+.equivalencia-hint{font-size:10px;color:var(--texto-2);font-style:italic;line-height:1.35;margin-top:2px}
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}}
@@ -223,7 +225,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v16.5 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
+<p>Panel Admin v16.6 · Modelo 1Día · Conversiones correctas kg/cliente/mayorista</p>
 </div>
 </header>
 <div class="container">
@@ -346,7 +348,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-productos">
 <div class="section">
 <h2>Productos (maestro — nunca se borran)</h2>
-<p class="section-sub"><strong>Cliente pide en:</strong> kg · atadito · unidad. <strong>Mayorista vende en:</strong> Kilogramo, Ciento, Cajón, Saco, Atado, etc. Cargá el peso de <strong>1 unidad de venta</strong> y <strong>1 unidad de compra</strong> — todo es editable.</p>
+<p class="section-sub"><strong>Cliente pide en:</strong> kg · atadito · unidad. <strong>Mayorista vende en:</strong> Kilogramo, Ciento, Cajón, Saco, Atado, etc. Cargá el peso de <strong>1 unidad de venta</strong> y <strong>1 unidad de compra</strong>. Las equivalencias se usan automáticamente en <em>Diagnóstico Lunes</em> para convertir precios al por mayor ↔ precios al por menor.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-add btn-sm" onclick="abrirModalProducto(null)">＋ Agregar</button>
 <input id="prodBuscar" placeholder="🔍 Buscar..." oninput="renderProductos()" style="max-width:260px">
@@ -370,7 +372,12 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-precios">
 <div class="section">
 <h2>💰 Diagnóstico lunes — fijar precio de la semana</h2>
-<p class="section-sub">Cargá <strong>P. mercado</strong> y <strong>Costo lunes (C_L)</strong> por producto. Ajustá los <strong>10 escenarios (Pij)</strong> de cada producto. El sistema calcula <strong>P_L_final</strong> y lo usa el resto de la semana. Este precio NO se toca el viernes.</p>
+<div class="warn-box" style="margin-bottom:12px">
+<strong>⚠️ OJO CON LAS UNIDADES:</strong><br>
+• <strong>P. mercado</strong> → precio por <strong>unidad cliente</strong> (S/ por kg, S/ por atadito, S/ por unidad) — lo que paga el cliente.<br>
+• <strong>C_L</strong> → costo por <strong>unidad mayorista</strong> (S/ por Ciento, S/ por Atado, S/ por Cajón, S/ por kg) — lo que pagás al mayorista.<br>
+• El sistema convierte ambos a <strong>S//kg</strong> usando las equivalencias de Productos antes de calcular márgenes.
+</div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-info btn-sm" onclick="copiarPreciosRondaAnterior()">📋 Copiar ronda anterior</button>
 <button class="btn-save btn-sm" onclick="publicarPrecios()">📢 Publicar P_L_final</button>
@@ -385,20 +392,20 @@ tbody tr:hover{background:#F4FBF6}
 <th>Código</th>
 <th>Producto</th>
 <th>Unidad</th>
-<th>P. mercado</th>
-<th>C_L</th>
-<th>C_esp</th>
+<th>P. mercado<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">por unidad cliente</small></th>
+<th>C_L<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">por unidad mayorista</small></th>
+<th>C_esp<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
 <th>M_ref</th>
 <th>¿Sirve?</th>
-<th>P_L_final</th>
-<th>C_max</th>
+<th>P_L_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg y /unidad</small></th>
+<th>C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
 <th>Δ vs ronda ant.</th>
 </tr></thead>
 <tbody id="preciosBody"></tbody>
 </table></div>
 <div style="margin-top:24px">
 <h3>🎲 Escenarios por producto (Pij editables)</h3>
-<p class="section-sub">Cada producto tiene 10 escenarios de costo (escalones fijos). Ajustá la probabilidad <strong>Pij</strong> de cada uno. <strong>Cij</strong> y <strong>P_cola</strong> se calculan solos.</p>
+<p class="section-sub">Cada producto tiene 10 escenarios de costo (escalones en S/ por unidad mayorista). <strong>Cij</strong> se calcula como <code>C_L + escalón</code> (en S/ por unidad mayorista). <strong>P_cola</strong> se calcula solo. En el acordeón, C_esp se muestra ya convertido a <strong>S//kg</strong>.</p>
 <div id="escenariosContenido"></div>
 </div>
 </div>
@@ -406,7 +413,12 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-compra">
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
-<p class="section-sub">Tabla única: pedido → kg → bultos mayorista → compra real editable → recorte por C_max. <strong>Editá los campos amarillos y todo se recalcula en la misma fila.</strong></p>
+<div class="info-box" style="margin-bottom:12px">
+<strong>📐 UNIDADES EN ESTA TABLA:</strong><br>
+• <strong>C_viernes</strong> → S/ por <strong>kg</strong> (si comprás 1 Ciento de choclo a S/132, C_viernes = 132/42 = S/3.14/kg)<br>
+• <strong>Q_comprada_kg / Q_recibida_kg</strong> → en <strong>kg</strong> reales pesados<br>
+• <strong>Q_final_kg</strong> → calculado en kg. <strong>Q_final (unidad)</strong> → convertido a unidad cliente (atadito/unidad se redondea hacia abajo)
+</div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
@@ -506,6 +518,10 @@ tbody tr:hover{background:#F4FBF6}
 <span class="small-note">Cuánto pesa 1 Atado / 1 Ciento / 1 Caja del mayorista</span>
 </div>
 </div>
+<div class="info-box" style="margin-top:12px">
+<strong>Ejemplo:</strong> Choclo — Venta: 1 unidad pesa 0.42 kg. Compra: 1 Ciento pesa 42 kg (100 unidades).<br>
+Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ciento, el costo por unidad es S/1.32 y por kg es S/3.14.
+</div>
 <div class="actions" style="justify-content:flex-end;margin-top:14px">
 <button class="btn-ghost" onclick="cerrarModal('modalProducto')">Cancelar</button>
 <button class="btn-save" onclick="guardarProducto()">Guardar</button>
@@ -579,7 +595,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v16.5</p>
+<p>Panel Admin · Modelo 1Día · v16.6</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -707,9 +723,7 @@ function labelRonda(rid) {
 }
 
 /* ============ HELPERS MODELO 1DÍA ============ */
-function getModeloConfig() {
-  return DB.config.modelo || {};
-}
+function getModeloConfig() { return DB.config.modelo || {}; }
 function getMObjetivo() { return Number(getModeloConfig().M_objetivo ?? M_OBJETIVO_DEFAULT); }
 function getP() { return Number(getModeloConfig().p ?? P_DEFAULT); }
 function getGMin() { return Number(getModeloConfig().G_min ?? G_MIN_DEFAULT); }
@@ -782,13 +796,13 @@ function escenariosDeProducto(codigo) {
 }
 function calcularEscenariosProducto(codigo) {
   const pr = precioMapa()[codigo];
-  const C_L = Number(pr?.C_L) || 0;
+  const C_L = Number(pr?.C_L) || 0;  // per WHOLESALE unit
   const escs = escenariosDeProducto(codigo).slice().sort((a, b) => a.escalon - b.escalon);
   if (!escs.length) return [];
   const enriched = escs.map(e => ({
     escalon: Number(e.escalon) || 0,
     Pij: Number(e.Pij) || 0,
-    Cij: C_L + (Number(e.escalon) || 0)
+    Cij: C_L + (Number(e.escalon) || 0)  // per WHOLESALE unit
   }));
   enriched.forEach((e, i) => {
     let cola = 0;
@@ -797,39 +811,63 @@ function calcularEscenariosProducto(codigo) {
   });
   return enriched;
 }
-function calcularC_esp(codigo) {
+// Internal helpers - all values in per-kg
+function calcularC_esp_kg(codigo) {
   const enr = calcularEscenariosProducto(codigo);
   if (!enr.length) return 0;
+  const eqC = getEquivKgCompra(codigo);
   const sumP = enr.reduce((s, e) => s + e.Pij, 0);
-  const sumCP = enr.reduce((s, e) => s + e.Cij * e.Pij, 0);
+  const sumCP = enr.reduce((s, e) => s + (eqC > 0 ? e.Cij / eqC : e.Cij) * e.Pij, 0);
   return sumP > 0 ? sumCP / sumP : 0;
 }
-function calcularC_min(codigo) {
+function calcularC_min_kg(codigo) {
   const enr = calcularEscenariosProducto(codigo);
   if (!enr.length) return 0;
+  const eqC = getEquivKgCompra(codigo);
   const p = getP();
   const candidatos = enr.filter(e => e.P_cola <= p);
-  if (!candidatos.length) return enr[enr.length - 1].Cij;
-  return Math.min(...candidatos.map(e => e.Cij));
+  const cij = candidatos.length ? Math.min(...candidatos.map(e => e.Cij)) : enr[enr.length - 1].Cij;
+  return eqC > 0 ? cij / eqC : cij;
 }
 function calcularDiagnosticoProducto(codigo) {
   const pr = precioMapa()[codigo];
   if (!pr) return null;
-  const PL = Number(pr.P_L_mercado) || 0;
-  const CL = Number(pr.C_L) || 0;
-  const Cesp = calcularC_esp(codigo);
-  const ML = PL > 0 ? 1 - CL / PL : 0;
-  const Mideal = PL > 0 ? 1 - Cesp / PL : 0;
+  const eqV = getEquivKg(codigo);
+  const eqC = getEquivKgCompra(codigo);
+
+  // P_L_mercado: per CLIENT unit (kg, atadito, unidad)
+  // C_L: per WHOLESALE unit (Kilogramo, Ciento, Atado, etc.)
+  const PL_raw = Number(pr.P_L_mercado) || 0;
+  const CL_raw = Number(pr.C_L) || 0;
+
+  // Convert both to per-kg for consistent margin calculation
+  const PL_kg = eqV > 0 ? PL_raw / eqV : PL_raw;
+  const CL_kg = eqC > 0 ? CL_raw / eqC : CL_raw;
+
+  const Cesp_kg = calcularC_esp_kg(codigo);
+  const Cmin_kg = calcularC_min_kg(codigo);
+
+  const ML = PL_kg > 0 ? 1 - CL_kg / PL_kg : 0;
+  const Mideal = PL_kg > 0 ? 1 - Cesp_kg / PL_kg : 0;
   const Mref = Math.max(ML, Mideal);
   const Mob = getMObjetivo();
   const sirve = Mref >= Mob;
-  const base = Math.min(CL > 0 ? CL : Infinity, Cesp > 0 ? Cesp : Infinity);
-  const baseSafe = isFinite(base) ? base : PL;
-  const PLsugerido = Mob < 1 ? baseSafe / (1 - Mob) : baseSafe;
-  const PLfinal = Math.max(PL, PLsugerido);
-  const Cmin = calcularC_min(codigo);
-  const Mmin = PLfinal > 0 ? 1 - Cmin / PLfinal : 0;
-  return { PL, CL, Cesp, ML, Mideal, Mref, Mob, sirve, PLsugerido, PLfinal, Cmin, Mmin };
+
+  const base_kg = Math.min(CL_kg > 0 ? CL_kg : Infinity, Cesp_kg > 0 ? Cesp_kg : Infinity);
+  const baseSafe_kg = isFinite(base_kg) ? base_kg : PL_kg;
+  const PLsugerido_kg = Mob < 1 ? baseSafe_kg / (1 - Mob) : baseSafe_kg;
+  const PLfinal_kg = Math.max(PL_kg, PLsugerido_kg);
+  const PLfinal_cliente = PLfinal_kg * eqV;
+
+  const Mmin = PLfinal_kg > 0 ? 1 - Cmin_kg / PLfinal_kg : 0;
+
+  return {
+    PL: PL_raw, CL: CL_raw,
+    PL_kg, CL_kg, Cesp_kg, Cmin_kg, PLsugerido_kg, PLfinal_kg, PLfinal_cliente,
+    // legacy names (per-kg)
+    PLfinal: PLfinal_kg, Cesp: Cesp_kg, Cmin: Cmin_kg, PLsugerido: PLsugerido_kg,
+    ML, Mideal, Mref, Mob, sirve, Mmin, eqV, eqC
+  };
 }
 function calcularUmbralProducto(codigo) {
   const diag = calcularDiagnosticoProducto(codigo);
@@ -839,8 +877,9 @@ function calcularUmbralProducto(codigo) {
   const Gmin = getGMin();
   const Mreq = V_esperado > 0 ? (F + Gmin) / V_esperado : 0;
   const Mumbral = Math.max(Mreq, diag.Mmin);
-  const Cmax = Math.max(diag.PLfinal * (1 - Mumbral), diag.CL);
-  return { ...diag, V_esperado, F, Gmin, Mreq, Mumbral, Cmax };
+  const Cmax = Math.max(diag.PLfinal_kg * (1 - Mumbral), diag.CL_kg);  // per kg
+  const Cmax_cliente = Cmax * diag.eqV;
+  return { ...diag, V_esperado, F, Gmin, Mreq, Mumbral, Cmax, Cmax_cliente };
 }
 function calcularVEsperado() {
   let total = 0;
@@ -849,7 +888,7 @@ function calcularVEsperado() {
     const diag = calcularDiagnosticoProducto(codigo);
     if (!diag) return;
     const q = qPedidaKgPorProducto(codigo);
-    total += q * diag.PLfinal;
+    total += q * diag.PLfinal_kg;
   });
   return total;
 }
@@ -862,36 +901,31 @@ function calcularFDomingo() {
     + Number(f.delivery_por_pedido || 0) * N;
 }
 
-/* ===== FIX v16.5: redondeo de Q_final en unidades enteras ===== */
 function redondearQFinalUnidad(codigo, qFinalKg) {
   const prod = DB.productos.find(x => x.codigo === codigo);
   if (!prod) return qFinalKg;
   const equiv = getEquivKg(codigo);
   const unidad = String(prod.unidad_venta || 'kg').toLowerCase();
   const qUnidad = equiv > 0 ? qFinalKg / equiv : 0;
-  // kg: permitir decimales. atadito/unidad: redondear hacia abajo (no vender fracciones)
   if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
   return Math.floor(qUnidad);
 }
 
-/* ===== FIX v16.5: Qfinal_kg se deriva de Qprima_kg (antes estaba roto) ===== */
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
   const compra = comprasDeRonda().find(c => c.codigo_producto === codigo) || {};
-  const Cv = compra.C_viernes != null ? Number(compra.C_viernes) : null;
-  const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;
-  const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;
+  const Cv = compra.C_viernes != null ? Number(compra.C_viernes) : null;  // per kg
+  const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;  // per kg
+  const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;  // per kg
   const Qped_kg = qPedidaKgPorProducto(codigo);
   const Qped_un = qPedidaUnidadPorProducto(codigo);
-  // Recorte por C_max: si C_viernes > C_max, se reduce proporcionalmente
   const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
   const Qfinal_kg = Qprima_kg;
-  // Qfinal_un respeta unidad de venta (ataditos/unidades enteras)
   const Qfinal_un = redondearQFinalUnidad(codigo, Qfinal_kg);
   const dif_kg = Qrecib != null ? Qrecib - Qfinal_kg : null;
   const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
-  const ventas = Qfinal_kg * umbral.PLfinal;
+  const ventas = Qfinal_kg * umbral.PLfinal_kg;  // kg × S//kg = S/
   const margenBruto = costoReal != null ? ventas - costoReal : null;
   return {
     ...umbral,
@@ -941,6 +975,7 @@ function recalcularDerivadosEnMemoria() {
   const escenarios = DB.escenarios;
   if (!precios.length) return;
 
+  // First pass: compute Cij (per wholesale unit) and P_cola
   const escPorProd = {};
   escenarios.forEach(e => {
     const pr = precios.find(p => p.codigo_producto === e.codigo_producto);
@@ -957,39 +992,47 @@ function recalcularDerivadosEnMemoria() {
     });
   });
 
+  // Second pass: compute derived values per product (all per-kg)
   precios.forEach(pr => {
-    const PL = Number(pr.P_L_mercado) || 0;
-    const CL = Number(pr.C_L) || 0;
-    const escs = escPorProd[pr.codigo_producto] || [];
+    const codigo = pr.codigo_producto;
+    const eqV = getEquivKg(codigo);
+    const eqC = getEquivKgCompra(codigo);
 
+    const PL_raw = Number(pr.P_L_mercado) || 0;
+    const CL_raw = Number(pr.C_L) || 0;
+    const PL_kg = eqV > 0 ? PL_raw / eqV : PL_raw;
+    const CL_kg = eqC > 0 ? CL_raw / eqC : CL_raw;
+
+    const escs = escPorProd[codigo] || [];
     const sumP  = escs.reduce((s, e) => s + Number(e.Pij || 0), 0);
-    const sumCP = escs.reduce((s, e) => s + Number(e.Cij || 0) * Number(e.Pij || 0), 0);
-    const Cesp  = sumP > 0 ? sumCP / sumP : 0;
+    const sumCP = escs.reduce((s, e) => s + (eqC > 0 ? Number(e.Cij || 0) / eqC : Number(e.Cij || 0)) * Number(e.Pij || 0), 0);
+    const Cesp_kg = sumP > 0 ? sumCP / sumP : 0;
 
-    const ML     = PL > 0 ? 1 - CL   / PL : 0;
-    const Mideal = PL > 0 ? 1 - Cesp / PL : 0;
-    const Mref   = Math.max(ML, Mideal);
-    const sirve  = Mref >= M_OBJETIVO;
+    const ML = PL_kg > 0 ? 1 - CL_kg / PL_kg : 0;
+    const Mideal = PL_kg > 0 ? 1 - Cesp_kg / PL_kg : 0;
+    const Mref = Math.max(ML, Mideal);
+    const sirve = Mref >= M_OBJETIVO;
 
-    const base     = Math.min(CL > 0 ? CL : Infinity, Cesp > 0 ? Cesp : Infinity);
-    const baseSafe = isFinite(base) ? base : PL;
-    const PLsug    = M_OBJETIVO < 1 ? baseSafe / (1 - M_OBJETIVO) : baseSafe;
-    const PLfin    = Math.max(PL, PLsug);
+    const base_kg = Math.min(CL_kg > 0 ? CL_kg : Infinity, Cesp_kg > 0 ? Cesp_kg : Infinity);
+    const baseSafe_kg = isFinite(base_kg) ? base_kg : PL_kg;
+    const PLsug_kg = M_OBJETIVO < 1 ? baseSafe_kg / (1 - M_OBJETIVO) : baseSafe_kg;
+    const PLfin_kg = Math.max(PL_kg, PLsug_kg);
 
     const cands = escs.filter(e => Number(e.P_cola) <= P_PROB);
-    const Cmin  = cands.length
+    const Cmin_raw = cands.length
       ? Math.min(...cands.map(e => Number(e.Cij)))
-      : (escs.length ? escs[escs.length - 1].Cij : 0);
-    const Mmin = PLfin > 0 ? 1 - Cmin / PLfin : 0;
+      : (escs.length ? Number(escs[escs.length - 1].Cij) : 0);
+    const Cmin_kg = eqC > 0 ? Cmin_raw / eqC : Cmin_raw;
+    const Mmin = PLfin_kg > 0 ? 1 - Cmin_kg / PLfin_kg : 0;
 
-    pr.C_esp        = red2(Cesp);
+    pr.C_esp        = red4(Cesp_kg);
     pr.M_L          = red4(ML);
     pr.M_ideal      = red4(Mideal);
     pr.M_ref        = red4(Mref);
     pr.sirve        = sirve;
-    pr.P_L_sugerido = red2(PLsug);
-    pr.P_L_final    = red2(PLfin);
-    pr.C_min        = red2(Cmin);
+    pr.P_L_sugerido = red2(PLsug_kg);
+    pr.P_L_final    = red2(PLfin_kg);
+    pr.C_min        = red4(Cmin_kg);
     pr.M_min        = red4(Mmin);
   });
 }
@@ -1007,7 +1050,6 @@ const GMML_REF = {
 
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
-  // [codigo, nombre, grupo, unidad_venta, unidad_compra, equiv_kg_venta, equiv_kg_compra]
   const productos = [
     ["PR-001","Papa amarilla","Básico","kg","Kilogramo",1,1],
     ["PR-002","Papa blanca","Básico","kg","Kilogramo",1,1],
@@ -1041,8 +1083,7 @@ function crearDBInicial() {
     codigo: p[0], nombre: p[1], grupo: p[2],
     unidad_venta: p[3], unidad_compra: p[4],
     equiv_kg_venta: p[5], equiv_kg_compra: p[6],
-    equiv_kg: p[5], // alias legacy
-    activo: true
+    equiv_kg: p[5], activo: true
   }));
 
   const clientes = [
@@ -1059,14 +1100,17 @@ function crearDBInicial() {
     { id:"R-03", nombre:"Jorge Valdivia Núñez", celular:"965432109", vehiculo:"Auto", capacidad_max_kg:350, activo:true }
   ];
 
+  // Seed: GMML_REF is per-kg wholesale cost. Convert to wholesale-unit C_L and client-unit P_L.
   const precios = productos.map(prod => {
-    const CL = GMML_REF[prod.codigo] ?? 1.00;
-    const PL = CL + 2;
+    const CL_kg = GMML_REF[prod.codigo] ?? 1.00;      // per kg wholesale
+    const PL_kg = CL_kg * 1.5;                         // 50% markup per kg
+    const CL = red2(CL_kg * prod.equiv_kg_compra);    // per wholesale unit
+    const PL = red2(PL_kg * prod.equiv_kg_venta);     // per client unit
     return {
       id_ronda: ronda, codigo_producto: prod.codigo, nombre: prod.nombre,
       unidad_venta: prod.unidad_venta, unidad_compra: prod.unidad_compra,
       equiv_kg: prod.equiv_kg,
-      P_L_mercado: red2(PL), C_L: red2(CL),
+      P_L_mercado: PL, C_L: CL,
       C_esp: 0, M_L: 0, M_ideal: 0, M_ref: 0, sirve: false,
       P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
     };
@@ -1084,7 +1128,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 165, rondaActiva: ronda,
+    version: 166, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1093,12 +1137,9 @@ function crearDBInicial() {
       costo_personal_compras: 50, costo_transporte: 45, costo_empaque: 1,
       cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT,
       modelo: {
-        M_objetivo: M_OBJETIVO_DEFAULT,
-        p: P_DEFAULT,
-        G_min: G_MIN_DEFAULT,
+        M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
         comision_yape_pct: COMISION_YAPE_DEFAULT,
-        fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT },
-        escalones: [...ESCALONES_DEFAULT]
+        fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
       }
     }
   };
@@ -1118,7 +1159,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v16.5 completado");
+  console.log("Auto-seed v16.6 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1542,7 +1583,7 @@ function renderDashboard() {
   Object.keys(precioMapa()).forEach(codigo => {
     const diag = calcularDiagnosticoProducto(codigo);
     if (!diag) return;
-    costoEst += diag.Cesp * qPedidaKgPorProducto(codigo);
+    costoEst += diag.Cesp_kg * qPedidaKgPorProducto(codigo);
   });
   let costoReal = 0;
   comprasDeRonda().forEach(c => {
@@ -1768,14 +1809,14 @@ function verDetalle(id) {
       const r = recMap[i.codigo_producto] || { activo: false, factor: 1, Cmax: 0, Cv: 0 };
       const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
       cantHTML = r.activo
-        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Recorte · C_max ${soles(r.Cmax)} / C_v ${soles(r.Cv)} · ×${r.factor.toFixed(3)}</span>`
+        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Recorte · C_max ${soles(r.Cmax)}/kg / C_v ${soles(r.Cv)}/kg · ×${r.factor.toFixed(3)}</span>`
         : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
     } else {
       cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
     }
     return `<tr><td>${esc(i.nombre)}</td><td>${cantHTML}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td><td>${edit ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : ""}</td></tr>`;
   }).join("");
-  const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.P_L_final)}</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
+  const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.P_L_final)}/kg</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
   let bloqueBoleta = "";
   if (p.estado === "entregado") {
     const enviada = !!p.boleta_enviada;
@@ -1863,7 +1904,7 @@ async function edAgregarItem(pedidoId) {
   const existentes = DB.items.filter(i => i.pedido_id === pedidoId);
   const nums = existentes.map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(n => !isNaN(n));
   const n = Math.max(0, ...nums) + 1;
-  const it = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad_venta, cantidad: 1, precio_compra_estimado: pr.C_L, precio_venta_congelado: pr.P_L_final, subtotal_venta: red2(1 * pr.P_L_final), estado: "pendiente" };
+  const it = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad_venta, cantidad: 1, precio_compra_estimado: pr.C_esp, precio_venta_congelado: pr.P_L_final, subtotal_venta: red2(1 * pr.P_L_final), estado: "pendiente" };
   await guardarItem(it); verDetalle(pedidoId);
 }
 async function recalcEdResumen(pedidoId) {
@@ -1926,7 +1967,8 @@ function calcFiltrarProductos() {
   const prods = DB.productos.filter(p => p.activo && (!q || p.nombre.toLowerCase().includes(q)));
   document.getElementById("calcProductoSelect").innerHTML = `<option value="">— Elegir producto —</option>` + prods.map(p => {
     const pr = pmap[p.codigo];
-    const pvf = pr?.P_L_final || 0;
+    const eqV = getEquivKg(p.codigo);
+    const pvf = pr?.P_L_final ? pr.P_L_final * eqV : 0;  // per client unit
     return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad_venta || 'kg')}) — ${soles(pvf)}</option>`;
   }).join("");
 }
@@ -1952,9 +1994,11 @@ function calcAgregarProducto() {
   const cod = document.getElementById("calcProductoSelect").value; if (!cod) return;
   const pmap = precioMapa(), pr = pmap[cod], prod = DB.productos.find(p => p.codigo === cod);
   if (!pr || !prod) { toast("Producto sin precio", "err"); return; }
+  const eqV = getEquivKg(cod);
+  const precioCliente = pr.P_L_final * eqV;  // S/ per client unit
   const ex = calcItems.find(i => i.codigo === cod);
   if (ex) ex.cantidad++;
-  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad_venta, cantidad: 1, precio_ref: pr.C_L, precio_venta: pr.P_L_final });
+  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad_venta, cantidad: 1, precio_ref: pr.C_esp, precio_venta: precioCliente });
   document.getElementById("calcProductoSelect").value = "";
   calcRenderItems();
 }
@@ -2165,8 +2209,8 @@ async function renderPrecios() {
       const pr = pmap[p.codigo] || {};
       const diag = calcularDiagnosticoProducto(p.codigo);
       const umbral = calcularUmbralProducto(p.codigo);
-      const PLm = Number(pr.P_L_mercado) || 0;
-      const CL = Number(pr.C_L) || 0;
+      const PLm = Number(pr.P_L_mercado) || 0;  // per client unit
+      const CL = Number(pr.C_L) || 0;            // per wholesale unit
       const prev = prevMap[p.codigo];
       let delta = '<span class="small-note">nuevo</span>';
       if (prev) {
@@ -2176,19 +2220,34 @@ async function renderPrecios() {
         else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
       }
       const sirveBadge = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
-      const PLfinal = diag?.PLfinal || 0;
-      const Cmax = umbral?.Cmax || 0;
+      const PLfinal_kg = diag?.PLfinal_kg || 0;
+      const PLfinal_cliente = diag?.PLfinal_cliente || 0;
+      const Cmax_kg = umbral?.Cmax || 0;
+      const eqV = diag?.eqV || 1;
+      const eqC = diag?.eqC || 1;
+      const unidadVentaTxt = p.unidad_venta || 'kg';
+      const unidadCompraTxt = p.unidad_compra || 'kg';
+      // Show P_L_final both in per-kg AND per-client-unit (only if different)
+      const finalDisplay = Math.abs(eqV - 1) < 0.001
+        ? `<strong style="color:var(--verde);font-size:14px">${soles(PLfinal_kg)}/kg</strong>`
+        : `<strong style="color:var(--verde);font-size:14px">${soles(PLfinal_cliente)}/${unidadVentaTxt}</strong><br><span class="small-note">${soles(PLfinal_kg)}/kg</span>`;
       return `<tr>
         <td><strong>${esc(p.codigo)}</strong></td>
         <td>${esc(p.nombre)}</td>
-        <td class="small-note">${esc(p.unidad_venta || 'kg')}<br>${esc(p.equiv_kg_venta ?? p.equiv_kg ?? 1)} kg</td>
-        <td><input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)"></td>
-        <td><input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)"></td>
-        <td>${soles(diag?.Cesp || 0)}</td>
+        <td class="small-note">V: ${esc(unidadVentaTxt)} (${eqV}kg)<br>C: ${esc(unidadCompraTxt)} (${eqC}kg)</td>
+        <td>
+          <input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)" title="Por ${esc(unidadVentaTxt)}">
+          <div class="equivalencia-hint">S/ por ${esc(unidadVentaTxt)}</div>
+        </td>
+        <td>
+          <input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)" title="Por ${esc(unidadCompraTxt)}">
+          <div class="equivalencia-hint">S/ por ${esc(unidadCompraTxt)}</div>
+        </td>
+        <td>${soles(diag?.Cesp_kg || 0)}</td>
         <td><span class="${claseMargen(diag?.Mref || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
         <td style="text-align:center">${sirveBadge}</td>
-        <td><strong style="color:var(--verde);font-size:14px">${soles(PLfinal)}</strong></td>
-        <td><strong>${soles(Cmax)}</strong></td>
+        <td>${finalDisplay}</td>
+        <td><strong>${soles(Cmax_kg)}/kg</strong></td>
         <td>${delta}</td>
       </tr>`;
     }).join("");
@@ -2203,11 +2262,13 @@ async function renderPrecios() {
         escHTML += `<div class="esc-acordeon"><div class="esc-head"><span>${esc(p.codigo)} · ${esc(p.nombre)}</span><span class="small-note">Sin escenarios cargados</span></div></div>`;
         return;
       }
+      const eqC = getEquivKgCompra(p.codigo);
+      const unidadCompraTxt = p.unidad_compra || 'kg';
       const escRows = escs.map((e, idx) => {
         const escDb = escenariosDeProducto(p.codigo).slice().sort((a, b) => a.escalon - b.escalon)[idx];
         return `<tr>
           <td>${e.escalon > 0 ? '+' : ''}${e.escalon.toFixed(2)}</td>
-          <td>${soles(e.Cij)}</td>
+          <td>${soles(e.Cij)} <span class="small-note">/${esc(unidadCompraTxt)}</span></td>
           <td><input type="number" step="0.0001" min="0" max="1" value="${e.Pij}" onchange="setPij('${escDb?.esc_id || ''}',this.value)" style="max-width:100px"></td>
           <td>${(e.P_cola * 100).toFixed(2)}%</td>
         </tr>`;
@@ -2217,16 +2278,17 @@ async function renderPrecios() {
         <div class="esc-head" onclick="this.parentElement.classList.toggle('open')">
           <span>${esc(p.codigo)} · ${esc(p.nombre)}</span>
           <span class="info">
-            <span>C_esp <b>${soles(diag?.Cesp || 0)}</b></span>
+            <span>C_esp <b>${soles(diag?.Cesp_kg || 0)}/kg</b></span>
             <span>M_ref <b>${fmtPct(diag?.Mref || 0)}</b></span>
             <span>Sirve ${badgeSirve}</span>
-            <span>P_L_final <b>${soles(diag?.PLfinal || 0)}</b></span>
+            <span>P_L_final <b>${soles(diag?.PLfinal_kg || 0)}/kg</b></span>
             <span>▸</span>
           </span>
         </div>
         <div class="esc-body">
+          <p class="small-note">Escalones en S/ por <strong>${esc(unidadCompraTxt)}</strong>. Cij = C_L + escalón (misma unidad mayorista). C_esp se convierte a S//kg para el margen.</p>
           <table class="esc-tabla">
-            <thead><tr><th>Escalón</th><th>Cij</th><th>Pij</th><th>P_cola &gt; Cij</th></tr></thead>
+            <thead><tr><th>Escalón<br><small>(S/ /${esc(unidadCompraTxt)})</small></th><th>Cij<br><small>(por ${esc(unidadCompraTxt)})</small></th><th>Pij</th><th>P_cola &gt; Cij</th></tr></thead>
             <tbody>${escRows}</tbody>
           </table>
         </div>
@@ -2250,11 +2312,12 @@ async function setPrecio(codigo, campo, valor) {
     P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
   };
   pr[campo] = num;
+  // Recompute derived values (per-kg)
   const diag = calcularDiagnosticoProducto(codigo);
   if (diag) {
-    pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
-    pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
-    pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
+    pr.C_esp = diag.Cesp_kg; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+    pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido_kg;
+    pr.P_L_final = diag.PLfinal_kg; pr.C_min = diag.Cmin_kg; pr.M_min = diag.Mmin;
   }
   await guardarPrecio(pr);
   renderPrecios().catch(e => console.error(e));
@@ -2270,9 +2333,9 @@ async function setPij(escId, valor) {
   if (pr) {
     const diag = calcularDiagnosticoProducto(codigo);
     if (diag) {
-      pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
-      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
-      pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
+      pr.C_esp = diag.Cesp_kg; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido_kg;
+      pr.P_L_final = diag.PLfinal_kg; pr.C_min = diag.Cmin_kg; pr.M_min = diag.Mmin;
       await guardarPrecio(pr);
     }
   }
@@ -2308,9 +2371,9 @@ async function publicarPrecios() {
   for (const pr of DB.precios.filter(p => p.id_ronda === DB.rondaActiva)) {
     const diag = calcularDiagnosticoProducto(pr.codigo_producto);
     if (diag) {
-      pr.C_esp = diag.Cesp; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
-      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido;
-      pr.P_L_final = diag.PLfinal; pr.C_min = diag.Cmin; pr.M_min = diag.Mmin;
+      pr.C_esp = diag.Cesp_kg; pr.M_L = diag.ML; pr.M_ideal = diag.Mideal;
+      pr.M_ref = diag.Mref; pr.sirve = diag.sirve; pr.P_L_sugerido = diag.PLsugerido_kg;
+      pr.P_L_final = diag.PLfinal_kg; pr.C_min = diag.Cmin_kg; pr.M_min = diag.Mmin;
       await guardarPrecio(pr);
     }
   }
@@ -2339,7 +2402,6 @@ function pedidoClienteTxt(prod, qPed_kg, qPed_un) {
   return `${qPed_un.toFixed(2)} u`;
 }
 
-/* ===== FIX v16.5: tabla ÚNICA (sin duplicación pedagógica/técnica) ===== */
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
@@ -2351,7 +2413,6 @@ function calcularListaCompra() {
   }
   const confirmados = filas.filter(f => f.C_viernes != null && f.Q_recibida_kg != null).length;
 
-  // -------- Resumen superior --------
   document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
@@ -2361,10 +2422,9 @@ function calcularListaCompra() {
     </div>
     <div class="info-box">
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
-      <br><span class="small-note">✏️ Editá los campos amarillos → el costo, ventas y margen se recalculan solos en la misma fila.</span>
+      <br><span class="small-note">✏️ C_viernes = S/ por kg. Q_comprada y Q_recibida = kg. Q_final (unidad) se redondea abajo para ataditos/unidades.</span>
     </div>`;
 
-  // -------- Tabla ÚNICA (pedagógica + técnica fusionadas) --------
   document.getElementById("listaCompraContenido").innerHTML = `
     <div class="table-scroll"><table>
       <thead>
@@ -2373,14 +2433,14 @@ function calcularListaCompra() {
           <th rowspan="2">Pedido Cliente</th>
           <th rowspan="2">Pedido (kg)</th>
           <th rowspan="2">Sug. GMML</th>
-          <th rowspan="2">C_max</th>
+          <th rowspan="2">C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
           <th colspan="3" style="background:var(--miel-2);color:#7A5500;text-align:center;border-left:2px solid var(--miel);border-right:2px solid var(--miel)">✏️ Datos del viernes (editables)</th>
           <th colspan="6" style="text-align:center">📊 Cálculos (automáticos)</th>
         </tr>
         <tr>
-          <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes</th>
-          <th style="background:var(--miel-2);color:#7A5500">Q_comprada_kg</th>
-          <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida_kg</th>
+          <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes<br><small style="text-transform:none;color:#7A5500;font-weight:500">S//kg</small></th>
+          <th style="background:var(--miel-2);color:#7A5500">Q_comprada<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
+          <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
           <th>Q_final_kg</th>
           <th>Q_final (unidad)</th>
           <th>Δ kg</th>
@@ -2399,10 +2459,14 @@ function calcularListaCompra() {
         const sugTxt = sugerenciaMayorista(prod, bultosSug);
         const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
         const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
+        // Hint: what C_viernes would be per wholesale unit
+        const cvPerWholesale = f.C_viernes != null && equivCompra > 0 ? (f.C_viernes * equivCompra) : null;
+        const cvHint = cvPerWholesale != null && Math.abs(equivCompra - 1) > 0.001
+          ? `<div class="equivalencia-hint">= ${soles(cvPerWholesale)}/${esc(prod.unidad_compra || 'kg')}</div>` : '';
         return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
           <td>
             <strong>${esc(prod.nombre || f.codigo)}</strong>
-            <br><span class="small-note">${esc(prod.unidad_venta || 'kg')} ${equivVenta} kg/u · compra ${esc(prod.unidad_compra || 'kg')} ${equivCompra} kg/u</span>
+            <br><span class="small-note">V: ${esc(prod.unidad_venta || 'kg')} ${equivVenta} kg/u · C: ${esc(prod.unidad_compra || 'kg')} ${equivCompra} kg/u</span>
           </td>
           <td class="small-note">${esc(pedidoTxt)}</td>
           <td><strong>${f.Qped_kg.toFixed(2)}</strong> kg</td>
@@ -2411,17 +2475,18 @@ function calcularListaCompra() {
           <td style="background:var(--miel-2);border-left:2px solid var(--miel)">
             <input type="number" step="0.001" value="${f.C_viernes ?? ''}"
               onchange="setCompra('${f.codigo}','C_viernes',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+              style="max-width:85px;border-color:var(--miel)" placeholder="S//kg">
+            ${cvHint}
           </td>
           <td style="background:var(--miel-2)">
             <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}"
               onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+              style="max-width:85px;border-color:var(--miel)" placeholder="kg">
           </td>
           <td style="background:var(--miel-2);border-right:2px solid var(--miel)">
             <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}"
               onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+              style="max-width:85px;border-color:var(--miel)" placeholder="kg">
           </td>
           <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
           <td>${f.Qfinal_un.toFixed(2)} ${esc(prod.unidad_venta || 'u')}</td>
@@ -2433,12 +2498,11 @@ function calcularListaCompra() {
       }).join("")}</tbody>
     </table></div>
     <p class="small-note" style="margin-top:10px">
-      <strong>Leyenda:</strong> C_max = costo máximo tolerado (P_L_final × (1−M_umbral), con piso en C_L). 
-      Si C_viernes &gt; C_max, la fila se pinta amarilla y <strong>Q_prima &lt; Q_pedida</strong> → se recorta Q_final.
-      Q_recibida es lo que realmente pesaste al recibir; si es menor a Q_final, Δ kg sale negativo (rojo).
+      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral), con piso en C_L_kg. Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.
+      C_viernes se ingresa en <strong>S/ por kg</strong> — si comprás por unidad mayorista, dividí: S/132 por Ciento de 42kg → S/3.14/kg.
+      Q_recibida es lo que pesaste al recibir; si es menor a Q_final, Δ kg sale negativo.
     </p>`;
 
-  // -------- Cierre --------
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
@@ -2487,10 +2551,10 @@ async function setCompra(codigo, campo, valor) {
 function exportarCierreViernes() {
   const cierre = calcularCierreViernes();
   if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
-  const rows = [["codigo","producto","unidad","equiv_kg","Q_pedida_kg","P_L_final","C_max","C_viernes","Q_comprada_kg","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
+  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_kg","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
   cierre.filas.forEach(f => {
     const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, f.Qped_kg, f.PLfinal, f.Cmax, f.C_viernes ?? "", f.Q_comprada_kg ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
+    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Q_comprada_kg ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
   });
   const csv = rows.map(r => r.map(v => typeof v === 'string' && (v.includes(',')||v.includes('"')) ? '"'+v.replace(/"/g,'""')+'"' : v).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
@@ -2832,7 +2896,7 @@ function renderConfig() {
     </div>
 
     <h3 style="margin-top:24px">🎲 Escalones de escenarios (globales)</h3>
-    <p class="section-sub">Estos son los 10 escalones que definen Cij = C_L + escalón. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
+    <p class="section-sub">Estos son los 10 escalones que definen Cij = C_L + escalón. Los escalones están en <strong>S/ por unidad mayorista</strong>. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
     <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px">
       ${escalones.map((e, i) => `<div><label class="small-note">#${i+1}</label><input type="number" step="0.01" value="${e}" onchange="updEscalon(${i},this.value)"></div>`).join("")}
     </div>
