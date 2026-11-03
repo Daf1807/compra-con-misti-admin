@@ -508,7 +508,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-gastos">
 <div class="section">
 <h2 class="section-head">💸 Costos fijos del domingo (calculado)</h2>
-<p class="section-sub">Se calculan desde Config (alquiler, higiene, seguro, empaque, delivery, N pedidos). No los cargues en la tabla de gastos manuales.</p>
+ <p class="section-sub">Solo alquiler, higiene y seguro se calculan automáticamente. Transporte, empaque y delivery cargalos en <strong>Gastos variables manuales</strong>.</p>
 <div id="fijosDomingoContenido"></div>
 </div>
 <div class="section">
@@ -718,8 +718,7 @@ const M_OBJETIVO_DEFAULT = 0.35;
 const G_MIN_DEFAULT = 0;
 const COMISION_YAPE_DEFAULT = 0.0295;
 const FIJOS_DOMINGO_DEFAULT = {
-  alquiler_hub: 150, insumos_higiene: 15, seguro_rc: 80,
-  costo_transporte: 15, empaque_por_pedido: 0, delivery_por_pedido: 0
+  alquiler_hub: 150, insumos_higiene: 15, seguro_rc: 80
 };
 
 /* ============ HELPERS ============ */
@@ -3078,7 +3077,8 @@ function renderFijosDomingo() {
     <p class="small-note" style="margin-top:8px">
       Estos costos son automáticos (Config → Fijos del domingo).<br>
       <strong>Transporte, empaque y delivery</strong> ya NO están acá: cargalos en <a href="#" onclick="document.querySelector('.nav-btn[data-view=gastos]').click();return false" style="color:var(--verde);text-decoration:underline">Gastos variables manuales</a>.
-    </p>`;}
+    </p>`;
+}
 function renderGastos() {
   const arr = gastosDeRonda(); const cont = document.getElementById("gastosContenido");
   if (!arr.length) { cont.innerHTML = `<div class="small-note">Sin gastos.</div>`; return; }
