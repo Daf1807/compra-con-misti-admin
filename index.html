@@ -871,8 +871,8 @@ function calcularCompraProducto(codigo) {
   const Qped_kg = qPedidaKgPorProducto(codigo);
   const Qped_un = qPedidaUnidadPorProducto(codigo);
   const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
-  const Qfinal_kg = Math.min(Qped_kg, Qprima_kg);
   const Qfinal_un = Qfinal_kg / getEquivKg(codigo);
+  const Qfinal_un = redondearQFinalUnidad(codigo, Qfinal_kg);
   const dif_kg = Qrecib != null ? Qrecib - Qfinal_kg : null;
   const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
   const ventas = Qfinal_kg * umbral.PLfinal;
@@ -885,6 +885,16 @@ function calcularCompraProducto(codigo) {
     equiv_kg: getEquivKg(codigo),
     equiv_kg_compra: getEquivKgCompra(codigo)
   };
+}
+  function redondearQFinalUnidad(codigo, qFinalKg) {
+  const prod = DB.productos.find(x => x.codigo === codigo);
+  if (!prod) return qFinalKg;
+  const equiv = getEquivKg(codigo);
+  const unidad = String(prod.unidad_venta || 'kg').toLowerCase();
+  const qUnidad = qFinalKg / equiv;
+  // kg: permitir decimales. atadito/unidad: redondear hacia abajo (no vender fracciones)
+  if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
+  return Math.floor(qUnidad);
 }
 function calcularCierreViernes() {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
@@ -2336,6 +2346,8 @@ function calcularListaCompra() {
     return;
   }
   const confirmados = filas.filter(f => f.C_viernes != null && f.Q_recibida_kg != null).length;
+
+  // -------- Resumen superior --------
   document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
@@ -2343,99 +2355,86 @@ function calcularListaCompra() {
       <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
       <div class="box">Margen bruto<strong class="${ventas - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ventas - costoReal)}</strong></div>
     </div>
-    <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.</div>`;
+    <div class="info-box">
+      <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
+      <br><span class="small-note">✏️ Editá los campos amarillos → el costo, ventas y margen se recalculan solos en la misma fila.</span>
+    </div>`;
 
-  const filasPedagogicas = filas.map(f => {
-    const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    const equivVenta = getEquivKg(f.codigo);
-    const equivCompra = getEquivKgCompra(f.codigo);
-    const pedidoTxt = pedidoClienteTxt(prod, f.Qped_kg, f.Qped_un);
-    const bultosSug = equivCompra > 0 ? Math.ceil(f.Qped_kg / equivCompra) : 0;
-    const pesoSug = bultosSug * equivCompra;
-    const faltante = pesoSug - f.Qped_kg;
-    const faltanteClase = faltante > 0.01 ? "delta-pos" : (faltante < -0.01 ? "delta-neg" : "delta-zero");
-    const faltanteTxt = faltante > 0.01 ? `+${faltante.toFixed(2)}` : faltante.toFixed(2);
-    const sugTxt = sugerenciaMayorista(prod, bultosSug);
-    return `<tr>
-      <td><strong>${esc(prod.nombre || f.codigo)}</strong><br><span class="small-note">Venta: ${esc(prod.unidad_venta || 'kg')} (${equivVenta} kg/u) · Compra: ${esc(prod.unidad_compra || 'kg')} (${equivCompra} kg/u)</span></td>
-      <td class="small-note">${esc(pedidoTxt)}</td>
-      <td><strong>${f.Qped_kg.toFixed(2)}</strong> kg</td>
-      <td class="small-note">${esc(sugTxt)}</td>
-      <td><strong>${pesoSug.toFixed(2)}</strong> kg</td>
-      <td class="${faltanteClase}"><strong>${faltanteTxt}</strong> kg</td>
-      <td style="background:var(--miel-2)">
-        <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}"
-          onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)"
-          style="max-width:90px;border-color:var(--miel)" placeholder="—">
-      </td>
-      <td style="background:var(--miel-2)">
-        <input type="number" step="0.01" value="${f.C_viernes ?? ''}"
-          onchange="setCompra('${f.codigo}','C_viernes',this.value)"
-          style="max-width:90px;border-color:var(--miel)" placeholder="—">
-      </td>
-      <td><strong style="color:var(--verde)">${f.costoReal == null ? '—' : soles(f.costoReal)}</strong></td>
-    </tr>`;
-  }).join("");
-
-  const filasTecnicas = filas.map(f => {
-    const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
-    const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
-    return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
-      <td><strong>${esc(prod.nombre || f.codigo)}</strong></td>
-      <td class="small-note">${esc(prod.unidad_venta || 'kg')}<br>${esc(f.equiv_kg || 1)} kg/u</td>
-      <td><strong>${f.Qped_kg.toFixed(2)}</strong><br><span class="small-note">${f.Qped_un.toFixed(2)} u</span></td>
-      <td><strong style="color:var(--verde)">${soles(f.PLfinal)}</strong></td>
-      <td><strong style="color:${recortado?'var(--coral)':'var(--verde)'}">${soles(f.Cmax)}</strong></td>
-      <td><input type="number" step="0.01" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:90px" placeholder="—"></td>
-      <td><input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)" style="max-width:90px" placeholder="—"></td>
-      <td><input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:90px" placeholder="—"></td>
-      <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
-      <td>${f.Qfinal_un.toFixed(2)}</td>
-      <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
-      <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
-      <td>${soles(f.ventas)}</td>
-      <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
-    </tr>`;
-  }).join("");
-
+  // -------- Tabla ÚNICA (pedagógica + técnica fusionadas) --------
   document.getElementById("listaCompraContenido").innerHTML = `
-    <h3 style="margin-top:0">📋 Paso a paso — Pedido → kg → Bultos → Compra real</h3>
-    <p class="section-sub">Los campos amarillos son editables. Si no los tocas, se asume la compra sugerida (bulto completo).</p>
-    <div class="table-scroll" style="margin-bottom:24px"><table>
-      <thead><tr>
-        <th>Producto</th>
-        <th>Pedido Cliente</th>
-        <th>Pedido (kg)</th>
-        <th>Sug. GMML</th>
-        <th>Sug. (kg)</th>
-        <th>Faltante (kg)</th>
-        <th style="background:var(--miel-2);color:#7A5500">Compra Real (kg)</th>
-        <th style="background:var(--miel-2);color:#7A5500">Precio (S/kg)</th>
-        <th>Costo Total</th>
-      </tr></thead>
-      <tbody>${filasPedagogicas}</tbody>
+    <div class="table-scroll"><table>
+      <thead>
+        <tr>
+          <th rowspan="2">Producto</th>
+          <th rowspan="2">Pedido Cliente</th>
+          <th rowspan="2">Pedido (kg)</th>
+          <th rowspan="2">Sug. GMML</th>
+          <th rowspan="2">C_max</th>
+          <th colspan="3" style="background:var(--miel-2);color:#7A5500;text-align:center;border-left:2px solid var(--miel);border-right:2px solid var(--miel)">✏️ Datos del viernes (editables)</th>
+          <th colspan="6" style="text-align:center">📊 Cálculos (automáticos)</th>
+        </tr>
+        <tr>
+          <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes</th>
+          <th style="background:var(--miel-2);color:#7A5500">Q_comprada_kg</th>
+          <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida_kg</th>
+          <th>Q_final_kg</th>
+          <th>Q_final (unidad)</th>
+          <th>Δ kg</th>
+          <th>Costo real</th>
+          <th>Ventas</th>
+          <th>Margen bruto</th>
+        </tr>
+      </thead>
+      <tbody>${filas.map(f => {
+        const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+        const equivVenta = getEquivKg(f.codigo);
+        const equivCompra = getEquivKgCompra(f.codigo);
+        const modo = modoProducto(prod);
+        const pedidoTxt = pedidoClienteTxt(prod, f.Qped_kg, f.Qped_un);
+        const bultosSug = equivCompra > 0 ? Math.ceil(f.Qped_kg / equivCompra) : 0;
+        const sugTxt = sugerenciaMayorista(prod, bultosSug);
+        const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
+        const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
+        return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
+          <td>
+            <strong>${esc(prod.nombre || f.codigo)}</strong>
+            <br><span class="small-note">${esc(prod.unidad_venta || 'kg')} ${equivVenta} kg/u · compra ${esc(prod.unidad_compra || 'kg')} ${equivCompra} kg/u</span>
+          </td>
+          <td class="small-note">${esc(pedidoTxt)}</td>
+          <td><strong>${f.Qped_kg.toFixed(2)}</strong> kg</td>
+          <td class="small-note">${esc(sugTxt)}</td>
+          <td><strong style="color:${recortado?'var(--coral)':'var(--verde)'}">${soles(f.Cmax)}</strong></td>
+          <td style="background:var(--miel-2);border-left:2px solid var(--miel)">
+            <input type="number" step="0.001" value="${f.C_viernes ?? ''}"
+              onchange="setCompra('${f.codigo}','C_viernes',this.value)"
+              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+          </td>
+          <td style="background:var(--miel-2)">
+            <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}"
+              onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)"
+              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+          </td>
+          <td style="background:var(--miel-2);border-right:2px solid var(--miel)">
+            <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}"
+              onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)"
+              style="max-width:85px;border-color:var(--miel)" placeholder="—">
+          </td>
+          <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
+          <td>${f.Qfinal_un.toFixed(2)} ${esc(prod.unidad_venta || 'u')}</td>
+          <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
+          <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
+          <td>${soles(f.ventas)}</td>
+          <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
+        </tr>`;
+      }).join("")}</tbody>
     </table></div>
+    <p class="small-note" style="margin-top:10px">
+      <strong>Leyenda:</strong> C_max = costo máximo tolerado (P_L_final × (1−M_umbral), con piso en C_L). 
+      Si C_viernes &gt; C_max, la fila se pinta amarilla y <strong>Q_prima &lt; Q_pedida</strong> → se recorta Q_final.
+      Q_recibida es lo que realmente pesaste al recibir; si es menor a Q_final, Δ kg sale negativo (rojo).
+    </p>`;
 
-    <h3>🔬 Detalle técnico — recorte por C_max y Q_recibida</h3>
-    <p class="section-sub">Esta tabla aplica la lógica 1Día completa: si C_viernes &gt; C_max se recorta Q_prima y Q_final. Q_recibida es lo que realmente pesaste al recibir.</p>
-    <div class="table-scroll"><table><thead><tr>
-      <th>Producto</th>
-      <th>Unidad</th>
-      <th>Q_pedida (kg)</th>
-      <th>P_L_final</th>
-      <th>C_max</th>
-      <th>C_viernes</th>
-      <th>Q_comprada_kg</th>
-      <th>Q_recibida_kg</th>
-      <th>Q_final_kg</th>
-      <th>Q_final (unidad)</th>
-      <th>Δ kg</th>
-      <th>Costo real</th>
-      <th>Ventas</th>
-      <th>Margen bruto</th>
-    </tr></thead><tbody>${filasTecnicas}</tbody></table></div>`;
-
+  // -------- Cierre --------
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
