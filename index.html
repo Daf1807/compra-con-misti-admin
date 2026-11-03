@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17 (Modelo 1Día + GMML)</title>
+<title>Compra con Misti — Admin v16.2 (Modelo 1Día)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -224,7 +224,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17 · Modelo 1Día + GMML · Conversión de unidades a kg</p>
+<p>Panel Admin v16.2 · Modelo 1Día · Lunes decide precio · Viernes compra real · Domingo entrega</p>
 </div>
 </header>
 <div class="container">
@@ -401,7 +401,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-compra">
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
-<p class="section-sub">El sistema calcula la sugerencia en base a los pedidos. Luego puedes modificar la <strong>Compra Real (kg)</strong> para reflejar lo que realmente negociaste con el mayorista.</p>
+<p class="section-sub">Cargá <strong>C_viernes</strong> (precio real del mercado), <strong>Q_comprada_kg</strong> (lo que pediste al proveedor) y <strong>Q_recibida_kg</strong> (lo que realmente llegó y pesaste). El sistema calcula <code>C_max</code>, recorta <code>Q_final</code>, y muestra el cierre real de la ronda.</p>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
@@ -561,7 +561,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17</p>
+<p>Panel Admin · Modelo 1Día · v16.2</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -597,38 +597,6 @@ let catalogoSuscripto = false;
 let rondasSuscriptas = false;
 
 /* ============ CONSTANTES ============ */
-// Catálogo con costos reales GMML 30-sep y lógicas de venta
-const CONFIG_PRODUCTOS = {
-  "PR-001": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 3.43, peso_por_unidad_venta: 1, precio_venta_unidad: 4.63 },
-  "PR-002": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.00, peso_por_unidad_venta: 1, precio_venta_unidad: 2.00 },
-  "PR-003": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 2.33, peso_por_unidad_venta: 1, precio_venta_unidad: 3.33 },
-  "PR-004": { modo_venta: "kg", bulto_compra: "Cajón Chico", peso_bulto_kg: 27, precio_gmml_bulto: 115.00, peso_por_unidad_venta: 1, precio_venta_unidad: 6.26 },
-  "PR-005": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.70, peso_por_unidad_venta: 1, precio_venta_unidad: 3.70 },
-  "PR-006": { modo_venta: "kg", bulto_compra: "Saco Chico", peso_bulto_kg: 65, precio_gmml_bulto: 95.00, peso_por_unidad_venta: 1, precio_venta_unidad: 3.46 },
-  "PR-007": { modo_venta: "unidad", bulto_compra: "Ciento", peso_bulto_kg: 42, precio_gmml_bulto: 227.50, peso_por_unidad_venta: 0.42, nombre_unidad_venta: "choclo", precio_venta_unidad: 4.50 },
-  "PR-008": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.05, peso_por_unidad_venta: 1, precio_venta_unidad: 3.05 },
-  "PR-009": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.83, peso_por_unidad_venta: 1, precio_venta_unidad: 3.83 },
-  "PR-010": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.98, peso_por_unidad_venta: 1, precio_venta_unidad: 3.98 },
-  "PR-011": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 2.20, peso_por_unidad_venta: 1, precio_venta_unidad: 4.20 },
-  "PR-012": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 1.53, peso_por_unidad_venta: 1, precio_venta_unidad: 3.53 },
-  "PR-013": { modo_venta: "atadito", bulto_compra: "Atado Grande", peso_bulto_kg: 1, precio_gmml_bulto: 4.50, peso_por_unidad_venta: 0.150, nombre_unidad_venta: "atadito", precio_venta_unidad: 2.00 },
-  "PR-014": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 4.00, peso_por_unidad_venta: 1, precio_venta_unidad: 6.00 },
-  "PR-015": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 3.83, peso_por_unidad_venta: 1, precio_venta_unidad: 5.83 },
-  "PR-016": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 14.75, peso_por_unidad_venta: 1, precio_venta_unidad: 16.75 },
-  "PR-017": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 16.63, peso_por_unidad_venta: 1, precio_venta_unidad: 18.63 },
-  "PR-018": { modo_venta: "kg", bulto_compra: "Cajón", peso_bulto_kg: 18, precio_gmml_bulto: 85.00, peso_por_unidad_venta: 1, precio_venta_unidad: 6.72 },
-  "PR-019": { modo_venta: "atadito", bulto_compra: "Atado", peso_bulto_kg: 1, precio_gmml_bulto: 3.63, peso_por_unidad_venta: 0.100, nombre_unidad_venta: "atadito", precio_venta_unidad: 1.00 },
-  "PR-020": { modo_venta: "atadito", bulto_compra: "Atado", peso_bulto_kg: 1.5, precio_gmml_bulto: 4.50, peso_por_unidad_venta: 0.150, nombre_unidad_venta: "atadito", precio_venta_unidad: 1.50 },
-  "PR-021": { modo_venta: "atadito", bulto_compra: "Atado", peso_bulto_kg: 1, precio_gmml_bulto: 2.73, peso_por_unidad_venta: 0.100, nombre_unidad_venta: "atadito", precio_venta_unidad: 1.00 },
-  "PR-022": { modo_venta: "atadito", bulto_compra: "Atado", peso_bulto_kg: 3, precio_gmml_bulto: 18.00, peso_por_unidad_venta: 0.200, nombre_unidad_venta: "atadito", precio_venta_unidad: 2.00 },
-  "PR-023": { modo_venta: "atadito", bulto_compra: "Atado", peso_bulto_kg: 2.6, precio_gmml_bulto: 9.25, peso_por_unidad_venta: 0.200, nombre_unidad_venta: "atadito", precio_venta_unidad: 1.50 },
-  "PR-024": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 4.43, peso_por_unidad_venta: 1, precio_venta_unidad: 6.43 },
-  "PR-025": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 5.70, peso_por_unidad_venta: 1, precio_venta_unidad: 7.70 },
-  "PR-026": { modo_venta: "kg", bulto_compra: "Cajón", peso_bulto_kg: 23, precio_gmml_bulto: 45.00, peso_por_unidad_venta: 1, precio_venta_unidad: 4.50 },
-  "PR-027": { modo_venta: "kg", bulto_compra: "Kilogramo", peso_bulto_kg: 1, precio_gmml_bulto: 2.28, peso_por_unidad_venta: 1, precio_venta_unidad: 4.28 },
-  "PR-028": { modo_venta: "unidad", bulto_compra: "Unidad", peso_bulto_kg: 1.5, precio_gmml_bulto: 14.50, peso_por_unidad_venta: 1.5, nombre_unidad_venta: "zapallo", precio_venta_unidad: 20.00 }
-};
-
 const DISTRITOS = [
 {n:"Ate",lat:-12.0184,lng:-76.9240},{n:"Barranco",lat:-12.1461,lng:-77.0206},{n:"Breña",lat:-12.0561,lng:-77.0495},
 {n:"Carabayllo",lat:-11.8944,lng:-77.0355},{n:"Cercado de Lima",lat:-12.0464,lng:-77.0428},{n:"Chaclacayo",lat:-11.9761,lng:-76.7694},
@@ -767,40 +735,26 @@ const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).for
 const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
-/* ============ CÁLCULOS MODELO 1DÍA + GMML ============ */
+/* ============ CÁLCULOS MODELO 1DÍA ============ */
 function getEquivKg(codigo) {
-  const conf = CONFIG_PRODUCTOS[codigo];
-  if (conf && conf.peso_por_unidad_venta) return conf.peso_por_unidad_venta;
   const p = DB.productos.find(x => x.codigo === codigo);
   return Number(p?.equiv_kg) || 1;
 }
-
 function pesoPedidoKg(pedidoId) {
-  return itemsDePedido(pedidoId).reduce((s, i) => {
-    // Si el item ya tiene peso_kg guardado (nuevo formato), usarlo.
-    if (i.peso_kg != null) return s + Number(i.peso_kg);
-    // Fallback para items viejos
-    return s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto);
-  }, 0);
+  return itemsDePedido(pedidoId).reduce((s, i) => s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto), 0);
 }
-
 function qPedidaKgPorProducto(codigoProducto) {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
   return itemsDeRonda()
     .filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === codigoProducto)
-    .reduce((s, i) => {
-       if (i.peso_kg != null) return s + Number(i.peso_kg);
-       return s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto);
-    }, 0);
+    .reduce((s, i) => s + Number(i.cantidad || 0) * getEquivKg(i.codigo_producto), 0);
 }
-
 function qPedidaUnidadPorProducto(codigoProducto) {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
   return itemsDeRonda()
     .filter(i => aceptados.some(p => p.pedido_id === i.pedido_id) && i.codigo_producto === codigoProducto)
     .reduce((s, i) => s + Number(i.cantidad || 0), 0);
 }
-
 function escenariosDeProducto(codigo) {
   return escenariosDeRonda().filter(e => e.codigo_producto === codigo);
 }
@@ -885,16 +839,13 @@ function calcularFDomingo() {
     + Number(f.empaque_por_pedido || 0) * N
     + Number(f.delivery_por_pedido || 0) * N;
 }
-
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
   const compra = comprasDeRonda().find(c => c.codigo_producto === codigo) || {};
-  
-  // Datos del usuario o por defecto
-  const Cv = compra.precio_real_kg != null ? Number(compra.precio_real_kg) : (umbral.CL || 0);
-  const Qrecib = compra.peso_real_kg != null ? Number(compra.peso_real_kg) : null;
-  
+  const Cv = compra.C_viernes != null ? Number(compra.C_viernes) : null;
+  const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;
+  const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;
   const Qped_kg = qPedidaKgPorProducto(codigo);
   const Qped_un = qPedidaUnidadPorProducto(codigo);
   const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
@@ -904,22 +855,20 @@ function calcularCompraProducto(codigo) {
   const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
   const ventas = Qfinal_kg * umbral.PLfinal;
   const margenBruto = costoReal != null ? ventas - costoReal : null;
-  
   return {
     ...umbral,
-    C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: compra.peso_real_kg,
+    C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: Qcomp,
     Qped_kg, Qped_un, Qprima_kg, Qfinal_kg, Qfinal_un, dif_kg,
     costoReal, ventas, margenBruto
   };
 }
-
 function calcularCierreViernes() {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
   const productos = precioMapa();
   const filas = [];
   Object.keys(productos).forEach(codigo => {
     const calc = calcularCompraProducto(codigo);
-    if (calc && calc.Qped_kg > 0) filas.push({ codigo, ...calc });
+    if (calc) filas.push({ codigo, ...calc });
   });
   const ventas = filas.reduce((s, f) => s + (f.ventas || 0), 0);
   const costoReal = filas.reduce((s, f) => s + (f.costoReal || 0), 0);
@@ -931,6 +880,19 @@ function calcularCierreViernes() {
   const utilidad = ventas - costoReal - F - comision - gastosVar + exc - recl;
   const margen = ventas > 0 ? utilidad / ventas : 0;
   return { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados };
+}
+function calcularRecorteMap() {
+  const map = {};
+  Object.keys(precioMapa()).forEach(codigo => {
+    const c = calcularCompraProducto(codigo);
+    if (!c) return;
+    if (c.C_viernes != null && c.C_viernes > c.Cmax && c.C_viernes > 0) {
+      map[codigo] = { activo: true, factor: c.Cmax / c.C_viernes, Cmax: c.Cmax, Cv: c.C_viernes };
+    } else {
+      map[codigo] = { activo: false, factor: 1, Cmax: c.Cmax, Cv: c.C_viernes };
+    }
+  });
+  return map;
 }
 
 /* =========================================================
@@ -997,56 +959,52 @@ function recalcularDerivadosEnMemoria() {
 }
 
 /* ============ SEED ============ */
+const GMML_REF = {
+  "PR-001": 3.73, "PR-002": 1.08, "PR-003": 2.20, "PR-004": 3.19,
+  "PR-005": 2.28, "PR-006": 1.48, "PR-007": 3.15, "PR-008": 1.05,
+  "PR-009": 1.88, "PR-010": 1.85, "PR-011": 2.13, "PR-012": 1.53,
+  "PR-013": 4.13, "PR-014": 3.38, "PR-015": 4.20, "PR-016": 14.63,
+  "PR-017": 16.63, "PR-018": 4.65, "PR-019": 3.38, "PR-020": 5.50,
+  "PR-021": 2.88, "PR-022": 5.58, "PR-023": 3.37, "PR-024": 4.28,
+  "PR-025": 5.15, "PR-026": 2.50, "PR-027": 2.83, "PR-028": 5.58
+};
+
 function crearDBInicial() {
   const ronda = "R-" + lunesSemanaActual();
-  
-  // Crear catálogo basado en CONFIG_PRODUCTOS
-  const productos = Object.keys(CONFIG_PRODUCTOS).map(codigo => {
-    const c = CONFIG_PRODUCTOS[codigo];
-    // Mapear nombre y grupo
-    let nombre = codigo, grupo = "Básico";
-    if (codigo === "PR-001") { nombre = "Papa amarilla"; grupo = "Básico"; }
-    else if (codigo === "PR-002") { nombre = "Papa blanca"; grupo = "Básico"; }
-    else if (codigo === "PR-003") { nombre = "Papa canchán"; grupo = "Básico"; }
-    else if (codigo === "PR-004") { nombre = "Tomate Katia"; grupo = "Básico"; }
-    else if (codigo === "PR-005") { nombre = "Cebolla cabeza roja"; grupo = "Básico"; }
-    else if (codigo === "PR-006") { nombre = "Zanahoria"; grupo = "Básico"; }
-    else if (codigo === "PR-007") { nombre = "Choclo serrano"; grupo = "Básico"; }
-    else if (codigo === "PR-008") { nombre = "Camote amarillo"; grupo = "Básico"; }
-    else if (codigo === "PR-009") { nombre = "Yuca amarilla"; grupo = "Sazón"; }
-    else if (codigo === "PR-010") { nombre = "Zapallo macre"; grupo = "Sazón"; }
-    else if (codigo === "PR-011") { nombre = "Papa huayro"; grupo = "Sazón"; }
-    else if (codigo === "PR-012") { nombre = "Papa negra andina"; grupo = "Sazón"; }
-    else if (codigo === "PR-013") { nombre = "Cebolla china"; grupo = "Sazón"; }
-    else if (codigo === "PR-014") { nombre = "Ajo criollo"; grupo = "Sazón"; }
-    else if (codigo === "PR-015") { nombre = "Kion"; grupo = "Sazón"; }
-    else if (codigo === "PR-016") { nombre = "Ají amarillo"; grupo = "Sazón"; }
-    else if (codigo === "PR-017") { nombre = "Ají panca"; grupo = "Especial"; }
-    else if (codigo === "PR-018") { nombre = "Ají rocoto"; grupo = "Especial"; }
-    else if (codigo === "PR-019") { nombre = "Huacatay"; grupo = "Especial"; }
-    else if (codigo === "PR-020") { nombre = "Culantro"; grupo = "Especial"; }
-    else if (codigo === "PR-021") { nombre = "Perejil"; grupo = "Especial"; }
-    else if (codigo === "PR-022") { nombre = "Apio"; grupo = "Especial"; }
-    else if (codigo === "PR-023") { nombre = "Poro"; grupo = "Especial"; }
-    else if (codigo === "PR-024") { nombre = "Maíz morado"; grupo = "Especial"; }
-    else if (codigo === "PR-025") { nombre = "Ají escabeche"; grupo = "Especial"; }
-    else if (codigo === "PR-026") { nombre = "Limón cítrico cajón"; grupo = "Especial"; }
-    else if (codigo === "PR-027") { nombre = "Vainita"; grupo = "Especial"; }
-    else if (codigo === "PR-028") { nombre = "Zapallo loche"; grupo = "Especial"; }
-
-    return {
-      codigo, nombre, grupo,
-      unidad_venta: c.nombre_unidad_venta || "Kilogramo",
-      unidad_compra: c.bulto_compra,
-      equiv_kg: c.peso_por_unidad_venta,
-      activo: true,
-      // Nuevos campos GMML
-      modo_venta: c.modo_venta,
-      peso_bulto_kg: c.peso_bulto_kg,
-      precio_gmml_bulto: c.precio_gmml_bulto,
-      precio_venta_unidad: c.precio_venta_unidad
-    };
-  });
+  const productos = [
+    ["PR-001","Papa amarilla","Básico","Kilogramo","Kilogramo",1],
+    ["PR-002","Papa blanca","Básico","Kilogramo","Kilogramo",1],
+    ["PR-003","Papa canchán","Básico","Kilogramo","Kilogramo",1],
+    ["PR-004","Tomate Katia","Básico","Cajón Chico","Cajón Chico",27],
+    ["PR-005","Cebolla cabeza roja","Básico","Kilogramo","Kilogramo",1],
+    ["PR-006","Zanahoria","Básico","Saco Chico","Saco Chico",65],
+    ["PR-007","Choclo serrano","Básico","Ciento","Ciento",42],
+    ["PR-008","Camote amarillo","Básico","Kilogramo","Kilogramo",1],
+    ["PR-009","Yuca amarilla","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-010","Zapallo macre","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-011","Papa huayro","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-012","Papa negra andina","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-013","Cebolla china","Sazón","Atado Grande","Atado Grande",1],
+    ["PR-014","Ajo criollo","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-015","Kion","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-016","Ají amarillo","Sazón","Kilogramo","Kilogramo",1],
+    ["PR-017","Ají panca","Especial","Kilogramo","Kilogramo",1],
+    ["PR-018","Ají rocoto","Especial","Cajón","Cajón",18],
+    ["PR-019","Huacatay","Especial","Atado","Atado",1],
+    ["PR-020","Culantro","Especial","Atado","Atado",1.5],
+    ["PR-021","Perejil","Especial","Atado","Atado",1],
+    ["PR-022","Apio","Especial","Atado","Atado",3],
+    ["PR-023","Poro","Especial","Atado","Atado",2.6],
+    ["PR-024","Maíz morado","Especial","Kilogramo","Kilogramo",1],
+    ["PR-025","Ají escabeche","Especial","Kilogramo","Kilogramo",1],
+    ["PR-026","Limón cítrico cajón","Especial","Cajón","Cajón",23],
+    ["PR-027","Vainita","Especial","Kilogramo","Kilogramo",1],
+    ["PR-028","Zapallo loche","Especial","Unidad","Unidad",1.5]
+  ].map(p => ({
+    codigo: p[0], nombre: p[1], grupo: p[2],
+    unidad_venta: p[3], unidad_compra: p[4],
+    equiv_kg: p[5], activo: true
+  }));
 
   const clientes = [
     { id:"C-0001", nombre:"Luis Delgado Ortiz", telefono:"960214584", distrito:"Pueblo Libre", direccion:"Av. Aviación 512", referencia:"Frente al parque", tipo_cliente:"B2C", lat:-12.0716, lng:-77.0588 },
@@ -1063,9 +1021,8 @@ function crearDBInicial() {
   ];
 
   const precios = productos.map(prod => {
-    const conf = CONFIG_PRODUCTOS[prod.codigo];
-    const CL = conf.precio_gmml_bulto / conf.peso_bulto_kg;
-    const PL = conf.precio_venta_unidad;
+    const CL = GMML_REF[prod.codigo] ?? 1.00;
+    const PL = CL + 2;
     return {
       id_ronda: ronda, codigo_producto: prod.codigo, nombre: prod.nombre,
       unidad_venta: prod.unidad_venta, unidad_compra: prod.unidad_compra,
@@ -1088,7 +1045,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 17, rondaActiva: ronda,
+    version: 16, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1122,33 +1079,55 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), e, { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v17 completado");
+  console.log("Auto-seed v16.2 completado");
 }
 
-async function migrarCatalogoGMML() {
+async function migrarPreciosRonda(rondaId) {
+  if (!rondaId) return;
   try {
-    console.log("Migrando catálogo a v17 GMML...");
-    const batch = writeBatch(db);
-    let count = 0;
-    Object.keys(CONFIG_PRODUCTOS).forEach(codigo => {
-      const c = CONFIG_PRODUCTOS[codigo];
-      const ref = doc(db, "catalogo", "productos", "items", codigo);
-      batch.set(ref, {
-        modo_venta: c.modo_venta,
-        unidad_compra: c.bulto_compra,
-        peso_bulto_kg: c.peso_bulto_kg,
-        precio_gmml_bulto: c.precio_gmml_bulto,
-        peso_por_unidad_venta: c.peso_por_unidad_venta,
-        precio_venta_unidad: c.precio_venta_unidad,
-        nombre_unidad_venta: c.nombre_unidad_venta || "Kilogramo"
-      }, { merge: true });
-      count++;
+    const snap = await getDocs(collection(db, "rondas", rondaId, "precios"));
+    const batch = writeBatch(db); let migrados = 0;
+    snap.docs.forEach(d => {
+      const p = d.data();
+      const cambios = {};
+      if (p.P_L_mercado == null && p.precio_ref_mayorista != null) {
+        cambios.P_L_mercado = Number(p.precio_ref_mayorista) + 2;
+      }
+      if (p.C_L == null && p.precio_ref_mayorista != null) {
+        cambios.C_L = Number(p.precio_ref_mayorista);
+      }
+      if (p.unidad_venta == null) cambios.unidad_venta = p.unidad || "Kilogramo";
+      if (p.unidad_compra == null) cambios.unidad_compra = p.unidad || "Kilogramo";
+      if (p.equiv_kg == null) cambios.equiv_kg = 1;
+      if (Object.keys(cambios).length) {
+        batch.set(d.ref, cambios, { merge: true });
+        migrados++;
+      }
     });
-    if (count > 0) {
-      await batch.commit();
-      console.log("✓ Catálogo migrado a GMML v17");
-    }
-  } catch (e) { console.error("Error migrando catálogo:", e); }
+    if (migrados > 0) { await batch.commit(); console.log(`✓ Migrados ${migrados} precios`); }
+  } catch (e) { console.error("Error migrando precios:", e); }
+}
+async function migrarEscenariosRonda(rondaId) {
+  if (!rondaId) return;
+  try {
+    const snap = await getDocs(collection(db, "rondas", rondaId, "escenarios"));
+    if (snap.size > 0) return;
+    const prSnap = await getDocs(collection(db, "rondas", rondaId, "precios"));
+    if (prSnap.size === 0) return;
+    const batch = writeBatch(db);
+    prSnap.docs.forEach(pd => {
+      const codigo = pd.id;
+      ESCALONES_DEFAULT.forEach((esc, i) => {
+        const escId = codigo + "-" + i;
+        batch.set(doc(db, "rondas", rondaId, "escenarios", escId), {
+          id_ronda: rondaId, codigo_producto: codigo, esc_id: escId,
+          escalon: esc, Pij: 0.1, Cij: 0, P_cola: 0
+        }, { merge: true });
+      });
+    });
+    await batch.commit();
+    console.log("✓ Escenarios iniciales creados");
+  } catch (e) { console.error("Error migrando escenarios:", e); }
 }
 
 /* ============ CARGA ============ */
@@ -1202,6 +1181,8 @@ function cancelarSuscripciones() { cancelarSuscripcionesRonda(); cancelarSuscrip
 function suscribirRonda(rondaId) {
   cancelarSuscripcionesRonda();
   if (!rondaId) return;
+  migrarPreciosRonda(rondaId);
+  migrarEscenariosRonda(rondaId);
   ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(sub => {
     unsubscribersRonda.push(onSnapshot(collection(db, "rondas", rondaId, sub), snap => {
       DB[sub] = snap.docs.map(d => d.data());
@@ -1241,13 +1222,10 @@ async function cargarTodo() {
     await autoSeed();
     await cargarConfig(); await cargarCatalogo(); await cargarRondas();
   }
-  // Ejecutar migración si es necesario
-  await migrarCatalogoGMML();
-  await cargarCatalogo();
-
   suscribirRonda(DB.rondaActiva);
   suscribirCatalogo();
   suscribirRondas();
+  await cargarCatalogo();
   renderTodo();
 }
 
@@ -1506,8 +1484,8 @@ function renderDashboard() {
   });
   let costoReal = 0;
   comprasDeRonda().forEach(c => {
-    if (c.peso_real_kg != null && c.precio_real_kg != null) {
-      costoReal += Number(c.peso_real_kg) * Number(c.precio_real_kg);
+    if (c.Q_recibida_kg != null && c.C_viernes != null) {
+      costoReal += Number(c.Q_recibida_kg) * Number(c.C_viernes);
     }
   });
   document.getElementById("dashPedidos").textContent = activos.length;
@@ -1610,31 +1588,25 @@ function generarChecklistEmpaque() {
   const empacados = pedidosDeRonda().filter(p => p.estado === "empacado");
   if (!empacados.length) { toast("No hay pedidos en estado 'empacado'", "warn"); return; }
   empacados.sort((a, b) => String(a.pedido_id).localeCompare(String(b.pedido_id)));
+  const recMap = calcularRecorteMap();
   const ronda = rondaActual();
   const nomRonda = (ronda.nombre || "").trim() || DB.rondaActiva;
   const fecha = new Date().toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
   const solesF = v => "S/ " + Number(v || 0).toFixed(2);
   const escF = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const redF = v => Math.round((Number(v) || 0) * 100) / 100;
   let totalItems = 0;
   const tarjetas = empacados.map(p => {
     const its = itemsDePedido(p.pedido_id); totalItems += its.length;
     const dirTxt = [p.direccion, p.distrito].filter(Boolean).join(", ");
     const filas = its.map(i => {
-      // AQUI: Mostrar unidades o kg según corresponda
-      let cantMostrar = i.cantidad;
-      let unidadMostrar = i.unidad;
-      if (i.peso_kg) {
-         const conf = CONFIG_PRODUCTOS[i.codigo_producto];
-         if (conf && conf.modo_venta !== "kg") {
-            cantMostrar = `${i.cantidad} ${unidadMostrar} (${i.peso_kg.toFixed(2)} kg)`;
-            unidadMostrar = ""; 
-         }
-      }
-      return `<tr><td class="chk">☐</td><td class="prod">${escF(i.nombre)}</td><td class="cant">${cantMostrar}</td><td class="und">${escF(unidadMostrar)}</td><td class="prec">${solesF(i.precio_venta_congelado)}</td></tr>`;
+      const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+      const cantFinal = r.activo ? redF(i.cantidad * r.factor) : (Number(i.cantidad) || 0);
+      return `<tr><td class="chk">☐</td><td class="prod">${escF(i.nombre)}</td><td class="cant${r.activo ? ' esc3' : ''}">${cantFinal.toFixed(2)}</td><td class="und">${escF(i.unidad)}</td><td class="prec">${solesF(i.precio_venta_congelado)}</td></tr>`;
     }).join("");
     return `<div class="tarjeta"><div class="tarjeta-head"><div><span class="id">${escF(p.pedido_id)}</span><span class="sep">·</span><span class="nom">${escF(p.cliente_nombre)}</span></div><div class="meta">${escF(p.cliente_celular)}<span class="sep">·</span>${escF(dirTxt || "—")}</div></div><div class="tarjeta-items"><table><thead><tr><th class="c">✓</th><th>Producto</th><th class="r">Cant.</th><th>Und.</th><th class="r">Precio</th></tr></thead><tbody>${filas}</tbody></table></div></div>`;
   }).join("");
-  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Checklist de Empaque — ${escF(nomRonda)}</title><style>:root{--verde:#2E9E5B;--verde-claro:#E8F5EC;--coral:#FF5A5F;--texto:#2B2B2B}*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#F2EFE8;color:var(--texto);font-size:14px;line-height:1.4}.container{max-width:1200px;margin:auto;padding:20px}.doc-header{border-bottom:2px solid var(--verde);padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap}.doc-header h1{color:var(--verde);font-size:13pt;margin:0;font-weight:800}.doc-header .meta{color:#555;font-size:8.5pt;text-align:right;line-height:1.35}.masonry{column-count:3;column-gap:4mm}.tarjeta{break-inside:avoid;page-break-inside:avoid;display:inline-block;width:100%;margin-bottom:4mm;border:1px solid #888;border-radius:2px;overflow:hidden;background:#fff}.tarjeta-head{background:var(--verde-claro);padding:3px 5px;border-bottom:1px solid #888;line-height:1.25}.tarjeta-head .id{font-weight:800;color:var(--verde);font-size:8.5pt}.tarjeta-head .nom{font-weight:700;color:var(--texto);font-size:8.5pt}.tarjeta-head .sep{color:#999;margin:0 3px}.tarjeta-head .meta{color:#444;font-size:7.5pt;font-weight:600;margin-top:1px}.tarjeta-items table{width:100%;border-collapse:collapse;font-size:7.5pt}.tarjeta-items th{background:#F0F0F0;color:#555;font-size:6.5pt;text-transform:uppercase;padding:2px 4px;text-align:left;border-bottom:1px solid #CCC;font-weight:700}.tarjeta-items th.r{text-align:right}.tarjeta-items th.c{text-align:center}.tarjeta-items td{padding:1.5px 4px;border-bottom:1px solid #EEE;line-height:1.2;vertical-align:middle}.tarjeta-items tr:last-child td{border-bottom:0}.tarjeta-items td.chk{text-align:center;width:14px;font-size:11pt;color:#555}.tarjeta-items td.cant{width:32px;text-align:right;font-weight:700}.tarjeta-items td.und{width:26px;color:#888;font-size:6.5pt}.tarjeta-items td.prec{width:42px;text-align:right;color:#555;font-size:7pt}@page{size:A4 portrait;margin:8mm}@media print{body{background:#fff;font-size:8pt}.container{padding:0;max-width:none}}</style></head><body><div class="container"><div class="doc-header"><h1>✓ Checklist de Empaque — Compra con Misti</h1><div class="meta"><strong>Ronda:</strong> ${escF(nomRonda)}<br>${empacados.length} pedidos · ${totalItems} items · ${escF(fecha)}</div></div><div class="masonry">${tarjetas}</div></div></body></html>`;
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Checklist de Empaque — ${escF(nomRonda)}</title><style>:root{--verde:#2E9E5B;--verde-claro:#E8F5EC;--coral:#FF5A5F;--texto:#2B2B2B}*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#F2EFE8;color:var(--texto);font-size:14px;line-height:1.4}.container{max-width:1200px;margin:auto;padding:20px}.doc-header{border-bottom:2px solid var(--verde);padding-bottom:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex-wrap:wrap}.doc-header h1{color:var(--verde);font-size:13pt;margin:0;font-weight:800}.doc-header .meta{color:#555;font-size:8.5pt;text-align:right;line-height:1.35}.masonry{column-count:3;column-gap:4mm}.tarjeta{break-inside:avoid;page-break-inside:avoid;display:inline-block;width:100%;margin-bottom:4mm;border:1px solid #888;border-radius:2px;overflow:hidden;background:#fff}.tarjeta-head{background:var(--verde-claro);padding:3px 5px;border-bottom:1px solid #888;line-height:1.25}.tarjeta-head .id{font-weight:800;color:var(--verde);font-size:8.5pt}.tarjeta-head .nom{font-weight:700;color:var(--texto);font-size:8.5pt}.tarjeta-head .sep{color:#999;margin:0 3px}.tarjeta-head .meta{color:#444;font-size:7.5pt;font-weight:600;margin-top:1px}.tarjeta-items table{width:100%;border-collapse:collapse;font-size:7.5pt}.tarjeta-items th{background:#F0F0F0;color:#555;font-size:6.5pt;text-transform:uppercase;padding:2px 4px;text-align:left;border-bottom:1px solid #CCC;font-weight:700}.tarjeta-items th.r{text-align:right}.tarjeta-items th.c{text-align:center}.tarjeta-items td{padding:1.5px 4px;border-bottom:1px solid #EEE;line-height:1.2;vertical-align:middle}.tarjeta-items tr:last-child td{border-bottom:0}.tarjeta-items td.chk{text-align:center;width:14px;font-size:11pt;color:#555}.tarjeta-items td.cant{width:32px;text-align:right;font-weight:700}.tarjeta-items td.cant.esc3{color:var(--coral)}.tarjeta-items td.und{width:26px;color:#888;font-size:6.5pt}.tarjeta-items td.prec{width:42px;text-align:right;color:#555;font-size:7pt}@page{size:A4 portrait;margin:8mm}@media print{body{background:#fff;font-size:8pt}.container{padding:0;max-width:none}}</style></head><body><div class="container"><div class="doc-header"><h1>✓ Checklist de Empaque — Compra con Misti</h1><div class="meta"><strong>Ronda:</strong> ${escF(nomRonda)}<br>${empacados.length} pedidos · ${totalItems} items · ${escF(fecha)}</div></div><div class="masonry">${tarjetas}</div></div></body></html>`;
   const win = window.open("", "_blank");
   if (!win) { toast("Habilitá ventanas emergentes", "err"); return; }
   win.document.open(); win.document.write(html); win.document.close();
@@ -1707,6 +1679,8 @@ function verDetalle(id) {
   const p = pedidoPorId(id); if (!p) return;
   const its = itemsDePedido(id);
   const edit = !esTerminal(p.estado);
+  const verFinales = ["empacado","entregado","rechazado","fallido"].includes(p.estado);
+  const recMap = verFinales ? calcularRecorteMap() : {};
   const hist = (p.historial_estados || []).map(h => `<div class="hist-item"><strong>${esc(h.estado)}</strong> · ${new Date(h.fecha).toLocaleString("es-PE")} · ${esc(h.por)}<br><span class="muted">${esc(h.motivo || "")}</span></div>`).join("");
   const bloqueEditar = edit ? `
     <h3 style="margin-top:14px">Editar pedido</h3>
@@ -1725,42 +1699,94 @@ function verDetalle(id) {
       <div><label class="small-note">Crédito días (B2B)</label><input id="edCreditoDias" type="number" value="${p.credito_dias || 0}" min="0"></div>
       <div style="grid-column:1/-1"><label class="small-note">Notas</label><input id="edNotas" value="${esc(p.notas || "")}"></div>
     </div>` : "";
+  const tituloItems = verFinales ? "Items (cantidades finales tras recorte de C_max)" : "Items (precio congelado — no editable)";
   const filasHTML = its.map(i => {
-    let cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
-    let subTxt = i.peso_kg && i.peso_kg != i.cantidad ? `<br><span class="small-note">${i.peso_kg.toFixed(2)} kg</span>` : "";
-    
-    if (!edit) {
-       cantHTML = `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>${subTxt}`;
+    let cantHTML;
+    if (verFinales) {
+      const r = recMap[i.codigo_producto] || { activo: false, factor: 1, Cmax: 0, Cv: 0 };
+      const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+      cantHTML = r.activo
+        ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Recorte · C_max ${soles(r.Cmax)} / C_v ${soles(r.Cv)} · ×${r.factor.toFixed(3)}</span>`
+        : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
+    } else {
+      cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
     }
-    
     return `<tr><td>${esc(i.nombre)}</td><td>${cantHTML}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td><td>${edit ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : ""}</td></tr>`;
   }).join("");
   const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.P_L_final)}</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
-  
+  let bloqueBoleta = "";
+  if (p.estado === "entregado") {
+    const enviada = !!p.boleta_enviada;
+    bloqueBoleta = `<div class="info-box" style="margin-top:12px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn-wa btn-sm" onclick="enviarBoletaWhatsApp('${p.pedido_id}')">📲 Enviar boleta por WhatsApp</button><button class="btn-ghost btn-sm" onclick="copiarReportePedido('${p.pedido_id}')">📋 Copiar</button><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;font-size:13px"><input type="checkbox" ${enviada ? "checked" : ""} onchange="toggleBoletaEnviada('${p.pedido_id}',this.checked)" style="width:auto">${enviada ? "✅ Boleta enviada" : "Marcar como enviada"}</label></div></div>`;
+  }
   const botonesFinal = edit
     ? `<div class="actions" style="justify-content:flex-end;margin-top:14px"><button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button><button class="btn-save" onclick="guardarEdicionPedido('${p.pedido_id}')">💾 Guardar cambios</button></div>`
     : `<div class="actions" style="justify-content:flex-end;margin-top:14px"><button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button></div>`;
   const badgeTipo = p.tipo_cliente === "B2B" ? '<span class="badge-b2b">B2B</span>' : '<span class="badge-b2c">B2C</span>';
-  
   document.getElementById("detalleContenido").innerHTML = `
     <div class="info-box"><strong>${esc(p.pedido_id)}</strong> ${badgeTipo} · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br><span class="status status-${p.estado}">${esc(p.estado)}</span>${p.verificado_por ? ` · Verificado por ${esc(p.verificado_por)}` : ""}${p.codigo_yape ? ` · Yape ${esc(p.codigo_yape)}` : ""}${p.credito_dias > 0 ? ` · <strong>Crédito ${p.credito_dias}d</strong>` : ""}${p.lat && p.lng ? `<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>` : ""}</div>
     <h4 style="margin-top:14px">Historial</h4>${hist || '<div class="small-note">Sin historial.</div>'}
     ${bloqueEditar}
-    <h4 style="margin-top:14px">Items</h4>
+    <h4 style="margin-top:14px">${tituloItems}</h4>
     <table><thead><tr><th>Producto</th><th>Cantidad</th><th>P. venta</th><th>Subtotal</th><th></th></tr></thead><tbody id="edItemsBody">${filasHTML}</tbody></table>
     ${bloqueAgregarItem}
     <div class="calc-summary" style="margin-top:12px" id="edResumen"><div class="row"><span>Subtotal</span><span>${soles(p.subtotal)}</span></div><div class="row total"><span>TOTAL</span><span>${soles(p.total)}</span></div></div>
+    ${bloqueBoleta}
     ${botonesFinal}`;
-  
+  if (edit) recalcEdResumen(id);
   abrirModal("modalDetalle");
 }
-
+function enviarBoletaWhatsApp(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  const cel = String(p.cliente_celular || "").replace(/\D/g, "");
+  if (!cel || cel.length < 9) { toast("El cliente no tiene celular registrado", "err"); return; }
+  const its = itemsDePedido(pedidoId);
+  const recMap = calcularRecorteMap();
+  let huboAjuste = false;
+  const lineas = ["BOLETA · COMPRA CON MISTI","",`Cliente: ${p.cliente_nombre}`,`Pedido: ${p.pedido_id}`,"","DETALLE:"];
+  its.forEach(i => {
+    const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+    const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+    if (r.activo) huboAjuste = true;
+    lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
+  });
+  lineas.push("");
+  if (huboAjuste) { lineas.push("Nota: algunos pedidos fueron ajustados según el acuerdo de la ronda."); lineas.push(""); }
+  lineas.push(`TOTAL: ${soles(p.total)}`,"","¡Gracias por tu compra!");
+  const numero = cel.startsWith("51") ? cel : "51" + cel;
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(lineas.join("\n"))}`, "_blank");
+}
+async function toggleBoletaPipeline(pedidoId, val) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  p.boleta_enviada = !!val; p.boleta_enviada_fecha = val ? ahora() : null;
+  await guardarPedido(p); toast(val ? "✅ Boleta marcada" : "Boleta desmarcada", val ? "ok" : "warn"); renderPipeline();
+}
+function copiarReportePedido(pedidoId) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  const its = itemsDePedido(pedidoId); const recMap = calcularRecorteMap();
+  let huboAjuste = false;
+  const lineas = ["BOLETA · COMPRA CON MISTI","",`Cliente: ${p.cliente_nombre}`,`Pedido: ${p.pedido_id}`,"","DETALLE:"];
+  its.forEach(i => {
+    const r = recMap[i.codigo_producto] || { activo: false, factor: 1 };
+    const cantFinal = r.activo ? red2(i.cantidad * r.factor) : i.cantidad;
+    if (r.activo) huboAjuste = true;
+    lineas.push(`- ${i.nombre}: ${cantFinal.toFixed(2)} ${i.unidad}`);
+  });
+  lineas.push("");
+  if (huboAjuste) { lineas.push("Nota: ajustado según acuerdo."); lineas.push(""); }
+  lineas.push(`TOTAL: ${soles(p.total)}`,"","¡Gracias por tu compra!");
+  const texto = lineas.join("\n");
+  navigator.clipboard.writeText(texto).then(() => toast("✓ Boleta copiada", "ok")).catch(() => toast("No se pudo copiar", "err"));
+}
+async function toggleBoletaEnviada(pedidoId, val) {
+  const p = pedidoPorId(pedidoId); if (!p) return;
+  p.boleta_enviada = !!val; p.boleta_enviada_fecha = val ? ahora() : null;
+  await guardarPedido(p); toast(val ? "✅ Boleta marcada" : "Boleta desmarcada", val ? "ok" : "warn"); verDetalle(pedidoId);
+}
 async function edCambiarCantidad(itemId, val) {
   const it = DB.items.find(i => i.item_id === itemId); if (!it) return;
   it.cantidad = Math.max(0, Number(val) || 0);
-  it.peso_kg = it.cantidad * getEquivKg(it.codigo_producto);
-  it.subtotal_venta = red2(it.peso_kg * it.precio_venta_congelado);
-  
+  it.subtotal_venta = red2(it.cantidad * it.precio_venta_congelado);
   const el = document.getElementById("edSub-" + itemId); if (el) el.textContent = soles(it.subtotal_venta);
   await guardarItem(it); recalcEdResumen(it.pedido_id);
 }
@@ -1772,25 +1798,10 @@ async function edEliminarItem(itemId, pedidoId) {
 async function edAgregarItem(pedidoId) {
   const cod = document.getElementById("edAddProd").value; if (!cod) return;
   const pr = precioMapa()[cod]; if (!pr) return;
-  const prod = DB.productos.find(p => p.codigo === cod);
   const existentes = DB.items.filter(i => i.pedido_id === pedidoId);
   const nums = existentes.map(i => parseInt(String(i.item_id).split("-").pop(), 10)).filter(n => !isNaN(n));
   const n = Math.max(0, ...nums) + 1;
-  
-  const conf = CONFIG_PRODUCTOS[cod];
-  const pesoKg = (conf && conf.peso_por_unidad_venta) ? conf.peso_por_unidad_venta : 1;
-  
-  const it = { 
-    id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), 
-    pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, 
-    unidad: prod.unidad_venta || "Kilogramo", 
-    cantidad: 1, 
-    peso_kg: pesoKg,
-    precio_compra_estimado: pr.C_L, 
-    precio_venta_congelado: pr.P_L_final, 
-    subtotal_venta: red2(pesoKg * pr.P_L_final), 
-    estado: "pendiente" 
-  };
+  const it = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(n).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: cod, nombre: pr.nombre, unidad: pr.unidad_venta, cantidad: 1, precio_compra_estimado: pr.C_L, precio_venta_congelado: pr.P_L_final, subtotal_venta: red2(1 * pr.P_L_final), estado: "pendiente" };
   await guardarItem(it); verDetalle(pedidoId);
 }
 async function recalcEdResumen(pedidoId) {
@@ -1854,12 +1865,7 @@ function calcFiltrarProductos() {
   document.getElementById("calcProductoSelect").innerHTML = `<option value="">— Elegir producto —</option>` + prods.map(p => {
     const pr = pmap[p.codigo];
     const pvf = pr?.P_L_final || 0;
-    const conf = CONFIG_PRODUCTOS[p.codigo];
-    let txtUnidad = p.unidad_venta || 'kg';
-    if(conf && conf.modo_venta === "atadito") txtUnidad = "atadito";
-    if(conf && conf.modo_venta === "unidad") txtUnidad = conf.nombre_unidad_venta;
-    
-    return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(txtUnidad)}) — ${soles(pvf)}</option>`;
+    return `<option value="${p.codigo}">${esc(p.nombre)} (${esc(p.unidad_venta || 'kg')}) — ${soles(pvf)}</option>`;
   }).join("");
 }
 function calcBuscarCliente() {
@@ -1884,15 +1890,9 @@ function calcAgregarProducto() {
   const cod = document.getElementById("calcProductoSelect").value; if (!cod) return;
   const pmap = precioMapa(), pr = pmap[cod], prod = DB.productos.find(p => p.codigo === cod);
   if (!pr || !prod) { toast("Producto sin precio", "err"); return; }
-  
-  const conf = CONFIG_PRODUCTOS[cod] || {};
-  const pesoUnidad = conf.peso_por_unidad_venta || 1;
-  const nombreUnidad = conf.modo_venta === "atadito" ? "atadito" : (conf.modo_venta === "unidad" ? conf.nombre_unidad_venta : "kg");
-
   const ex = calcItems.find(i => i.codigo === cod);
   if (ex) ex.cantidad++;
-  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: nombreUnidad, cantidad: 1, peso_unidad: pesoUnidad, precio_ref: pr.C_L, precio_venta: pr.P_L_final });
-  
+  else calcItems.push({ codigo: cod, nombre: prod.nombre, unidad: prod.unidad_venta, cantidad: 1, precio_ref: pr.C_L, precio_venta: pr.P_L_final });
   document.getElementById("calcProductoSelect").value = "";
   calcRenderItems();
 }
@@ -1901,16 +1901,11 @@ function calcEliminar(i) { calcItems.splice(i, 1); calcRenderItems(); }
 function calcRenderItems() {
   const cont = document.getElementById("calcItems");
   if (!calcItems.length) { cont.innerHTML = `<div class="small-note">Sin productos.</div>`; calcRecalcular(); return; }
-  cont.innerHTML = calcItems.map((it, i) => {
-    const pesoTotal = (it.cantidad * it.peso_unidad).toFixed(2);
-    const infoPeso = it.unidad !== 'kg' ? `<div class="small-note">${pesoTotal} kg</div>` : "";
-    const subtotal = it.cantidad * it.peso_unidad * it.precio_venta;
-    return `<div class="item-row"><div><strong>${esc(it.nombre)}</strong> <span class="muted">(${esc(it.unidad)})</span>${infoPeso}</div><input type="number" min="0" step="0.01" value="${it.cantidad}" onchange="calcCambiarCantidad(${i},this.value)"><div class="muted">× ${soles(it.precio_venta)}/kg</div><div><strong>${soles(subtotal)}</strong></div><button class="btn-delete" onclick="calcEliminar(${i})">×</button></div>`;
-  }).join("");
+  cont.innerHTML = calcItems.map((it, i) => `<div class="item-row"><div><strong>${esc(it.nombre)}</strong> <span class="muted">(${esc(it.unidad)})</span></div><input type="number" min="0" step="0.01" value="${it.cantidad}" onchange="calcCambiarCantidad(${i},this.value)"><div class="muted">× ${soles(it.precio_venta)}</div><div><strong>${soles(it.cantidad * it.precio_venta)}</strong></div><button class="btn-delete" onclick="calcEliminar(${i})">×</button></div>`).join("");
   calcRecalcular();
 }
 function calcRecalcular() {
-  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.peso_unidad * i.precio_venta, 0);
+  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.precio_venta, 0);
   const tipo = document.getElementById("calcTipoCliente")?.value || "B2C";
   const min = tipo === "B2B" ? 0 : MINIMO_B2C;
   const falta = tipo === "B2C" && subtotal < min;
@@ -1934,7 +1929,7 @@ async function calcGuardar() {
   if (!cel || !nombre) { toast("Faltan celular y nombre", "err"); return; }
   if (!calcItems.length) { toast("Agregá al menos un producto", "err"); return; }
   const tipo = document.getElementById("calcTipoCliente").value;
-  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.peso_unidad * i.precio_venta, 0);
+  const subtotal = calcItems.reduce((s, i) => s + i.cantidad * i.precio_venta, 0);
   const min = tipo === "B2B" ? 0 : MINIMO_B2C;
   if (tipo === "B2C" && subtotal < min) { toast(`Mínimo B2C: ${soles(min)}`, "err"); return; }
   const modalidad = document.getElementById("calcModalidad").value;
@@ -1974,18 +1969,7 @@ async function calcGuardar() {
   let baseItem = Math.max(0, ...numsItems);
   for (let i = 0; i < calcItems.length; i++) {
     const it = calcItems[i]; baseItem++;
-    const pesoKg = it.cantidad * it.peso_unidad;
-    const item = { 
-      id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(baseItem).padStart(2, "0"), 
-      pedido_id: pedidoId, codigo_producto: it.codigo, nombre: it.nombre, 
-      unidad: it.unidad, 
-      cantidad: it.cantidad, 
-      peso_kg: pesoKg,
-      precio_compra_estimado: it.precio_ref, 
-      precio_venta_congelado: it.precio_venta, 
-      subtotal_venta: red2(pesoKg * it.precio_venta), 
-      estado: "pendiente" 
-    };
+    const item = { id_ronda: DB.rondaActiva, item_id: pedidoId + "-" + String(baseItem).padStart(2, "0"), pedido_id: pedidoId, codigo_producto: it.codigo, nombre: it.nombre, unidad: it.unidad, cantidad: it.cantidad, precio_compra_estimado: it.precio_ref, precio_venta_congelado: it.precio_venta, subtotal_venta: red2(it.cantidad * it.precio_venta), estado: "pendiente" };
     await guardarItem(item);
   }
   toast("✓ Pedido " + pedidoId + " creado", "ok");
@@ -2061,17 +2045,32 @@ async function guardarProducto() {
 async function renderPrecios() {
   try {
     const body = document.getElementById("preciosBody");
-    if (!body) return;
+    if (!body) { console.warn("[renderPrecios] preciosBody no existe"); return; }
+
     const q = (document.getElementById("precioBuscar")?.value || "").toLowerCase();
     const g = (document.getElementById("precioGrupoFiltro")?.value || "");
     const pmap = precioMapa();
-    
+
+    // Ronda anterior (para delta) — no fallar si no hay
+    let prevMap = {};
+    try {
+      const rondas = Object.keys(DB.rondas).sort();
+      const idx = rondas.indexOf(DB.rondaActiva);
+      const prevRonda = idx > 0 ? rondas[idx - 1] : null;
+      if (prevRonda) {
+        const snap = await getDocs(collection(db, "rondas", prevRonda, "precios"));
+        snap.docs.forEach(d => { const p = d.data(); prevMap[p.codigo_producto] = p; });
+      }
+    } catch (e) { console.warn("no se pudo leer ronda anterior:", e); }
+
     let prods = DB.productos.filter(p => p.activo);
     if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
     if (g) prods = prods.filter(p => p.grupo === g);
 
     if (!prods.length) {
       body.innerHTML = `<tr><td colspan="11" class="warn-box">No hay productos activos que coincidan con el filtro.</td></tr>`;
+      const escContEmpty = document.getElementById("escenariosContenido");
+      if (escContEmpty) escContEmpty.innerHTML = `<div class="small-note">Sin escenarios para mostrar.</div>`;
       return;
     }
 
@@ -2081,11 +2080,17 @@ async function renderPrecios() {
       const umbral = calcularUmbralProducto(p.codigo);
       const PLm = Number(pr.P_L_mercado) || 0;
       const CL = Number(pr.C_L) || 0;
-      
+      const prev = prevMap[p.codigo];
+      let delta = '<span class="small-note">nuevo</span>';
+      if (prev) {
+        const d = red2(PLm - (Number(prev.P_L_mercado) || 0));
+        if (Math.abs(d) < 0.001) delta = '<span class="delta-zero">=</span>';
+        else if (d > 0) delta = `<span class="delta-pos">+${soles(d)}</span>`;
+        else delta = `<span class="delta-neg">−${soles(Math.abs(d))}</span>`;
+      }
       const sirveBadge = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
       const PLfinal = diag?.PLfinal || 0;
       const Cmax = umbral?.Cmax || 0;
-      
       return `<tr>
         <td><strong>${esc(p.codigo)}</strong></td>
         <td>${esc(p.nombre)}</td>
@@ -2097,7 +2102,7 @@ async function renderPrecios() {
         <td style="text-align:center">${sirveBadge}</td>
         <td><strong style="color:var(--verde);font-size:14px">${soles(PLfinal)}</strong></td>
         <td><strong>${soles(Cmax)}</strong></td>
-        <td>—</td>
+        <td>${delta}</td>
       </tr>`;
     }).join("");
 
@@ -2108,8 +2113,10 @@ async function renderPrecios() {
     prods.forEach(p => {
       const escs = calcularEscenariosProducto(p.codigo);
       const diag = calcularDiagnosticoProducto(p.codigo);
-      if (!escs.length) return;
-      
+      if (!escs.length) {
+        escHTML += `<div class="esc-acordeon"><div class="esc-head"><span>${esc(p.codigo)} · ${esc(p.nombre)}</span><span class="small-note">Sin escenarios cargados</span></div></div>`;
+        return;
+      }
       const escRows = escs.map((e, idx) => {
         const escDb = escenariosDeProducto(p.codigo).slice().sort((a, b) => a.escalon - b.escalon)[idx];
         return `<tr>
@@ -2119,7 +2126,6 @@ async function renderPrecios() {
           <td>${(e.P_cola * 100).toFixed(2)}%</td>
         </tr>`;
       }).join("");
-      
       const badgeSirve = diag?.sirve ? `<span class="badge-sirve">SÍ</span>` : `<span class="badge-nosirve">NO</span>`;
       escHTML += `<div class="esc-acordeon">
         <div class="esc-head" onclick="this.parentElement.classList.toggle('open')">
@@ -2143,6 +2149,8 @@ async function renderPrecios() {
     escCont.innerHTML = escHTML;
   } catch (e) {
     console.error("[renderPrecios] ERROR:", e);
+    const body = document.getElementById("preciosBody");
+    if (body) body.innerHTML = `<tr><td colspan="11"><div class="error-box"><strong>Error al renderizar Precios:</strong><br>${esc(e.message)}<br><span class="small-note">Ver consola (F12) para el detalle.</span></div></td></tr>`;
   }
 }
 async function setPrecio(codigo, campo, valor) {
@@ -2225,152 +2233,109 @@ async function publicarPrecios() {
   refrescarSelector(); toast("✓ P_L_final publicado", "ok");
 }
 
-/* ============ COMPRA (NUEVA LOGICA GMML) ============ */
+/* ============ COMPRA ============ */
 function calcularListaCompra() {
-  const filas = [];
-  
-  Object.keys(CONFIG_PRODUCTOS).forEach(codigo => {
-    const config = CONFIG_PRODUCTOS[codigo];
-    const prod = DB.productos.find(p => p.codigo === codigo);
-    if (!config || !prod) return;
-
-    const Qped_kg = qPedidaKgPorProducto(codigo);
-    if (Qped_kg <= 0) return; // Solo si tiene pedidos
-
-    const Qped_un = qPedidaUnidadPorProducto(codigo);
-    const pesoBulto = config.peso_bulto_kg;
-    const precioBulto = config.precio_gmml_bulto;
-    const precioKgDefault = precioBulto / pesoBulto;
-    
-    // Sugerencia
-    const bultosSugeridos = Math.ceil(Qped_kg / pesoBulto);
-    const pesoTotalSugerido = bultosSugeridos * pesoBulto;
-    const faltanteKg = pesoTotalSugerido - Qped_kg;
-
-    // Datos manuales
-    const compra = comprasDeRonda().find(c => c.codigo_producto === codigo) || {};
-    const bultosReales = compra.bultos_comprados != null ? Number(compra.bultos_comprados) : bultosSugeridos;
-    const pesoReal = compra.peso_real_kg != null ? Number(compra.peso_real_kg) : pesoTotalSugerido;
-    const precioRealKg = compra.precio_real_kg != null ? Number(compra.precio_real_kg) : precioKgDefault;
-    const costoReal = pesoReal * precioRealKg;
-
-    filas.push({
-      codigo, prod, config,
-      Qped_kg, Qped_un,
-      bultosSugeridos, pesoTotalSugerido, faltanteKg,
-      bultosReales, pesoReal, precioRealKg, costoReal
-    });
-  });
-
+  const cierre = calcularCierreViernes();
+  const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
   if (!filas.length) {
     document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados. Cargá pedidos primero.</div>`;
     document.getElementById("listaCompraContenido").innerHTML = "";
     document.getElementById("cierreViernesContenido").innerHTML = "";
     return;
   }
-
-  const costoTotalCompra = filas.reduce((s,f) => s + f.costoReal, 0);
-
-  document.getElementById("compraResumen").innerHTML = `
-    <div class="ruta-info">
-      <div class="box">Productos con pedidos<strong>${filas.length}</strong></div>
-      <div class="box">Costo Total Compra<strong>${soles(costoTotalCompra)}</strong></div>
-    </div>
-    <div class="info-box">
-      Ajusta la <strong>Compra Real (kg)</strong> o el <strong>Precio</strong> si negociaste con el mayorista. 
-      El sistema calculará el costo final con esos valores.
-    </div>`;
+  const confirmados = filas.filter(f => f.C_viernes != null && f.Q_recibida_kg != null).length;
+  let resumenHTML = `<div class="ruta-info">
+    <div class="box">Productos<strong>${filas.length}</strong></div>
+    <div class="box">Ventas congeladas<strong>${soles(ventas)}</strong></div>
+    <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
+    <div class="box">Margen bruto<strong class="${ventas - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ventas - costoReal)}</strong></div>
+  </div>
+  <div class="info-box"><strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.</div>`;
+  document.getElementById("compraResumen").innerHTML = resumenHTML;
 
   document.getElementById("listaCompraContenido").innerHTML = `
-    <div class="table-scroll"><table>
-      <thead><tr>
-        <th>Producto</th>
-        <th>Pedido Cliente</th>
-        <th>Pedido (kg)</th>
-        <th>Sug. GMML</th>
-        <th>Sug. (kg)</th>
-        <th>Faltante (kg)</th>
-        <th style="background:var(--miel-2);color:#7A5500">Compra Real (kg)</th>
-        <th style="background:var(--miel-2);color:#7A5500">Precio (S/kg)</th>
-        <th>Costo Total</th>
-      </tr></thead>
-      <tbody>${filas.map(f => {
-        let pedidoTxt = "";
-        if (f.config.modo_venta === "kg") pedidoTxt = `${f.Qped_kg.toFixed(2)} kg`;
-        else if (f.config.modo_venta === "unidad") pedidoTxt = `${f.Qped_un.toFixed(2)} ${f.config.nombre_unidad_venta}s`;
-        else if (f.config.modo_venta === "atadito") pedidoTxt = `${f.Qped_un.toFixed(2)} ataditos`;
+    <div class="table-scroll"><table><thead><tr>
+      <th>Producto</th>
+      <th>Unidad</th>
+      <th>Q_pedida (kg)</th>
+      <th>P_L_final</th>
+      <th>C_max</th>
+      <th>C_viernes</th>
+      <th>Q_comprada_kg</th>
+      <th>Q_recibida_kg</th>
+      <th>Q_final_kg</th>
+      <th>Q_final (unidad)</th>
+      <th>Δ kg</th>
+      <th>Costo real</th>
+      <th>Ventas</th>
+      <th>Margen bruto</th>
+    </tr></thead><tbody>${filas.map(f => {
+      const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+      const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
+      const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
+      return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
+        <td><strong>${esc(prod.nombre || f.codigo)}</strong></td>
+        <td class="small-note">${esc(prod.unidad_venta || 'kg')}<br>${esc(f.equiv_kg || 1)} kg/u</td>
+        <td><strong>${f.Qped_kg.toFixed(2)}</strong><br><span class="small-note">${f.Qped_un.toFixed(2)} u</span></td>
+        <td><strong style="color:var(--verde)">${soles(f.PLfinal)}</strong></td>
+        <td><strong style="color:${recortado?'var(--coral)':'var(--verde)'}">${soles(f.Cmax)}</strong></td>
+        <td><input type="number" step="0.01" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:90px" placeholder="—"></td>
+        <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
+        <td>${f.Qfinal_un.toFixed(2)}</td>
+        <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
+        <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
+        <td>${soles(f.ventas)}</td>
+        <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
+      </tr>`;
+    }).join("")}</tbody></table></div>`;
 
-        const faltanteClase = f.faltanteKg > 0 ? "delta-pos" : (f.faltanteKg < 0 ? "delta-neg" : "delta-zero");
-        const faltanteTxt = f.faltanteKg > 0 ? `+${f.faltanteKg.toFixed(2)}` : f.faltanteKg.toFixed(2);
-
-        return `<tr>
-          <td><strong>${esc(f.prod.nombre)}</strong></td>
-          <td class="small-note">${pedidoTxt}</td>
-          <td><strong>${f.Qped_kg.toFixed(2)}</strong></td>
-          <td class="small-note">${f.bultosSugeridos} ${f.config.bulto_compra}</td>
-          <td><strong>${f.pesoTotalSugerido.toFixed(2)}</strong></td>
-          <td class="${faltanteClase}">${faltanteTxt}</td>
-          <td><input type="number" step="0.01" value="${f.pesoReal}" onchange="setCompraNueva('${f.codigo}','peso_real_kg',this.value)" style="max-width:90px; border-color:var(--miel)"></td>
-          <td><input type="number" step="0.01" value="${f.precioRealKg.toFixed(2)}" onchange="setCompraNueva('${f.codigo}','precio_real_kg',this.value)" style="max-width:90px; border-color:var(--miel)"></td>
-          <td><strong style="color:var(--verde)">${soles(f.costoReal)}</strong></td>
-        </tr>`;
-      }).join("")}</tbody>
-    </table></div>`;
-
-  // Render Cierre (con la misma data)
-  const cierre = calcularCierreViernes();
-  const claseUtil = cierre.utilidad >= 0 ? 'good' : 'bad';
+  const claseUtil = utilidad >= 0 ? 'good' : 'bad';
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
     <div class="fin-grid">
       <div class="fin-col">
         <h4>Ingresos</h4>
-        <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(cierre.ventas)}</span></div>
-        <div class="fin-row"><span>Excedentes</span><span class="val">${soles(cierre.exc)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ventas + cierre.exc)}</span></div>
+        <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(ventas)}</span></div>
+        <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ventas + exc)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Costos</h4>
-        <div class="fin-row"><span>Costo real (Q_recibida × C_viernes)</span><span class="val">${soles(cierre.costoReal)}</span></div>
-        <div class="fin-row"><span>Fijos del domingo</span><span class="val">${soles(cierre.F)}</span></div>
-        <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(cierre.comision)}</span></div>
-        <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(cierre.gastosVar)}</span></div>
-        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(cierre.recl)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl)}</span></div>
+        <div class="fin-row"><span>Costo real (Q_recibida × C_viernes)</span><span class="val">${soles(costoReal)}</span></div>
+        <div class="fin-row"><span>Fijos del domingo</span><span class="val">${soles(F)}</span></div>
+        <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(comision)}</span></div>
+        <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(gastosVar)}</span></div>
+        <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(costoReal + F + comision + gastosVar + recl)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Resultado</h4>
-        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(cierre.ventas - cierre.costoReal)}</span></div>
-        <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(cierre.utilidad)}</strong></span></div>
-        <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(cierre.margen)}</span></div>
-        <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${cierre.aceptados.length}</span></div>
+        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(ventas - costoReal)}</span></div>
+        <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(utilidad)}</strong></span></div>
+        <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(margen)}</span></div>
+        <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${aceptados.length}</span></div>
       </div>
     </div>
     <div class="fin-result ${claseUtil}">
       <div class="lbl">Utilidad neta real</div>
-      <div class="num">${soles(cierre.utilidad)}</div>
+      <div class="num">${soles(utilidad)}</div>
     </div>`;
 }
-
-async function setCompraNueva(codigo, campo, valor) {
+async function setCompra(codigo, campo, valor) {
+  const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
   if (!c) {
-    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: DB.productos.find(p=>p.codigo===codigo)?.nombre || codigo };
+    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
+      C_viernes: null, Q_comprada_kg: null, Q_recibida_kg: null };
     DB.compras.push(c);
   }
   const strVal = String(valor).trim();
   c[campo] = strVal === "" ? null : (Number(strVal) || 0);
-  
-  if (campo === 'peso_real_kg' && c.peso_real_kg != null) {
-    const config = CONFIG_PRODUCTOS[codigo];
-    if (config && config.peso_bulto_kg > 0) {
-      c.bultos_comprados = red2(c.peso_real_kg / config.peso_bulto_kg);
-    }
-  }
   await guardarCompra(c);
   calcularListaCompra();
 }
-
 function exportarCierreViernes() {
   const cierre = calcularCierreViernes();
   if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
@@ -2791,7 +2756,7 @@ async function exportarJSON() {
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v17_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v16_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
@@ -2858,7 +2823,7 @@ async function exportarExcel() {
     add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
     add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
     add("Config", [JSON.parse(JSON.stringify(DB.config))]);
-    XLSX.writeFile(wb, "misti_v17_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v16_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
@@ -2960,7 +2925,7 @@ Object.assign(window, {
   calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
   abrirModalProducto, guardarProducto, toggleProducto,
   setPrecio, setPij, copiarPreciosRondaAnterior, publicarPrecios,
-  calcularListaCompra, setCompraNueva, exportarCierreViernes,
+  calcularListaCompra, setCompra, exportarCierreViernes,
   asignarRepartidorPedido, updEntrega,
   previewRuta, enviarRutaWA, copiarMensajeRuta,
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
