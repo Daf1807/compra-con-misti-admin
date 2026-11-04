@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17.0 (Prellenar viernes)</title>
+<title>Compra con Misti — Admin v17.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -213,6 +213,22 @@ tbody tr:hover{background:#F4FBF6}
 .esc-tabla input{padding:5px 8px;font-size:12px}
 .unidad-badge{display:inline-block;font-size:9px;color:var(--texto-2);background:var(--crema);border:1px solid var(--borde);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:3px}
 .equivalencia-hint{font-size:10px;color:var(--texto-2);font-style:italic;line-height:1.35;margin-top:2px}
+
+/* === PARCHE 1: dropdown + workflow === */
+.dropdown{position:relative;display:inline-block}
+.dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--borde);border-radius:12px;box-shadow:var(--sombra-md);padding:6px;z-index:200;min-width:200px;max-width:calc(100vw - 40px)}
+.dropdown-menu.open{display:block}
+.dropdown-menu a{display:block;padding:7px 12px;border-radius:8px;color:var(--texto);font-size:13px;cursor:pointer;text-decoration:none}
+.dropdown-menu a:hover{background:var(--verde-claro)}
+.dropdown-menu hr{border:0;border-top:1px solid var(--borde);margin:4px 0}
+
+.workflow{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:8px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;box-shadow:var(--sombra-sm)}
+.workflow .wf-step{padding:4px 10px;border-radius:999px;background:var(--crema);font-weight:700;color:var(--texto-2);white-space:nowrap}
+.workflow .wf-step.active{background:var(--verde);color:#fff}
+.workflow .wf-arrow{color:var(--borde);font-weight:800}
+.workflow .wf-meta{margin-left:auto;display:flex;gap:12px;font-size:11px;color:var(--texto-2);flex-wrap:wrap}
+.workflow .wf-meta strong{color:var(--texto)}
+
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}}
@@ -225,24 +241,36 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17.0 · Modelo 1Día · Prellenar viernes</p>
+<p>Panel Admin v17.1 · Modelo 1Día</p>
 </div>
 </header>
 <div class="container">
+
+<!-- ===== PARCHE 2: roundbar limpio ===== -->
 <div class="roundbar">
 <label>Ronda:</label>
 <select id="rondaSelector" onchange="cambiarRondaActiva(this.value)"></select>
 <button class="btn-ghost btn-sm" onclick="abrirModalNombreRonda()" title="Renombrar ronda activa">✏️</button>
-<span id="rondaEstado" class="estado-ronda estado-abierta">abierta</span>
+<select id="rondaEstadoSel" style="width:auto;min-width:130px;font-weight:600;color:var(--texto);background:#fff;border:1.5px solid var(--borde)" onchange="marcarRonda(this.value)" title="Estado de la ronda">
+<option value="abierta">🟢 Abierta</option>
+<option value="cerrada">🟡 Cerrada</option>
+<option value="entregada">🔵 Entregada</option>
+</select>
 <button class="btn-add btn-sm" onclick="abrirModalNuevaRonda()">＋ Nueva</button>
-<button class="btn-delete btn-sm" onclick="borrarRonda(DB.rondaActiva)" title="Borrar la ronda activa y todos sus datos">🗑️ Borrar</button>
-<button class="btn-info btn-sm" onclick="marcarRonda('cerrada')">🔒 Cerrada</button>
-<button class="btn-info btn-sm" onclick="marcarRonda('entregada')">📦 Entregada</button>
-<button class="btn-warn btn-sm" onclick="marcarRonda('abierta')">🔓 Reabrir</button>
+<div class="dropdown">
+<button class="btn-ghost btn-sm" onclick="toggleDropdown('ddRonda')">⋯</button>
+<div class="dropdown-menu" id="ddRonda">
+<a onclick="borrarRondaActiva();toggleDropdown('ddRonda')" style="color:var(--coral)">🗑️ Borrar ronda activa</a>
+</div>
+</div>
 <div class="spacer"></div>
 <span id="avisoSemana"></span>
 <span class="small-note" id="rondaMeta">—</span>
 </div>
+
+<!-- ===== PARCHE 3: workflow bar ===== -->
+<div class="workflow" id="workflowBar"></div>
+
 <div class="app-shell">
 <nav class="sidebar">
 <div class="sidebar-title">Vistas</div>
@@ -259,21 +287,30 @@ tbody tr:hover{background:#F4FBF6}
 <button class="nav-btn" data-view="config"       onclick="mostrarVista('config')">⚙️ Config</button>
 </nav>
 <div class="main-col">
+
+<!-- ===== PARCHE 2: topbar con dropdown ===== -->
 <div class="topbar">
 <div class="crumb">Ronda activa: <strong id="crumbRonda">—</strong></div>
 <div class="actions">
 <button class="btn-add btn-sm" onclick="importarSoloPedidos()" title="Solo agrega/actualiza pedidos e items (NO BORRA NADA)">📥 Importar pedidos</button>
 <button class="btn-add btn-sm" onclick="importarComprasViernes()" title="Importar C_viernes, Q_comprada y Q_recibida (merge, NO BORRA NADA)">📥 Importar compras</button>
-<button class="btn-ghost btn-sm" onclick="exportarComprasViernes()" title="Exportar la tabla de compras del viernes">📤 Exportar compras</button>
-<button class="btn-ghost btn-sm" onclick="exportarSoloPedidos()" title="Exportar solo pedidos e items de la ronda activa">📤 Exportar pedidos</button>
-<button class="btn-ghost btn-sm" onclick="descargarPlantillaPedidos()" title="Descargar plantilla JSON en blanco">📋 Plantilla</button>
-<button class="btn-ghost btn-sm" onclick="exportarJSON()">⬇️ JSON</button>
-<button class="btn-ghost btn-sm" onclick="exportarExcel()">⬇️ Excel</button>
-<button class="btn-ghost btn-sm" onclick="importarJSON()">⬆️ JSON</button>
-<button class="btn-ghost btn-sm" onclick="importarExcel()">⬆️ Excel</button>
-<button class="btn-ghost btn-sm" onclick="resetTotal()">🗑️ Reset</button>
+<div class="dropdown">
+<button class="btn-ghost btn-sm" onclick="toggleDropdown('ddMore')">⋯ Más</button>
+<div class="dropdown-menu" id="ddMore">
+<a onclick="exportarSoloPedidos();toggleDropdown('ddMore')">📤 Exportar pedidos</a>
+<a onclick="exportarComprasViernes();toggleDropdown('ddMore')">📤 Exportar compras</a>
+<a onclick="descargarPlantillaPedidos();toggleDropdown('ddMore')">📋 Plantilla pedidos</a>
+<hr>
+<a onclick="exportarJSON();toggleDropdown('ddMore')">⬇️ JSON completo</a>
+<a onclick="exportarExcel();toggleDropdown('ddMore')">⬇️ Excel completo</a>
+<a onclick="importarJSON();toggleDropdown('ddMore')">⬆️ Importar JSON</a>
+<hr>
+<a onclick="resetTotal();toggleDropdown('ddMore')" style="color:var(--coral)">🗑️ Reset total</a>
 </div>
 </div>
+</div>
+</div>
+
 <section class="view active" id="view-dashboard">
 <div class="dash-hero">
 <div><div class="label">Pedidos activos</div><div class="big" id="dashPedidos">0</div></div>
@@ -297,6 +334,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="dashTopProductos"></div>
 </div>
 </section>
+
 <section class="view" id="view-pipeline">
 <div class="section">
 <h2 class="section-head">🔀 Pipeline de pedidos</h2>
@@ -308,6 +346,7 @@ tbody tr:hover{background:#F4FBF6}
 <div class="pipeline" id="pipelineGrid"></div>
 </div>
 </section>
+
 <section class="view" id="view-calculadora">
 <div class="section">
 <h2 class="section-head">🧮 Calculadora de pedido</h2>
@@ -350,6 +389,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 </div>
 </section>
+
 <section class="view" id="view-productos">
 <div class="section">
 <h2>Productos (maestro — nunca se borran)</h2>
@@ -374,6 +414,7 @@ tbody tr:hover{background:#F4FBF6}
 </table></div>
 </div>
 </section>
+
 <section class="view" id="view-precios">
 <div class="section">
 <h2>💰 Diagnóstico lunes — fijar precio de la semana</h2>
@@ -438,22 +479,18 @@ tbody tr:hover{background:#F4FBF6}
 </select>
 </div>
 
+<!-- ===== PARCHE 4: tabla de precios simplificada ===== -->
 <div class="table-scroll"><table>
 <thead><tr>
-<th>Código</th>
 <th>Producto</th>
-<th>Unidad</th>
 <th>P. mercado<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S/ por unidad cliente</small></th>
 <th>C_L<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S/ por unidad mayorista</small></th>
 <th>C_esp<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
-<th>M_L</th>
-<th>M_ideal</th>
 <th>M_ref</th>
 <th>¿Sirve?</th>
-<th>P_L_sugerido<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
-<th>P_L_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg y /unidad</small></th>
+<th>P_L_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg · /unidad</small></th>
 <th>C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
-<th>Δ vs ronda ant.</th>
+<th>Δ</th>
 </tr></thead>
 <tbody id="preciosBody"></tbody>
 </table></div>
@@ -462,11 +499,12 @@ tbody tr:hover{background:#F4FBF6}
 
 <div style="margin-top:24px">
 <h3>🎲 Escenarios por producto (Pij editables)</h3>
-<p class="section-sub">Cada producto tiene 10 escenarios de costo. <strong>Escalón</strong> = desvío en <strong>S//kg</strong> sobre C_L_kg (v16.8). C_esp se calcula como C_L_kg + Σ(Pij·escalón)/ΣPij. P_cola = prob. de que el costo real supere ese Cij.</p>
+<p class="section-sub">Cada producto tiene 10 escenarios de costo. <strong>Escalón</strong> = desvío en <strong>S//kg</strong> sobre C_L_kg. C_esp se calcula como C_L_kg + Σ(Pij·escalón)/ΣPij. P_cola = prob. de que el costo real supere ese Cij.</p>
 <div id="escenariosContenido"></div>
 </div>
 </div>
 </section>
+
 <section class="view" id="view-compra">
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
@@ -474,11 +512,11 @@ tbody tr:hover{background:#F4FBF6}
 <strong>📐 UNIDADES EN ESTA TABLA:</strong><br>
 • <strong>C_viernes</strong> → S/ por <strong>kg</strong> (si comprás 1 Ciento de choclo a S/132, C_viernes = 132/42 = S/3.14/kg)<br>
 • <strong>Q_comprada_kg / Q_recibida_kg</strong> → en <strong>kg</strong> reales pesados<br>
-• <strong>Q_final_kg</strong> → calculado en kg. <strong>Q_final (unidad)</strong> → convertido a unidad cliente (atadito/unidad se redondea hacia abajo)
+• <strong>Q_final (unidad)</strong> → convertido a unidad cliente (atadito/unidad se redondea hacia abajo)
 </div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
-<button class="btn-add btn-sm" onclick="prellenarComprasViernes()" title="Llena Q_comprada = Q_recibida = Q_pedida, y C_viernes = C_L/kg. Solo vacíos, respeta lo que ya cargaste.">✨ Prellenar viernes</button>
+<button class="btn-add btn-sm" onclick="prellenarComprasViernes()" title="Llena Q_comprada = Q_recibida = Q_pedida, y C_viernes = C_L/kg. Solo vacíos.">✨ Prellenar viernes</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
 </div>
 <div id="compraResumen"></div>
@@ -486,6 +524,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="cierreViernesContenido" style="margin-top:20px"></div>
 </div>
 </section>
+
 <section class="view" id="view-entregas">
 <div class="section">
 <h2 class="section-head">🗺️ Entregas por repartidor</h2>
@@ -494,6 +533,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="rutasContenido"></div>
 </div>
 </section>
+
 <section class="view" id="view-repartidores">
 <div class="section">
 <h2 class="section-head">🛵 Repartidores</h2>
@@ -505,6 +545,7 @@ tbody tr:hover{background:#F4FBF6}
 </table></div>
 </div>
 </section>
+
 <section class="view" id="view-gastos">
 <div class="section">
 <h2 class="section-head">💸 Costos fijos del domingo (calculado)</h2>
@@ -527,6 +568,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="reclamosContenido" style="margin-top:12px"></div>
 </div>
 </section>
+
 <section class="view" id="view-cierre">
 <div class="section">
 <h2 class="section-head">📈 Cierre y reportes</h2>
@@ -537,6 +579,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="reportesContenido"></div>
 </div>
 </section>
+
 <section class="view" id="view-config">
 <div class="section">
 <h2 class="section-head">⚙️ Configuración</h2>
@@ -585,18 +628,22 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <button class="btn-save" onclick="guardarProducto()">Guardar</button>
 </div>
 </div></div>
+
 <div class="modal" id="modalDetalle"><div class="modal-content wide">
 <div class="modal-header"><h3>Detalle / Editar pedido</h3><button class="close" onclick="cerrarModal('modalDetalle')">×</button></div>
 <div id="detalleContenido"></div>
 </div></div>
+
 <div class="modal" id="modalAceptar"><div class="modal-content">
 <div class="modal-header"><h3>✓ Aceptar pedido</h3><button class="close" onclick="cerrarModal('modalAceptar')">×</button></div>
 <div id="modalAceptarContenido"></div>
 </div></div>
+
 <div class="modal" id="modalRetroceder"><div class="modal-content">
 <div class="modal-header"><h3>↩️ Retroceder estado</h3><button class="close" onclick="cerrarModal('modalRetroceder')">×</button></div>
 <div id="modalRetrocederContenido"></div>
 </div></div>
+
 <div class="modal" id="modalRepartidor"><div class="modal-content">
 <div class="modal-header"><h3 id="modalRepartidorTitle">Repartidor</h3><button class="close" onclick="cerrarModal('modalRepartidor')">×</button></div>
 <input type="hidden" id="repEditId">
@@ -614,12 +661,13 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <button class="btn-save" onclick="guardarRepartidor()">Guardar</button>
 </div>
 </div></div>
+
 <div class="modal" id="modalNuevaRonda"><div class="modal-content">
 <div class="modal-header"><h3>＋ Nueva ronda</h3><button class="close" onclick="cerrarModal('modalNuevaRonda')">×</button></div>
 <p><label class="small-note">Fecha (cualquier día de la semana, se normaliza al lunes) *</label>
 <input type="date" id="nrFecha" onchange="previewNuevaRonda()"></p>
 <p><label class="small-note">Nombre de la ronda (opcional, max 60)</label>
-<input id="nrNombre" maxlength="60" placeholder="Ej: Semana post-feriado, Ronda especial…"></p>
+<input id="nrNombre" maxlength="60" placeholder="Ej: Semana post-feriado, Ronda especial…" oninput="previewNuevaRonda()"></p>
 <div id="nrPreview" class="info-box">—</div>
 <p><label class="small-note">Copiar precios de…</label>
 <select id="nrCopiarDe" onchange="previewNuevaRonda()">
@@ -634,6 +682,7 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <button class="btn-save" id="nrBtnCrear" onclick="confirmarNuevaRonda()">✓ Crear ronda</button>
 </div>
 </div></div>
+
 <div class="modal" id="modalNombreRonda"><div class="modal-content narrow">
 <div class="modal-header"><h3>✏️ Renombrar ronda</h3><button class="close" onclick="cerrarModal('modalNombreRonda')">×</button></div>
 <p><label class="small-note">ID (no editable — clave en Firestore)</label>
@@ -646,19 +695,22 @@ Esto significa: <strong>1 Ciento = 100 unidades</strong>. Si pagás S/132 por Ci
 <button class="btn-save" onclick="guardarNombreRonda()">💾 Guardar</button>
 </div>
 </div></div>
+
 <div class="modal" id="modalRutaPreview"><div class="modal-content">
 <div class="modal-header"><h3 id="modalRutaPreviewTitle">Mensaje al repartidor</h3><button class="close" onclick="cerrarModal('modalRutaPreview')">×</button></div>
 <div id="modalRutaPreviewContenido"></div>
 </div></div>
+
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17.0</p>
+<p>Panel Admin · Modelo 1Día · v17.1</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
 </div>
 </div>
+
 <script type="importmap">
 {"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js","firebase/auth":"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"}}
 </script>
@@ -687,6 +739,7 @@ let unsubscribersGlobal = [];
 let syncTimer = null;
 let catalogoSuscripto = false;
 let rondasSuscriptas = false;
+let _prevPreciosCache = {};   // PARCHE 7
 
 /* ============ CONSTANTES ============ */
 const DISTRITOS = [
@@ -1190,7 +1243,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 170, rondaActiva: ronda,
+    version: 171, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1221,7 +1274,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v17.0 completado");
+  console.log("Auto-seed v17.1 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1457,6 +1510,51 @@ function mostrarVista(n) {
 function abrirModal(id) { document.getElementById(id).classList.add("active"); }
 function cerrarModal(id) { document.getElementById(id).classList.remove("active"); }
 
+/* ============ PARCHE 3: dropdown + workflow ============ */
+function toggleDropdown(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const abierto = el.classList.contains("open");
+  document.querySelectorAll(".dropdown-menu.open").forEach(d => d.classList.remove("open"));
+  if (!abierto) el.classList.add("open");
+}
+document.addEventListener("click", e => {
+  if (!e.target.closest(".dropdown")) {
+    document.querySelectorAll(".dropdown-menu.open").forEach(d => d.classList.remove("open"));
+  }
+});
+
+function renderWorkflow() {
+  const el = document.getElementById("workflowBar");
+  if (!el) return;
+  const r = rondaActual();
+  if (!r.id_ronda) { el.innerHTML = '<span class="small-note">Sin ronda activa.</span>'; return; }
+  const pedidos = pedidosDeRonda();
+  const pendientes = pedidos.filter(p => p.estado.startsWith("pendiente")).length;
+  const aceptados = pedidos.filter(p => p.estado === "aceptado").length;
+  const empacados = pedidos.filter(p => p.estado === "empacado").length;
+  const entregados = pedidos.filter(p => p.estado === "entregado").length;
+  const est = r.estado || "abierta";
+  let paso = 1;
+  if (pedidos.length > 0 && pendientes === 0) paso = 2;
+  if (est === "cerrada" || empacados > 0) paso = 3;
+  if (est === "entregada") paso = 4;
+  el.innerHTML = `
+    <span class="wf-step ${paso === 1 ? 'active' : ''}">1 · Fijar precios</span>
+    <span class="wf-arrow">→</span>
+    <span class="wf-step ${paso === 2 ? 'active' : ''}">2 · Aceptar pedidos</span>
+    <span class="wf-arrow">→</span>
+    <span class="wf-step ${paso === 3 ? 'active' : ''}">3 · Compra real</span>
+    <span class="wf-arrow">→</span>
+    <span class="wf-step ${paso === 4 ? 'active' : ''}">4 · Entregar</span>
+    <span class="wf-meta">
+      <span>Pendientes <strong>${pendientes}</strong></span>
+      <span>Aceptados <strong>${aceptados}</strong></span>
+      <span>Empacados <strong>${empacados}</strong></span>
+      <span>Entregados <strong>${entregados}</strong></span>
+    </span>`;
+}
+
 /* ============ RONDAS ============ */
 function refrescarSelector() {
   const sel = document.getElementById("rondaSelector");
@@ -1471,8 +1569,12 @@ function refrescarSelector() {
   if (grupos.otro.length)      html += `<optgroup label="⚪ Otras">${grupos.otro.map(opt).join("")}</optgroup>`;
   sel.innerHTML = html;
   const r = rondaActual();
-  const est = document.getElementById("rondaEstado");
-  est.textContent = r.estado || "abierta"; est.className = "estado-ronda estado-" + (r.estado || "abierta");
+
+  // PARCHE 2/3: sincronizar select de estado + workflow (reemplaza al span viejo)
+  const selEstado = document.getElementById("rondaEstadoSel");
+  if (selEstado) selEstado.value = r.estado || "abierta";
+  renderWorkflow();
+
   const nom = (r.nombre || "").trim();
   document.getElementById("crumbRonda").innerHTML = nom
     ? `${esc(nom)} <span class="muted" style="font-weight:500;text-transform:none">(${esc(DB.rondaActiva)})</span>`
@@ -1492,6 +1594,7 @@ function refrescarSelector() {
 
 async function cambiarRondaActiva(r) {
   if (!r || !DB.rondas[r]) { toast("Ronda no encontrada: " + r, "err"); refrescarSelector(); return; }
+  _prevPreciosCache = {};   // PARCHE 7
   ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
   DB.rondaActiva = r; DB.config.ronda_activa = r;
   await fsSetConfig({ ronda_activa: r });
@@ -1563,6 +1666,7 @@ async function confirmarNuevaRonda() {
         await batch.commit();
       }
     }
+    _prevPreciosCache = {};   // PARCHE 7
     ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
     DB.rondaActiva = id; DB.config.ronda_activa = id;
     await fsSetConfig({ ronda_activa: id });
@@ -1616,12 +1720,15 @@ async function borrarRonda(id) {
     const nuevaActiva = (activaAntes !== id && DB.rondas[activaAntes]) ? activaAntes : (keys[0] || "");
     DB.rondaActiva = nuevaActiva; DB.config.ronda_activa = nuevaActiva;
     await fsSetConfig({ ronda_activa: nuevaActiva });
+    _prevPreciosCache = {};   // PARCHE 7
     ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"].forEach(k => { DB[k] = []; });
     if (nuevaActiva) suscribirRonda(nuevaActiva);
     refrescarSelector(); renderSemana(); renderTodo();
     toast("✓ Ronda " + id + " eliminada", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); if (DB.rondaActiva) suscribirRonda(DB.rondaActiva); }
 }
+function borrarRondaActiva() { borrarRonda(DB.rondaActiva); }   // PARCHE 2: helper para el dropdown
+
 async function marcarRonda(estado) {
   const r = rondaActual(); if (!r.id_ronda) { toast("Sin ronda", "err"); return; }
   const update = { estado };
@@ -2238,6 +2345,23 @@ async function guardarProducto() {
 }
 
 /* ============ PRECIOS ============ */
+
+// PARCHE 7: cache de precios de la ronda anterior (evita getDocs en cada render)
+async function _getPrevPrecios(rondaId) {
+  if (_prevPreciosCache[rondaId]) return _prevPreciosCache[rondaId];
+  const rondas = Object.keys(DB.rondas).sort();
+  const idx = rondas.indexOf(rondaId);
+  const prevRonda = idx > 0 ? rondas[idx - 1] : null;
+  if (!prevRonda) { _prevPreciosCache[rondaId] = {}; return {}; }
+  try {
+    const snap = await getDocs(collection(db, "rondas", prevRonda, "precios"));
+    const map = {};
+    snap.docs.forEach(d => { const p = d.data(); map[p.codigo_producto] = p; });
+    _prevPreciosCache[rondaId] = map;
+    return map;
+  } catch (e) { console.warn("no se pudo leer ronda anterior:", e); return {}; }
+}
+
 async function renderPrecios() {
   try {
     const body = document.getElementById("preciosBody");
@@ -2256,27 +2380,21 @@ async function renderPrecios() {
     const q = (document.getElementById("precioBuscar")?.value || "").toLowerCase();
     const g = (document.getElementById("precioGrupoFiltro")?.value || "");
     const pmap = precioMapa();
-    let prevMap = {};
-    try {
-      const rondas = Object.keys(DB.rondas).sort();
-      const idx = rondas.indexOf(DB.rondaActiva);
-      const prevRonda = idx > 0 ? rondas[idx - 1] : null;
-      if (prevRonda) {
-        const snap = await getDocs(collection(db, "rondas", prevRonda, "precios"));
-        snap.docs.forEach(d => { const p = d.data(); prevMap[p.codigo_producto] = p; });
-      }
-    } catch (e) { console.warn("no se pudo leer ronda anterior:", e); }
+    // PARCHE 7: usar cache
+    const prevMap = await _getPrevPrecios(DB.rondaActiva);
     let prods = DB.productos.filter(p => p.activo);
     if (q) prods = prods.filter(p => p.nombre.toLowerCase().includes(q));
     if (g) prods = prods.filter(p => p.grupo === g);
     if (!prods.length) {
-      body.innerHTML = `<tr><td colspan="14" class="warn-box">No hay productos activos que coincidan con el filtro.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="9" class="warn-box">No hay productos activos que coincidan con el filtro.</td></tr>`;
       const escContEmpty = document.getElementById("escenariosContenido");
       if (escContEmpty) escContEmpty.innerHTML = `<div class="small-note">Sin escenarios para mostrar.</div>`;
       renderSemaforoLunes();
       renderResumenLunes();
       return;
     }
+
+    // PARCHE 4: tabla simplificada a 9 columnas
     body.innerHTML = prods.map(p => {
       const pr = pmap[p.codigo] || {};
       const diag = calcularDiagnosticoProducto(p.codigo);
@@ -2302,30 +2420,33 @@ async function renderPrecios() {
       const unidadCompraTxt = p.unidad_compra || 'kg';
       const finalDisplay = Math.abs(eqV - 1) < 0.001
         ? `<strong style="color:var(--verde);font-size:14px">${soles(PLfinal_kg)}/kg</strong>`
-        : `<strong style="color:var(--verde);font-size:14px">${soles(PLfinal_cliente)}/${unidadVentaTxt}</strong><br><span class="small-note">${soles(PLfinal_kg)}/kg</span>`;
+        : `<strong style="color:var(--verde);font-size:14px">${soles(PLfinal_cliente)}/${esc(unidadVentaTxt)}</strong><br><span class="small-note">${soles(PLfinal_kg)}/kg</span>`;
       return `<tr>
-        <td><strong>${esc(p.codigo)}</strong></td>
-        <td>${esc(p.nombre)}</td>
-        <td class="small-note">V: ${esc(unidadVentaTxt)} (${eqV}kg)<br>C: ${esc(unidadCompraTxt)} (${eqC}kg)</td>
+        <td>
+          <strong>${esc(p.nombre)}</strong>
+          <br><span class="small-note">${esc(p.codigo)} · V: ${esc(unidadVentaTxt)} (${eqV}kg) · C: ${esc(unidadCompraTxt)} (${eqC}kg)</span>
+        </td>
         <td>
           <input type="number" step="0.01" value="${PLm}" onchange="setPrecio('${p.codigo}','P_L_mercado',this.value)" title="Por ${esc(unidadVentaTxt)}">
           <div class="equivalencia-hint">S/ por ${esc(unidadVentaTxt)}</div>
         </td>
         <td>
           <input type="number" step="0.01" value="${CL}" onchange="setPrecio('${p.codigo}','C_L',this.value)" title="Por ${esc(unidadCompraTxt)}">
-          <div class="equivalencia-hint">S/ por ${esc(unidadCompraTxt)}${eqC > 0 && Math.abs(eqC - 1) > 0.001 ? ` (= ${soles(CL/eqC)}/kg)` : ''}</div>
+          <div class="equivalencia-hint">${eqC > 0 && Math.abs(eqC - 1) > 0.001 ? `= ${soles(CL/eqC)}/kg` : 'S/ por ' + esc(unidadCompraTxt)}</div>
         </td>
-        <td>${soles(diag?.Cesp_kg || 0)}</td>
-        <td><span class="${claseMargen(diag?.ML || 0)}">${fmtPct(diag?.ML || 0)}</span></td>
-        <td><span class="${claseMargen(diag?.Mideal || 0)}">${fmtPct(diag?.Mideal || 0)}</span></td>
-        <td><span class="${claseMargen(diag?.Mref || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
+        <td><strong>${soles(diag?.Cesp_kg || 0)}</strong></td>
+        <td><span class="${claseMargen(diag?.Mref || 0)}" title="M_L ${fmtPct(diag?.ML || 0)} · M_ideal ${fmtPct(diag?.Mideal || 0)}">${fmtPct(diag?.Mref || 0)}</span></td>
         <td style="text-align:center">${sirveBadge}</td>
-        <td><strong>${soles(PLsug_kg)}/kg</strong></td>
-        <td>${finalDisplay}</td>
+        <td>
+          ${finalDisplay}
+          <div class="equivalencia-hint">Sug: ${soles(PLsug_kg)}/kg</div>
+        </td>
         <td><strong>${soles(Cmax_kg)}/kg</strong></td>
         <td>${delta}</td>
       </tr>`;
     }).join("");
+
+    // Bloque de escenarios (sin cambios)
     const escCont = document.getElementById("escenariosContenido");
     if (escCont) {
       let escHTML = "";
@@ -2373,7 +2494,7 @@ async function renderPrecios() {
   } catch (e) {
     console.error("[renderPrecios] ERROR:", e);
     const body = document.getElementById("preciosBody");
-    if (body) body.innerHTML = `<tr><td colspan="14"><div class="error-box"><strong>Error al renderizar Precios:</strong><br>${esc(e.message)}<br><span class="small-note">Ver consola (F12).</span></div></td></tr>`;
+    if (body) body.innerHTML = `<tr><td colspan="9"><div class="error-box"><strong>Error al renderizar Precios:</strong><br>${esc(e.message)}<br><span class="small-note">Ver consola (F12).</span></div></td></tr>`;
   }
 }
 async function setPrecio(codigo, campo, valor) {
@@ -2605,16 +2726,13 @@ async function prellenarComprasViernes() {
   const nuevos = propuesta.filter(p => !p._yaCv || !p._yaQc || !p._yaQr).length;
   const respetados = propuesta.length - nuevos;
 
+  // PARCHE 6: mensaje corto
   let msg = "✨ PRELLENAR COMPRAS DEL VIERNES\n\n";
-  msg += "Ronda: " + DB.rondaActiva + "\n";
-  msg += "Productos: " + propuesta.length + "\n\n";
-  msg += "Se van a completar SOLO los campos vacíos:\n";
-  msg += "• C_viernes    ← C_L convertido a S//kg\n";
-  msg += "• Q_comprada   ← Q_pedida (lo que pidieron los clientes)\n";
-  msg += "• Q_recibida   ← Q_pedida (asumimos que llegó todo)\n\n";
-  msg += "✅ " + respetados + " productos ya tenían datos → NO se tocan\n";
-  msg += "✨ " + nuevos + " productos se van a completar\n\n";
-  msg += "Después podés corregir C_viernes a mano donde subió/bajó el precio.\n\n¿Continuar?";
+  msg += `Ronda: ${DB.rondaActiva}\n`;
+  msg += `Productos: ${propuesta.length}\n`;
+  msg += `A completar: ${nuevos}\n`;
+  msg += `Ya cargados (no se tocan): ${respetados}\n\n`;
+  msg += "Se llenan: C_viernes = C_L/kg, Q_comprada = Q_recibida = Q_pedida\n\n¿Continuar?";
 
   if (!confirm(msg)) return;
 
@@ -2727,82 +2845,66 @@ function calcularListaCompra() {
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
       <br><span class="small-note">✏️ C_viernes = S/ por kg. Q_comprada y Q_recibida = kg. Q_final (unidad) se redondea abajo para ataditos/unidades.</span>
     </div>`;
+
+  // PARCHE 5: tabla simplificada a 9 columnas
   document.getElementById("listaCompraContenido").innerHTML = `
     <div class="table-scroll"><table>
       <thead>
         <tr>
-          <th rowspan="2">Producto</th>
-          <th rowspan="2">Pedido Cliente</th>
-          <th rowspan="2">Pedido (kg)</th>
-          <th rowspan="2">Sug. GMML</th>
-          <th rowspan="2">C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
-          <th colspan="3" style="background:var(--miel-2);color:#7A5500;text-align:center;border-left:2px solid var(--miel);border-right:2px solid var(--miel)">✏️ Datos del viernes (editables)</th>
-          <th colspan="6" style="text-align:center">📊 Cálculos (automáticos)</th>
-        </tr>
-        <tr>
+          <th>Producto</th>
+          <th>C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes<br><small style="text-transform:none;color:#7A5500;font-weight:500">S//kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500">Q_comprada<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
-          <th>Q_final_kg</th>
-          <th>Q_final (unidad)</th>
-          <th>Δ kg</th>
+          <th>Q_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">unidad</small></th>
           <th>Costo real</th>
-          <th>Ventas</th>
-          <th>Margen bruto</th>
+          <th>Margen</th>
+          <th>Δ</th>
         </tr>
       </thead>
       <tbody>${filas.map(f => {
         const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-        const equivVenta = getEquivKg(f.codigo);
-        const equivCompra = getEquivKgCompra(f.codigo);
-        const modo = modoProducto(prod);
+        const eqV = getEquivKg(f.codigo);
+        const eqC = getEquivKgCompra(f.codigo);
         const pedidoTxt = pedidoClienteTxt(prod, f.Qped_kg, f.Qped_un);
-        const bultosSug = equivCompra > 0 ? Math.ceil(f.Qped_kg / equivCompra) : 0;
+        const bultosSug = eqC > 0 ? Math.ceil(f.Qped_kg / eqC) : 0;
         const sugTxt = sugerenciaMayorista(prod, bultosSug);
         const recortado = f.C_viernes != null && f.C_viernes > f.Cmax;
         const difClase = f.dif_kg == null ? '' : (f.dif_kg < 0 ? 'delta-neg' : 'delta-pos');
-        const cvPerWholesale = f.C_viernes != null && equivCompra > 0 ? (f.C_viernes * equivCompra) : null;
-        const cvHint = cvPerWholesale != null && Math.abs(equivCompra - 1) > 0.001
+        const cvPerWholesale = f.C_viernes != null && eqC > 0 ? (f.C_viernes * eqC) : null;
+        const cvHint = cvPerWholesale != null && Math.abs(eqC - 1) > 0.001
           ? `<div class="equivalencia-hint">= ${soles(cvPerWholesale)}/${esc(prod.unidad_compra || 'kg')}</div>` : '';
         return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
           <td>
             <strong>${esc(prod.nombre || f.codigo)}</strong>
-            <br><span class="small-note">V: ${esc(prod.unidad_venta || 'kg')} ${equivVenta} kg/u · C: ${esc(prod.unidad_compra || 'kg')} ${equivCompra} kg/u</span>
+            <br><span class="small-note">Pedido: ${esc(pedidoTxt)} · ${f.Qped_kg.toFixed(2)} kg · Sug: ${esc(sugTxt)}</span>
+            <br><span class="small-note">V: ${esc(prod.unidad_venta || 'kg')} ${eqV} kg/u · C: ${esc(prod.unidad_compra || 'kg')} ${eqC} kg/u</span>
           </td>
-          <td class="small-note">${esc(pedidoTxt)}</td>
-          <td><strong>${f.Qped_kg.toFixed(2)}</strong> kg</td>
-          <td class="small-note">${esc(sugTxt)}</td>
-          <td><strong style="color:${recortado?'var(--coral)':'var(--verde)'}">${soles(f.Cmax)}</strong></td>
+          <td><strong style="color:${recortado ? 'var(--coral)' : 'var(--verde)'}">${soles(f.Cmax)}</strong></td>
           <td style="background:var(--miel-2);border-left:2px solid var(--miel)">
-            <input type="number" step="0.001" value="${f.C_viernes ?? ''}"
-              onchange="setCompra('${f.codigo}','C_viernes',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="S//kg">
+            <input type="number" step="0.001" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="S//kg">
             ${cvHint}
           </td>
           <td style="background:var(--miel-2)">
-            <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}"
-              onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="kg">
+            <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="kg">
           </td>
           <td style="background:var(--miel-2);border-right:2px solid var(--miel)">
-            <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}"
-              onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)"
-              style="max-width:85px;border-color:var(--miel)" placeholder="kg">
+            <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="kg">
           </td>
-          <td><strong>${f.Qfinal_kg.toFixed(2)}</strong></td>
-          <td>${f.Qfinal_un.toFixed(2)} ${esc(prod.unidad_venta || 'u')}</td>
-          <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
+          <td title="Q_final kg: ${f.Qfinal_kg.toFixed(2)} · Ventas: ${soles(f.ventas)}">
+            <strong>${f.Qfinal_un.toFixed(2)}</strong> ${esc(prod.unidad_venta || 'u')}
+          </td>
           <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
-          <td>${soles(f.ventas)}</td>
           <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
+          <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
         </tr>`;
       }).join("")}</tbody>
     </table></div>
     <p class="small-note" style="margin-top:10px">
-      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral), con piso en C_L_kg. Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.
-      C_viernes se ingresa en <strong>S/ por kg</strong> — si comprás por unidad mayorista, dividí: S/132 por Ciento de 42kg → S/3.14/kg.
-      Q_recibida es lo que pesaste al recibir; si es menor a Q_final, Δ kg sale negativo.
+      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral). Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.
+      C_viernes en <strong>S/ por kg</strong>. Q_recibida es lo que pesaste al recibir.
     </p>`;
+
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
@@ -3205,7 +3307,7 @@ function renderConfig() {
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
 
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.0):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.1):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
@@ -3701,6 +3803,8 @@ onAuthStateChanged(auth, async user => {
 /* ============ EXPONER ============ */
 Object.assign(window, {
   mostrarVista, abrirModal, cerrarModal,
+  toggleDropdown, renderWorkflow,           // PARCHE 3
+  borrarRondaActiva,                        // PARCHE 2 (helper dropdown)
   copiarReportePedido, toggleBoletaEnviada, enviarBoletaWhatsApp, toggleBoletaPipeline,
   cambiarRondaActiva, marcarRonda,
   abrirModalNuevaRonda, previewNuevaRonda, confirmarNuevaRonda,
