@@ -324,6 +324,8 @@ tbody tr:hover{background:#F4FBF6}
 <a onclick="exportarExcel();toggleDropdown('ddMore')">⬇️ Excel completo</a>
 <a onclick="importarJSON();toggleDropdown('ddMore')">⬆️ Importar JSON</a>
 <hr>
+<a onclick="migrarItemsEmbebidos();toggleDropdown('ddMore')" style="color:var(--naranja)">🔧 Migrar items embebidos → subcolección</a>
+<hr>
 <a onclick="resetTotal();toggleDropdown('ddMore')" style="color:var(--coral)">🗑️ Reset total</a>
 </div>
 </div>
@@ -930,8 +932,76 @@ const rondaActual = () => DB.rondas[DB.rondaActiva] || {};
 const preciosDeRonda = (r = DB.rondaActiva) => DB.precios.filter(p => p.id_ronda === r);
 const escenariosDeRonda = (r = DB.rondaActiva) => DB.escenarios.filter(e => e.id_ronda === r);
 const pedidosDeRonda = () => DB.pedidos.filter(p => p.id_ronda === DB.rondaActiva);
-const itemsDeRonda = () => DB.items.filter(i => i.id_ronda === DB.rondaActiva);
-const itemsDePedido = id => DB.items.filter(i => i.id_ronda === DB.rondaActiva && i.pedido_id === id);
+
+// ============================================================================
+// === FIX 1: itemsDeRonda e itemsDePedido con fallback a items embebidos ===
+// La web pública guarda los items DENTRO del pedido (pedido.items[]), pero el
+// admin los busca en la subcolección rondas/{ronda}/items. Este fallback hace
+// que el admin vea los items sin importar dónde estén.
+// ============================================================================
+const itemsDePedido = id => {
+  // 1) Intentar la subcolección (pedidos creados manualmente desde el admin)
+  const desdeSubcoleccion = DB.items.filter(
+    i => i.id_ronda === DB.rondaActiva && i.pedido_id === id
+  );
+  if (desdeSubcoleccion.length > 0) return desdeSubcoleccion;
+
+  // 2) Fallback: items embebidos en el pedido (pedidos de la web pública)
+  const pedido = DB.pedidos.find(
+    p => p.id_ronda === DB.rondaActiva && p.pedido_id === id
+  );
+  if (pedido && Array.isArray(pedido.items) && pedido.items.length > 0) {
+    return pedido.items.map((it, idx) => ({
+      id_ronda: DB.rondaActiva,
+      item_id: id + "-EMB-" + String(idx + 1).padStart(2, "0"),
+      pedido_id: id,
+      codigo_producto: it.codigo || it.codigo_producto,
+      nombre: it.nombre,
+      unidad: it.unidad,
+      cantidad: Number(it.cantidad) || 0,
+      precio_compra_estimado: 0,
+      precio_venta_congelado: Number(it.precio_unitario ?? it.precio_venta_congelado ?? 0),
+      subtotal_venta: Number(it.subtotal ?? it.subtotal_venta ?? 0),
+      estado: "pendiente",
+      _embebido: true
+    }));
+  }
+  return [];
+};
+
+const itemsDeRonda = () => {
+  // 1) Items de la subcolección
+  const deSubcoleccion = DB.items.filter(i => i.id_ronda === DB.rondaActiva);
+
+  // 2) Items embebidos de los pedidos que aún NO tienen items en la subcolección
+  const pedidosConEmbebidos = DB.pedidos.filter(p =>
+    p.id_ronda === DB.rondaActiva &&
+    Array.isArray(p.items) && p.items.length > 0 &&
+    !deSubcoleccion.some(it => it.pedido_id === p.pedido_id)
+  );
+  const embebidos = pedidosConEmbebidos.flatMap(p =>
+    p.items.map((it, idx) => ({
+      id_ronda: DB.rondaActiva,
+      item_id: p.pedido_id + "-EMB-" + String(idx + 1).padStart(2, "0"),
+      pedido_id: p.pedido_id,
+      codigo_producto: it.codigo || it.codigo_producto,
+      nombre: it.nombre,
+      unidad: it.unidad,
+      cantidad: Number(it.cantidad) || 0,
+      precio_compra_estimado: 0,
+      precio_venta_congelado: Number(it.precio_unitario ?? it.precio_venta_congelado ?? 0),
+      subtotal_venta: Number(it.subtotal ?? it.subtotal_venta ?? 0),
+      estado: "pendiente",
+      _embebido: true
+    }))
+  );
+
+  return [...deSubcoleccion, ...embebidos];
+};
+// ============================================================================
+// === FIN FIX 1 ===
+// ============================================================================
+
 const comprasDeRonda = () => DB.compras.filter(c => c.id_ronda === DB.rondaActiva);
 const gastosDeRonda = () => DB.gastos.filter(g => g.id_ronda === DB.rondaActiva);
 const excedentesDeRonda = () => DB.excedentes.filter(e => e.id_ronda === DB.rondaActiva);
@@ -1523,6 +1593,72 @@ async function cargarTodo() {
 
 async function guardarPedido(p) { await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p); }
 async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it); }
+
+// ============================================================================
+// === FIX 1: migrarItemsEmbebidos ===
+// Copia los items embebidos de cada pedido a la subcolección rondas/{ronda}/items.
+// Corre esto UNA VEZ (o cada vez que lleguen pedidos nuevos desde la web).
+// ============================================================================
+async function migrarItemsEmbebidos() {
+  const pedidos = pedidosDeRonda().filter(
+    p => Array.isArray(p.items) && p.items.length > 0
+  );
+  if (!pedidos.length) {
+    toast("No hay pedidos con items embebidos para migrar", "warn");
+    return;
+  }
+
+  const yaTieneItems = id =>
+    DB.items.some(i => i.id_ronda === DB.rondaActiva && i.pedido_id === id);
+
+  let ok = 0, skip = 0, errs = 0;
+
+  for (const p of pedidos) {
+    if (yaTieneItems(p.pedido_id)) { skip++; continue; }
+    try {
+      let subtotalCalc = 0;
+      for (let i = 0; i < p.items.length; i++) {
+        const it = p.items[i];
+        const itemId = p.pedido_id + "-" + String(i + 1).padStart(2, "0");
+        const precioUnit = Number(it.precio_unitario ?? it.precio_venta_congelado ?? 0);
+        const cant = Number(it.cantidad) || 0;
+        const subtotal = Number(it.subtotal ?? it.subtotal_venta ?? 0) || (precioUnit * cant);
+        subtotalCalc += subtotal;
+
+        await guardarItem({
+          id_ronda: DB.rondaActiva,
+          item_id: itemId,
+          pedido_id: p.pedido_id,
+          codigo_producto: it.codigo || it.codigo_producto,
+          nombre: it.nombre,
+          unidad: it.unidad,
+          cantidad: cant,
+          precio_compra_estimado: 0,
+          precio_venta_congelado: precioUnit,
+          subtotal_venta: Math.round(subtotal * 100) / 100,
+          estado: "pendiente"
+        });
+      }
+      // Corregir subtotal/total del pedido si estaban en 0
+      if (Number(p.subtotal || 0) === 0 && subtotalCalc > 0) {
+        p.subtotal = Math.round(subtotalCalc * 100) / 100;
+        p.total = p.subtotal;
+        await guardarPedido(p);
+      }
+      ok++;
+    } catch (e) {
+      console.error("Error migrando pedido " + p.pedido_id, e);
+      errs++;
+    }
+  }
+
+  toast(`✓ ${ok} pedidos migrados · ${skip} ya tenían · ${errs} errores`, errs ? "warn" : "ok");
+  renderModuloActivo();
+}
+// ============================================================================
+// === FIN FIX 1 ===
+// ============================================================================
+
 async function eliminarItem(itemId) { await fsDel(["rondas", DB.rondaActiva, "items"], itemId); }
 async function guardarPrecio(pr) { await fsSet(["rondas", DB.rondaActiva, "precios"], pr.codigo_producto, pr); }
 async function guardarEscenario(e) { await fsSet(["rondas", DB.rondaActiva, "escenarios"], e.esc_id, e); }
@@ -1737,7 +1873,6 @@ async function confirmarNuevaRonda() {
           const prod = DB.productos.find(p => p.codigo === d.id);
           const nuevo = limpiarUndefined({
             ...data, id_ronda: id,
-            // v17.9: el maestro manda sobre unidad y equivalencia
             unidad_venta:  prod?.unidad_venta  || data.unidad_venta,
             unidad_compra: prod?.unidad_compra || data.unidad_compra,
             equiv_kg:      Number(prod?.equiv_kg_venta ?? data.equiv_kg ?? 1)
@@ -1975,6 +2110,7 @@ async function borrarPedidoCompleto(pedidoId) {
   try {
     const items = itemsDePedido(pedidoId);
     for (const it of items) {
+      if (it._embebido) continue;
       await fsDel(["rondas", DB.rondaActiva, "items"], it.item_id);
     }
     await fsDel(["rondas", DB.rondaActiva, "pedidos"], pedidoId);
@@ -2108,10 +2244,13 @@ function verDetalle(id) {
       cantHTML = r.activo
         ? `<span style="text-decoration:line-through;color:var(--texto-2);font-size:11px">${i.cantidad}</span> <strong style="color:var(--coral)">${cantFinal.toFixed(2)}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--coral)">Recorte · C_max ${soles(r.Cmax)}/kg / C_v ${soles(r.Cv)}/kg · ×${r.factor.toFixed(3)}</span>`
         : `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span>`;
+    } else if (i._embebido) {
+      cantHTML = `<strong>${i.cantidad}</strong> <span class="small-note">${esc(i.unidad)}</span><br><span class="small-note" style="color:var(--naranja)">⚠ Embebido · migrá para editar</span>`;
     } else {
       cantHTML = `<input type="number" step="0.01" value="${i.cantidad}" onchange="edCambiarCantidad('${i.item_id}',this.value)">`;
     }
-    return `<tr><td>${esc(i.nombre)}</td><td>${cantHTML}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td><td>${edit ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : ""}</td></tr>`;
+    const botonEliminar = (edit && !i._embebido) ? `<button class="btn-delete" onclick="edEliminarItem('${i.item_id}','${p.pedido_id}')">×</button>` : "";
+    return `<tr><td>${esc(i.nombre)}</td><td>${cantHTML}</td><td>${soles(i.precio_venta_congelado)}</td><td><strong id="edSub-${i.item_id}">${soles(i.subtotal_venta)}</strong></td><td>${botonEliminar}</td></tr>`;
   }).join("");
   const bloqueAgregarItem = edit ? `<div style="display:flex;gap:8px;margin-top:10px"><select id="edAddProd" style="flex:1">${Object.values(precioMapa()).map(pr => `<option value="${pr.codigo_producto}">${esc(pr.nombre)} — ${soles(pr.P_L_final)}/kg</option>`).join("")}</select><button class="btn-add btn-sm" onclick="edAgregarItem('${p.pedido_id}')">＋ Agregar item</button></div>` : "";
   let bloqueBoleta = "";
@@ -2123,6 +2262,20 @@ function verDetalle(id) {
     ? `<div class="actions" style="justify-content:flex-end;margin-top:14px"><button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button><button class="btn-save" onclick="guardarEdicionPedido('${p.pedido_id}')">💾 Guardar cambios</button></div>`
     : `<div class="actions" style="justify-content:flex-end;margin-top:14px"><button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button></div>`;
   const badgeTipo = p.tipo_cliente === "B2B" ? '<span class="badge-b2b">B2B</span>' : '<span class="badge-b2c">B2C</span>';
+
+  // Si la suma de items > 0 pero el pedido dice subtotal=0, corregir automáticamente
+  const subtotalReal = its.reduce((s, i) => s + Number(i.subtotal_venta || 0), 0);
+  if (its.length > 0 && Math.abs(subtotalReal - Number(p.subtotal || 0)) > 0.01 && !verFinales) {
+    setTimeout(async () => {
+      const pFresh = pedidoPorId(id);
+      if (pFresh && !esTerminal(pFresh.estado)) {
+        pFresh.subtotal = red2(subtotalReal);
+        pFresh.total = pFresh.subtotal;
+        await guardarPedido(pFresh);
+      }
+    }, 100);
+  }
+
   document.getElementById("detalleContenido").innerHTML = `
     <div class="info-box"><strong>${esc(p.pedido_id)}</strong> ${badgeTipo} · ${esc(p.cliente_nombre)} · ${esc(p.cliente_celular)}<br><span class="status status-${p.estado}">${esc(p.estado)}</span>${p.verificado_por ? ` · Verificado por ${esc(p.verificado_por)}` : ""}${p.codigo_yape ? ` · Yape ${esc(p.codigo_yape)}` : ""}${p.credito_dias > 0 ? ` · <strong>Crédito ${p.credito_dias}d</strong>` : ""}${p.lat && p.lng ? `<br><a class="btn-info btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px;color:#fff" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}">📍 Google Maps</a>` : ""}</div>
     <h4 style="margin-top:14px">Historial</h4>${hist || '<div class="small-note">Sin historial.</div>'}
@@ -2186,14 +2339,15 @@ async function toggleBoletaEnviada(pedidoId, val) {
   await guardarPedido(p); toast(val ? "✅ Boleta marcada" : "Boleta desmarcada", val ? "ok" : "warn"); verDetalle(pedidoId);
 }
 async function edCambiarCantidad(itemId, val) {
-  const it = DB.items.find(i => i.item_id === itemId); if (!it) return;
+  const it = DB.items.find(i => i.item_id === itemId);
+  if (!it) { toast("⚠️ Este ítem está embebido. Corré 'Migrar items embebidos' para poder editarlo.", "warn"); return; }
   it.cantidad = Math.max(0, Number(val) || 0);
   it.subtotal_venta = red2(it.cantidad * it.precio_venta_congelado);
   const el = document.getElementById("edSub-" + itemId); if (el) el.textContent = soles(it.subtotal_venta);
   await guardarItem(it); recalcEdResumen(it.pedido_id);
 }
 async function edEliminarItem(itemId, pedidoId) {
-  if (!DB.items.find(i => i.item_id === itemId)) { toast("Item no encontrado", "err"); return; }
+  if (!DB.items.find(i => i.item_id === itemId)) { toast("Item embebido no se puede eliminar. Migrá primero.", "warn"); return; }
   if (!confirm("¿Quitar este item?")) return;
   await eliminarItem(itemId); verDetalle(pedidoId);
 }
@@ -2470,7 +2624,6 @@ async function guardarProducto() {
     await guardarProductoGlobal(nuevo);
   }
 
-  // v17.9: propagar unidad/equivalencia a los precios de la ronda activa
   const preciosAfectados = DB.precios.filter(x => x.codigo_producto === codigoFinal);
   for (const pr of preciosAfectados) {
     pr.unidad_venta  = unidadVenta;
@@ -2797,7 +2950,6 @@ async function setPrecioDirecto(codigo, campo, valor, silencioso) {
     P_L_mercado: 0, C_L: 0, C_esp: 0, M_L: 0, M_ideal: 0, M_ref: 0, sirve: false,
     P_L_sugerido: 0, P_L_final: 0, C_min: 0, M_min: 0
   };
-  // v17.9: sincronizar unidad/equivalencia desde el maestro
   pr.nombre        = prod.nombre;
   pr.unidad_venta  = prod.unidad_venta;
   pr.unidad_compra = prod.unidad_compra;
@@ -2873,7 +3025,6 @@ async function copiarPreciosRondaAnterior() {
     const prod = DB.productos.find(p => p.codigo === d.id);
     const nuevo = limpiarUndefined({
       ...data, id_ronda: DB.rondaActiva,
-      // v17.9: el maestro manda sobre unidad y equivalencia
       unidad_venta:  prod?.unidad_venta  || data.unidad_venta,
       unidad_compra: prod?.unidad_compra || data.unidad_compra,
       equiv_kg:      Number(prod?.equiv_kg_venta ?? data.equiv_kg ?? 1)
@@ -2890,7 +3041,6 @@ async function copiarPreciosRondaAnterior() {
   toast("✓ Copiados de " + labelRonda(prev), "ok");
 }
 
-/* ============ v17.9: publicarPrecios — publica P_L_final + unidad + nombre + equiv_kg ============ */
 async function publicarPrecios() {
   const ronda = DB.rondaActiva;
   const productosActivos = DB.productos.filter(p => p.activo);
@@ -2898,14 +3048,13 @@ async function publicarPrecios() {
   const preciosPorCodigo = {};
   preciosActuales.forEach(pr => { preciosPorCodigo[pr.codigo_producto] = pr; });
 
-  let sincronizados = 0;   // ya existían y se actualizó unidad/nombre/equiv
-  let recalculados = 0;    // se recalculó C_esp / M_ref / P_L_final
+  let sincronizados = 0;
+  let recalculados = 0;
   const faltantesSinPrecio = [];
 
   for (const prod of productosActivos) {
     let pr = preciosPorCodigo[prod.codigo];
 
-    // ── Caso A: el producto existe en precios → sincronizar TODO desde el maestro
     if (pr) {
       const unidadVentaAntes  = pr.unidad_venta;
       const unidadCompraAntes = pr.unidad_compra;
@@ -2943,13 +3092,11 @@ async function publicarPrecios() {
       }
       await guardarPrecio(pr);
     }
-    // ── Caso B: el producto NO existe en precios → falta cargarle precio
     else {
       faltantesSinPrecio.push(prod.nombre + " (" + prod.codigo + ")");
     }
   }
 
-  // ── Aviso de productos activos sin precio cargado
   let nuevos = 0;
   if (faltantesSinPrecio.length > 0) {
     const crear = confirm(
@@ -2978,12 +3125,10 @@ async function publicarPrecios() {
     }
   }
 
-  // ── Marcar ronda como publicada
   await fsSetRonda(ronda, { precios_publicados: true });
   DB.rondas[ronda].precios_publicados = true;
   refrescarSelector();
 
-  // ── Toast informativo con el resumen
   const partes = [`✓ ${recalculados} precios publicados`];
   if (sincronizados > 0) partes.push(`${sincronizados} unidad(es) sincronizada(s)`);
   if (nuevos > 0)        partes.push(`${nuevos} nuevo(s) creado(s)`);
@@ -3355,7 +3500,6 @@ async function setCompraQty(codigo, valor) {
   calcularListaCompra();
 }
 
-/* v17.8: setCompraUnidad — convierte exacto sin redondear (4 decimales) */
 async function setCompraUnidad(codigo, unidad) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
@@ -3851,7 +3995,8 @@ function renderConfig() {
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)} · Margen sobrante: ${fmtPct(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}<br>
     • <strong>v17.8:</strong> Cambio de unidad exacto (4 decimales) sin redondeo<br>
-    • <strong>v17.9:</strong> "Publicar P_L_final" ahora también publica unidad, nombre y equivalencia · "Guardar producto" propaga unidad al precio · Al copiar ronda, la unidad viene del maestro
+    • <strong>v17.9:</strong> "Publicar P_L_final" también publica unidad, nombre y equivalencia · "Guardar producto" propaga unidad al precio · Al copiar ronda, la unidad viene del maestro<br>
+    • <strong>FIX 1:</strong> itemsDePedido e itemsDeRonda tienen fallback a items embebidos · migrarItemsEmbebidos() copia items del pedido a la subcolección
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -4172,7 +4317,8 @@ Object.assign(window, {
   exportarJSON, importarJSON, exportarExcel, resetTotal,
   importarSoloPedidos, exportarSoloPedidos,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
-  recalcularDerivadosEnMemoria, redondearQFinalUnidad, limpiarUndefined
+  recalcularDerivadosEnMemoria, redondearQFinalUnidad, limpiarUndefined,
+  migrarItemsEmbebidos
 });
 </script>
 </body>
