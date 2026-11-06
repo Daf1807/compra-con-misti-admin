@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17.9</title>
+<title>Compra con Misti — Admin v17.9 (fix)</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -263,7 +263,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17.9 · Modelo 1Día</p>
+<p>Panel Admin v17.9 · Modelo 1Día · Fix utilidad</p>
 </div>
 </header>
 <div class="container">
@@ -347,7 +347,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 <div class="section">
 <h2 class="section-head">Ganancia real de la ronda</h2>
-<p class="section-sub">Ventas al cliente + ingreso real del Misti − costo vendido − costo sobrante Misti − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
+<p class="section-sub">Ventas al cliente + delivery cobrado + ingreso real del Misti − costo vendido − costo sobrante Misti − fijos domingo − gastos variables − reclamos + excedentes. La comisión Yape la paga el cliente (Yape la retiene); no es costo de la firma.</p>
 <div id="dashGanancia"></div>
 </div>
 <div class="section">
@@ -730,7 +730,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17.9</p>
+<p>Panel Admin · Modelo 1Día · v17.9 (fix)</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -935,18 +935,13 @@ const pedidosDeRonda = () => DB.pedidos.filter(p => p.id_ronda === DB.rondaActiv
 
 // ============================================================================
 // === FIX 1: itemsDeRonda e itemsDePedido con fallback a items embebidos ===
-// La web pública guarda los items DENTRO del pedido (pedido.items[]), pero el
-// admin los busca en la subcolección rondas/{ronda}/items. Este fallback hace
-// que el admin vea los items sin importar dónde estén.
 // ============================================================================
 const itemsDePedido = id => {
-  // 1) Intentar la subcolección (pedidos creados manualmente desde el admin)
   const desdeSubcoleccion = DB.items.filter(
     i => i.id_ronda === DB.rondaActiva && i.pedido_id === id
   );
   if (desdeSubcoleccion.length > 0) return desdeSubcoleccion;
 
-  // 2) Fallback: items embebidos en el pedido (pedidos de la web pública)
   const pedido = DB.pedidos.find(
     p => p.id_ronda === DB.rondaActiva && p.pedido_id === id
   );
@@ -970,10 +965,8 @@ const itemsDePedido = id => {
 };
 
 const itemsDeRonda = () => {
-  // 1) Items de la subcolección
   const deSubcoleccion = DB.items.filter(i => i.id_ronda === DB.rondaActiva);
 
-  // 2) Items embebidos de los pedidos que aún NO tienen items en la subcolección
   const pedidosConEmbebidos = DB.pedidos.filter(p =>
     p.id_ronda === DB.rondaActiva &&
     Array.isArray(p.items) && p.items.length > 0 &&
@@ -1203,6 +1196,12 @@ function calcularCompraProducto(codigo) {
     equiv_kg_compra: eqC
   };
 }
+
+// ============================================================================
+// === PATCH 1: calcularCierreViernes() corregida ===
+// La comisión Yape la paga el cliente (Yape la retiene). NO es costo de la firma.
+// El delivery cobrado SÍ lo recibe la firma. Se suma al ingreso.
+// ============================================================================
 function calcularCierreViernes() {
   const aceptados = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
   const productos = precioMapa();
@@ -1219,23 +1218,40 @@ function calcularCierreViernes() {
   const rAct = DB.rondas[DB.rondaActiva] || {};
   const ingresoMistiReal = rAct.ingreso_misti_real != null ? Number(rAct.ingreso_misti_real) : ingresoMistiCalc;
   const diferenciaMisti = ingresoMistiReal - costoSobrante;
+
+  // Delivery cobrado al cliente (lo que la firma SÍ recibe)
+  const deliveryCobrado = aceptados
+    .filter(p => p.modalidad === "delivery")
+    .reduce((s, p) => s + Number(p.costo_delivery || 0), 0);
+
+  // Comisión Yape que pagó el cliente (Yape se la queda; NO es costo de la firma)
+  const comisionCliente = aceptados
+    .filter(p => p.metodo_pago === "Yape")
+    .reduce((s, p) => s + Number(p.comision_yape || 0), 0);
+
   const F = calcularFDomingo();
-  const comision = ventas * getComisionYape();
   const gastosVar = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
   const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
   const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const ingresoTotal = ventas + ingresoMistiReal + exc;
-  const utilidad = ingresoTotal - costoReal - F - comision - gastosVar - recl;
+
+  const ingresoTotal = ventas + deliveryCobrado + ingresoMistiReal + exc;
+  const utilidad = ingresoTotal - costoReal - F - gastosVar - recl;
   const margen = ingresoTotal > 0 ? utilidad / ingresoTotal : 0;
+
   return {
     filas, ventas,
     costoVendido, costoSobrante, costoReal,
     ingresoMistiCalc, ingresoMistiReal, diferenciaMisti,
     ingresoSobrante: ingresoMistiCalc,
-    F, comision, gastosVar, exc, recl,
+    deliveryCobrado, comisionCliente,
+    F, gastosVar, exc, recl,
     ingresoTotal, utilidad, margen, aceptados
   };
 }
+// ============================================================================
+// === FIN PATCH 1 ===
+// ============================================================================
+
 function calcularRecorteMap() {
   const map = {};
   Object.keys(precioMapa()).forEach(codigo => {
@@ -1596,8 +1612,6 @@ async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"]
 
 // ============================================================================
 // === FIX 1: migrarItemsEmbebidos ===
-// Copia los items embebidos de cada pedido a la subcolección rondas/{ronda}/items.
-// Corre esto UNA VEZ (o cada vez que lleguen pedidos nuevos desde la web).
 // ============================================================================
 async function migrarItemsEmbebidos() {
   const pedidos = pedidosDeRonda().filter(
@@ -1639,7 +1653,6 @@ async function migrarItemsEmbebidos() {
           estado: "pendiente"
         });
       }
-      // Corregir subtotal/total del pedido si estaban en 0
       if (Number(p.subtotal || 0) === 0 && subtotalCalc > 0) {
         p.subtotal = Math.round(subtotalCalc * 100) / 100;
         p.total = p.subtotal;
@@ -1973,6 +1986,10 @@ async function setIngresoMisti(valor) {
   toast(num == null ? "Ingreso Misti: usa el calculado" : "Ingreso Misti → " + soles(num), "ok");
 }
 
+// ============================================================================
+// === PATCH 2: renderDashboard() corregido ===
+// dashIngreso incluye delivery. dashGanancia no resta comisión.
+// ============================================================================
 function renderDashboard() {
   const pedidos = pedidosDeRonda();
   const activos = pedidos.filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
@@ -1980,7 +1997,6 @@ function renderDashboard() {
   const aceptados = pedidos.filter(p => p.estado === "aceptado");
   const empacados = pedidos.filter(p => p.estado === "empacado");
   const entregados = pedidos.filter(p => p.estado === "entregado");
-  const ingreso = activos.reduce((s, p) => s + Number(p.total || 0), 0);
   let costoEst = 0;
   Object.keys(precioMapa()).forEach(codigo => {
     const diag = calcularDiagnosticoProducto(codigo);
@@ -1994,12 +2010,11 @@ function renderDashboard() {
     }
   });
   const cierre = calcularCierreViernes();
-  const margenBruto = cierre.ingresoTotal > 0 ? (cierre.ingresoTotal - costoReal) / cierre.ingresoTotal : 0;
 
   document.getElementById("dashPedidos").textContent = activos.length;
   document.getElementById("dashPedidosSub").textContent = `${pendientes.length} pendientes de pago`;
-  document.getElementById("dashIngreso").textContent = soles(ingreso + cierre.ingresoMistiReal);
-  document.getElementById("dashIngresoSub").textContent = `+ Misti real ${soles(cierre.ingresoMistiReal)}`;
+  document.getElementById("dashIngreso").textContent = soles(cierre.ventas + cierre.deliveryCobrado + cierre.ingresoMistiReal);
+  document.getElementById("dashIngresoSub").textContent = `Ventas ${soles(cierre.ventas)} + Delivery ${soles(cierre.deliveryCobrado)} + Misti ${soles(cierre.ingresoMistiReal)}`;
   document.getElementById("dashCostoEst").textContent = soles(costoEst);
   document.getElementById("dashCostoEstSub").textContent = `Q_pedida × C_esp`;
   document.getElementById("dashCostoReal").textContent = soles(costoReal);
@@ -2011,12 +2026,12 @@ function renderDashboard() {
 
   document.getElementById("dashGanancia").innerHTML = `
     <div class="calc-summary">
-      <div class="row"><span>Ventas al cliente</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Ventas al cliente (S)</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Delivery cobrado (D)</span><span><strong>+${soles(cierre.deliveryCobrado)}</strong></span></div>
       <div class="row"><span>Ingreso Misti real</span><span><strong>+${soles(cierre.ingresoMistiReal)}</strong></span></div>
       <div class="row"><span>Costo vendido al cliente</span><span>−${soles(cierre.costoVendido)}</span></div>
       <div class="row"><span>Costo sobrante Misti</span><span>−${soles(cierre.costoSobrante)}</span></div>
       <div class="row"><span>Fijos del domingo</span><span>−${soles(cierre.F)}</span></div>
-      <div class="row"><span>Comisión Yape</span><span>−${soles(cierre.comision)}</span></div>
       <div class="row"><span>Gastos variables</span><span>−${soles(cierre.gastosVar)}</span></div>
       <div class="row"><span>Reclamos</span><span>−${soles(cierre.recl)}</span></div>
       <div class="row"><span>Excedentes</span><span>+${soles(cierre.exc)}</span></div>
@@ -2025,7 +2040,8 @@ function renderDashboard() {
     <div class="info-box" style="margin-top:10px">
       <strong>Diferencia Misti:</strong> <span class="${cierre.diferenciaMisti >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(cierre.diferenciaMisti)}</span>
       <span class="small-note">(ingreso real − costo sobrante)</span><br>
-      <strong>Margen neto real:</strong> <span class="${cierre.margen >= 0 ? 'delta-pos' : 'delta-neg'}">${fmtPct(cierre.margen)}</span>
+      <strong>Margen neto real:</strong> <span class="${cierre.margen >= 0 ? 'delta-pos' : 'delta-neg'}">${fmtPct(cierre.margen)}</span><br>
+      <strong>Comisión Yape (la pagó el cliente):</strong> ${soles(cierre.comisionCliente)} <span class="small-note">— la retiene Yape, no afecta a la firma</span>
     </div>`;
   const top = {};
   itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id)).forEach(i => {
@@ -2036,6 +2052,9 @@ function renderDashboard() {
     ? `<div class="table-scroll"><table><thead><tr><th>Producto</th><th>Cantidad</th></tr></thead><tbody>${arr.map(([n, c]) => `<tr><td>${esc(n)}</td><td><strong>${c.toFixed(2)}</strong></td></tr>`).join("")}</tbody></table></div>`
     : `<div class="small-note">Sin items. <button class="btn-add btn-sm" onclick="mostrarVista('calculadora')">＋ Crear pedido</button></div>`;
 }
+// ============================================================================
+// === FIN PATCH 2 ===
+// ============================================================================
 
 function renderPipeline() {
   const grid = document.getElementById("pipelineGrid");
@@ -2263,7 +2282,6 @@ function verDetalle(id) {
     : `<div class="actions" style="justify-content:flex-end;margin-top:14px"><button class="btn-ghost" onclick="cerrarModal('modalDetalle')">Cerrar</button></div>`;
   const badgeTipo = p.tipo_cliente === "B2B" ? '<span class="badge-b2b">B2B</span>' : '<span class="badge-b2c">B2C</span>';
 
-  // Si la suma de items > 0 pero el pedido dice subtotal=0, corregir automáticamente
   const subtotalReal = its.reduce((s, i) => s + Number(i.subtotal_venta || 0), 0);
   if (its.length > 0 && Math.abs(subtotalReal - Number(p.subtotal || 0)) > 0.01 && !verFinales) {
     setTimeout(async () => {
@@ -3190,6 +3208,10 @@ function renderSemaforoLunes() {
   const M = getMObjetivo();
   cont.innerHTML = `<span class="badge" style="background:${color};color:#fff;font-size:12px;padding:8px 14px;font-weight:800;letter-spacing:.03em">${emoji} ${sirven}/${total} productos sirven (M_ref ≥ ${fmtPct(M)}) — ${txt}</span>`;
 }
+
+// ============================================================================
+// === PATCH 5: renderResumenLunes() sin comisión ficticia ===
+// ============================================================================
 function renderResumenLunes() {
   const cont = document.getElementById("resumenLunes");
   if (!cont) return;
@@ -3208,8 +3230,7 @@ function renderResumenLunes() {
   });
   const margenEsp = totalVentasEsp > 0 ? (totalVentasEsp - totalCostoEsp) / totalVentasEsp : 0;
   const F = calcularFDomingo();
-  const com = totalVentasEsp * getComisionYape();
-  const util = totalVentasEsp - totalCostoEsp - F - com;
+  const util = totalVentasEsp - totalCostoEsp - F;
   const Gmin = getGMin();
   const cumpleGmin = util >= Gmin;
   const claseUtil = util >= 0 ? "delta-pos" : "delta-neg";
@@ -3222,12 +3243,14 @@ function renderResumenLunes() {
       <div class="row"><span>Ventas esperadas (Q_pedida × P_L_final)</span><span><strong>${soles(totalVentasEsp)}</strong></span></div>
       <div class="row"><span>Costo esperado (Q_pedida × C_esp)</span><span>−${soles(totalCostoEsp)}</span></div>
       <div class="row"><span>Fijos domingo (F)</span><span>−${soles(F)}</span></div>
-      <div class="row"><span>Comisión Yape</span><span>−${soles(com)}</span></div>
       <div class="row total"><span>Utilidad esperada</span><span class="${claseUtil}">${soles(util)}</span></div>
       <div class="row"><span>Margen esperado</span><span><span class="${claseMargen(margenEsp)}">${fmtPct(margenEsp)}</span></span></div>
       <div class="row"><span>G_min objetivo</span><span>${soles(Gmin)} ${cumpleGmin ? '<span class="badge-sirve">✓ CUMPLE</span>' : '<span class="badge-nosirve">✗ NO CUMPLE</span>'}</span></div>
     </div>`;
 }
+// ============================================================================
+// === FIN PATCH 5 ===
+// ============================================================================
 
 function modoProducto(prod) {
   const u = String(prod.unidad_venta || "kg").toLowerCase();
@@ -3336,9 +3359,12 @@ function exportarComprasViernes() {
   toast(`✓ Exportadas ${compras.length} compras`, "ok");
 }
 
+// ============================================================================
+// === PATCH 3: calcularListaCompra() con delivery y sin comisión ===
+// ============================================================================
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
-  const { filas, ventas, costoVendido, costoSobrante, costoReal, ingresoMistiCalc, ingresoMistiReal, diferenciaMisti, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados } = cierre;
+  const { filas, ventas, costoVendido, costoSobrante, costoReal, ingresoMistiCalc, ingresoMistiReal, diferenciaMisti, deliveryCobrado, comisionCliente, F, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados } = cierre;
   if (!filas.length) {
     document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados. Cargá pedidos primero. <button class="btn-add btn-sm" onclick="mostrarVista('calculadora')">＋ Crear pedido</button></div>`;
     document.getElementById("listaCompraContenido").innerHTML = "";
@@ -3447,6 +3473,7 @@ function calcularListaCompra() {
       <div class="fin-col">
         <h4>Ingresos</h4>
         <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(ventas)}</span></div>
+        <div class="fin-row"><span>Delivery cobrado</span><span class="val">${soles(deliveryCobrado)}</span></div>
         <div class="fin-row" style="background:#FFF6DE;padding:6px;border-radius:6px;margin:4px 0">
           <span><strong>✏️ Ingreso Misti real</strong><br><span class="small-note">Calculado: ${soles(ingresoMistiCalc)}</span></span>
           <span class="val">${inputIngresoMisti}</span>
@@ -3460,10 +3487,9 @@ function calcularListaCompra() {
         <div class="fin-row"><span>Costo sobrante al Misti</span><span class="val">${soles(costoSobrante)}</span></div>
         <div class="fin-row" style="border-top:2px solid var(--borde);padding-top:6px"><span><strong>Costo real total</strong></span><span class="val"><strong>${soles(costoReal)}</strong></span></div>
         <div class="fin-row"><span>Fijos del domingo</span><span class="val">${soles(F)}</span></div>
-        <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(comision)}</span></div>
         <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(gastosVar)}</span></div>
         <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
-        <div class="fin-row"><span><strong>Total costos</strong></span><span class="val">${soles(costoReal + F + comision + gastosVar + recl)}</span></div>
+        <div class="fin-row"><span><strong>Total costos</strong></span><span class="val">${soles(costoReal + F + gastosVar + recl)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Resultado</h4>
@@ -3472,6 +3498,9 @@ function calcularListaCompra() {
         <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(utilidad)}</strong></span></div>
         <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(margen)}</span></div>
         <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${aceptados.length}</span></div>
+        <div class="fin-row" style="font-size:11px;color:var(--texto-2);border-top:1px dashed var(--borde);padding-top:6px;margin-top:4px">
+          <span>Comisión Yape (la pagó el cliente)</span><span class="val">${soles(comisionCliente)}</span>
+        </div>
       </div>
     </div>
     <div class="fin-result ${claseUtil}">
@@ -3479,6 +3508,10 @@ function calcularListaCompra() {
       <div class="num">${soles(utilidad)}</div>
     </div>`;
 }
+// ============================================================================
+// === FIN PATCH 3 ===
+// ============================================================================
+
 async function setCompra(codigo, campo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
@@ -3897,6 +3930,9 @@ async function agregarReclamo() { await guardarReclamo({ id: uid("RC"), id_ronda
 async function updReclamo(id, c, v) { const t = DB.reclamos.find(x => x.id === id); if (!t) return; t[c] = c === "costo_solucion" ? (Number(v) || 0) : v; await guardarReclamo(t); if (c === "costo_solucion") renderReclamos(); }
 async function delReclamo(id) { if (!confirm("¿Eliminar?")) return; await eliminarReclamoFS(id); renderReclamos(); }
 
+// ============================================================================
+// === PATCH 4: calcularReportes() con delivery y sin comisión ===
+// ============================================================================
 async function calcularReportes() {
   const cont = document.getElementById("reportesContenido");
   if (!cont) return;
@@ -3905,6 +3941,8 @@ async function calcularReportes() {
     const rondaActiva = DB.rondaActiva;
     const rondasKeys = Object.keys(DB.rondas).sort().reverse();
     const cierre = calcularCierreViernes();
+    const deliveryCobrado = cierre.deliveryCobrado || 0;
+    const comisionCliente = cierre.comisionCliente || 0;
     const rAct = rondaActual();
     const nomAct = (rAct.nombre || "").trim();
     const labelAct = nomAct ? `${esc(nomAct)} <span class="small-note">(${esc(rondaActiva)})</span>` : esc(rondaActiva);
@@ -3914,6 +3952,7 @@ async function calcularReportes() {
         <div class="fin-col">
           <h4>Ingresos</h4>
           <div class="fin-row"><span>Ventas</span><span class="val">${soles(cierre.ventas)}</span></div>
+          <div class="fin-row"><span>Delivery cobrado</span><span class="val">${soles(deliveryCobrado)}</span></div>
           <div class="fin-row"><span>Ingreso Misti real</span><span class="val">${soles(cierre.ingresoMistiReal)}</span></div>
           <div class="fin-row"><span>Excedentes</span><span class="val">${soles(cierre.exc)}</span></div>
           <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ingresoTotal)}</span></div>
@@ -3923,10 +3962,12 @@ async function calcularReportes() {
           <div class="fin-row"><span>Costo vendido al cliente</span><span class="val">${soles(cierre.costoVendido)}</span></div>
           <div class="fin-row"><span>Costo sobrante Misti</span><span class="val">${soles(cierre.costoSobrante)}</span></div>
           <div class="fin-row"><span>Fijos domingo</span><span class="val">${soles(cierre.F)}</span></div>
-          <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(cierre.comision)}</span></div>
           <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(cierre.gastosVar)}</span></div>
           <div class="fin-row"><span>Reclamos</span><span class="val">${soles(cierre.recl)}</span></div>
-          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.costoReal + cierre.F + cierre.gastosVar + cierre.recl)}</span></div>
+          <div class="fin-row" style="font-size:11px;color:var(--texto-2);border-top:1px dashed var(--borde);padding-top:6px;margin-top:4px">
+            <span>Comisión Yape (la pagó el cliente)</span><span class="val">${soles(comisionCliente)}</span>
+          </div>
         </div>
         <div class="fin-col">
           <h4>Resultado</h4>
@@ -3944,8 +3985,8 @@ async function calcularReportes() {
         const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(rid)}</span>` : `<strong>${esc(rid)}</strong>`;
         let ventas = 0, costo = 0, numPed = 0;
         if (rid === rondaActiva) {
-          ventas = cierre.ventas + cierre.ingresoMistiReal;
-          costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
+          ventas = cierre.ventas + cierre.deliveryCobrado + cierre.ingresoMistiReal;
+          costo = cierre.costoReal + cierre.F + cierre.gastosVar + cierre.recl - cierre.exc;
           numPed = cierre.aceptados.length;
         }
         const ut = ventas - costo;
@@ -3953,6 +3994,9 @@ async function calcularReportes() {
       }).join("")}</tbody></table></div>`;
   } catch (e) { console.error(e); cont.innerHTML = `<div class="error-box">Error: ${esc(e.message)}</div>`; }
 }
+// ============================================================================
+// === FIN PATCH 4 ===
+// ============================================================================
 
 function renderConfig() {
   const c = DB.config;
@@ -3990,13 +4034,14 @@ function renderConfig() {
       ${["A pie","Bici","Moto","Auto","Combi"].map(v => `<div><label>${v} (kg)</label><input type="number" step="1" value="${esc(caps[v] ?? CAP_DEFAULT[v])}" onchange="updCapVehiculo('${v}',this.value)"></div>`).join("")}
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (v17.9):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (v17.9 fix):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)} · Margen sobrante: ${fmtPct(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}<br>
     • <strong>v17.8:</strong> Cambio de unidad exacto (4 decimales) sin redondeo<br>
     • <strong>v17.9:</strong> "Publicar P_L_final" también publica unidad, nombre y equivalencia · "Guardar producto" propaga unidad al precio · Al copiar ronda, la unidad viene del maestro<br>
-    • <strong>FIX 1:</strong> itemsDePedido e itemsDeRonda tienen fallback a items embebidos · migrarItemsEmbebidos() copia items del pedido a la subcolección
+    • <strong>FIX 1:</strong> itemsDePedido e itemsDeRonda tienen fallback a items embebidos · migrarItemsEmbebidos() copia items del pedido a la subcolección<br>
+    • <strong>FIX 2 (v17.9):</strong> Utilidad corregida: Ingreso = S + D + Misti + Excedentes. La comisión Yape NO se resta (la paga el cliente, la retiene Yape). El delivery cobrado SÍ se suma al ingreso.
     </div>`;
 }
 async function updConfig(k, v, isNum) {
