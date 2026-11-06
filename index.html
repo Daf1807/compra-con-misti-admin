@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17.2</title>
+<title>Compra con Misti — Admin v17.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -221,8 +221,6 @@ tbody tr:hover{background:#F4FBF6}
 .esc-tabla input{padding:5px 8px;font-size:12px}
 .unidad-badge{display:inline-block;font-size:9px;color:var(--texto-2);background:var(--crema);border:1px solid var(--borde);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:3px}
 .equivalencia-hint{font-size:10px;color:var(--texto-2);font-style:italic;line-height:1.35;margin-top:2px}
-
-/* === PARCHE 1: dropdown + workflow === */
 .dropdown{position:relative;display:inline-block}
 .dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--borde);border-radius:12px;box-shadow:var(--sombra-md);padding:6px;z-index:200;min-width:200px;max-width:calc(100vw - 40px)}
 .dropdown-menu.open{display:block}
@@ -235,14 +233,10 @@ tbody tr:hover{background:#F4FBF6}
 .workflow .wf-arrow{color:var(--borde);font-weight:800}
 .workflow .wf-meta{margin-left:auto;display:flex;gap:12px;font-size:11px;color:var(--texto-2);flex-wrap:wrap}
 .workflow .wf-meta strong{color:var(--texto)}
-
-/* === v17.2: chips de unidad === */
 .chips-unidad{display:inline-flex;gap:4px;margin-top:3px;flex-wrap:wrap}
 .chip{font-size:9px;background:var(--crema);border:1px solid var(--borde);padding:1px 6px;border-radius:6px;color:var(--texto-2);font-weight:600;white-space:nowrap}
 .chip-ok{background:var(--verde-claro);color:var(--verde);border-color:var(--verde-2)}
 .chip-warn{background:#FFF3CD;color:#7A5500;border-color:var(--miel)}
-
-/* === v17.2: tarjetas de precio (modo decisión) === */
 .precios-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .precio-card{background:#fff;border:1.5px solid var(--borde);border-radius:var(--radio-sm);padding:14px;transition:all .2s}
 .precio-card.sirve{border-left:5px solid var(--verde)}
@@ -258,8 +252,6 @@ tbody tr:hover{background:#F4FBF6}
 .precio-dato .val.verde{color:var(--verde)}
 .precio-dato .val.coral{color:var(--coral)}
 .precio-card-foot{display:flex;gap:6px;justify-content:space-between;align-items:center}
-
-/* === v17.2: lista editable (gastos/excedentes/reclamos) === */
 .lista-editable{display:flex;flex-direction:column;gap:6px}
 .lista-row{display:grid;gap:6px;padding:8px;border-radius:10px;background:var(--crema);align-items:center}
 .lista-row.gasto{grid-template-columns:110px 110px 1fr 90px 90px 32px}
@@ -268,7 +260,6 @@ tbody tr:hover{background:#F4FBF6}
 .lista-row input,.lista-row select{padding:6px 8px;font-size:12px}
 .lista-total{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-top:10px;background:var(--verde-claro);border-radius:var(--radio-sm);font-size:14px}
 .lista-total strong{font-size:18px;color:var(--verde)}
-
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}.precios-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}.lista-row.gasto,.lista-row.excedente,.lista-row.reclamo{grid-template-columns:1fr}}
@@ -281,12 +272,11 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17.2 · Modelo 1Día</p>
+<p>Panel Admin v17.3 · Modelo 1Día</p>
 </div>
 </header>
 <div class="container">
 
-<!-- roundbar -->
 <div class="roundbar">
 <label>Ronda:</label>
 <select id="rondaSelector" onchange="cambiarRondaActiva(this.value)"></select>
@@ -308,7 +298,6 @@ tbody tr:hover{background:#F4FBF6}
 <span class="small-note" id="rondaMeta">—</span>
 </div>
 
-<!-- workflow -->
 <div class="workflow" id="workflowBar"></div>
 
 <div class="app-shell">
@@ -328,7 +317,6 @@ tbody tr:hover{background:#F4FBF6}
 </nav>
 <div class="main-col">
 
-<!-- topbar -->
 <div class="topbar">
 <div class="crumb">Ronda activa: <strong id="crumbRonda">—</strong></div>
 <div class="actions">
@@ -455,7 +443,6 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 </section>
 
-<!-- ============ PRECIOS v17.2: MODO DECISIÓN + MODO EDICIÓN ============ -->
 <section class="view" id="view-precios">
 <div class="section">
 <h2>💰 Diagnóstico lunes — fijar precio de la semana</h2>
@@ -496,7 +483,6 @@ tbody tr:hover{background:#F4FBF6}
   </div>
 </div>
 
-<!-- Toggle modo -->
 <div class="actions" style="margin-bottom:12px;align-items:center">
   <div class="tabs" style="margin:0;border:0;padding:0;flex:1">
     <button class="tab active" id="tabModoDecision" onclick="setModoPrecios('decision')">👁️ Modo decisión</button>
@@ -506,7 +492,6 @@ tbody tr:hover{background:#F4FBF6}
   <button class="btn-save btn-sm" onclick="publicarPrecios()">📢 Publicar P_L_final</button>
 </div>
 
-<!-- MODO DECISIÓN: tarjetas -->
 <div id="preciosModoDecision">
   <div class="actions" style="margin-bottom:12px">
     <input id="precioBuscar" placeholder="🔍 Buscar producto..." oninput="renderPrecios()" style="max-width:260px">
@@ -523,7 +508,6 @@ tbody tr:hover{background:#F4FBF6}
   <div class="precios-grid" id="preciosDecisionGrid"></div>
 </div>
 
-<!-- MODO EDICIÓN: tabla clásica -->
 <div id="preciosModoEdicion" style="display:none">
   <p class="small-note" style="margin-bottom:8px">✏️ Editá P. mercado y C_L directamente. Los escenarios se editan en el acordeón de cada producto. Al terminar, volvé a "Modo decisión".</p>
   <div class="table-scroll"><table>
@@ -556,7 +540,7 @@ tbody tr:hover{background:#F4FBF6}
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
 <div class="info-box" style="margin-bottom:12px">
-<strong>📐 UNIDADES:</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada / Q_recibida → en <strong>kg</strong>. Q_final (unidad) → unidad cliente (atadito/unidad se redondea hacia abajo).
+<strong>📐 UNIDADES (v17.3):</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada → ingresá <strong>cantidad + unidad</strong> (kg, Atado, Cajón, Saco, Ciento...). El sistema convierte a kg con el <strong>Equiv. (V/C)</strong> del producto. Si el bulto que te entregaron pesó distinto al nominal, cargá el <strong>peso real</strong>. Q_recibida → en <strong>kg</strong>.
 </div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
@@ -737,7 +721,6 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 </div></div>
 
-<!-- NUEVO v17.2: modal de edición de precio por producto -->
 <div class="modal" id="modalEditarPrecio"><div class="modal-content wide">
 <div class="modal-header"><h3 id="modalEditarPrecioTitle">Editar precio</h3><button class="close" onclick="cerrarModal('modalEditarPrecio')">×</button></div>
 <div id="modalEditarPrecioContenido"></div>
@@ -751,7 +734,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17.2</p>
+<p>Panel Admin · Modelo 1Día · v17.3</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -787,9 +770,8 @@ let syncTimer = null;
 let catalogoSuscripto = false;
 let rondasSuscriptas = false;
 let _prevPreciosCache = {};
-let _modoPrecios = 'decision';   // v17.2
+let _modoPrecios = 'decision';
 
-/* ============ CONSTANTES ============ */
 const DISTRITOS = [
 {n:"Ate",lat:-12.0184,lng:-76.9240},{n:"Barranco",lat:-12.1461,lng:-77.0206},{n:"Breña",lat:-12.0561,lng:-77.0495},
 {n:"Carabayllo",lat:-11.8944,lng:-77.0355},{n:"Cercado de Lima",lat:-12.0464,lng:-77.0428},{n:"Chaclacayo",lat:-11.9761,lng:-76.7694},
@@ -822,7 +804,6 @@ const FIJOS_DOMINGO_DEFAULT = {
   alquiler_hub: 150, insumos_higiene: 15, seguro_rc: 80
 };
 
-/* ============ HELPERS ============ */
 const soles = v => "S/ " + Number(v || 0).toFixed(2);
 const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 const red2 = v => Math.round((Number(v) || 0) * 100) / 100;
@@ -839,7 +820,6 @@ const claseMargen = m => {
   return "margen-malo";
 };
 
-/* ============ SANITIZADOR FIRESTORE ============ */
 function limpiarUndefined(obj) {
   if (obj === null || obj === undefined) return null;
   if (Array.isArray(obj)) return obj.map(limpiarUndefined);
@@ -855,7 +835,6 @@ function limpiarUndefined(obj) {
   return obj;
 }
 
-/* ============ HELPERS UI ============ */
 function toast(msg, tipo, accion) {
   const c = document.getElementById("toast");
   const t = document.createElement("div");
@@ -911,7 +890,6 @@ function rondaEsEditable() {
   return (r.estado || 'abierta') === 'abierta';
 }
 
-/* ============ HELPERS MODELO 1DÍA ============ */
 function getModeloConfig() { return DB.config.modelo || {}; }
 function getMObjetivo() { return Number(getModeloConfig().M_objetivo ?? M_OBJETIVO_DEFAULT); }
 function getP() { return Number(getModeloConfig().p ?? P_DEFAULT); }
@@ -920,7 +898,6 @@ function getComisionYape() { return Number(getModeloConfig().comision_yape_pct ?
 function getFijosDomingo() { return { ...FIJOS_DOMINGO_DEFAULT, ...(getModeloConfig().fijos_domingo || {}) }; }
 function getEscalones() { return getModeloConfig().escalones || ESCALONES_DEFAULT; }
 
-/* ============ FIRESTORE ============ */
 async function fsSet(colPath, id, data) {
   try {
     showSync("saving");
@@ -953,7 +930,6 @@ async function fsSetConfig(data) {
   catch (e) { console.error("fsSetConfig error:", e); toast("Error al guardar config: " + e.message, "err"); }
 }
 
-/* ============ ACCESOS ============ */
 const rondaActual = () => DB.rondas[DB.rondaActiva] || {};
 const preciosDeRonda = (r = DB.rondaActiva) => DB.precios.filter(p => p.id_ronda === r);
 const escenariosDeRonda = (r = DB.rondaActiva) => DB.escenarios.filter(e => e.id_ronda === r);
@@ -969,7 +945,6 @@ const precioMapa = (r = DB.rondaActiva) => { const m = {}; preciosDeRonda(r).for
 const clientePorCelular = c => DB.clientes.find(x => String(x.telefono) === String(c));
 const esTerminal = e => ["entregado", "fallido", "rechazado"].includes(e);
 
-/* ============ CÁLCULOS MODELO 1DÍA ============ */
 function getEquivKg(codigo) {
   const p = DB.productos.find(x => x.codigo === codigo);
   if (!p) return 1;
@@ -1097,13 +1072,46 @@ function redondearQFinalUnidad(codigo, qFinalKg) {
   if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
   return Math.floor(qUnidad);
 }
+
+/* ============ COMPRA PRODUCTO (v17.3: Q_comprada con unidad + Falta 1/1) ============ */
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
   const compra = comprasDeRonda().find(c => c.codigo_producto === codigo) || {};
   const Cv = compra.C_viernes != null ? Number(compra.C_viernes) : null;
   const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;
-  const Qcomp = compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null;
+  const eqC = getEquivKgCompra(codigo);
+
+  // v17.3: Q_comprada con unidad variable
+  const Qcomp_raw = compra.Q_comprada != null ? Number(compra.Q_comprada)
+                  : (compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null);
+  const Qcomp_unidad = compra.Q_comprada_unidad || 'kg';
+  const pesoRealBulto = compra.peso_real_bulto != null ? Number(compra.peso_real_bulto) : null;
+
+  let Qcomp_kg = null;
+  if (Qcomp_raw != null) {
+    if (Qcomp_unidad === 'kg') Qcomp_kg = Qcomp_raw;
+    else {
+      const pesoEf = (pesoRealBulto != null && pesoRealBulto > 0) ? pesoRealBulto : eqC;
+      Qcomp_kg = Qcomp_raw * pesoEf;
+    }
+  }
+
+  // Falta 1/1 (solo si hay bulto real, equiv > 1)
+  let falta1a1_kg = null, falta1a1_bultos = null;
+  if (Qcomp_raw != null && Qcomp_raw > 0 && eqC > 1.001) {
+    if (Qcomp_unidad === 'kg') {
+      const resto = Qcomp_raw % eqC;
+      falta1a1_kg = Math.abs(resto) < 0.001 ? 0 : eqC - resto;
+      falta1a1_bultos = falta1a1_kg / eqC;
+    } else {
+      const restoU = Qcomp_raw % 1;
+      falta1a1_bultos = Math.abs(restoU) < 0.001 ? 0 : 1 - restoU;
+      const pesoEf = (pesoRealBulto != null && pesoRealBulto > 0) ? pesoRealBulto : eqC;
+      falta1a1_kg = falta1a1_bultos * pesoEf;
+    }
+  }
+
   const Qped_kg = qPedidaKgPorProducto(codigo);
   const Qped_un = qPedidaUnidadPorProducto(codigo);
   const Qprima_kg = Cv == null ? Qped_kg : (Cv <= umbral.Cmax ? Qped_kg : Qped_kg * umbral.Cmax / Cv);
@@ -1115,11 +1123,13 @@ function calcularCompraProducto(codigo) {
   const margenBruto = costoReal != null ? ventas - costoReal : null;
   return {
     ...umbral,
-    C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: Qcomp,
+    C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: Qcomp_kg,
+    Qcomp_raw, Qcomp_unidad, pesoRealBulto,
+    falta1a1_kg, falta1a1_bultos,
     Qped_kg, Qped_un, Qprima_kg, Qfinal_kg, Qfinal_un, dif_kg,
     costoReal, ventas, margenBruto,
     equiv_kg: getEquivKg(codigo),
-    equiv_kg_compra: getEquivKgCompra(codigo)
+    equiv_kg_compra: eqC
   };
 }
 function calcularCierreViernes() {
@@ -1215,7 +1225,6 @@ function recalcularDerivadosEnMemoria() {
   });
 }
 
-/* ============ SEED ============ */
 const GMML_REF = {
   "PR-001": 3.73, "PR-002": 1.08, "PR-003": 2.20, "PR-004": 3.19,
   "PR-005": 2.28, "PR-006": 1.48, "PR-007": 3.15, "PR-008": 1.05,
@@ -1251,8 +1260,8 @@ function crearDBInicial() {
     ["PR-020","Culantro","Especial","atadito","Atado",0.15,1.5],
     ["PR-021","Perejil","Especial","atadito","Atado",0.10,1.0],
     ["PR-022","Apio","Especial","atadito","Atado",0.30,3.0],
-    ["PR-023","Poro","Especial","atadito","Atado",0.26,2.6],
-    ["PR-024","Maíz morado","Especial","kg","Kilogramo",1,1],
+    ["PR-023","Poro","Especial","unidad","Atado",0.26,2.6],
+    ["PR-024","Maíz morado","Especial","unidad","Kilogramo",0.25,1.0],
     ["PR-025","Ají escabeche","Especial","kg","Kilogramo",1,1],
     ["PR-026","Limón cítrico cajón","Especial","kg","Cajón",1,23],
     ["PR-027","Vainita","Especial","kg","Kilogramo",1,1],
@@ -1305,7 +1314,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 172, rondaActiva: ronda,
+    version: 173, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1336,7 +1345,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v17.2 completado");
+  console.log("Auto-seed v17.3 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1397,7 +1406,6 @@ async function migrarProductosEquiv() {
   if (migrados > 0) console.log(`✓ Migrados ${migrados} productos`);
 }
 
-/* ============ CARGA ============ */
 async function cargarConfig() {
   const ref = doc(db, "config", "global");
   const snap = await getDoc(ref);
@@ -1456,7 +1464,6 @@ function suscribirRonda(rondaId) {
       if (sub === "precios" || sub === "escenarios") {
         try { recalcularDerivadosEnMemoria(); } catch (e) { console.error("recalc err", e); }
       }
-      // v17.2: render selectivo
       renderModuloActivo();
     }));
   });
@@ -1498,7 +1505,6 @@ async function cargarTodo() {
   renderTodo();
 }
 
-/* ============ ACCIONES ESCRITURA ============ */
 async function guardarPedido(p) { await fsSet(["rondas", DB.rondaActiva, "pedidos"], p.pedido_id, p); }
 async function guardarItem(it) { await fsSet(["rondas", DB.rondaActiva, "items"], it.item_id, it); }
 async function eliminarItem(itemId) { await fsDel(["rondas", DB.rondaActiva, "items"], itemId); }
@@ -1517,7 +1523,6 @@ async function guardarClienteGlobal(c) { await fsSet(["catalogo", "clientes", "i
 async function guardarRepartidorGlobal(r) { await fsSet(["catalogo", "repartidores", "items"], r.id, r); }
 async function eliminarRepartidorGlobal(id) { await fsDel(["catalogo", "repartidores", "items"], id); }
 
-/* ============ SEMANA v17.2: banner de alerta ============ */
 function renderSemana() {
   const r = rondaActual(); const cont = document.getElementById("semanaBar");
   if (!r || !r.fecha_apertura) { cont.innerHTML = '<div class="small-note">Sin ronda activa</div>'; return; }
@@ -1553,7 +1558,6 @@ function renderSemana() {
   cont.innerHTML = banner + html;
 }
 
-/* ============ NAVEGACIÓN ============ */
 function mostrarVista(n) {
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   const obj = document.getElementById("view-" + n); if (obj) obj.classList.add("active");
@@ -1581,7 +1585,6 @@ function renderModuloActivo() {
 function abrirModal(id) { document.getElementById(id).classList.add("active"); }
 function cerrarModal(id) { document.getElementById(id).classList.remove("active"); }
 
-/* ============ DROPDOWN + WORKFLOW ============ */
 function toggleDropdown(id) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1626,7 +1629,6 @@ function renderWorkflow() {
     </span>`;
 }
 
-/* ============ RONDAS ============ */
 function refrescarSelector() {
   const sel = document.getElementById("rondaSelector");
   const keys = Object.keys(DB.rondas).sort().reverse();
@@ -1807,7 +1809,6 @@ async function marcarRonda(estado) {
   refrescarSelector(); toast("Ronda → " + estado, "info");
 }
 
-/* ============ DASHBOARD v17.2: subtexto contextual ============ */
 function renderDashboard() {
   const pedidos = pedidosDeRonda();
   const activos = pedidos.filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
@@ -1866,7 +1867,6 @@ function renderDashboard() {
     : `<div class="small-note">Sin items. <button class="btn-add btn-sm" onclick="mostrarVista('calculadora')">＋ Crear pedido</button></div>`;
 }
 
-/* ============ PIPELINE ============ */
 function renderPipeline() {
   const grid = document.getElementById("pipelineGrid");
   const q = (document.getElementById("pipeBuscar").value || "").toLowerCase();
@@ -1931,7 +1931,6 @@ function botonesPipeline(p) {
   return html;
 }
 
-/* ============ CHECKLIST ============ */
 function generarChecklistEmpaque() {
   const empacados = pedidosDeRonda().filter(p => p.estado === "empacado");
   if (!empacados.length) { toast("No hay pedidos en estado 'empacado'", "warn"); return; }
@@ -1961,7 +1960,6 @@ function generarChecklistEmpaque() {
   setTimeout(() => { try { win.focus(); win.print(); } catch (e) {} }, 500);
 }
 
-/* ============ ACEPTAR / RETROCEDER ============ */
 function abrirAceptar(id) {
   const p = pedidoPorId(id); if (!p) return;
   const its = itemsDePedido(id);
@@ -2022,7 +2020,6 @@ async function confirmarRetroceder(id) {
   await guardarPedido(p); cerrarModal("modalRetroceder"); toast(`Pedido: ${anterior} → ${nuevo}`, "ok"); renderModuloActivo();
 }
 
-/* ============ DETALLE ============ */
 function verDetalle(id) {
   const p = pedidoPorId(id); if (!p) return;
   const its = itemsDePedido(id);
@@ -2185,7 +2182,6 @@ async function guardarEdicionPedido(pedidoId) {
   toast("✓ Pedido actualizado", "ok"); cerrarModal("modalDetalle"); renderModuloActivo();
 }
 
-/* ============ CALCULADORA ============ */
 function renderDistritosSelects() {
   const opts = DISTRITOS.map(d => `<option value="${esc(d.n)}">${esc(d.n)}</option>`).join("");
   const s1 = document.getElementById("calcDistrito"); if (s1) s1.innerHTML = opts;
@@ -2333,7 +2329,6 @@ async function calcGuardar() {
   calcLimpiar(); renderModuloActivo();
 }
 
-/* ============ PRODUCTOS ============ */
 function renderProductos() {
   const q = (document.getElementById("prodBuscar").value || "").toLowerCase();
   const g = document.getElementById("prodGrupoFiltro").value;
@@ -2420,7 +2415,6 @@ async function guardarProducto() {
   cerrarModal("modalProducto"); renderProductos(); toast("Producto guardado", "ok");
 }
 
-/* ============ PRECIOS v17.2: MODO DECISIÓN + EDICIÓN ============ */
 function setModoPrecios(modo) {
   _modoPrecios = modo;
   document.getElementById("preciosModoDecision").style.display = modo === 'decision' ? 'block' : 'none';
@@ -2757,7 +2751,6 @@ async function setPijDesdeModal(escId, valor) {
   if (!e) return;
   e.Pij = Math.max(0, Number(valor) || 0);
   await guardarEscenario(e);
-  // El modal se cierra al guardar, así que solo recalculamos en memoria
   const codigo = e.codigo_producto;
   const pr = DB.precios.find(p => p.id_ronda === DB.rondaActiva && p.codigo_producto === codigo);
   if (pr) {
@@ -2832,7 +2825,6 @@ async function publicarPrecios() {
   refrescarSelector(); toast("✓ P_L_final publicado", "ok");
 }
 
-/* ============ CONTROL PANEL LUNES ============ */
 async function aplicarMObjetivo(valor) {
   let v = Number(valor) || M_OBJETIVO_DEFAULT;
   v = Math.max(0.01, Math.min(0.95, v));
@@ -2925,7 +2917,6 @@ function renderResumenLunes() {
     </div>`;
 }
 
-/* ============ COMPRA v17.2: chips + tooltips ============ */
 function modoProducto(prod) {
   const u = String(prod.unidad_venta || "kg").toLowerCase();
   if (u.includes("atado")) return "atadito";
@@ -2961,19 +2952,20 @@ async function prellenarComprasViernes() {
 
     const actual = comprasDeRonda().find(c => c.codigo_producto === cod) || {};
     const yaCv = actual.C_viernes != null;
-    const yaQc = actual.Q_comprada_kg != null;
+    const yaQc = actual.Q_comprada != null || actual.Q_comprada_kg != null;
     const yaQr = actual.Q_recibida_kg != null;
 
     propuesta.push({
       codigo: cod, nombre: prod?.nombre || cod,
       C_viernes: yaCv ? actual.C_viernes : CvSug,
-      Q_comprada_kg: yaQc ? actual.Q_comprada_kg : red2(Qped),
+      Q_comprada: yaQc ? (actual.Q_comprada ?? actual.Q_comprada_kg) : red2(Qped),
+      Q_comprada_unidad: actual.Q_comprada_unidad || 'kg',
       Q_recibida_kg: yaQr ? actual.Q_recibida_kg : red2(Qped),
       _yaCv: yaCv, _yaQc: yaQc, _yaQr: yaQr
     });
   });
 
-  const conDatos = propuesta.filter(p => p.C_viernes != null || p.Q_comprada_kg != null || p.Q_recibida_kg != null);
+  const conDatos = propuesta.filter(p => p.C_viernes != null || p.Q_comprada != null || p.Q_recibida_kg != null);
   if (!conDatos.length) { toast("Sin datos para prellenar", "warn"); return; }
 
   const nuevos = propuesta.filter(p => !p._yaCv || !p._yaQc || !p._yaQr).length;
@@ -2984,7 +2976,7 @@ async function prellenarComprasViernes() {
   msg += `Productos: ${propuesta.length}\n`;
   msg += `A completar: ${nuevos}\n`;
   msg += `Ya cargados (no se tocan): ${respetados}\n\n`;
-  msg += "Se llenan: C_viernes = C_L/kg, Q_comprada = Q_recibida = Q_pedida\n\n¿Continuar?";
+  msg += "Se llenan: C_viernes = C_L/kg, Q_comprada = Q_recibida = Q_pedida (kg)\n\n¿Continuar?";
 
   if (!confirm(msg)) return;
 
@@ -2996,7 +2988,10 @@ async function prellenarComprasViernes() {
       const merge = {
         id_ronda: DB.rondaActiva, codigo_producto: p.codigo,
         nombre: prod?.nombre || p.nombre,
-        C_viernes: p.C_viernes, Q_comprada_kg: p.Q_comprada_kg, Q_recibida_kg: p.Q_recibida_kg
+        C_viernes: p.C_viernes,
+        Q_comprada: p.Q_comprada,
+        Q_comprada_unidad: p.Q_comprada_unidad,
+        Q_recibida_kg: p.Q_recibida_kg
       };
       await guardarCompra(merge);
       ok++;
@@ -3033,7 +3028,11 @@ function importarComprasViernes() {
               codigo_producto: c.codigo_producto,
               nombre: prod?.nombre || c.nombre || c.codigo_producto,
               C_viernes: c.C_viernes !== undefined ? c.C_viernes : (act.C_viernes ?? null),
-              Q_comprada_kg: c.Q_comprada_kg !== undefined ? c.Q_comprada_kg : (act.Q_comprada_kg ?? null),
+              Q_comprada: c.Q_comprada !== undefined ? c.Q_comprada
+                        : (c.Q_comprada_kg !== undefined ? c.Q_comprada_kg
+                        : (act.Q_comprada ?? null)),
+              Q_comprada_unidad: c.Q_comprada_unidad || act.Q_comprada_unidad || 'kg',
+              peso_real_bulto: c.peso_real_bulto !== undefined ? c.peso_real_bulto : (act.peso_real_bulto ?? null),
               Q_recibida_kg: c.Q_recibida_kg !== undefined ? c.Q_recibida_kg : (act.Q_recibida_kg ?? null)
             });
             ok++;
@@ -3052,14 +3051,16 @@ function exportarComprasViernes() {
   const compras = comprasDeRonda();
   if (!compras.length) { toast("Sin compras en esta ronda", "warn"); return; }
   const data = {
-    _formato: "compras-viernes-v1",
+    _formato: "compras-viernes-v2",
     _ronda: DB.rondaActiva,
     _exportado: ahora(),
     compras: compras.map(c => ({
       codigo_producto: c.codigo_producto,
       nombre: c.nombre || (DB.productos.find(p => p.codigo === c.codigo_producto)?.nombre) || c.codigo_producto,
       C_viernes: c.C_viernes ?? null,
-      Q_comprada_kg: c.Q_comprada_kg ?? null,
+      Q_comprada: c.Q_comprada ?? null,
+      Q_comprada_unidad: c.Q_comprada_unidad || 'kg',
+      peso_real_bulto: c.peso_real_bulto ?? null,
       Q_recibida_kg: c.Q_recibida_kg ?? null
     }))
   };
@@ -3071,6 +3072,7 @@ function exportarComprasViernes() {
   toast(`✓ Exportadas ${compras.length} compras`, "ok");
 }
 
+/* ============ CALCULAR LISTA COMPRA (v17.3) ============ */
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
   const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
@@ -3090,7 +3092,7 @@ function calcularListaCompra() {
     </div>
     <div class="info-box">
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
-      <br><span class="small-note">✏️ C_viernes = S/ por kg. Q_comprada y Q_recibida = kg.</span>
+      <br><span class="small-note">✏️ Q_comprada: ingresá cantidad + unidad (kg / Atado / Cajón / Saco / Ciento). C_viernes = S//kg. Q_recibida = kg.</span>
     </div>`;
 
   document.getElementById("listaCompraContenido").innerHTML = `
@@ -3100,7 +3102,8 @@ function calcularListaCompra() {
           <th>Producto</th>
           <th>C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes<br><small style="text-transform:none;color:#7A5500;font-weight:500">S//kg</small></th>
-          <th style="background:var(--miel-2);color:#7A5500">Q_comprada<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
+          <th style="background:var(--miel-2);color:#7A5500">Q_comprada<br><small style="text-transform:none;color:#7A5500;font-weight:500">cant + unidad</small></th>
+          <th style="background:#E8F5EC;color:var(--verde)">Falta 1/1<br><small style="text-transform:none;color:var(--verde);font-weight:500">completar bulto</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
           <th>Q_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">unidad</small></th>
           <th>Costo real</th>
@@ -3120,6 +3123,8 @@ function calcularListaCompra() {
         const cvPerWholesale = f.C_viernes != null && eqC > 0 ? (f.C_viernes * eqC) : null;
         const cvHint = cvPerWholesale != null && Math.abs(eqC - 1) > 0.001
           ? `<div class="equivalencia-hint">= ${soles(cvPerWholesale)}/${esc(prod.unidad_compra || 'kg')}</div>` : '';
+        const unidadOpts = ['kg'];
+        if (prod.unidad_compra && prod.unidad_compra !== 'Kilogramo' && prod.unidad_compra !== 'kg') unidadOpts.push(prod.unidad_compra);
         return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
           <td>
             <strong>${esc(prod.nombre || f.codigo)}</strong>
@@ -3134,11 +3139,25 @@ function calcularListaCompra() {
             <input type="number" step="0.001" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="S//kg">
             ${cvHint}
           </td>
-          <td style="background:var(--miel-2)">
-            <input type="number" step="0.01" value="${f.Q_comprada_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_comprada_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="kg">
+          <td style="background:var(--miel-2);min-width:180px">
+            <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+              <input type="number" step="0.01" value="${f.Qcomp_raw ?? ''}" onchange="setCompraQty('${f.codigo}',this.value)" style="width:65px;padding:6px 6px;border-color:var(--miel);font-size:12px" placeholder="Cant.">
+              <select onchange="setCompraUnidad('${f.codigo}',this.value)" style="width:auto;min-width:80px;padding:6px 6px;border-color:var(--miel);font-size:11px">
+                ${unidadOpts.map(u => `<option value="${esc(u)}" ${f.Qcomp_unidad === u ? 'selected' : ''}>${esc(u)}</option>`).join("")}
+              </select>
+            </div>
+            <div class="small-note" style="margin-top:3px">= <strong style="color:var(--texto)">${f.Q_comprada_kg == null ? '—' : f.Q_comprada_kg.toFixed(2)} kg</strong></div>
+            ${f.Qcomp_unidad !== 'kg' ? `<input type="number" step="0.001" value="${f.pesoRealBulto ?? ''}" onchange="setCompraPesoBulto('${f.codigo}',this.value)" style="width:100%;max-width:140px;margin-top:3px;font-size:10px;padding:3px 6px;border-color:var(--miel)" placeholder="Peso real ${esc(f.Qcomp_unidad)} (nom. ${eqC}kg)">` : ''}
+          </td>
+          <td style="background:#E8F5EC;min-width:110px">
+            ${f.falta1a1_kg == null
+              ? '<span class="small-note">—</span>'
+              : (f.falta1a1_kg === 0
+                  ? '<strong style="color:var(--verde)">0 ✅</strong>'
+                  : `<strong style="color:var(--coral)">${f.falta1a1_kg.toFixed(2)} kg</strong><br><span class="small-note">${f.falta1a1_bultos.toFixed(2)} ${esc(prod.unidad_compra || '')}</span>`)}
           </td>
           <td style="background:var(--miel-2);border-right:2px solid var(--miel)">
-            <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="kg">
+            <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="${f.Q_comprada_kg != null ? f.Q_comprada_kg.toFixed(2) : 'kg'}">
           </td>
           <td title="Q_final kg: ${f.Qfinal_kg.toFixed(2)} · Ventas: ${soles(f.ventas)}">
             <strong>${f.Qfinal_un.toFixed(2)}</strong> ${esc(prod.unidad_venta || 'u')}
@@ -3150,7 +3169,8 @@ function calcularListaCompra() {
       }).join("")}</tbody>
     </table></div>
     <p class="small-note" style="margin-top:10px">
-      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral). Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.
+      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral). Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.<br>
+      <strong>Falta 1/1:</strong> cuánto te falta en kg para completar el bulto del por mayor (ej: si compraste 0.60 kg de apio, te faltan 2.40 kg para 1 Atado de 3 kg). Si compraste 1 Atado entero, muestra 0 ✅.
     </p>`;
 
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
@@ -3190,7 +3210,7 @@ async function setCompra(codigo, campo, valor) {
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
   if (!c) {
     c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
-      C_viernes: null, Q_comprada_kg: null, Q_recibida_kg: null };
+      C_viernes: null, Q_recibida_kg: null };
     DB.compras.push(c);
   }
   const strVal = String(valor).trim();
@@ -3198,13 +3218,57 @@ async function setCompra(codigo, campo, valor) {
   await guardarCompra(c);
   calcularListaCompra();
 }
+
+/* v17.3: nuevas funciones para Q_comprada con unidad */
+async function setCompraQty(codigo, valor) {
+  const prod = DB.productos.find(p => p.codigo === codigo);
+  let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
+  if (!c) {
+    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
+      C_viernes: null, Q_recibida_kg: null };
+    DB.compras.push(c);
+  }
+  const strVal = String(valor).trim();
+  c.Q_comprada = strVal === "" ? null : (Number(strVal) || 0);
+  if (!c.Q_comprada_unidad) c.Q_comprada_unidad = 'kg';
+  await guardarCompra(c);
+  calcularListaCompra();
+}
+
+async function setCompraUnidad(codigo, unidad) {
+  const prod = DB.productos.find(p => p.codigo === codigo);
+  let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
+  if (!c) {
+    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
+      C_viernes: null, Q_recibida_kg: null };
+    DB.compras.push(c);
+  }
+  c.Q_comprada_unidad = unidad || 'kg';
+  await guardarCompra(c);
+  calcularListaCompra();
+}
+
+async function setCompraPesoBulto(codigo, valor) {
+  const prod = DB.productos.find(p => p.codigo === codigo);
+  let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
+  if (!c) {
+    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
+      C_viernes: null, Q_recibida_kg: null };
+    DB.compras.push(c);
+  }
+  const strVal = String(valor).trim();
+  c.peso_real_bulto = strVal === "" ? null : (Number(strVal) || 0);
+  await guardarCompra(c);
+  calcularListaCompra();
+}
+
 function exportarCierreViernes() {
   const cierre = calcularCierreViernes();
   if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
-  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_kg","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
+  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_cant","Q_comprada_unidad","Q_comprada_kg","peso_real_bulto_kg","falta_1a1_kg","falta_1a1_bultos","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
   cierre.filas.forEach(f => {
     const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Q_comprada_kg ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
+    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Qcomp_raw ?? "", f.Qcomp_unidad || "", f.Q_comprada_kg ?? "", f.pesoRealBulto ?? "", f.falta1a1_kg ?? "", f.falta1a1_bultos ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
   });
   const csv = rows.map(r => r.map(v => typeof v === 'string' && (v.includes(',')||v.includes('"')) ? '"'+v.replace(/"/g,'""')+'"' : v).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
@@ -3214,7 +3278,6 @@ function exportarCierreViernes() {
   toast("✓ CSV exportado", "ok");
 }
 
-/* ============ ENTREGAS ============ */
 function renderEntregas() {
   const pedidos = pedidosDeRonda().filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
   const cont = document.getElementById("rutasContenido");
@@ -3358,7 +3421,6 @@ async function updEntrega(pedidoId, campo, valor) {
   renderEntregas();
 }
 
-/* ============ REPARTIDORES ============ */
 function renderRepartidores() {
   document.getElementById("repartidoresBody").innerHTML = DB.repartidores.map(r => {
     const modo = vehiculoAModo(r.vehiculo);
@@ -3409,7 +3471,6 @@ async function borrarRepartidor(id) {
   await eliminarRepartidorGlobal(id); renderRepartidores();
 }
 
-/* ============ GASTOS / EXCEDENTES / RECLAMOS v17.2: listas editables ============ */
 function renderFijosDomingo() {
   const f = getFijosDomingo();
   const F = calcularFDomingo();
@@ -3479,7 +3540,6 @@ async function agregarReclamo() { await guardarReclamo({ id: uid("RC"), id_ronda
 async function updReclamo(id, c, v) { const t = DB.reclamos.find(x => x.id === id); if (!t) return; t[c] = c === "costo_solucion" ? (Number(v) || 0) : v; await guardarReclamo(t); if (c === "costo_solucion") renderReclamos(); }
 async function delReclamo(id) { if (!confirm("¿Eliminar?")) return; await eliminarReclamoFS(id); renderReclamos(); }
 
-/* ============ REPORTES ============ */
 async function calcularReportes() {
   const cont = document.getElementById("reportesContenido");
   if (!cont) return;
@@ -3533,7 +3593,6 @@ async function calcularReportes() {
   } catch (e) { console.error(e); cont.innerHTML = `<div class="error-box">Error: ${esc(e.message)}</div>`; }
 }
 
-/* ============ CONFIG ============ */
 function renderConfig() {
   const c = DB.config;
   const modelo = c.modelo || {};
@@ -3576,13 +3635,13 @@ function renderConfig() {
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
 
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.2):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.3):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
     • P_L_final se fija el lunes y NO se toca el viernes<br>
     • Escalones en S//kg: Cij_kg = C_L_kg + escalón<br>
-    • <strong>v17.2:</strong> banner de alerta si la ronda no es la semana actual, modo decisión en Precios, listas editables en Gastos
+    • <strong>v17.3:</strong> Q_comprada con selector de unidad (kg / Atado / Cajón / Saco / Ciento) + peso real bulto opcional + columna "Falta 1/1"
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -3618,7 +3677,6 @@ async function updEscalon(idx, valor) {
 async function updCapVehiculo(vehiculo, valor) { if (!DB.config.cap_vehiculo) DB.config.cap_vehiculo = { ...CAP_DEFAULT }; DB.config.cap_vehiculo[vehiculo] = Number(valor) || 0; await fsSetConfig({ cap_vehiculo: DB.config.cap_vehiculo }); toast("Capacidad actualizada", "ok"); }
 async function updMaxParadas(valor) { DB.config.max_paradas_viaje = Number(valor) || MAX_PARADAS_VIAJE_DEFAULT; await fsSetConfig({ max_paradas_viaje: DB.config.max_paradas_viaje }); toast("Máx paradas actualizado", "ok"); }
 
-/* ============ EXPORT/IMPORT/RESET ============ */
 async function exportarJSON() {
   try {
     const data = { config: DB.config, rondas: {}, catalogo: { productos: DB.productos, clientes: DB.clientes, repartidores: DB.repartidores } };
@@ -3638,7 +3696,7 @@ async function exportarJSON() {
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.2_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.3_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
@@ -3977,7 +4035,7 @@ async function exportarExcel() {
     add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
     add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
     add("Config", [JSON.parse(JSON.stringify(DB.config))]);
-    XLSX.writeFile(wb, "misti_v17.2_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v17.3_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
@@ -4018,12 +4076,10 @@ async function resetTotal() {
   } catch (e) { console.error(e); progress.error("Error: " + e.message); toast("Error: " + e.message, "err"); }
 }
 
-/* ============ RENDER GENERAL ============ */
 function renderTodo() {
   renderModuloActivo();
 }
 
-/* ============ LOGIN ============ */
 function iniciarSesion() {
   const provider = new GoogleAuthProvider();
   document.getElementById("loginSpinner").style.display = "block";
@@ -4052,7 +4108,6 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-/* ============ EXPONER ============ */
 Object.assign(window, {
   mostrarVista, abrirModal, cerrarModal,
   toggleDropdown, renderWorkflow,
@@ -4070,7 +4125,7 @@ Object.assign(window, {
   setModoPrecios, abrirModalEditarPrecio, guardarPrecioDesdeModal,
   aplicarMObjetivo, aplicarPProb, aplicarGMin,
   recalcularYPubicar, renderSemaforoLunes, renderResumenLunes,
-  calcularListaCompra, setCompra, exportarCierreViernes,
+  calcularListaCompra, setCompra, setCompraQty, setCompraUnidad, setCompraPesoBulto, exportarCierreViernes,
   prellenarComprasViernes,
   importarComprasViernes, exportarComprasViernes,
   asignarRepartidorPedido, updEntrega,
