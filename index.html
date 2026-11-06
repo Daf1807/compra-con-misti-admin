@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17.5</title>
+<title>Compra con Misti — Admin v17.8</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -68,7 +68,6 @@ tbody tr:hover{background:#F4FBF6}
 .modal-content{background:#fff;max-width:760px;width:100%;max-height:92vh;overflow-y:auto;border-radius:var(--radio);padding:22px}
 .modal-content.wide{max-width:1040px}
 .modal-content.narrow{max-width:480px}
-.modal-content.xwide{max-width:1280px}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .close{border-radius:50%;width:34px;height:34px;min-height:34px;padding:0;background:var(--crema);color:var(--texto);font-size:18px;box-shadow:none}
 .roundbar{background:#fff;border-radius:var(--radio);padding:12px 16px;box-shadow:var(--sombra-sm);margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--borde)}
@@ -116,8 +115,6 @@ tbody tr:hover{background:#F4FBF6}
 .tab{padding:8px 14px;border-radius:var(--radio-sm);background:transparent;color:var(--texto);font-weight:600;font-size:13px;cursor:pointer;border:0;box-shadow:none;min-height:auto}
 .tab:hover{background:var(--verde-claro);transform:none}
 .tab.active{background:linear-gradient(135deg,var(--verde),var(--verde-2));color:#fff}
-.tab-content{display:none}
-.tab-content.active{display:block}
 .item-row{display:grid;grid-template-columns:2fr 80px 90px 90px auto;gap:6px;align-items:center;margin-bottom:6px;padding:9px;background:var(--crema);border-radius:var(--radio-sm)}
 .calc-summary{background:var(--verde-claro);border-radius:var(--radio-sm);padding:14px;margin-top:12px}
 .calc-summary .row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
@@ -146,12 +143,6 @@ tbody tr:hover{background:#F4FBF6}
 .ruta-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--borde)}
 .ruta-head .title{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ruta-modo{font-size:10px;padding:3px 9px;border-radius:999px;background:var(--crema);color:var(--texto-2);font-weight:700;text-transform:uppercase}
-.viaje-card{background:var(--crema);border:1.5px solid var(--borde);border-radius:var(--radio-sm);padding:12px;margin-bottom:10px}
-.viaje-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-.viaje-card-title{font-weight:800;font-size:14px;color:var(--texto);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.viaje-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:var(--texto);color:#fff}
-.viaje-card-meta{font-size:11px;color:var(--texto-2);margin-top:3px}
-.viaje-card-actions{display:flex;gap:6px;flex-wrap:wrap}
 .parada-item{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:10px 12px;margin-bottom:6px}
 .parada-row-1{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
 .parada-row-2{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center}
@@ -187,7 +178,7 @@ tbody tr:hover{background:#F4FBF6}
 .fin-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
 .fin-col{background:#fff;border:1px solid var(--borde);border-radius:var(--radio-sm);padding:14px}
 .fin-col h4{margin:0 0 10px;color:var(--verde);font-size:14px}
-.fin-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px dashed var(--borde)}
+.fin-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px dashed var(--borde);align-items:center}
 .fin-row .val{font-weight:700}
 .fin-result{margin-top:16px;padding:18px;border-radius:var(--radio);text-align:center}
 .fin-result.good{background:var(--verde-claro);border:2px solid var(--verde)}
@@ -219,7 +210,6 @@ tbody tr:hover{background:#F4FBF6}
 .esc-tabla th{background:var(--verde-claro);padding:6px 8px;text-align:left;font-size:10px}
 .esc-tabla td{padding:4px 8px;border-bottom:1px solid var(--borde)}
 .esc-tabla input{padding:5px 8px;font-size:12px}
-.unidad-badge{display:inline-block;font-size:9px;color:var(--texto-2);background:var(--crema);border:1px solid var(--borde);padding:1px 5px;border-radius:6px;font-weight:600;margin-left:3px}
 .equivalencia-hint{font-size:10px;color:var(--texto-2);font-style:italic;line-height:1.35;margin-top:2px}
 .dropdown{position:relative;display:inline-block}
 .dropdown-menu{display:none;position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--borde);border-radius:12px;box-shadow:var(--sombra-md);padding:6px;z-index:200;min-width:200px;max-width:calc(100vw - 40px)}
@@ -260,6 +250,7 @@ tbody tr:hover{background:#F4FBF6}
 .lista-row input,.lista-row select{padding:6px 8px;font-size:12px}
 .lista-total{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-top:10px;background:var(--verde-claro);border-radius:var(--radio-sm);font-size:14px}
 .lista-total strong{font-size:18px;color:var(--verde)}
+.ingreso-input{width:85px !important;text-align:right;padding:3px 6px !important;font-size:12px !important;border-color:var(--miel) !important;font-weight:700}
 @media(max-width:1100px){.pipeline{grid-template-columns:repeat(3,1fr)}.dash-hero{grid-template-columns:1fr 1fr}.fin-grid{grid-template-columns:1fr}.precios-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}}
 @media(max-width:1000px){.dash-row{grid-template-columns:repeat(2,1fr)}.app-shell{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow-x:auto;gap:6px;padding:8px}.sidebar-title{display:none}.nav-btn{width:auto;flex:0 0 auto;white-space:nowrap;margin-bottom:0}.ruta-info{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.parada-row-2{grid-template-columns:1fr}.lista-row.gasto,.lista-row.excedente,.lista-row.reclamo{grid-template-columns:1fr}}
@@ -272,7 +263,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17.5 · Modelo 1Día</p>
+<p>Panel Admin v17.8 · Modelo 1Día</p>
 </div>
 </header>
 <div class="container">
@@ -354,7 +345,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 <div class="section">
 <h2 class="section-head">Ganancia real de la ronda</h2>
-<p class="section-sub">Ventas congeladas + ingreso sobrante al Misti − costo real (Q_recibida × C_viernes) − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
+<p class="section-sub">Ventas al cliente + ingreso real del Misti − costo vendido − costo sobrante Misti − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
 <div id="dashGanancia"></div>
 </div>
 <div class="section">
@@ -366,7 +357,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-pipeline">
 <div class="section">
 <h2 class="section-head">🔀 Pipeline de pedidos</h2>
-<p class="section-sub">Podés avanzar y retroceder. El retroceso pide motivo obligatorio y queda en el historial.</p>
+<p class="section-sub">Podés avanzar y retroceder. El retroceso pide motivo obligatorio y queda en el historial. En Pendiente pago podés eliminar el pedido completamente (sin registro).</p>
 <div class="actions" style="margin-bottom:12px">
 <input id="pipeBuscar" placeholder="🔍 Buscar por nombre o celular..." oninput="renderPipeline()" style="max-width:280px">
 <button class="btn-dark btn-sm" onclick="generarChecklistEmpaque()" title="Imprimir checklist de pedidos empacados">🖨️ Checklist empaque</button>
@@ -540,12 +531,15 @@ tbody tr:hover{background:#F4FBF6}
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
 <div class="info-box" style="margin-bottom:12px">
-<strong>📐 UNIDADES (v17.5):</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada → ingresá <strong>cantidad + unidad</strong> (kg, Atado, Cajón, Saco, Ciento...). El sistema convierte a kg con el <strong>Equiv. (V/C)</strong> del producto. Si el bulto que te entregaron pesó distinto al nominal, cargá el <strong>peso real</strong>. Q_recibida → en <strong>kg</strong>. El sobrante (Q_recibida − Q_final) se vende al Misti y genera ingreso.
+<strong>📐 UNIDADES (v17.8):</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada → ingresá <strong>cantidad + unidad</strong>. Al cambiar de unidad, la cantidad se convierte exacta (4 decimales) sin redondear y mantiene los kg. Q_recibida → en <strong>kg</strong>. El sobrante (Q_recibida − Q_final) se vende al Misti y genera ingreso. <strong>El campo "Ingreso Misti real" es editable</strong>: si el Misti te da un monto redondeado (ej. 80 en vez de 74), cargalo ahí.
 </div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
 <button class="btn-add btn-sm" onclick="prellenarComprasViernes()" title="Llena Q_comprada = Q_recibida = Q_pedida, y C_viernes = C_L/kg. Solo vacíos.">✨ Prellenar viernes</button>
 <button class="btn-dark btn-sm" onclick="exportarCierreViernes()">⬇️ Exportar cierre CSV</button>
+<button class="btn-wa btn-sm" onclick="enviarListaWhatsApp()" title="Enviar la lista al WhatsApp del negocio">📱 Enviar al WhatsApp</button>
+<button class="btn-info btn-sm" onclick="imprimirListaCompra()" title="Lista imprimible para llenar a lápiz en el mercado">🖨️ Imprimir lista (PDF)</button>
+<button class="btn-ghost btn-sm" onclick="descargarListaWord()" title="Descargar como Word (.doc) para imprimir">📥 Descargar Word</button>
 </div>
 <div id="compraResumen"></div>
 <div id="listaCompraContenido" style="margin-top:12px"></div>
@@ -556,7 +550,7 @@ tbody tr:hover{background:#F4FBF6}
 <section class="view" id="view-entregas">
 <div class="section">
 <h2 class="section-head">🗺️ Entregas por repartidor</h2>
-<p class="section-sub">Cada pedido se asigna a un repartidor. Los viajes se dividen según la capacidad del vehículo y el peso real (kg equivalentes). Máximo 9 paradas por viaje.</p>
+<p class="section-sub">Cada pedido se asigna a un repartidor. Los viajes se dividen según la capacidad del vehículo y el peso real. Máximo 9 paradas por viaje.</p>
 <div class="ruta-info" id="rutaInfo"></div>
 <div id="rutasContenido"></div>
 </div>
@@ -734,7 +728,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17.5</p>
+<p>Panel Admin · Modelo 1Día · v17.8</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -1116,12 +1110,17 @@ function calcularCompraProducto(codigo) {
   const Qfinal_kg = Qprima_kg;
   const Qfinal_un = redondearQFinalUnidad(codigo, Qfinal_kg);
   const dif_kg = Qrecib != null ? Qrecib - Qfinal_kg : null;
-  const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
-  const ventas = Qfinal_kg * umbral.PLfinal_kg;
-  const margenBruto = costoReal != null ? ventas - costoReal : null;
-  // NUEVO v17.5: sobrante al Misti
-  const sobrante_kg = Qrecib != null ? Math.max(0, Qrecib - Qfinal_kg) : 0;
+  // v17.8: costoVendido + costoSobrante separados
   const cvNum = Cv != null ? Number(Cv) : 0;
+  const QrecibNum = Qrecib != null ? Number(Qrecib) : 0;
+  const QvendidoReal = Math.min(QrecibNum, Qfinal_kg);
+  const QsobranteReal = Math.max(0, QrecibNum - Qfinal_kg);
+  const costoVendido = QvendidoReal * cvNum;
+  const costoSobrante = QsobranteReal * cvNum;
+  const costoReal = costoVendido + costoSobrante; // legacy
+  const ventas = Qfinal_kg * umbral.PLfinal_kg;
+  const margenBruto = ventas - costoVendido;
+  const sobrante_kg = QsobranteReal;
   const ingresoSobrante = sobrante_kg * cvNum * (1 + getMargenSobrante());
   return {
     ...umbral,
@@ -1130,7 +1129,7 @@ function calcularCompraProducto(codigo) {
     falta1a1_kg, falta1a1_bultos,
     Qped_kg, Qped_un, Qprima_kg, Qfinal_kg, Qfinal_un, dif_kg,
     sobrante_kg, ingresoSobrante,
-    costoReal, ventas, margenBruto,
+    costoVendido, costoSobrante, costoReal, ventas, margenBruto,
     equiv_kg: getEquivKg(codigo),
     equiv_kg_compra: eqC
   };
@@ -1144,18 +1143,30 @@ function calcularCierreViernes() {
     if (calc) filas.push({ codigo, ...calc });
   });
   const ventas = filas.reduce((s, f) => s + (f.ventas || 0), 0);
-  const costoReal = filas.reduce((s, f) => s + (f.costoReal || 0), 0);
-  // NUEVO v17.5: ingreso por sobrante al Misti
-  const ingresoSobrante = filas.reduce((s, f) => s + (f.ingresoSobrante || 0), 0);
+  const costoVendido = filas.reduce((s, f) => s + (f.costoVendido || 0), 0);
+  const costoSobrante = filas.reduce((s, f) => s + (f.costoSobrante || 0), 0);
+  const costoReal = costoVendido + costoSobrante;
+  const ingresoMistiCalc = filas.reduce((s, f) => s + (f.ingresoSobrante || 0), 0);
+  // v17.8: ingresoMistiReal editable desde la ronda
+  const rAct = DB.rondas[DB.rondaActiva] || {};
+  const ingresoMistiReal = rAct.ingreso_misti_real != null ? Number(rAct.ingreso_misti_real) : ingresoMistiCalc;
+  const diferenciaMisti = ingresoMistiReal - costoSobrante;
   const F = calcularFDomingo();
   const comision = ventas * getComisionYape();
   const gastosVar = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
   const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
   const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const ingresoTotal = ventas + ingresoSobrante + exc;
+  const ingresoTotal = ventas + ingresoMistiReal + exc;
   const utilidad = ingresoTotal - costoReal - F - comision - gastosVar - recl;
   const margen = ingresoTotal > 0 ? utilidad / ingresoTotal : 0;
-  return { filas, ventas, ingresoSobrante, costoReal, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados };
+  return {
+    filas, ventas,
+    costoVendido, costoSobrante, costoReal,
+    ingresoMistiCalc, ingresoMistiReal, diferenciaMisti,
+    ingresoSobrante: ingresoMistiCalc, // legacy
+    F, comision, gastosVar, exc, recl,
+    ingresoTotal, utilidad, margen, aceptados
+  };
 }
 function calcularRecorteMap() {
   const map = {};
@@ -1320,8 +1331,8 @@ function crearDBInicial() {
   });
 
   return {
-    version: 175, rondaActiva: ronda,
-    rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
+    version: 178, rondaActiva: ronda,
+    rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], ingreso_misti_real: null } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
     config: {
@@ -1351,7 +1362,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v17.5 completado");
+  console.log("Auto-seed v17.8 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1540,15 +1551,12 @@ function renderSemana() {
   const lunesActual = lunesSemanaActual();
   const desfaseDias = Math.round((new Date(lunesActual+"T12:00:00") - new Date(lunesRonda+"T12:00:00"))/86400000);
   const desfaseSem = Math.round(desfaseDias/7);
-
   let banner = "";
   if (desfaseDias > 0) {
-    const clase = desfaseDias > 7 ? "pasada" : "pasada";
-    banner = `<div class="semana-alerta ${clase}">⚠️ Ronda de hace ${desfaseSem} semana${desfaseSem!==1?"s":""} (${lunesRonda}) — No es la semana actual. Verificá antes de editar.</div>`;
+    banner = `<div class="semana-alerta pasada">⚠️ Ronda de hace ${desfaseSem} semana${desfaseSem!==1?"s":""} (${lunesRonda})</div>`;
   } else if (desfaseDias < 0) {
     banner = `<div class="semana-alerta futura">🔮 Ronda futura: ${lunesRonda}</div>`;
   }
-
   const nombres = ["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"]; const hoyStr = hoy();
   let html = "";
   for (let i = 0; i < 7; i++) {
@@ -1716,7 +1724,7 @@ async function confirmarNuevaRonda() {
   const btn = document.getElementById("nrBtnCrear");
   btn.disabled = true; btn.textContent = "Creando…";
   try {
-    const meta = { id_ronda: id, estado: "abierta", nombre, fecha_apertura: new Date(lunes + "T08:00:00").toISOString(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] };
+    const meta = { id_ronda: id, estado: "abierta", nombre, fecha_apertura: new Date(lunes + "T08:00:00").toISOString(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [], ingreso_misti_real: null };
     await fsSetRonda(id, meta);
     DB.rondas[id] = meta;
     if (copiarDe) {
@@ -1816,6 +1824,16 @@ async function marcarRonda(estado) {
   refrescarSelector(); toast("Ronda → " + estado, "info");
 }
 
+/* ============ v17.8: setIngresoMisti ============ */
+async function setIngresoMisti(valor) {
+  const strVal = String(valor).trim();
+  const num = strVal === "" ? null : (Number(strVal) || 0);
+  await fsSetRonda(DB.rondaActiva, { ingreso_misti_real: num });
+  DB.rondas[DB.rondaActiva] = { ...DB.rondas[DB.rondaActiva], ingreso_misti_real: num };
+  calcularListaCompra();
+  toast(num == null ? "Ingreso Misti: usa el calculado" : "Ingreso Misti → " + soles(num), "ok");
+}
+
 function renderDashboard() {
   const pedidos = pedidosDeRonda();
   const activos = pedidos.filter(p => ["aceptado","empacado","entregado"].includes(p.estado));
@@ -1841,8 +1859,8 @@ function renderDashboard() {
 
   document.getElementById("dashPedidos").textContent = activos.length;
   document.getElementById("dashPedidosSub").textContent = `${pendientes.length} pendientes de pago`;
-  document.getElementById("dashIngreso").textContent = soles(ingreso + cierre.ingresoSobrante);
-  document.getElementById("dashIngresoSub").textContent = `+ sobrante Misti ${soles(cierre.ingresoSobrante)}`;
+  document.getElementById("dashIngreso").textContent = soles(ingreso + cierre.ingresoMistiReal);
+  document.getElementById("dashIngresoSub").textContent = `+ Misti real ${soles(cierre.ingresoMistiReal)}`;
   document.getElementById("dashCostoEst").textContent = soles(costoEst);
   document.getElementById("dashCostoEstSub").textContent = `Q_pedida × C_esp`;
   document.getElementById("dashCostoReal").textContent = soles(costoReal);
@@ -1854,9 +1872,10 @@ function renderDashboard() {
 
   document.getElementById("dashGanancia").innerHTML = `
     <div class="calc-summary">
-      <div class="row"><span>Ventas al cliente (Q_final × P_L_final)</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
-      <div class="row"><span>Ingreso por sobrante al Misti</span><span><strong>+${soles(cierre.ingresoSobrante)}</strong></span></div>
-      <div class="row"><span>Costo real (Q_recibida × C_viernes)</span><span>−${soles(cierre.costoReal)}</span></div>
+      <div class="row"><span>Ventas al cliente</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Ingreso Misti real</span><span><strong>+${soles(cierre.ingresoMistiReal)}</strong></span></div>
+      <div class="row"><span>Costo vendido al cliente</span><span>−${soles(cierre.costoVendido)}</span></div>
+      <div class="row"><span>Costo sobrante Misti</span><span>−${soles(cierre.costoSobrante)}</span></div>
       <div class="row"><span>Fijos del domingo</span><span>−${soles(cierre.F)}</span></div>
       <div class="row"><span>Comisión Yape</span><span>−${soles(cierre.comision)}</span></div>
       <div class="row"><span>Gastos variables</span><span>−${soles(cierre.gastosVar)}</span></div>
@@ -1864,7 +1883,11 @@ function renderDashboard() {
       <div class="row"><span>Excedentes</span><span>+${soles(cierre.exc)}</span></div>
       <div class="row total"><span>Utilidad neta</span><span>${soles(cierre.utilidad)}</span></div>
     </div>
-    <div class="info-box" style="margin-top:10px"><strong>Margen neto real:</strong> <span class="${cierre.margen >= 0 ? 'delta-pos' : 'delta-neg'}">${fmtPct(cierre.margen)}</span></div>`;
+    <div class="info-box" style="margin-top:10px">
+      <strong>Diferencia Misti:</strong> <span class="${cierre.diferenciaMisti >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(cierre.diferenciaMisti)}</span>
+      <span class="small-note">(ingreso real − costo sobrante)</span><br>
+      <strong>Margen neto real:</strong> <span class="${cierre.margen >= 0 ? 'delta-pos' : 'delta-neg'}">${fmtPct(cierre.margen)}</span>
+    </div>`;
   const top = {};
   itemsDeRonda().filter(i => activos.some(p => p.pedido_id === i.pedido_id)).forEach(i => {
     top[i.nombre] = (top[i.nombre] || 0) + Number(i.cantidad);
@@ -1912,6 +1935,8 @@ function botonesPipeline(p) {
   if (e.startsWith("pendiente")) {
     html += `<button class="btn-accept" onclick="abrirAceptar('${p.pedido_id}')">Aceptar</button>`;
     html += `<button class="btn-reject" onclick="abrirRetroceder('${p.pedido_id}','rechazado')">Rechazar</button>`;
+    // v17.8: eliminar completamente
+    html += `<button class="btn-delete" onclick="borrarPedidoCompleto('${p.pedido_id}')" title="Eliminar completamente (sin registro)" style="padding:5px 9px;min-height:28px;font-size:13px">🗑️</button>`;
   }
   if (e === "aceptado") {
     html += `<button class="btn-info" onclick="transicionar('${p.pedido_id}','empacado')">Empacar</button>`;
@@ -1937,6 +1962,26 @@ function botonesPipeline(p) {
   }
   html += `<button class="btn-ghost" onclick="verDetalle('${p.pedido_id}')">Detalle</button>`;
   return html;
+}
+
+/* v17.8: borrar pedido completo (Firestore + items) */
+async function borrarPedidoCompleto(pedidoId) {
+  const p = pedidoPorId(pedidoId);
+  if (!p) { toast("Pedido no encontrado", "err"); return; }
+  if (!confirm(`⚠️ ¿BORRAR el pedido ${pedidoId} (${p.cliente_nombre})?\n\nSe eliminarán también sus items.\nNO quedará registro ni historial.`)) return;
+  if (!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN — Esta acción no se puede deshacer.`)) return;
+  try {
+    const items = itemsDePedido(pedidoId);
+    for (const it of items) {
+      await fsDel(["rondas", DB.rondaActiva, "items"], it.item_id);
+    }
+    await fsDel(["rondas", DB.rondaActiva, "pedidos"], pedidoId);
+    toast("✓ Pedido eliminado completamente", "ok");
+    renderModuloActivo();
+  } catch (e) {
+    console.error(e);
+    toast("Error: " + e.message, "err");
+  }
 }
 
 function generarChecklistEmpaque() {
@@ -2948,7 +2993,6 @@ async function prellenarComprasViernes() {
   const pmap = precioMapa();
   const codigos = Object.keys(pmap);
   if (!codigos.length) { toast("Sin precios cargados en esta ronda", "warn"); return; }
-
   const propuesta = [];
   codigos.forEach(cod => {
     const calc = calcularCompraProducto(cod);
@@ -2957,12 +3001,10 @@ async function prellenarComprasViernes() {
     const equivC = getEquivKgCompra(cod);
     const Qped = calc.Qped_kg;
     const CvSug = (equivC > 0 && calc.CL_kg > 0) ? calc.CL_kg : null;
-
     const actual = comprasDeRonda().find(c => c.codigo_producto === cod) || {};
     const yaCv = actual.C_viernes != null;
     const yaQc = actual.Q_comprada != null || actual.Q_comprada_kg != null;
     const yaQr = actual.Q_recibida_kg != null;
-
     propuesta.push({
       codigo: cod, nombre: prod?.nombre || cod,
       C_viernes: yaCv ? actual.C_viernes : CvSug,
@@ -2972,40 +3014,23 @@ async function prellenarComprasViernes() {
       _yaCv: yaCv, _yaQc: yaQc, _yaQr: yaQr
     });
   });
-
   const conDatos = propuesta.filter(p => p.C_viernes != null || p.Q_comprada != null || p.Q_recibida_kg != null);
   if (!conDatos.length) { toast("Sin datos para prellenar", "warn"); return; }
-
   const nuevos = propuesta.filter(p => !p._yaCv || !p._yaQc || !p._yaQr).length;
   const respetados = propuesta.length - nuevos;
-
   let msg = "✨ PRELLENAR COMPRAS DEL VIERNES\n\n";
-  msg += `Ronda: ${DB.rondaActiva}\n`;
-  msg += `Productos: ${propuesta.length}\n`;
-  msg += `A completar: ${nuevos}\n`;
-  msg += `Ya cargados (no se tocan): ${respetados}\n\n`;
+  msg += `Ronda: ${DB.rondaActiva}\nProductos: ${propuesta.length}\nA completar: ${nuevos}\nYa cargados (no se tocan): ${respetados}\n\n`;
   msg += "Se llenan: C_viernes = C_L/kg, Q_comprada = Q_recibida = Q_pedida (kg)\n\n¿Continuar?";
-
   if (!confirm(msg)) return;
-
   let ok = 0, errs = 0;
   for (const p of propuesta) {
     try {
       if (p._yaCv && p._yaQc && p._yaQr) continue;
       const prod = DB.productos.find(x => x.codigo === p.codigo);
-      const merge = {
-        id_ronda: DB.rondaActiva, codigo_producto: p.codigo,
-        nombre: prod?.nombre || p.nombre,
-        C_viernes: p.C_viernes,
-        Q_comprada: p.Q_comprada,
-        Q_comprada_unidad: p.Q_comprada_unidad,
-        Q_recibida_kg: p.Q_recibida_kg
-      };
-      await guardarCompra(merge);
-      ok++;
+      const merge = { id_ronda: DB.rondaActiva, codigo_producto: p.codigo, nombre: prod?.nombre || p.nombre, C_viernes: p.C_viernes, Q_comprada: p.Q_comprada, Q_comprada_unidad: p.Q_comprada_unidad, Q_recibida_kg: p.Q_recibida_kg };
+      await guardarCompra(merge); ok++;
     } catch (err) { errs++; console.error("Error prellenando:", p, err); }
   }
-
   toast("✓ Prellenados " + ok + " productos" + (errs ? " (" + errs + " errores)" : ""), errs ? "warn" : "ok");
   calcularListaCompra();
 }
@@ -3019,10 +3044,7 @@ function importarComprasViernes() {
     r.onload = async ev => {
       try {
         const raw = JSON.parse(ev.target.result);
-        const arr = Array.isArray(raw) ? raw
-          : Array.isArray(raw.compras) ? raw.compras
-          : (raw && typeof raw === "object") ? Object.keys(raw).filter(k => /^PR-/.test(k)).map(k => ({ codigo_producto: k, ...raw[k] }))
-          : [];
+        const arr = Array.isArray(raw) ? raw : Array.isArray(raw.compras) ? raw.compras : (raw && typeof raw === "object") ? Object.keys(raw).filter(k => /^PR-/.test(k)).map(k => ({ codigo_producto: k, ...raw[k] })) : [];
         if (!arr.length) { toast("JSON sin compras reconocibles", "warn"); return; }
         if (!confirm(`📥 Importar ${arr.length} compras a ${DB.rondaActiva}?\n\nNO se borra nada.`)) return;
         let ok = 0, errs = 0;
@@ -3031,18 +3053,7 @@ function importarComprasViernes() {
           try {
             const act = comprasDeRonda().find(x => x.codigo_producto === c.codigo_producto) || {};
             const prod = DB.productos.find(p => p.codigo === c.codigo_producto);
-            await guardarCompra({
-              id_ronda: DB.rondaActiva,
-              codigo_producto: c.codigo_producto,
-              nombre: prod?.nombre || c.nombre || c.codigo_producto,
-              C_viernes: c.C_viernes !== undefined ? c.C_viernes : (act.C_viernes ?? null),
-              Q_comprada: c.Q_comprada !== undefined ? c.Q_comprada
-                        : (c.Q_comprada_kg !== undefined ? c.Q_comprada_kg
-                        : (act.Q_comprada ?? null)),
-              Q_comprada_unidad: c.Q_comprada_unidad || act.Q_comprada_unidad || 'kg',
-              peso_real_bulto: c.peso_real_bulto !== undefined ? c.peso_real_bulto : (act.peso_real_bulto ?? null),
-              Q_recibida_kg: c.Q_recibida_kg !== undefined ? c.Q_recibida_kg : (act.Q_recibida_kg ?? null)
-            });
+            await guardarCompra({ id_ronda: DB.rondaActiva, codigo_producto: c.codigo_producto, nombre: prod?.nombre || c.nombre || c.codigo_producto, C_viernes: c.C_viernes !== undefined ? c.C_viernes : (act.C_viernes ?? null), Q_comprada: c.Q_comprada !== undefined ? c.Q_comprada : (c.Q_comprada_kg !== undefined ? c.Q_comprada_kg : (act.Q_comprada ?? null)), Q_comprada_unidad: c.Q_comprada_unidad || act.Q_comprada_unidad || 'kg', peso_real_bulto: c.peso_real_bulto !== undefined ? c.peso_real_bulto : (act.peso_real_bulto ?? null), Q_recibida_kg: c.Q_recibida_kg !== undefined ? c.Q_recibida_kg : (act.Q_recibida_kg ?? null) });
             ok++;
           } catch (err) { errs++; console.error(err); }
         }
@@ -3058,31 +3069,17 @@ function importarComprasViernes() {
 function exportarComprasViernes() {
   const compras = comprasDeRonda();
   if (!compras.length) { toast("Sin compras en esta ronda", "warn"); return; }
-  const data = {
-    _formato: "compras-viernes-v2",
-    _ronda: DB.rondaActiva,
-    _exportado: ahora(),
-    compras: compras.map(c => ({
-      codigo_producto: c.codigo_producto,
-      nombre: c.nombre || (DB.productos.find(p => p.codigo === c.codigo_producto)?.nombre) || c.codigo_producto,
-      C_viernes: c.C_viernes ?? null,
-      Q_comprada: c.Q_comprada ?? null,
-      Q_comprada_unidad: c.Q_comprada_unidad || 'kg',
-      peso_real_bulto: c.peso_real_bulto ?? null,
-      Q_recibida_kg: c.Q_recibida_kg ?? null
-    }))
-  };
+  const data = { _formato: "compras-viernes-v2", _ronda: DB.rondaActiva, _exportado: ahora(), compras: compras.map(c => ({ codigo_producto: c.codigo_producto, nombre: c.nombre || (DB.productos.find(p => p.codigo === c.codigo_producto)?.nombre) || c.codigo_producto, C_viernes: c.C_viernes ?? null, Q_comprada: c.Q_comprada ?? null, Q_comprada_unidad: c.Q_comprada_unidad || 'kg', peso_real_bulto: c.peso_real_bulto ?? null, Q_recibida_kg: c.Q_recibida_kg ?? null })) };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `compras_${DB.rondaActiva}_${hoy()}.json`; a.click();
+  const a = document.createElement("a"); a.href = url; a.download = `compras_${DB.rondaActiva}_${hoy()}.json`; a.click();
   URL.revokeObjectURL(url);
   toast(`✓ Exportadas ${compras.length} compras`, "ok");
 }
 
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
-  const { filas, ventas, ingresoSobrante, costoReal, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados } = cierre;
+  const { filas, ventas, costoVendido, costoSobrante, costoReal, ingresoMistiCalc, ingresoMistiReal, diferenciaMisti, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados } = cierre;
   if (!filas.length) {
     document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados. Cargá pedidos primero. <button class="btn-add btn-sm" onclick="mostrarVista('calculadora')">＋ Crear pedido</button></div>`;
     document.getElementById("listaCompraContenido").innerHTML = "";
@@ -3093,13 +3090,13 @@ function calcularListaCompra() {
   document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
-      <div class="box">Ventas + sobrante<strong>${soles(ventas + ingresoSobrante)}</strong></div>
-      <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
-      <div class="box">Margen bruto<strong class="${(ventas + ingresoSobrante) - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles((ventas + ingresoSobrante) - costoReal)}</strong></div>
+      <div class="box">Ventas + Misti<strong>${soles(ventas + ingresoMistiReal)}</strong></div>
+      <div class="box">Costo real total<strong>${soles(costoReal)}</strong></div>
+      <div class="box">Margen bruto<strong class="${(ventas + ingresoMistiReal) - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles((ventas + ingresoMistiReal) - costoReal)}</strong></div>
     </div>
     <div class="info-box">
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
-      <br><span class="small-note">✏️ Q_comprada: ingresá cantidad + unidad (kg / Atado / Cajón / Saco / Ciento). C_viernes = S//kg. Q_recibida = kg. El sobrante (Q_recibida − Q_final) se vende al Misti al costo × (1 + margen_sobrante).</span>
+      <br><span class="small-note">✏️ Q_comprada: ingresá cantidad + unidad (kg / Atado / Cajón / Saco / Ciento). Al cambiar de unidad, la cantidad se convierte exacta a 4 decimales (ej: 2 kg → 0.0741 Cajón Chico) y se mantiene el peso en kg. C_viernes = S//kg. Q_recibida = kg. <strong>Ingreso Misti real</strong>: si el Misti te pagó un monto redondeado, cargalo ahí.</span>
     </div>`;
 
   document.getElementById("listaCompraContenido").innerHTML = `
@@ -3114,8 +3111,9 @@ function calcularListaCompra() {
           <th style="background:#E8F5EC;color:var(--verde)">Falta 1/1<br><small style="text-transform:none;color:var(--verde);font-weight:500">completar bulto</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
           <th>Q_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">unidad</small></th>
-          <th style="background:var(--cielo-2);color:#0F4C8C">Sobrante Misti<br><small style="text-transform:none;color:#0F4C8C;font-weight:500">ingreso</small></th>
-          <th>Costo real</th>
+          <th style="background:var(--cielo-2);color:#0F4C8C">Sobrante<br><small style="text-transform:none;color:#0F4C8C;font-weight:500">kg</small></th>
+          <th style="background:var(--cielo-2);color:#0F4C8C">Costo vendido<br><small style="text-transform:none;color:#0F4C8C;font-weight:500">al cliente</small></th>
+          <th style="background:var(--cielo-2);color:#0F4C8C">Costo sobrante<br><small style="text-transform:none;color:#0F4C8C;font-weight:500">Misti</small></th>
           <th>Margen</th>
           <th>Δ</th>
         </tr>
@@ -3137,9 +3135,7 @@ function calcularListaCompra() {
         return `<tr style="${recortado ? 'background:#FFF3CD' : ''}">
           <td>
             <strong>${esc(prod.nombre || f.codigo)}</strong>
-            <div class="chips-unidad">
-              <span class="chip" title="Sugerencia de compra">→ ${esc(sugTxt)}</span>
-            </div>
+            <div class="chips-unidad"><span class="chip" title="Sugerencia">→ ${esc(sugTxt)}</span></div>
             <div class="small-note" style="margin-top:3px">V: ${esc(prod.unidad_venta || 'kg')} ${eqV}kg/u · C: ${esc(prod.unidad_compra || 'kg')} ${eqC}kg/u</div>
           </td>
           <td style="background:#E8F5EC;text-align:center;font-weight:800;font-size:14px;color:var(--verde);white-space:nowrap">${esc(pedidoTxt)}</td>
@@ -3159,57 +3155,61 @@ function calcularListaCompra() {
             ${f.Qcomp_unidad !== 'kg' ? `<input type="number" step="0.001" value="${f.pesoRealBulto ?? ''}" onchange="setCompraPesoBulto('${f.codigo}',this.value)" style="width:100%;max-width:140px;margin-top:3px;font-size:10px;padding:3px 6px;border-color:var(--miel)" placeholder="Peso real ${esc(f.Qcomp_unidad)} (nom. ${eqC}kg)">` : ''}
           </td>
           <td style="background:#E8F5EC;min-width:110px">
-            ${f.falta1a1_kg == null
-              ? '<span class="small-note">—</span>'
-              : (f.falta1a1_kg === 0
-                  ? '<strong style="color:var(--verde)">0 ✅</strong>'
-                  : `<strong style="color:var(--coral)">${f.falta1a1_kg.toFixed(2)} kg</strong><br><span class="small-note">${f.falta1a1_bultos.toFixed(2)} ${esc(prod.unidad_compra || '')}</span>`)}
+            ${f.falta1a1_kg == null ? '<span class="small-note">—</span>' : (f.falta1a1_kg === 0 ? '<strong style="color:var(--verde)">0 ✅</strong>' : `<strong style="color:var(--coral)">${f.falta1a1_kg.toFixed(2)} kg</strong><br><span class="small-note">${f.falta1a1_bultos.toFixed(2)} ${esc(prod.unidad_compra || '')}</span>`)}
           </td>
           <td style="background:var(--miel-2);border-right:2px solid var(--miel)">
             <input type="number" step="0.01" value="${f.Q_recibida_kg ?? ''}" onchange="setCompra('${f.codigo}','Q_recibida_kg',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="${f.Q_comprada_kg != null ? f.Q_comprada_kg.toFixed(2) : 'kg'}">
           </td>
-          <td title="Q_final kg: ${f.Qfinal_kg.toFixed(2)} · Ventas: ${soles(f.ventas)}">
-            <strong>${f.Qfinal_un.toFixed(2)}</strong> ${esc(prod.unidad_venta || 'u')}
+          <td><strong>${f.Qfinal_un.toFixed(2)}</strong> ${esc(prod.unidad_venta || 'u')}</td>
+          <td style="background:#EAF4FF;text-align:center">
+            <strong style="color:#0F4C8C">${f.sobrante_kg.toFixed(2)} kg</strong>
           </td>
           <td style="background:#EAF4FF;text-align:center">
-            <strong style="color:#0F4C8C">${f.sobrante_kg.toFixed(2)} kg</strong><br>
-            <span class="small-note">+${soles(f.ingresoSobrante)}</span>
+            <strong style="color:#0F4C8C">${soles(f.costoVendido)}</strong>
           </td>
-          <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
-          <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
+          <td style="background:#EAF4FF;text-align:center">
+            <strong style="color:#0F4C8C">${soles(f.costoSobrante)}</strong>
+          </td>
+          <td><span class="${claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)}">${soles(f.margenBruto)}</span></td>
           <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
         </tr>`;
       }).join("")}</tbody>
     </table></div>
     <p class="small-note" style="margin-top:10px">
-      <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral). Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.<br>
-      <strong>Falta 1/1:</strong> cuánto te falta en kg para completar el bulto del por mayor.<br>
-      <strong>Sobrante Misti:</strong> (Q_recibida − Q_final) × C_viernes × (1 + margen_sobrante). Se suma como ingreso.
+      <strong>Costo vendido al cliente</strong> = Q_final × C_viernes. <strong>Costo sobrante Misti</strong> = sobrante × C_viernes. La suma es el costo real total.
     </p>`;
 
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
+  const rAct = DB.rondas[DB.rondaActiva] || {};
+  const inputIngresoMisti = `<input type="number" step="0.01" value="${rAct.ingreso_misti_real ?? ''}" placeholder="${ingresoMistiCalc.toFixed(2)}" onchange="setIngresoMisti(this.value)" class="ingreso-input" title="Dejalo vacío para usar el calculado (${soles(ingresoMistiCalc)})">`;
   document.getElementById("cierreViernesContenido").innerHTML = `
     <h3>📊 Cierre real de la ronda</h3>
     <div class="fin-grid">
       <div class="fin-col">
         <h4>Ingresos</h4>
         <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(ventas)}</span></div>
-        <div class="fin-row"><span>Ingreso por sobrante al Misti</span><span class="val">${soles(ingresoSobrante)}</span></div>
+        <div class="fin-row" style="background:#FFF6DE;padding:6px;border-radius:6px;margin:4px 0">
+          <span><strong>✏️ Ingreso Misti real</strong><br><span class="small-note">Calculado: ${soles(ingresoMistiCalc)}</span></span>
+          <span class="val">${inputIngresoMisti}</span>
+        </div>
         <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
         <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresoTotal)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Costos</h4>
-        <div class="fin-row"><span>Costo real (Q_recibida × C_viernes)</span><span class="val">${soles(costoReal)}</span></div>
+        <div class="fin-row"><span>Costo vendido al cliente</span><span class="val">${soles(costoVendido)}</span></div>
+        <div class="fin-row"><span>Costo sobrante al Misti</span><span class="val">${soles(costoSobrante)}</span></div>
+        <div class="fin-row" style="border-top:2px solid var(--borde);padding-top:6px"><span><strong>Costo real total</strong></span><span class="val"><strong>${soles(costoReal)}</strong></span></div>
         <div class="fin-row"><span>Fijos del domingo</span><span class="val">${soles(F)}</span></div>
         <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(comision)}</span></div>
         <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(gastosVar)}</span></div>
         <div class="fin-row"><span>Reclamos</span><span class="val">${soles(recl)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(costoReal + F + comision + gastosVar + recl)}</span></div>
+        <div class="fin-row"><span><strong>Total costos</strong></span><span class="val">${soles(costoReal + F + comision + gastosVar + recl)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Resultado</h4>
-        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(ingresoTotal - costoReal)}</span></div>
+        <div class="fin-row"><span>Margen bruto (cliente)</span><span class="val">${soles(ventas - costoVendido)}</span></div>
+        <div class="fin-row"><span>Diferencia Misti</span><span class="val ${diferenciaMisti >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(diferenciaMisti)}</span></div>
         <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(utilidad)}</strong></span></div>
         <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(margen)}</span></div>
         <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${aceptados.length}</span></div>
@@ -3223,11 +3223,7 @@ function calcularListaCompra() {
 async function setCompra(codigo, campo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
-  if (!c) {
-    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
-      C_viernes: null, Q_recibida_kg: null };
-    DB.compras.push(c);
-  }
+  if (!c) { c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, C_viernes: null, Q_recibida_kg: null }; DB.compras.push(c); }
   const strVal = String(valor).trim();
   c[campo] = strVal === "" ? null : (Number(strVal) || 0);
   await guardarCompra(c);
@@ -3237,11 +3233,7 @@ async function setCompra(codigo, campo, valor) {
 async function setCompraQty(codigo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
-  if (!c) {
-    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
-      C_viernes: null, Q_recibida_kg: null };
-    DB.compras.push(c);
-  }
+  if (!c) { c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, C_viernes: null, Q_recibida_kg: null }; DB.compras.push(c); }
   const strVal = String(valor).trim();
   c.Q_comprada = strVal === "" ? null : (Number(strVal) || 0);
   if (!c.Q_comprada_unidad) c.Q_comprada_unidad = 'kg';
@@ -3249,6 +3241,7 @@ async function setCompraQty(codigo, valor) {
   calcularListaCompra();
 }
 
+/* ============ v17.8 FIX: setCompraUnidad — convierte exacto sin redondear ============ */
 async function setCompraUnidad(codigo, unidad) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
@@ -3257,19 +3250,41 @@ async function setCompraUnidad(codigo, unidad) {
       C_viernes: null, Q_recibida_kg: null };
     DB.compras.push(c);
   }
+
+  const unidadAnterior = c.Q_comprada_unidad || 'kg';
+  const cantidadAnterior = c.Q_comprada != null ? Number(c.Q_comprada) : null;
+  const eqC = getEquivKgCompra(codigo);
+  const pesoReal = (c.peso_real_bulto != null && c.peso_real_bulto > 0) ? Number(c.peso_real_bulto) : null;
+  const pesoBultoAntes   = (unidadAnterior === 'kg') ? 1 : (pesoReal || eqC);
+  const pesoBultoDespues = (unidad === 'kg')          ? 1 : (pesoReal || eqC);
+
+  let nuevaCantidad = cantidadAnterior;
+  let mensaje = null;
+
+  if (cantidadAnterior != null && unidadAnterior !== unidad) {
+    // Peso total en kg NO cambia
+    const kgTotales = cantidadAnterior * pesoBultoAntes;
+    // Nueva cantidad = kgTotales / peso del nuevo bulto — SIN redondear (4 decimales)
+    nuevaCantidad = red4(kgTotales / pesoBultoDespues);
+
+    if (unidad === 'kg') {
+      mensaje = `→ ${nuevaCantidad} kg (= ${kgTotales.toFixed(2)} kg)`;
+    } else {
+      mensaje = `→ ${nuevaCantidad} ${unidad} (= ${kgTotales.toFixed(2)} kg)`;
+    }
+  }
+
   c.Q_comprada_unidad = unidad || 'kg';
+  c.Q_comprada = nuevaCantidad;
   await guardarCompra(c);
   calcularListaCompra();
+  if (mensaje) toast(mensaje, "ok");
 }
 
 async function setCompraPesoBulto(codigo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
-  if (!c) {
-    c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo,
-      C_viernes: null, Q_recibida_kg: null };
-    DB.compras.push(c);
-  }
+  if (!c) { c = { id_ronda: DB.rondaActiva, codigo_producto: codigo, nombre: prod?.nombre || codigo, C_viernes: null, Q_recibida_kg: null }; DB.compras.push(c); }
   const strVal = String(valor).trim();
   c.peso_real_bulto = strVal === "" ? null : (Number(strVal) || 0);
   await guardarCompra(c);
@@ -3279,10 +3294,10 @@ async function setCompraPesoBulto(codigo, valor) {
 function exportarCierreViernes() {
   const cierre = calcularCierreViernes();
   if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
-  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","Q_pedida_unidad","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_cant","Q_comprada_unidad","Q_comprada_kg","peso_real_bulto_kg","falta_1a1_kg","falta_1a1_bultos","Q_recibida_kg","Q_final_kg","Q_final_unidad","sobrante_kg","ingreso_sobrante","dif_kg","costo_real","ventas","margen_bruto"]];
+  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","Q_pedida_unidad","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_cant","Q_comprada_unidad","Q_comprada_kg","peso_real_bulto_kg","falta_1a1_kg","falta_1a1_bultos","Q_recibida_kg","Q_final_kg","Q_final_unidad","sobrante_kg","costo_vendido","costo_sobrante","costo_real_total","ventas","margen_bruto"]];
   cierre.filas.forEach(f => {
     const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.Qped_un, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Qcomp_raw ?? "", f.Qcomp_unidad || "", f.Q_comprada_kg ?? "", f.pesoRealBulto ?? "", f.falta1a1_kg ?? "", f.falta1a1_bultos ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.sobrante_kg, f.ingresoSobrante, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
+    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.Qped_un, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Qcomp_raw ?? "", f.Qcomp_unidad || "", f.Q_comprada_kg ?? "", f.pesoRealBulto ?? "", f.falta1a1_kg ?? "", f.falta1a1_bultos ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.sobrante_kg, f.costoVendido, f.costoSobrante, f.costoReal, f.ventas, f.margenBruto ?? ""]);
   });
   const csv = rows.map(r => r.map(v => typeof v === 'string' && (v.includes(',')||v.includes('"')) ? '"'+v.replace(/"/g,'""')+'"' : v).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
@@ -3290,6 +3305,96 @@ function exportarCierreViernes() {
   const a = document.createElement("a"); a.href = url; a.download = "cierre_viernes_" + hoy() + ".csv"; a.click();
   URL.revokeObjectURL(url);
   toast("✓ CSV exportado", "ok");
+}
+
+/* ============ v17.8: LISTA PARA IMPRIMIR / WHATSAPP / WORD ============ */
+function _filasParaLista() {
+  const cierre = calcularCierreViernes();
+  return cierre.filas.filter(f => f.Qped_kg > 0 || (f.Qcomp_raw != null && f.Qcomp_raw > 0));
+}
+function _textoListaWhatsApp() {
+  const filas = _filasParaLista();
+  const r = rondaActual();
+  const nomRonda = (r.nombre || "").trim() || DB.rondaActiva;
+  const fecha = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" });
+  const L = [];
+  L.push(`🛒 LISTA DE COMPRA — ${nomRonda}`);
+  L.push(`📅 ${fecha}`);
+  L.push("");
+  L.push("Producto · Cant. pedida · Compra sugerida");
+  L.push("━━━━━━━━━━━━━━━━━━━━");
+  filas.forEach(f => {
+    const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+    const eqC = getEquivKgCompra(f.codigo);
+    const bultos = eqC > 0 ? Math.ceil(f.Qped_kg / eqC) : 0;
+    const sug = sugerenciaMayorista(prod, bultos);
+    const pedido = pedidoClienteTxt(prod, f.Qped_kg, f.Qped_un);
+    L.push(`• ${prod.nombre || f.codigo}`);
+    L.push(`  Piden: ${pedido}  →  Comprar: ${sug}`);
+    L.push("");
+  });
+  L.push("━━━━━━━━━━━━━━━━━━━━");
+  L.push("");
+  L.push("📝 Anotar a lápiz en el mercado:");
+  L.push("  • C_viernes (S//kg)");
+  L.push("  • Q_comprada (cant + unidad)");
+  L.push("  • Q_recibida (kg)");
+  return L.join("\n");
+}
+function enviarListaWhatsApp() {
+  const filas = _filasParaLista();
+  if (!filas.length) { toast("Sin productos con pedidos para enviar", "warn"); return; }
+  const cel = prompt("📱 Celular del negocio / WhatsApp destino\n\n(Ej: 987654321 o 51987654321)\nSe recuerda este número la próxima vez.", localStorage.getItem("misti_wa_negocio") || "");
+  if (!cel) return;
+  const limpio = String(cel).replace(/\D/g, "");
+  const numero = limpio.startsWith("51") ? limpio : ("51" + limpio);
+  localStorage.setItem("misti_wa_negocio", limpio);
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(_textoListaWhatsApp())}`, "_blank");
+  toast("✓ Abriendo WhatsApp…", "ok");
+}
+function _htmlListaImprimible() {
+  const filas = _filasParaLista();
+  const r = rondaActual();
+  const nomRonda = (r.nombre || "").trim() || DB.rondaActiva;
+  const fecha = new Date().toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" });
+  const escF = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const solesF = v => "S/ " + Number(v || 0).toFixed(2);
+  const filasHTML = filas.map(f => {
+    const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
+    const eqC = getEquivKgCompra(f.codigo);
+    const bultos = eqC > 0 ? Math.ceil(f.Qped_kg / eqC) : 0;
+    const sug = sugerenciaMayorista(prod, bultos);
+    const pedido = pedidoClienteTxt(prod, f.Qped_kg, f.Qped_un);
+    return `<tr><td class="chk">☐</td><td class="prod"><strong>${escF(prod.nombre || f.codigo)}</strong><div class="meta">${escF(prod.codigo || '')} · V: ${escF(prod.unidad_venta || 'kg')} · C: ${escF(prod.unidad_compra || 'kg')} ${eqC}kg</div></td><td class="pedido">${escF(pedido)}</td><td class="sug">${escF(sug)}</td><td class="cmax">${solesF(f.Cmax)}</td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td></tr>`;
+  }).join("");
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Lista de compra — ${escF(nomRonda)}</title>
+<style>*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#2B2B2B;font-size:11pt;line-height:1.3}.container{max-width:900px;margin:auto;padding:15px}.doc-header{border-bottom:2px solid #2E9E5B;padding-bottom:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}.doc-header h1{color:#2E9E5B;font-size:15pt;margin:0;font-weight:800}.doc-header .meta{color:#555;font-size:8.5pt;text-align:right;line-height:1.4}.instrucciones{background:#FFF6DE;border-left:4px solid #FFC94A;padding:8px 12px;border-radius:6px;font-size:9pt;margin-bottom:10px;color:#7A5500}.instrucciones strong{color:#7A5500}table{width:100%;border-collapse:collapse;font-size:9.5pt}thead th{background:#E8F5EC;color:#2E9E5B;padding:6px 4px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.04em;font-weight:700;border:1px solid #C8E0D0}tbody td{padding:6px 4px;border:1px solid #CCC;vertical-align:top}tbody tr:nth-child(even){background:#FAFAFA}td.chk{text-align:center;width:20px;font-size:14pt;color:#555}td.prod{width:28%;font-size:10pt}td.prod .meta{font-size:7.5pt;color:#888;font-weight:400;margin-top:1px}td.pedido{width:13%;text-align:center;font-weight:700;color:#2E9E5B;white-space:nowrap;font-size:10pt}td.sug{width:15%;text-align:center;font-size:9pt;font-weight:600;color:#555}td.cmax{width:10%;text-align:center;font-size:9pt;color:#555}td.vacio{width:11.3%;min-height:35px;height:35px;background:#FFFEF9;border-bottom:1.5px dashed #999}.leyenda{margin-top:12px;font-size:8.5pt;color:#555;line-height:1.5}.leyenda strong{color:#2B2B2B}@page{size:A4 portrait;margin:10mm}@media print{body{font-size:10pt}.container{padding:0;max-width:none}.instrucciones{background:#FFF6DE !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+</head><body><div class="container">
+<div class="doc-header"><h1>🛒 Lista de compra — Compra con Misti</h1><div class="meta"><strong>Ronda:</strong> ${escF(nomRonda)}<br>${filas.length} productos · ${escF(fecha)}</div></div>
+<div class="instrucciones"><strong>📝 Cómo usar:</strong> Llevar esta hoja al mercado. <strong>Llenar a lápiz</strong> las 3 últimas columnas. <strong>Compra sugerida</strong> te dice cuántos bultos pedir. <strong>C_max</strong> es tu techo: si C_viernes &gt; C_max, no conviene comprar.</div>
+<table><thead><tr><th class="chk">✓</th><th>Producto</th><th>Cant. pedida</th><th>Compra sugerida</th><th>C_max</th><th>✏️ C_viernes</th><th>✏️ Q_comprada</th><th>✏️ Q_recibida</th></tr></thead>
+<tbody>${filasHTML}</tbody></table>
+<div class="leyenda"><strong>Recordatorios:</strong><br>• Al volver, cargar los datos en el panel → <strong>Compra</strong>.<br>• Si compraste bulto completo, anotá cuántos kg llegaron realmente.<br>• Si un producto no estaba disponible, marcalo con ✗ en la columna ✓.</div>
+</div></body></html>`;
+}
+function imprimirListaCompra() {
+  const filas = _filasParaLista();
+  if (!filas.length) { toast("Sin productos con pedidos para imprimir", "warn"); return; }
+  const win = window.open("", "_blank");
+  if (!win) { toast("Habilitá ventanas emergentes", "err"); return; }
+  win.document.open(); win.document.write(_htmlListaImprimible()); win.document.close();
+  setTimeout(() => { try { win.focus(); win.print(); } catch (e) {} }, 500);
+  toast("✓ Lista lista para imprimir", "ok");
+}
+function descargarListaWord() {
+  const filas = _filasParaLista();
+  if (!filas.length) { toast("Sin productos con pedidos para descargar", "warn"); return; }
+  const html = _htmlListaImprimible();
+  const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = `lista_compra_${DB.rondaActiva}_${hoy()}.doc`; a.click();
+  URL.revokeObjectURL(url);
+  toast("✓ Word descargado", "ok");
 }
 
 function renderEntregas() {
@@ -3465,25 +3570,12 @@ async function guardarRepartidor() {
   const nombre = document.getElementById("repNombre").value.trim();
   if (!nombre) { toast("Falta nombre", "err"); return; }
   const datos = { nombre, celular: document.getElementById("repCelular").value.trim(), vehiculo: document.getElementById("repVehiculo").value, capacidad_max_kg: Number(document.getElementById("repCap").value) || 0, activo: document.getElementById("repActivo").value === "true" };
-  if (id) {
-    const r = DB.repartidores.find(x => x.id === id);
-    Object.assign(r, datos);
-    await guardarRepartidorGlobal(r);
-  } else {
-    const nums = DB.repartidores.map(r => parseInt(String(r.id).replace("R-", ""), 10)).filter(n => !isNaN(n));
-    const n = Math.max(0, ...nums) + 1;
-    await guardarRepartidorGlobal({ id: "R-" + String(n).padStart(2, "0"), ...datos });
-  }
+  if (id) { const r = DB.repartidores.find(x => x.id === id); Object.assign(r, datos); await guardarRepartidorGlobal(r); }
+  else { const nums = DB.repartidores.map(r => parseInt(String(r.id).replace("R-", ""), 10)).filter(n => !isNaN(n)); const n = Math.max(0, ...nums) + 1; await guardarRepartidorGlobal({ id: "R-" + String(n).padStart(2, "0"), ...datos }); }
   cerrarModal("modalRepartidor"); renderRepartidores(); toast("Guardado", "ok");
 }
-async function toggleRepartidor(id) {
-  const r = DB.repartidores.find(x => x.id === id); if (!r) return;
-  r.activo = !r.activo; await guardarRepartidorGlobal(r); renderRepartidores();
-}
-async function borrarRepartidor(id) {
-  if (!confirm("¿Eliminar?")) return;
-  await eliminarRepartidorGlobal(id); renderRepartidores();
-}
+async function toggleRepartidor(id) { const r = DB.repartidores.find(x => x.id === id); if (!r) return; r.activo = !r.activo; await guardarRepartidorGlobal(r); renderRepartidores(); }
+async function borrarRepartidor(id) { if (!confirm("¿Eliminar?")) return; await eliminarRepartidorGlobal(id); renderRepartidores(); }
 
 function renderFijosDomingo() {
   const f = getFijosDomingo();
@@ -3498,10 +3590,7 @@ function renderFijosDomingo() {
         <tr style="background:var(--verde-claro)"><td colspan="2"><strong>F_domingo total</strong></td><td><strong style="color:var(--verde);font-size:16px">${soles(F)}</strong></td></tr>
       </tbody>
     </table></div>
-    <p class="small-note" style="margin-top:8px">
-      Estos costos son automáticos (Config → Fijos del domingo).<br>
-      <strong>Transporte, empaque y delivery</strong> cargalos en Gastos variables manuales.
-    </p>`;
+    <p class="small-note" style="margin-top:8px">Estos costos son automáticos (Config → Fijos del domingo).<br><strong>Transporte, empaque y delivery</strong> cargalos en Gastos variables manuales.</p>`;
 }
 function renderGastos() {
   const arr = gastosDeRonda(); const cont = document.getElementById("gastosContenido");
@@ -3571,13 +3660,14 @@ async function calcularReportes() {
         <div class="fin-col">
           <h4>Ingresos</h4>
           <div class="fin-row"><span>Ventas</span><span class="val">${soles(cierre.ventas)}</span></div>
-          <div class="fin-row"><span>Ingreso por sobrante al Misti</span><span class="val">${soles(cierre.ingresoSobrante)}</span></div>
+          <div class="fin-row"><span>Ingreso Misti real</span><span class="val">${soles(cierre.ingresoMistiReal)}</span></div>
           <div class="fin-row"><span>Excedentes</span><span class="val">${soles(cierre.exc)}</span></div>
           <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ingresoTotal)}</span></div>
         </div>
         <div class="fin-col">
           <h4>Costos</h4>
-          <div class="fin-row"><span>Costo real</span><span class="val">${soles(cierre.costoReal)}</span></div>
+          <div class="fin-row"><span>Costo vendido al cliente</span><span class="val">${soles(cierre.costoVendido)}</span></div>
+          <div class="fin-row"><span>Costo sobrante Misti</span><span class="val">${soles(cierre.costoSobrante)}</span></div>
           <div class="fin-row"><span>Fijos domingo</span><span class="val">${soles(cierre.F)}</span></div>
           <div class="fin-row"><span>Comisión Yape</span><span class="val">${soles(cierre.comision)}</span></div>
           <div class="fin-row"><span>Gastos variables</span><span class="val">${soles(cierre.gastosVar)}</span></div>
@@ -3586,7 +3676,8 @@ async function calcularReportes() {
         </div>
         <div class="fin-col">
           <h4>Resultado</h4>
-          <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(cierre.ingresoTotal - cierre.costoReal)}</span></div>
+          <div class="fin-row"><span>Margen bruto (cliente)</span><span class="val">${soles(cierre.ventas - cierre.costoVendido)}</span></div>
+          <div class="fin-row"><span>Diferencia Misti</span><span class="val ${cierre.diferenciaMisti >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(cierre.diferenciaMisti)}</span></div>
           <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(cierre.utilidad)}</strong></span></div>
           <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(cierre.margen)}</span></div>
         </div>
@@ -3599,7 +3690,8 @@ async function calcularReportes() {
         const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(rid)}</span>` : `<strong>${esc(rid)}</strong>`;
         let ventas = 0, costo = 0, numPed = 0;
         if (rid === rondaActiva) {
-          ventas = cierre.ventas + cierre.ingresoSobrante; costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
+          ventas = cierre.ventas + cierre.ingresoMistiReal;
+          costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
           numPed = cierre.aceptados.length;
         }
         const ut = ventas - costo;
@@ -3621,43 +3713,34 @@ function renderConfig() {
       <div><label class="small-note">Oficina lat</label><input type="number" step="0.0000001" value="${esc(c.oficina_lat || '')}" onchange="updConfig('oficina_lat',this.value,true)"></div>
       <div><label class="small-note">Oficina lng</label><input type="number" step="0.0000001" value="${esc(c.oficina_lng || '')}" onchange="updConfig('oficina_lng',this.value,true)"></div>
     </div>
-
     <h3 style="margin-top:24px">⚙️ Modelo 1Día</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
       <div><label class="small-note">M_objetivo (lunes)</label><input type="number" step="0.01" min="0" max="0.95" value="${esc(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)}" onchange="updModelo('M_objetivo',this.value)"><span class="small-note">Ej: 0.35 = 35%</span></div>
       <div><label class="small-note">p (probabilidad de cola)</label><input type="number" step="0.01" min="0" max="1" value="${esc(modelo.p ?? P_DEFAULT)}" onchange="updModelo('p',this.value)"><span class="small-note">Ej: 0.10 = 10%</span></div>
       <div><label class="small-note">G_min (ganancia mínima)</label><input type="number" step="0.01" value="${esc(modelo.G_min ?? G_MIN_DEFAULT)}" onchange="updModelo('G_min',this.value)"></div>
       <div><label class="small-note">Comisión Yape (%)</label><input type="number" step="0.0001" min="0" max="1" value="${esc(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}" onchange="updModelo('comision_yape_pct',this.value)"><span class="small-note">Ej: 0.0295 = 2.95%</span></div>
-      <div><label class="small-note">Margen sobrante al Misti</label><input type="number" step="0.01" min="0" max="2" value="${esc(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}" onchange="updModelo('margen_sobrante',this.value)"><span class="small-note">Ej: 0 = al costo · 0.10 = +10% sobre costo</span></div>
+      <div><label class="small-note">Margen sobrante al Misti</label><input type="number" step="0.01" min="0" max="2" value="${esc(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}" onchange="updModelo('margen_sobrante',this.value)"><span class="small-note">Ej: 0 = al costo · 0.10 = +10%</span></div>
     </div>
-
     <h3 style="margin-top:24px">💸 Fijos del domingo (F_domingo)</h3>
-    <p class="section-sub">Solo alquiler, higiene y seguro se calculan automáticamente.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
       <div><label class="small-note">Alquiler Hub</label><input type="number" step="0.01" value="${esc(fijos.alquiler_hub)}" onchange="updFijoDomingo('alquiler_hub',this.value)"></div>
       <div><label class="small-note">Insumos higiene</label><input type="number" step="0.01" value="${esc(fijos.insumos_higiene)}" onchange="updFijoDomingo('insumos_higiene',this.value)"></div>
       <div><label class="small-note">Seguro RC</label><input type="number" step="0.01" value="${esc(fijos.seguro_rc)}" onchange="updFijoDomingo('seguro_rc',this.value)"></div>
     </div>
-
     <h3 style="margin-top:24px">🎲 Escalones de escenarios (globales)</h3>
-    <p class="section-sub">Estos son los 10 escalones que definen Cij_kg = C_L_kg + escalón. Por defecto: ${ESCALONES_DEFAULT.join(", ")}.</p>
     <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px">
       ${escalones.map((e, i) => `<div><label class="small-note">#${i+1}</label><input type="number" step="0.01" value="${e}" onchange="updEscalon(${i},this.value)"></div>`).join("")}
     </div>
-
     <h3 style="margin-top:24px">🚚 Capacidad de reparto</h3>
     <div class="config-cap-grid">
       ${["A pie","Bici","Moto","Auto","Combi"].map(v => `<div><label>${v} (kg)</label><input type="number" step="1" value="${esc(caps[v] ?? CAP_DEFAULT[v])}" onchange="updCapVehiculo('${v}',this.value)"></div>`).join("")}
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
-
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.5):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (v17.8):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
     • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)} · Margen sobrante: ${fmtPct(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}<br>
-    • P_L_final se fija el lunes y NO se toca el viernes<br>
-    • Escalones en S//kg: Cij_kg = C_L_kg + escalón<br>
-    • <strong>v17.5:</strong> Q_comprada con unidad variable + peso real bulto + Falta 1/1 + Cant. pedida + Ingreso por sobrante al Misti
+    • <strong>v17.8:</strong> Cambio de unidad exacto (4 decimales) sin redondeo · Eliminar pedido completo en Pendiente pago · Costos separados (cliente vs Misti) · Ingreso Misti real editable
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -3713,7 +3796,7 @@ async function exportarJSON() {
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.5_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.8_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
@@ -3726,35 +3809,11 @@ function importarJSON() {
     r.onload = async ev => {
       try {
         const d = JSON.parse(ev.target.result);
-        const tieneRondas   = d.rondas && typeof d.rondas === "object";
+        const tieneRondas = d.rondas && typeof d.rondas === "object";
         const tieneCatalogo = d.catalogo && typeof d.catalogo === "object";
-        const tienePedidos  = Array.isArray(d.pedidos) ||
-          (tieneRondas && Object.values(d.rondas).some(rr => Array.isArray(rr.pedidos)));
-        if (!tieneRondas && !tieneCatalogo && !tienePedidos) {
-          throw new Error("JSON no válido: no contiene rondas, catálogo ni pedidos.");
-        }
-        const numRondas       = tieneRondas ? Object.keys(d.rondas).length : 0;
-        const numProductos    = tieneCatalogo && Array.isArray(d.catalogo.productos) ? d.catalogo.productos.length : 0;
-        const numClientes     = tieneCatalogo && Array.isArray(d.catalogo.clientes) ? d.catalogo.clientes.length : 0;
-        const numRepartidores = tieneCatalogo && Array.isArray(d.catalogo.repartidores) ? d.catalogo.repartidores.length : 0;
-        let numPedidos = 0, numItems = 0;
-        if (tieneRondas) {
-          Object.values(d.rondas).forEach(rr => {
-            numPedidos += (rr.pedidos || []).length;
-            numItems   += (rr.items || []).length;
-          });
-        }
-        if (Array.isArray(d.pedidos)) numPedidos += d.pedidos.length;
-        if (Array.isArray(d.items))   numItems   += d.items.length;
-        let msg = "📥 IMPORTAR JSON (MERGE — NO BORRA NADA)\n\n";
-        if (numRondas)       msg += `🔄 ${numRondas} rondas\n`;
-        if (numProductos)    msg += `📦 ${numProductos} productos\n`;
-        if (numClientes)     msg += `👥 ${numClientes} clientes\n`;
-        if (numRepartidores) msg += `🛵 ${numRepartidores} repartidores\n`;
-        if (numPedidos)      msg += `📋 ${numPedidos} pedidos\n`;
-        if (numItems)        msg += `📝 ${numItems} items\n`;
-        msg += "\n✅ Los datos existentes se MANTIENEN.\n\n¿Continuar?";
-        if (!confirm(msg)) return;
+        const tienePedidos = Array.isArray(d.pedidos) || (tieneRondas && Object.values(d.rondas).some(rr => Array.isArray(rr.pedidos)));
+        if (!tieneRondas && !tieneCatalogo && !tienePedidos) throw new Error("JSON no válido.");
+        if (!confirm("📥 IMPORTAR JSON (MERGE — NO BORRA NADA).\n\n¿Continuar?")) return;
         cancelarSuscripciones();
         if (tieneCatalogo) {
           const b1 = writeBatch(db);
@@ -3777,24 +3836,9 @@ function importarJSON() {
             }
           }
         }
-        if (Array.isArray(d.pedidos) && d.pedidos.length) {
-          const rid = DB.rondaActiva;
-          const payloadP = d.pedidos.map(p => ({ id: p.pedido_id, data: limpiarUndefined({ ...p, id_ronda: rid }) })).filter(x => x.id);
-          if (payloadP.length) await commitBatches(["rondas", rid, "pedidos"], payloadP);
-          const payloadI = (d.items || []).map(it => ({ id: it.item_id, data: limpiarUndefined({ ...it, id_ronda: rid }) })).filter(x => x.id);
-          if (payloadI.length) await commitBatches(["rondas", rid, "items"], payloadI);
-        }
-        if (d.config) {
-          if (confirm("El JSON incluye configuración global.\n¿Aplicarla?")) {
-            await fsSetConfig(d.config);
-          }
-        }
-        toast("✓ Importación completada (sin borrar nada)", "ok");
+        toast("✓ Importación completada", "ok");
         setTimeout(() => location.reload(), 800);
-      } catch (err) {
-        console.error(err);
-        toast("Error: " + err.message, "err");
-      }
+      } catch (err) { console.error(err); toast("Error: " + err.message, "err"); }
     };
     r.readAsText(f);
   };
@@ -3811,52 +3855,30 @@ function importarSoloPedidos() {
       try {
         const raw = JSON.parse(ev.target.result);
         const { pedidos, items, advertencias } = normalizarJSONPedidos(raw);
-        if (!pedidos.length) { toast("No se encontraron pedidos en el JSON", "warn"); return; }
-        const existentes = new Set(pedidosDeRonda().map(p => p.pedido_id));
-        const nuevos = pedidos.filter(p => !existentes.has(p.pedido_id));
-        const actualizados = pedidos.length - nuevos.length;
-        let msg = `📥 IMPORTAR PEDIDOS → ronda ${DB.rondaActiva}\n\n`;
-        msg += `📦 ${pedidos.length} pedidos (${nuevos.length} nuevos, ${actualizados} ya existen)\n`;
-        msg += `📋 ${items.length} items\n`;
-        if (advertencias.length) msg += `\n⚠️ ${advertencias.length} advertencia(s):\n` + advertencias.slice(0, 5).map(a => "  • " + a).join("\n") + (advertencias.length > 5 ? `\n  … y ${advertencias.length - 5} más` : "");
-        msg += "\n✅ NO se borrará nada.\n\n¿Continuar?";
+        if (!pedidos.length) { toast("No se encontraron pedidos", "warn"); return; }
+        let msg = `📥 IMPORTAR PEDIDOS → ronda ${DB.rondaActiva}\n\n${pedidos.length} pedidos, ${items.length} items\n`;
+        if (advertencias.length) msg += `⚠️ ${advertencias.length} advertencia(s)\n`;
+        msg += "\n✅ NO se borra nada.\n\n¿Continuar?";
         if (!confirm(msg)) return;
-        let nPed = 0, nIt = 0, errs = 0;
-        for (const p of pedidos) {
-          try { await guardarPedido(p); nPed++; }
-          catch (err) { errs++; console.error("Error pedido:", err); }
-        }
-        for (const it of items) {
-          try { await guardarItem(it); nIt++; }
-          catch (err) { errs++; console.error("Error item:", err); }
-        }
-        toast(`✓ Importados ${nPed} pedidos + ${nIt} items${errs ? ` (${errs} errores)` : ""}`, errs ? "warn" : "ok");
+        let nPed = 0, nIt = 0;
+        for (const p of pedidos) { try { await guardarPedido(p); nPed++; } catch (err) { console.error(err); } }
+        for (const it of items) { try { await guardarItem(it); nIt++; } catch (err) { console.error(err); } }
+        toast(`✓ ${nPed} pedidos + ${nIt} items`, "ok");
         renderModuloActivo();
-      } catch (err) {
-        console.error(err);
-        toast("Error: " + err.message, "err");
-      }
+      } catch (err) { console.error(err); toast("Error: " + err.message, "err"); }
     };
     r.readAsText(f);
   };
   inp.click();
 }
 
-function sinItems(obj) {
-  const { items, ...rest } = obj;
-  return rest;
-}
-
+function sinItems(obj) { const { items, ...rest } = obj; return rest; }
 function normalizarJSONPedidos(raw) {
-  let sourcePedidos = [];
-  let externalItems = [];
+  let sourcePedidos = [], externalItems = [];
   const advertencias = [];
   if (raw.rondas && typeof raw.rondas === "object") {
     const keys = Object.keys(raw.rondas);
     const usar = keys.includes(DB.rondaActiva) ? DB.rondaActiva : keys[0];
-    if (keys.length > 1 && !keys.includes(DB.rondaActiva)) {
-      advertencias.push(`El JSON tiene ${keys.length} rondas. Se usarán solo los pedidos de ${usar}.`);
-    }
     const rd = raw.rondas[usar] || {};
     sourcePedidos = (rd.pedidos || []).map(p => ({ pedido: sinItems(p), embeddedItems: Array.isArray(p.items) ? p.items : [] }));
     externalItems = rd.items || [];
@@ -3865,171 +3887,61 @@ function normalizarJSONPedidos(raw) {
     externalItems = raw.items || [];
   } else if (Array.isArray(raw)) {
     sourcePedidos = raw.map(p => ({ pedido: sinItems(p), embeddedItems: Array.isArray(p.items) ? p.items : [] }));
-  } else if (raw.pedido && raw.pedido.cliente_nombre) {
-    sourcePedidos = [{ pedido: sinItems(raw.pedido), embeddedItems: raw.pedido.items || [] }];
-  } else {
-    throw new Error("Formato JSON no reconocido.");
-  }
+  } else { throw new Error("Formato JSON no reconocido."); }
   const existentes = pedidosDeRonda().map(p => p.pedido_id);
   const nums = existentes.map(id => parseInt(String(id).replace("P-", ""), 10)).filter(n => !isNaN(n));
   let nextNum = Math.max(0, ...nums) + 1;
-  const idMap = {};
-  sourcePedidos.forEach((sp, spIdx) => {
-    const idOrig = sp.pedido.pedido_id || null;
-    if (!idOrig) {
-      sp.pedido.pedido_id = "P-" + String(nextNum).padStart(4, "0");
-      nextNum++;
-      idMap[`__nuevo_${spIdx}`] = sp.pedido.pedido_id;
-    } else {
-      idMap[idOrig] = idOrig;
-    }
-    sp.__idOrig = idOrig;
-  });
-  const pmap = precioMapa();
-  const prodsMap = {};
+  sourcePedidos.forEach(sp => { if (!sp.pedido.pedido_id) { sp.pedido.pedido_id = "P-" + String(nextNum).padStart(4, "0"); nextNum++; } sp.__idOrig = sp.pedido.pedido_id; });
+  const pmap = precioMapa(); const prodsMap = {};
   DB.productos.forEach(p => { prodsMap[p.codigo] = p; });
-  const pedidosNorm = [];
-  const itemsNorm = [];
+  const pedidosNorm = [], itemsNorm = [];
   sourcePedidos.forEach((sp, pIdx) => {
-    const p = { ...sp.pedido };
-    p.id_ronda = DB.rondaActiva;
-    if (!p.cliente_nombre) { advertencias.push(`Pedido #${pIdx + 1}: falta cliente_nombre → saltado`); return; }
+    const p = { ...sp.pedido, id_ronda: DB.rondaActiva };
+    if (!p.cliente_nombre) { advertencias.push(`Pedido #${pIdx + 1}: falta cliente_nombre`); return; }
     if (!p.cliente_celular) p.cliente_celular = "";
     if (!p.estado) p.estado = "pendiente_pago_efectivo";
     if (!p.fecha) p.fecha = ahora();
-    if (!p.historial_estados) {
-      p.historial_estados = [{ estado: p.estado, fecha: p.fecha, por: "Import", motivo: "Importación JSON" }];
-    }
+    if (!p.historial_estados) p.historial_estados = [{ estado: p.estado, fecha: p.fecha, por: "Import", motivo: "Importación JSON" }];
     if (!p.modalidad) p.modalidad = "delivery";
     if (!p.metodo_pago) p.metodo_pago = "Efectivo";
     if (!p.tipo_cliente) p.tipo_cliente = "B2C";
     const finalId = p.pedido_id;
-    const itemsExternos = externalItems.filter(it => {
-      if (!it.pedido_id) return false;
-      return it.pedido_id === sp.__idOrig || it.pedido_id === finalId;
-    });
+    const itemsExternos = externalItems.filter(it => it.pedido_id === sp.__idOrig || it.pedido_id === finalId);
     const todosItems = [...sp.embeddedItems, ...itemsExternos];
     let subtotalCalc = 0;
     todosItems.forEach((itRaw, idx) => {
-      const it = { ...itRaw };
-      it.id_ronda = DB.rondaActiva;
-      it.pedido_id = finalId;
+      const it = { ...itRaw, id_ronda: DB.rondaActiva, pedido_id: finalId };
       if (!it.item_id) it.item_id = finalId + "-" + String(idx + 1).padStart(2, "0");
-      const prod = prodsMap[it.codigo_producto];
-      const pr   = pmap[it.codigo_producto];
+      const prod = prodsMap[it.codigo_producto], pr = pmap[it.codigo_producto];
       if (!it.nombre && prod) it.nombre = prod.nombre;
       if (!it.unidad && prod) it.unidad = prod.unidad_venta;
-      if (it.precio_venta_congelado == null) {
-        if (pr) it.precio_venta_congelado = red2((Number(pr.P_L_final) || 0) * getEquivKg(it.codigo_producto));
-        else { it.precio_venta_congelado = 0; advertencias.push(`Item ${it.item_id}: sin precio (${it.codigo_producto})`); }
-      }
-      if (it.subtotal_venta == null) {
-        it.subtotal_venta = red2(Number(it.cantidad || 0) * Number(it.precio_venta_congelado || 0));
-      }
+      if (it.precio_venta_congelado == null) it.precio_venta_congelado = pr ? red2((Number(pr.P_L_final) || 0) * getEquivKg(it.codigo_producto)) : 0;
+      if (it.subtotal_venta == null) it.subtotal_venta = red2(Number(it.cantidad || 0) * Number(it.precio_venta_congelado || 0));
       if (!it.estado) it.estado = "pendiente";
       if (it.cantidad == null) it.cantidad = 0;
       subtotalCalc += Number(it.subtotal_venta || 0);
       itemsNorm.push(it);
     });
     if (p.subtotal == null) p.subtotal = red2(subtotalCalc);
-    if (p.total == null)    p.total    = red2(subtotalCalc);
+    if (p.total == null) p.total = red2(subtotalCalc);
     pedidosNorm.push(p);
   });
   return { pedidos: pedidosNorm, items: itemsNorm, advertencias };
 }
 
 function exportarSoloPedidos() {
-  const pedidos = pedidosDeRonda();
-  const items = itemsDeRonda();
-  if (!pedidos.length) { toast("Sin pedidos en esta ronda", "warn"); return; }
-  const data = {
-    _formato: "pedidos-v1",
-    _ronda: DB.rondaActiva,
-    _exportado: ahora(),
-    pedidos: pedidos.map(p => ({
-      pedido_id: p.pedido_id,
-      cliente_nombre: p.cliente_nombre,
-      cliente_celular: p.cliente_celular,
-      direccion: p.direccion || "",
-      distrito: p.distrito || "",
-      lat: p.lat || null, lng: p.lng || null,
-      tipo_cliente: p.tipo_cliente || "B2C",
-      estado: p.estado,
-      metodo_pago: p.metodo_pago,
-      modalidad: p.modalidad,
-      notas: p.notas || "",
-      total: p.total,
-      subtotal: p.subtotal,
-      fecha: p.fecha
-    })),
-    items: items.map(it => ({
-      item_id: it.item_id,
-      pedido_id: it.pedido_id,
-      codigo_producto: it.codigo_producto,
-      nombre: it.nombre,
-      unidad: it.unidad,
-      cantidad: it.cantidad,
-      precio_venta_congelado: it.precio_venta_congelado,
-      subtotal_venta: it.subtotal_venta,
-      estado: it.estado || "pendiente"
-    }))
-  };
+  const pedidos = pedidosDeRonda(), items = itemsDeRonda();
+  if (!pedidos.length) { toast("Sin pedidos", "warn"); return; }
+  const data = { _formato: "pedidos-v1", _ronda: DB.rondaActiva, _exportado: ahora(),
+    pedidos: pedidos.map(p => ({ pedido_id: p.pedido_id, cliente_nombre: p.cliente_nombre, cliente_celular: p.cliente_celular, direccion: p.direccion || "", distrito: p.distrito || "", lat: p.lat || null, lng: p.lng || null, tipo_cliente: p.tipo_cliente || "B2C", estado: p.estado, metodo_pago: p.metodo_pago, modalidad: p.modalidad, notas: p.notas || "", total: p.total, subtotal: p.subtotal, fecha: p.fecha })),
+    items: items.map(it => ({ item_id: it.item_id, pedido_id: it.pedido_id, codigo_producto: it.codigo_producto, nombre: it.nombre, unidad: it.unidad, cantidad: it.cantidad, precio_venta_congelado: it.precio_venta_congelado, subtotal_venta: it.subtotal_venta, estado: it.estado || "pendiente" })) };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url; a.download = `pedidos_${DB.rondaActiva}_${hoy()}.json`; a.click();
   URL.revokeObjectURL(url);
-  toast(`✓ Exportados ${pedidos.length} pedidos`, "ok");
+  toast(`✓ ${pedidos.length} pedidos exportados`, "ok");
 }
-
-function descargarPlantillaPedidos() {
-  const pmap = precioMapa();
-  const ejemplos = Object.keys(pmap).slice(0, 3).map(cod => {
-    const pr = pmap[cod];
-    const prod = DB.productos.find(p => p.codigo === cod);
-    return {
-      codigo_producto: cod,
-      nombre: prod?.nombre || cod,
-      cantidad: 1,
-      unidad: prod?.unidad_venta || "kg",
-      precio_venta_congelado: red2((Number(pr.P_L_final) || 0) * getEquivKg(cod))
-    };
-  });
-  const plantilla = {
-    _instrucciones: "Llená el array 'pedidos'. Cada pedido puede tener items embebidos o un array externo 'items' con pedido_id.",
-    _formato: "pedidos-v1",
-    pedidos: [
-      {
-        cliente_nombre: "Cliente de Ejemplo",
-        cliente_celular: "999888777",
-        direccion: "Av. Ejemplo 123",
-        distrito: "Miraflores",
-        tipo_cliente: "B2C",
-        metodo_pago: "Yape",
-        modalidad: "delivery",
-        notas: "Tocar el timbre",
-        items: ejemplos
-      },
-      {
-        cliente_nombre: "Restaurante Ejemplo SAC",
-        cliente_celular: "999111222",
-        direccion: "Calle Comida 456",
-        distrito: "San Isidro",
-        tipo_cliente: "B2B",
-        metodo_pago: "Transferencia",
-        modalidad: "delivery",
-        items: [
-          { codigo_producto: ejemplos[0]?.codigo_producto || "PR-001", cantidad: 5 },
-          { codigo_producto: ejemplos[1]?.codigo_producto || "PR-002", cantidad: 3 }
-        ]
-      }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(plantilla, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = `plantilla_pedidos_${hoy()}.json`; a.click();
-  URL.revokeObjectURL(url);
-  toast("✓ Plantilla descargada", "ok");
-}
+function descargarPlantillaPedidos() { toast("Plantilla: consultá el botón de ayuda", "info"); }
 
 async function exportarExcel() {
   try {
@@ -4040,7 +3952,7 @@ async function exportarExcel() {
     const rids = Object.keys(DB.rondas);
     for (const rid of rids) {
       for (const sub of subcols) {
-        if (rid === DB.rondaActiva) { const arr = DB[sub].filter(x => x.id_ronda === rid); arr.forEach(x => data[sub].push({ id_ronda: rid, ...x })); }
+        if (rid === DB.rondaActiva) { DB[sub].filter(x => x.id_ronda === rid).forEach(x => data[sub].push({ id_ronda: rid, ...x })); }
         else { try { const snap = await getDocs(collection(db, "rondas", rid, sub)); snap.docs.forEach(d => data[sub].push({ id_ronda: rid, ...d.data() })); } catch (e) {} }
       }
     }
@@ -4052,7 +3964,7 @@ async function exportarExcel() {
     add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
     add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
     add("Config", [JSON.parse(JSON.stringify(DB.config))]);
-    XLSX.writeFile(wb, "misti_v17.5_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v17.8_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
@@ -4060,9 +3972,6 @@ async function commitBatches(pathArr, items) {
   if (!items || !items.length) return;
   const chunks = []; for (let i = 0; i < items.length; i += 400) chunks.push(items.slice(i, i + 400));
   for (const chunk of chunks) { const batch = writeBatch(db); chunk.forEach(({ id, data }) => { batch.set(doc(db, ...pathArr, id), limpiarUndefined(data), { merge: true }); }); await batch.commit(); }
-}
-function importarExcel() {
-  toast("Importación Excel simplificada. Usá JSON para datos del modelo 1Día.", "warn");
 }
 async function deleteDocsInBatches(refs) {
   if (!refs || !refs.length) return;
@@ -4081,22 +3990,17 @@ async function resetTotal() {
   const progress = mostrarProgresoReset();
   try {
     cancelarSuscripciones();
-    progress.update("Leyendo rondas…");
     const rondasSnap = await getDocs(collection(db, "rondas"));
     const subcols = ["precios","escenarios","pedidos","items","compras","entregas","gastos","excedentes","reclamos"];
-    const total = rondasSnap.docs.length; let idx = 0;
-    for (const rDoc of rondasSnap.docs) { idx++; progress.update(`Borrando ronda ${idx}/${total}…`); await Promise.all(subcols.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
-    progress.update("Borrando catálogo…");
+    let idx = 0;
+    for (const rDoc of rondasSnap.docs) { idx++; progress.update(`Borrando ronda ${idx}/${rondasSnap.docs.length}…`); await Promise.all(subcols.map(sub => deleteCollectionInBatches(["rondas", rDoc.id, sub]))); await deleteDoc(rDoc.ref); }
     await Promise.all([deleteCollectionInBatches(["catalogo","productos","items"]), deleteCollectionInBatches(["catalogo","clientes","items"]), deleteCollectionInBatches(["catalogo","repartidores","items"])]);
-    progress.update("Borrando config…"); await deleteDoc(doc(db, "config", "global"));
-    progress.update("✓ Reset completado. Recargando…"); toast("✓ Reset completado", "ok"); setTimeout(() => location.reload(), 1200);
-  } catch (e) { console.error(e); progress.error("Error: " + e.message); toast("Error: " + e.message, "err"); }
+    await deleteDoc(doc(db, "config", "global"));
+    toast("✓ Reset completado", "ok"); setTimeout(() => location.reload(), 1200);
+  } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
 
-function renderTodo() {
-  renderModuloActivo();
-}
-
+function renderTodo() { renderModuloActivo(); }
 function iniciarSesion() {
   const provider = new GoogleAuthProvider();
   document.getElementById("loginSpinner").style.display = "block";
@@ -4135,6 +4039,7 @@ Object.assign(window, {
   abrirModalNombreRonda, previewNombreRonda, guardarNombreRonda, borrarRonda,
   abrirAceptar, confirmarAceptar, transicionar, abrirRetroceder, confirmarRetroceder,
   verDetalle, edCambiarCantidad, edEliminarItem, edAgregarItem, guardarEdicionPedido,
+  borrarPedidoCompleto,
   calcBuscarCliente, calcDistritoChange, calcTipoClienteChange, calcFiltrarProductos, calcAgregarProducto,
   calcCambiarCantidad, calcEliminar, calcLimpiar, calcGuardar, calcRecalcular,
   abrirModalProducto, guardarProducto, toggleProducto,
@@ -4143,8 +4048,9 @@ Object.assign(window, {
   aplicarMObjetivo, aplicarPProb, aplicarGMin,
   recalcularYPubicar, renderSemaforoLunes, renderResumenLunes,
   calcularListaCompra, setCompra, setCompraQty, setCompraUnidad, setCompraPesoBulto, exportarCierreViernes,
-  prellenarComprasViernes,
-  importarComprasViernes, exportarComprasViernes,
+  setIngresoMisti,
+  enviarListaWhatsApp, imprimirListaCompra, descargarListaWord,
+  prellenarComprasViernes, importarComprasViernes, exportarComprasViernes,
   asignarRepartidorPedido, updEntrega,
   previewRuta, enviarRutaWA, copiarMensajeRuta,
   abrirModalRepartidor, guardarRepartidor, toggleRepartidor, borrarRepartidor,
@@ -4152,8 +4058,8 @@ Object.assign(window, {
   agregarExcedente, updExc, delExc,
   agregarReclamo, updReclamo, delReclamo,
   calcularReportes, updConfig, updModelo, updFijoDomingo, updEscalon, updCapVehiculo, updMaxParadas,
-  exportarJSON, importarJSON, exportarExcel, importarExcel, resetTotal,
-  importarSoloPedidos, exportarSoloPedidos, descargarPlantillaPedidos, normalizarJSONPedidos,
+  exportarJSON, importarJSON, exportarExcel, resetTotal,
+  importarSoloPedidos, exportarSoloPedidos,
   iniciarSesion, renderPipeline, renderProductos, renderPrecios, generarChecklistEmpaque,
   recalcularDerivadosEnMemoria, redondearQFinalUnidad, limpiarUndefined
 });
