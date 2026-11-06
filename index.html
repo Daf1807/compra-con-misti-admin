@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compra con Misti — Admin v17.3</title>
+<title>Compra con Misti — Admin v17.5</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--verde:#2E9E5B;--verde-2:#7BD389;--verde-claro:#E8F5EC;--naranja:#FF8A3D;--naranja-2:#FFB27A;--crema:#FFF9F0;--coral:#FF5A5F;--coral-2:#FF8A8E;--miel:#FFC94A;--miel-2:#FFE0A0;--cielo:#4DA8FF;--cielo-2:#8CC7FF;--texto:#2B2B2B;--texto-2:#7A7A7A;--borde:#EFE6DA;--sombra-sm:0 1px 2px rgba(43,43,43,.04),0 2px 6px rgba(43,43,43,.06);--sombra-md:0 2px 4px rgba(43,43,43,.05),0 8px 18px rgba(43,43,43,.08);--radio:20px;--radio-sm:12px}
@@ -272,7 +272,7 @@ tbody tr:hover{background:#F4FBF6}
 <header>
 <div class="container">
 <h1>Compra con Misti</h1>
-<p>Panel Admin v17.3 · Modelo 1Día</p>
+<p>Panel Admin v17.5 · Modelo 1Día</p>
 </div>
 </header>
 <div class="container">
@@ -354,7 +354,7 @@ tbody tr:hover{background:#F4FBF6}
 </div>
 <div class="section">
 <h2 class="section-head">Ganancia real de la ronda</h2>
-<p class="section-sub">Ventas congeladas − costo real (Q_recibida × C_viernes) − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
+<p class="section-sub">Ventas congeladas + ingreso sobrante al Misti − costo real (Q_recibida × C_viernes) − fijos domingo − gastos variables − reclamos + excedentes − comisión Yape.</p>
 <div id="dashGanancia"></div>
 </div>
 <div class="section">
@@ -540,7 +540,7 @@ tbody tr:hover{background:#F4FBF6}
 <div class="section">
 <h2 class="section-head">🛒 Cierre viernes — compra real</h2>
 <div class="info-box" style="margin-bottom:12px">
-<strong>📐 UNIDADES (v17.3):</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada → ingresá <strong>cantidad + unidad</strong> (kg, Atado, Cajón, Saco, Ciento...). El sistema convierte a kg con el <strong>Equiv. (V/C)</strong> del producto. Si el bulto que te entregaron pesó distinto al nominal, cargá el <strong>peso real</strong>. Q_recibida → en <strong>kg</strong>.
+<strong>📐 UNIDADES (v17.5):</strong> C_viernes → S/ por <strong>kg</strong>. Q_comprada → ingresá <strong>cantidad + unidad</strong> (kg, Atado, Cajón, Saco, Ciento...). El sistema convierte a kg con el <strong>Equiv. (V/C)</strong> del producto. Si el bulto que te entregaron pesó distinto al nominal, cargá el <strong>peso real</strong>. Q_recibida → en <strong>kg</strong>. El sobrante (Q_recibida − Q_final) se vende al Misti y genera ingreso.
 </div>
 <div class="actions" style="margin-bottom:12px">
 <button class="btn-warn btn-sm" onclick="calcularListaCompra()">🔄 Recalcular</button>
@@ -734,7 +734,7 @@ tbody tr:hover{background:#F4FBF6}
 <div id="loginOverlay">
 <div class="box">
 <h1>Compra con Misti</h1>
-<p>Panel Admin · Modelo 1Día · v17.3</p>
+<p>Panel Admin · Modelo 1Día · v17.5</p>
 <button id="loginBtn" onclick="iniciarSesion()">Iniciar sesión con Google</button>
 <div id="loginSpinner" style="display:none"><div class="spinner"></div><p class="small-note">Verificando…</p></div>
 <p id="loginError" class="small-note" style="color:var(--coral);margin-top:12px"></p>
@@ -800,6 +800,7 @@ const P_DEFAULT = 0.10;
 const M_OBJETIVO_DEFAULT = 0.35;
 const G_MIN_DEFAULT = 0;
 const COMISION_YAPE_DEFAULT = 0.0295;
+const MARGEN_SOBRANTE_DEFAULT = 0;
 const FIJOS_DOMINGO_DEFAULT = {
   alquiler_hub: 150, insumos_higiene: 15, seguro_rc: 80
 };
@@ -895,6 +896,7 @@ function getMObjetivo() { return Number(getModeloConfig().M_objetivo ?? M_OBJETI
 function getP() { return Number(getModeloConfig().p ?? P_DEFAULT); }
 function getGMin() { return Number(getModeloConfig().G_min ?? G_MIN_DEFAULT); }
 function getComisionYape() { return Number(getModeloConfig().comision_yape_pct ?? COMISION_YAPE_DEFAULT); }
+function getMargenSobrante() { return Number(getModeloConfig().margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT); }
 function getFijosDomingo() { return { ...FIJOS_DOMINGO_DEFAULT, ...(getModeloConfig().fijos_domingo || {}) }; }
 function getEscalones() { return getModeloConfig().escalones || ESCALONES_DEFAULT; }
 
@@ -1072,8 +1074,6 @@ function redondearQFinalUnidad(codigo, qFinalKg) {
   if (unidad === 'kg' || unidad === 'kilogramo') return qUnidad;
   return Math.floor(qUnidad);
 }
-
-/* ============ COMPRA PRODUCTO (v17.3: Q_comprada con unidad + Falta 1/1) ============ */
 function calcularCompraProducto(codigo) {
   const umbral = calcularUmbralProducto(codigo);
   if (!umbral) return null;
@@ -1082,7 +1082,6 @@ function calcularCompraProducto(codigo) {
   const Qrecib = compra.Q_recibida_kg != null ? Number(compra.Q_recibida_kg) : null;
   const eqC = getEquivKgCompra(codigo);
 
-  // v17.3: Q_comprada con unidad variable
   const Qcomp_raw = compra.Q_comprada != null ? Number(compra.Q_comprada)
                   : (compra.Q_comprada_kg != null ? Number(compra.Q_comprada_kg) : null);
   const Qcomp_unidad = compra.Q_comprada_unidad || 'kg';
@@ -1097,7 +1096,6 @@ function calcularCompraProducto(codigo) {
     }
   }
 
-  // Falta 1/1 (solo si hay bulto real, equiv > 1)
   let falta1a1_kg = null, falta1a1_bultos = null;
   if (Qcomp_raw != null && Qcomp_raw > 0 && eqC > 1.001) {
     if (Qcomp_unidad === 'kg') {
@@ -1121,12 +1119,17 @@ function calcularCompraProducto(codigo) {
   const costoReal = Qrecib != null && Cv != null ? Qrecib * Cv : null;
   const ventas = Qfinal_kg * umbral.PLfinal_kg;
   const margenBruto = costoReal != null ? ventas - costoReal : null;
+  // NUEVO v17.5: sobrante al Misti
+  const sobrante_kg = Qrecib != null ? Math.max(0, Qrecib - Qfinal_kg) : 0;
+  const cvNum = Cv != null ? Number(Cv) : 0;
+  const ingresoSobrante = sobrante_kg * cvNum * (1 + getMargenSobrante());
   return {
     ...umbral,
     C_viernes: Cv, Q_recibida_kg: Qrecib, Q_comprada_kg: Qcomp_kg,
     Qcomp_raw, Qcomp_unidad, pesoRealBulto,
     falta1a1_kg, falta1a1_bultos,
     Qped_kg, Qped_un, Qprima_kg, Qfinal_kg, Qfinal_un, dif_kg,
+    sobrante_kg, ingresoSobrante,
     costoReal, ventas, margenBruto,
     equiv_kg: getEquivKg(codigo),
     equiv_kg_compra: eqC
@@ -1142,14 +1145,17 @@ function calcularCierreViernes() {
   });
   const ventas = filas.reduce((s, f) => s + (f.ventas || 0), 0);
   const costoReal = filas.reduce((s, f) => s + (f.costoReal || 0), 0);
+  // NUEVO v17.5: ingreso por sobrante al Misti
+  const ingresoSobrante = filas.reduce((s, f) => s + (f.ingresoSobrante || 0), 0);
   const F = calcularFDomingo();
   const comision = ventas * getComisionYape();
   const gastosVar = gastosDeRonda().reduce((s, g) => s + Number(g.monto || 0), 0);
   const exc = excedentesDeRonda().reduce((s, e) => s + Number(e.ingreso || 0), 0);
   const recl = reclamosDeRonda().reduce((s, r) => s + Number(r.costo_solucion || 0), 0);
-  const utilidad = ventas - costoReal - F - comision - gastosVar + exc - recl;
-  const margen = ventas > 0 ? utilidad / ventas : 0;
-  return { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados };
+  const ingresoTotal = ventas + ingresoSobrante + exc;
+  const utilidad = ingresoTotal - costoReal - F - comision - gastosVar - recl;
+  const margen = ingresoTotal > 0 ? utilidad / ingresoTotal : 0;
+  return { filas, ventas, ingresoSobrante, costoReal, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados };
 }
 function calcularRecorteMap() {
   const map = {};
@@ -1314,7 +1320,7 @@ function crearDBInicial() {
   });
 
   return {
-    version: 173, rondaActiva: ronda,
+    version: 175, rondaActiva: ronda,
     rondas: { [ronda]: { id_ronda: ronda, estado: "abierta", nombre: "", fecha_apertura: ahora(), fecha_cierre: null, fecha_compra: null, fecha_entrega: null, precios_publicados: false, orden_ruta: [] } },
     productos, clientes, repartidores, precios, escenarios,
     pedidos: [], items: [], compras: [], entregas: [], gastos: [], excedentes: [], reclamos: [],
@@ -1324,7 +1330,7 @@ function crearDBInicial() {
       cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT,
       modelo: {
         M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
-        comision_yape_pct: COMISION_YAPE_DEFAULT,
+        comision_yape_pct: COMISION_YAPE_DEFAULT, margen_sobrante: MARGEN_SOBRANTE_DEFAULT,
         fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
       }
     }
@@ -1345,7 +1351,7 @@ async function autoSeed() {
   seed.escenarios.forEach(e => { batch2.set(doc(db, "rondas", rondaId, "escenarios", e.esc_id), limpiarUndefined(e), { merge: true }); });
   await batch2.commit();
   await fsSetConfig({ ...seed.config, ronda_activa: rondaId });
-  console.log("Auto-seed v17.3 completado");
+  console.log("Auto-seed v17.5 completado");
 }
 
 async function migrarPreciosRonda(rondaId) {
@@ -1415,9 +1421,10 @@ async function cargarConfig() {
     if (!DB.config.max_paradas_viaje) DB.config.max_paradas_viaje = MAX_PARADAS_VIAJE_DEFAULT;
     if (!DB.config.modelo) DB.config.modelo = {
       M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
-      comision_yape_pct: COMISION_YAPE_DEFAULT,
+      comision_yape_pct: COMISION_YAPE_DEFAULT, margen_sobrante: MARGEN_SOBRANTE_DEFAULT,
       fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
     };
+    else if (DB.config.modelo.margen_sobrante == null) DB.config.modelo.margen_sobrante = MARGEN_SOBRANTE_DEFAULT;
   } else {
     const cfg = {
       oficina_direccion: OFICINA.direccion, oficina_lat: OFICINA.lat, oficina_lng: OFICINA.lng,
@@ -1425,7 +1432,7 @@ async function cargarConfig() {
       ronda_activa: "", cap_vehiculo: { ...CAP_DEFAULT }, max_paradas_viaje: MAX_PARADAS_VIAJE_DEFAULT,
       modelo: {
         M_objetivo: M_OBJETIVO_DEFAULT, p: P_DEFAULT, G_min: G_MIN_DEFAULT,
-        comision_yape_pct: COMISION_YAPE_DEFAULT,
+        comision_yape_pct: COMISION_YAPE_DEFAULT, margen_sobrante: MARGEN_SOBRANTE_DEFAULT,
         fijos_domingo: { ...FIJOS_DOMINGO_DEFAULT }, escalones: [...ESCALONES_DEFAULT]
       }
     };
@@ -1830,12 +1837,12 @@ function renderDashboard() {
     }
   });
   const cierre = calcularCierreViernes();
-  const margenBruto = ingreso > 0 ? (ingreso - costoReal) / ingreso : 0;
+  const margenBruto = cierre.ingresoTotal > 0 ? (cierre.ingresoTotal - costoReal) / cierre.ingresoTotal : 0;
 
   document.getElementById("dashPedidos").textContent = activos.length;
   document.getElementById("dashPedidosSub").textContent = `${pendientes.length} pendientes de pago`;
-  document.getElementById("dashIngreso").textContent = soles(ingreso);
-  document.getElementById("dashIngresoSub").textContent = `Margen bruto ${fmtPct(margenBruto)}`;
+  document.getElementById("dashIngreso").textContent = soles(ingreso + cierre.ingresoSobrante);
+  document.getElementById("dashIngresoSub").textContent = `+ sobrante Misti ${soles(cierre.ingresoSobrante)}`;
   document.getElementById("dashCostoEst").textContent = soles(costoEst);
   document.getElementById("dashCostoEstSub").textContent = `Q_pedida × C_esp`;
   document.getElementById("dashCostoReal").textContent = soles(costoReal);
@@ -1847,7 +1854,8 @@ function renderDashboard() {
 
   document.getElementById("dashGanancia").innerHTML = `
     <div class="calc-summary">
-      <div class="row"><span>Ventas (Q_final × P_L_final)</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Ventas al cliente (Q_final × P_L_final)</span><span><strong>${soles(cierre.ventas)}</strong></span></div>
+      <div class="row"><span>Ingreso por sobrante al Misti</span><span><strong>+${soles(cierre.ingresoSobrante)}</strong></span></div>
       <div class="row"><span>Costo real (Q_recibida × C_viernes)</span><span>−${soles(cierre.costoReal)}</span></div>
       <div class="row"><span>Fijos del domingo</span><span>−${soles(cierre.F)}</span></div>
       <div class="row"><span>Comisión Yape</span><span>−${soles(cierre.comision)}</span></div>
@@ -3072,10 +3080,9 @@ function exportarComprasViernes() {
   toast(`✓ Exportadas ${compras.length} compras`, "ok");
 }
 
-/* ============ CALCULAR LISTA COMPRA (v17.3) ============ */
 function calcularListaCompra() {
   const cierre = calcularCierreViernes();
-  const { filas, ventas, costoReal, F, comision, gastosVar, exc, recl, utilidad, margen, aceptados } = cierre;
+  const { filas, ventas, ingresoSobrante, costoReal, F, comision, gastosVar, exc, recl, ingresoTotal, utilidad, margen, aceptados } = cierre;
   if (!filas.length) {
     document.getElementById("compraResumen").innerHTML = `<div class="warn-box">Sin pedidos aceptados. Cargá pedidos primero. <button class="btn-add btn-sm" onclick="mostrarVista('calculadora')">＋ Crear pedido</button></div>`;
     document.getElementById("listaCompraContenido").innerHTML = "";
@@ -3086,13 +3093,13 @@ function calcularListaCompra() {
   document.getElementById("compraResumen").innerHTML = `
     <div class="ruta-info">
       <div class="box">Productos<strong>${filas.length}</strong></div>
-      <div class="box">Ventas congeladas<strong>${soles(ventas)}</strong></div>
+      <div class="box">Ventas + sobrante<strong>${soles(ventas + ingresoSobrante)}</strong></div>
       <div class="box">Costo real<strong>${soles(costoReal)}</strong></div>
-      <div class="box">Margen bruto<strong class="${ventas - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles(ventas - costoReal)}</strong></div>
+      <div class="box">Margen bruto<strong class="${(ventas + ingresoSobrante) - costoReal >= 0 ? 'delta-pos' : 'delta-neg'}">${soles((ventas + ingresoSobrante) - costoReal)}</strong></div>
     </div>
     <div class="info-box">
       <strong>Progreso:</strong> ${confirmados}/${filas.length} con C_viernes y Q_recibida cargados.
-      <br><span class="small-note">✏️ Q_comprada: ingresá cantidad + unidad (kg / Atado / Cajón / Saco / Ciento). C_viernes = S//kg. Q_recibida = kg.</span>
+      <br><span class="small-note">✏️ Q_comprada: ingresá cantidad + unidad (kg / Atado / Cajón / Saco / Ciento). C_viernes = S//kg. Q_recibida = kg. El sobrante (Q_recibida − Q_final) se vende al Misti al costo × (1 + margen_sobrante).</span>
     </div>`;
 
   document.getElementById("listaCompraContenido").innerHTML = `
@@ -3100,12 +3107,14 @@ function calcularListaCompra() {
       <thead>
         <tr>
           <th>Producto</th>
+          <th style="background:#E8F5EC;color:var(--verde)">Cant. pedida<br><small style="text-transform:none;color:var(--verde);font-weight:500">unidad venta</small></th>
           <th>C_max<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">S//kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-left:2px solid var(--miel)">C_viernes<br><small style="text-transform:none;color:#7A5500;font-weight:500">S//kg</small></th>
           <th style="background:var(--miel-2);color:#7A5500">Q_comprada<br><small style="text-transform:none;color:#7A5500;font-weight:500">cant + unidad</small></th>
           <th style="background:#E8F5EC;color:var(--verde)">Falta 1/1<br><small style="text-transform:none;color:var(--verde);font-weight:500">completar bulto</small></th>
           <th style="background:var(--miel-2);color:#7A5500;border-right:2px solid var(--miel)">Q_recibida<br><small style="text-transform:none;color:#7A5500;font-weight:500">kg</small></th>
           <th>Q_final<br><small style="text-transform:none;color:var(--texto-2);font-weight:500">unidad</small></th>
+          <th style="background:var(--cielo-2);color:#0F4C8C">Sobrante Misti<br><small style="text-transform:none;color:#0F4C8C;font-weight:500">ingreso</small></th>
           <th>Costo real</th>
           <th>Margen</th>
           <th>Δ</th>
@@ -3129,11 +3138,11 @@ function calcularListaCompra() {
           <td>
             <strong>${esc(prod.nombre || f.codigo)}</strong>
             <div class="chips-unidad">
-              <span class="chip" title="Pedido del cliente">${esc(pedidoTxt)} · ${f.Qped_kg.toFixed(2)} kg</span>
               <span class="chip" title="Sugerencia de compra">→ ${esc(sugTxt)}</span>
             </div>
             <div class="small-note" style="margin-top:3px">V: ${esc(prod.unidad_venta || 'kg')} ${eqV}kg/u · C: ${esc(prod.unidad_compra || 'kg')} ${eqC}kg/u</div>
           </td>
+          <td style="background:#E8F5EC;text-align:center;font-weight:800;font-size:14px;color:var(--verde);white-space:nowrap">${esc(pedidoTxt)}</td>
           <td><strong style="color:${recortado ? 'var(--coral)' : 'var(--verde)'}">${soles(f.Cmax)}</strong></td>
           <td style="background:var(--miel-2);border-left:2px solid var(--miel)">
             <input type="number" step="0.001" value="${f.C_viernes ?? ''}" onchange="setCompra('${f.codigo}','C_viernes',this.value)" style="max-width:85px;border-color:var(--miel)" placeholder="S//kg">
@@ -3162,6 +3171,10 @@ function calcularListaCompra() {
           <td title="Q_final kg: ${f.Qfinal_kg.toFixed(2)} · Ventas: ${soles(f.ventas)}">
             <strong>${f.Qfinal_un.toFixed(2)}</strong> ${esc(prod.unidad_venta || 'u')}
           </td>
+          <td style="background:#EAF4FF;text-align:center">
+            <strong style="color:#0F4C8C">${f.sobrante_kg.toFixed(2)} kg</strong><br>
+            <span class="small-note">+${soles(f.ingresoSobrante)}</span>
+          </td>
           <td>${f.costoReal == null ? '—' : '<strong>'+soles(f.costoReal)+'</strong>'}</td>
           <td>${f.margenBruto == null ? '—' : '<span class="'+claseMargen(f.ventas > 0 ? f.margenBruto/f.ventas : 0)+'">'+soles(f.margenBruto)+'</span>'}</td>
           <td class="${difClase}"><strong>${f.dif_kg == null ? '—' : f.dif_kg.toFixed(2)}</strong></td>
@@ -3170,7 +3183,8 @@ function calcularListaCompra() {
     </table></div>
     <p class="small-note" style="margin-top:10px">
       <strong>Leyenda:</strong> C_max = P_L_final × (1−M_umbral). Si C_viernes &gt; C_max, la fila se pinta amarilla y Q_final se recorta.<br>
-      <strong>Falta 1/1:</strong> cuánto te falta en kg para completar el bulto del por mayor (ej: si compraste 0.60 kg de apio, te faltan 2.40 kg para 1 Atado de 3 kg). Si compraste 1 Atado entero, muestra 0 ✅.
+      <strong>Falta 1/1:</strong> cuánto te falta en kg para completar el bulto del por mayor.<br>
+      <strong>Sobrante Misti:</strong> (Q_recibida − Q_final) × C_viernes × (1 + margen_sobrante). Se suma como ingreso.
     </p>`;
 
   const claseUtil = utilidad >= 0 ? 'good' : 'bad';
@@ -3180,8 +3194,9 @@ function calcularListaCompra() {
       <div class="fin-col">
         <h4>Ingresos</h4>
         <div class="fin-row"><span>Ventas (Q_final × P_L_final)</span><span class="val">${soles(ventas)}</span></div>
+        <div class="fin-row"><span>Ingreso por sobrante al Misti</span><span class="val">${soles(ingresoSobrante)}</span></div>
         <div class="fin-row"><span>Excedentes</span><span class="val">${soles(exc)}</span></div>
-        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ventas + exc)}</span></div>
+        <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(ingresoTotal)}</span></div>
       </div>
       <div class="fin-col">
         <h4>Costos</h4>
@@ -3194,7 +3209,7 @@ function calcularListaCompra() {
       </div>
       <div class="fin-col">
         <h4>Resultado</h4>
-        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(ventas - costoReal)}</span></div>
+        <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(ingresoTotal - costoReal)}</span></div>
         <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(utilidad)}</strong></span></div>
         <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(margen)}</span></div>
         <div class="fin-row"><span>Pedidos aceptados</span><span class="val">${aceptados.length}</span></div>
@@ -3219,7 +3234,6 @@ async function setCompra(codigo, campo, valor) {
   calcularListaCompra();
 }
 
-/* v17.3: nuevas funciones para Q_comprada con unidad */
 async function setCompraQty(codigo, valor) {
   const prod = DB.productos.find(p => p.codigo === codigo);
   let c = comprasDeRonda().find(x => x.codigo_producto === codigo);
@@ -3265,10 +3279,10 @@ async function setCompraPesoBulto(codigo, valor) {
 function exportarCierreViernes() {
   const cierre = calcularCierreViernes();
   if (!cierre.filas.length) { toast("Sin datos", "warn"); return; }
-  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_cant","Q_comprada_unidad","Q_comprada_kg","peso_real_bulto_kg","falta_1a1_kg","falta_1a1_bultos","Q_recibida_kg","Q_final_kg","Q_final_unidad","dif_kg","costo_real","ventas","margen_bruto"]];
+  const rows = [["codigo","producto","unidad_venta","equiv_kg_venta","unidad_compra","equiv_kg_compra","Q_pedida_kg","Q_pedida_unidad","P_L_final_kg","C_max_kg","C_viernes_kg","Q_comprada_cant","Q_comprada_unidad","Q_comprada_kg","peso_real_bulto_kg","falta_1a1_kg","falta_1a1_bultos","Q_recibida_kg","Q_final_kg","Q_final_unidad","sobrante_kg","ingreso_sobrante","dif_kg","costo_real","ventas","margen_bruto"]];
   cierre.filas.forEach(f => {
     const prod = DB.productos.find(x => x.codigo === f.codigo) || {};
-    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Qcomp_raw ?? "", f.Qcomp_unidad || "", f.Q_comprada_kg ?? "", f.pesoRealBulto ?? "", f.falta1a1_kg ?? "", f.falta1a1_bultos ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
+    rows.push([f.codigo, prod.nombre || "", prod.unidad_venta || "", f.equiv_kg, prod.unidad_compra || "", f.equiv_kg_compra, f.Qped_kg, f.Qped_un, f.PLfinal_kg, f.Cmax, f.C_viernes ?? "", f.Qcomp_raw ?? "", f.Qcomp_unidad || "", f.Q_comprada_kg ?? "", f.pesoRealBulto ?? "", f.falta1a1_kg ?? "", f.falta1a1_bultos ?? "", f.Q_recibida_kg ?? "", f.Qfinal_kg, f.Qfinal_un, f.sobrante_kg, f.ingresoSobrante, f.dif_kg ?? "", f.costoReal ?? "", f.ventas, f.margenBruto ?? ""]);
   });
   const csv = rows.map(r => r.map(v => typeof v === 'string' && (v.includes(',')||v.includes('"')) ? '"'+v.replace(/"/g,'""')+'"' : v).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
@@ -3557,8 +3571,9 @@ async function calcularReportes() {
         <div class="fin-col">
           <h4>Ingresos</h4>
           <div class="fin-row"><span>Ventas</span><span class="val">${soles(cierre.ventas)}</span></div>
+          <div class="fin-row"><span>Ingreso por sobrante al Misti</span><span class="val">${soles(cierre.ingresoSobrante)}</span></div>
           <div class="fin-row"><span>Excedentes</span><span class="val">${soles(cierre.exc)}</span></div>
-          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ventas + cierre.exc)}</span></div>
+          <div class="fin-row"><span><strong>Total</strong></span><span class="val">${soles(cierre.ingresoTotal)}</span></div>
         </div>
         <div class="fin-col">
           <h4>Costos</h4>
@@ -3571,7 +3586,7 @@ async function calcularReportes() {
         </div>
         <div class="fin-col">
           <h4>Resultado</h4>
-          <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(cierre.ventas - cierre.costoReal)}</span></div>
+          <div class="fin-row"><span>Margen bruto</span><span class="val">${soles(cierre.ingresoTotal - cierre.costoReal)}</span></div>
           <div class="fin-row"><span>Utilidad neta</span><span class="val"><strong>${soles(cierre.utilidad)}</strong></span></div>
           <div class="fin-row"><span>Margen neto</span><span class="val">${fmtPct(cierre.margen)}</span></div>
         </div>
@@ -3584,7 +3599,7 @@ async function calcularReportes() {
         const labelHist = nom ? `<strong>${esc(nom)}</strong><br><span class="small-note">${esc(rid)}</span>` : `<strong>${esc(rid)}</strong>`;
         let ventas = 0, costo = 0, numPed = 0;
         if (rid === rondaActiva) {
-          ventas = cierre.ventas; costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
+          ventas = cierre.ventas + cierre.ingresoSobrante; costo = cierre.costoReal + cierre.F + cierre.comision + cierre.gastosVar + cierre.recl - cierre.exc;
           numPed = cierre.aceptados.length;
         }
         const ut = ventas - costo;
@@ -3613,6 +3628,7 @@ function renderConfig() {
       <div><label class="small-note">p (probabilidad de cola)</label><input type="number" step="0.01" min="0" max="1" value="${esc(modelo.p ?? P_DEFAULT)}" onchange="updModelo('p',this.value)"><span class="small-note">Ej: 0.10 = 10%</span></div>
       <div><label class="small-note">G_min (ganancia mínima)</label><input type="number" step="0.01" value="${esc(modelo.G_min ?? G_MIN_DEFAULT)}" onchange="updModelo('G_min',this.value)"></div>
       <div><label class="small-note">Comisión Yape (%)</label><input type="number" step="0.0001" min="0" max="1" value="${esc(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}" onchange="updModelo('comision_yape_pct',this.value)"><span class="small-note">Ej: 0.0295 = 2.95%</span></div>
+      <div><label class="small-note">Margen sobrante al Misti</label><input type="number" step="0.01" min="0" max="2" value="${esc(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}" onchange="updModelo('margen_sobrante',this.value)"><span class="small-note">Ej: 0 = al costo · 0.10 = +10% sobre costo</span></div>
     </div>
 
     <h3 style="margin-top:24px">💸 Fijos del domingo (F_domingo)</h3>
@@ -3635,13 +3651,13 @@ function renderConfig() {
       <div><label>Máx paradas/viaje</label><input type="number" step="1" value="${esc(maxP)}" onchange="updMaxParadas(this.value)"></div>
     </div>
 
-    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.3):</strong><br>
+    <div class="info-box" style="margin-top:16px"><strong>Reglas vigentes (modelo 1Día v17.5):</strong><br>
     • Mínimo B2C: S/ ${MINIMO_B2C} · B2B: sin mínimo<br>
     • M_objetivo: ${fmtPct(modelo.M_objetivo ?? M_OBJETIVO_DEFAULT)} · p: ${((modelo.p ?? P_DEFAULT)*100).toFixed(0)}% · G_min: ${soles(modelo.G_min ?? G_MIN_DEFAULT)}<br>
-    • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)}<br>
+    • Comisión Yape: ${fmtPct(modelo.comision_yape_pct ?? COMISION_YAPE_DEFAULT)} · Margen sobrante: ${fmtPct(modelo.margen_sobrante ?? MARGEN_SOBRANTE_DEFAULT)}<br>
     • P_L_final se fija el lunes y NO se toca el viernes<br>
     • Escalones en S//kg: Cij_kg = C_L_kg + escalón<br>
-    • <strong>v17.3:</strong> Q_comprada con selector de unidad (kg / Atado / Cajón / Saco / Ciento) + peso real bulto opcional + columna "Falta 1/1"
+    • <strong>v17.5:</strong> Q_comprada con unidad variable + peso real bulto + Falta 1/1 + Cant. pedida + Ingreso por sobrante al Misti
     </div>`;
 }
 async function updConfig(k, v, isNum) {
@@ -3656,6 +3672,7 @@ async function updModelo(k, valor) {
   if (k === "M_objetivo" && v > 0.95) v = 0.95;
   if (k === "p" && v > 1) v = 1;
   if (k === "comision_yape_pct" && v > 1) v = 1;
+  if (k === "margen_sobrante" && v < 0) v = 0;
   DB.config.modelo[k] = v;
   await fsSetConfig({ modelo: DB.config.modelo });
   toast("Actualizado", "ok");
@@ -3696,7 +3713,7 @@ async function exportarJSON() {
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.3_" + hoy() + ".json"; a.click();
+    const a = document.createElement("a"); a.href = url; a.download = "misti_v17.5_" + hoy() + ".json"; a.click();
     URL.revokeObjectURL(url);
   } catch (e) { toast("Error al exportar: " + e.message, "err"); }
 }
@@ -4035,7 +4052,7 @@ async function exportarExcel() {
     add("Gastos", data.gastos); add("Entregas", data.entregas); add("Excedentes", data.excedentes); add("Reclamos", data.reclamos);
     add("Productos", DB.productos); add("Clientes", DB.clientes); add("Repartidores", DB.repartidores);
     add("Config", [JSON.parse(JSON.stringify(DB.config))]);
-    XLSX.writeFile(wb, "misti_v17.3_" + hoy() + ".xlsx");
+    XLSX.writeFile(wb, "misti_v17.5_" + hoy() + ".xlsx");
     toast("✓ Excel exportado", "ok");
   } catch (e) { console.error(e); toast("Error: " + e.message, "err"); }
 }
