@@ -628,7 +628,7 @@ tbody tr:hover{background:#F4FBF6}
 <option value="unidad">Unidad</option>
 </select></div>
 <div><label class="small-note">Unidad de compra</label><select id="prodUnidadCompraInput">
-<option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option>
+<option>Kilogramo</option><option>Cajón</option><option>Cajón Chico</option><option>Ciento</option><option>Saco Chico</option><option>Atado</option><option>Atado Grande</option><option>Unidad</option><option>Docena</option>
 </select></div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -1349,24 +1349,26 @@ function crearDBInicial() {
     ["PR-008","Camote amarillo","Básico","kg","Kilogramo",1,1],
     ["PR-009","Yuca amarilla","Sazón","kg","Kilogramo",1,1],
     ["PR-010","Zapallo macre","Sazón","kg","Kilogramo",1,1],
-    ["PR-011","Papa huayro","Sazón","kg","Kilogramo",1,1],
-    ["PR-012","Papa negra andina","Sazón","kg","Kilogramo",1,1],
+    ["PR-011","Albahaca","Especial","atadito","Atado",0.65,0.65],
+    ["PR-012","Camote Morado","Sazón","kg","Kilogramo",1,1],
     ["PR-013","Cebolla china","Sazón","atadito","Atado Grande",0.10,1.0],
     ["PR-014","Ajo criollo","Sazón","kg","Kilogramo",1,1],
     ["PR-015","Kion","Sazón","kg","Kilogramo",1,1],
-    ["PR-016","Ají amarillo","Sazón","kg","Kilogramo",1,1],
-    ["PR-017","Ají panca","Especial","kg","Kilogramo",1,1],
+    ["PR-016","Ají escabeche","Sazón","kg","Kilogramo",1,1],
+    ["PR-017","Pepinillo","Especial","kg","Docena",1,6.0],
     ["PR-018","Ají rocoto","Especial","kg","Cajón",1,18],
     ["PR-019","Huacatay","Especial","atadito","Atado",0.10,1.0],
     ["PR-020","Culantro","Especial","atadito","Atado",0.15,1.5],
     ["PR-021","Perejil","Especial","atadito","Atado",0.10,1.0],
     ["PR-022","Apio","Especial","atadito","Atado",0.30,3.0],
     ["PR-023","Poro","Especial","unidad","Atado",0.26,2.6],
-    ["PR-024","Maíz morado","Especial","unidad","Kilogramo",0.25,1.0],
-    ["PR-025","Ají escabeche","Especial","kg","Kilogramo",1,1],
-    ["PR-026","Limón cítrico cajón","Especial","kg","Cajón",1,23],
+    ["PR-024","Rabanito","Especial","atadito","Atado",0.75,0.75],
+    ["PR-025","Espinaca","Especial","kg","Kilogramo",1,1],
+    ["PR-026","Limón cítrico","Especial","kg","Cajón",1,23],
     ["PR-027","Vainita","Especial","kg","Kilogramo",1,1],
-    ["PR-028","Zapallo loche","Especial","unidad","Unidad",1.5,1.5]
+    ["PR-028","Zapallo loche","Especial","unidad","Unidad",1.5,1.5],
+    ["PR-029","Cebolla Cabeza Blanca","Básico","kg","Kilogramo",1,1],
+    ["PR-030","Zapallo Italiano","Sazón","unidad","Docena",1,12.0]
   ].map(p => ({
     codigo: p[0], nombre: p[1], grupo: p[2],
     unidad_venta: p[3], unidad_compra: p[4],
